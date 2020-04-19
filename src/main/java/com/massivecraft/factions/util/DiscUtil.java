@@ -3,11 +3,14 @@ package com.massivecraft.factions.util;
 import com.massivecraft.factions.FactionsPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.concurrent.locks.Lock;
@@ -25,12 +28,12 @@ public class DiscUtil {
     public static byte[] readBytes(File file) throws IOException {
         int length = (int) file.length();
         byte[] output = new byte[length];
-        InputStream in = new FileInputStream(file);
-        int offset = 0;
-        while (offset < length) {
-            offset += in.read(output, offset, (length - offset));
+        try (InputStream in = new BufferedInputStream(new FileInputStream(file))) {
+            int offset = 0;
+            while (offset < length) {
+                offset += in.read(output, offset, (length - offset));
+            }
         }
-        in.close();
         return output;
     }
 
@@ -38,9 +41,9 @@ public class DiscUtil {
         if (!file.exists()) {
             file.createNewFile();
         }
-        FileOutputStream out = new FileOutputStream(file);
-        out.write(bytes);
-        out.close();
+        try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
+            out.write(bytes);
+        }
     }
 
     // -------------------------------------------- //
