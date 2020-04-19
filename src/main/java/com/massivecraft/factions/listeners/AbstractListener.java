@@ -102,61 +102,61 @@ public abstract class AbstractListener implements Listener {
 
         PermissibleAction action = null;
 
-        switch (material.name()) {
-            case "LEVER":
+        switch (material) {
+            case LEVER:
                 action = PermissibleAction.LEVER;
                 break;
-            case "STONE_BUTTON":
-            case "BIRCH_BUTTON":
-            case "ACACIA_BUTTON":
-            case "DARK_OAK_BUTTON":
-            case "JUNGLE_BUTTON":
-            case "OAK_BUTTON":
-            case "SPRUCE_BUTTON":
+            case STONE_BUTTON:
+            case BIRCH_BUTTON:
+            case ACACIA_BUTTON:
+            case DARK_OAK_BUTTON:
+            case JUNGLE_BUTTON:
+            case OAK_BUTTON:
+            case SPRUCE_BUTTON:
                 action = PermissibleAction.BUTTON;
                 break;
-            case "DARK_OAK_DOOR":
-            case "ACACIA_DOOR":
-            case "BIRCH_DOOR":
-            case "IRON_DOOR":
-            case "JUNGLE_DOOR":
-            case "SPRUCE_DOOR":
-            case "ACACIA_TRAPDOOR":
-            case "OAK_DOOR":
-            case "BIRCH_TRAPDOOR":
-            case "DARK_OAK_TRAPDOOR":
-            case "IRON_TRAPDOOR":
-            case "JUNGLE_TRAPDOOR":
-            case "OAK_TRAPDOOR":
-            case "SPRUCE_TRAPDOOR":
+            case DARK_OAK_DOOR:
+            case ACACIA_DOOR:
+            case BIRCH_DOOR:
+            case IRON_DOOR:
+            case JUNGLE_DOOR:
+            case SPRUCE_DOOR:
+            case ACACIA_TRAPDOOR:
+            case OAK_DOOR:
+            case BIRCH_TRAPDOOR:
+            case DARK_OAK_TRAPDOOR:
+            case IRON_TRAPDOOR:
+            case JUNGLE_TRAPDOOR:
+            case OAK_TRAPDOOR:
+            case SPRUCE_TRAPDOOR:
                 action = PermissibleAction.DOOR;
                 break;
-            case "CHEST":
-            case "ENDER_CHEST":
-            case "TRAPPED_CHEST":
-            case "BARREL":
-            case "FURNACE":
-            case "DROPPER":
-            case "DISPENSER":
-            case "HOPPER":
-            case "BLAST_FURNACE":
-            case "CAULDRON":
-            case "CAMPFIRE":
-            case "BREWING_STAND":
-            case "CARTOGRAPHY_TABLE":
-            case "GRINDSTONE":
-            case "SMOKER":
-            case "STONECUTTER":
-            case "LECTERN":
-            case "ITEM_FRAME":
-            case "JUKEBOX":
-            case "ARMOR_STAND":
-            case "REPEATER":
-            case "ENCHANTING_TABLE":
-            case "FARMLAND":
-            case "BEACON":
-            case "ANVIL":
-            case "FLOWER_POT":
+            case CHEST:
+            case ENDER_CHEST:
+            case TRAPPED_CHEST:
+            case BARREL:
+            case FURNACE:
+            case DROPPER:
+            case DISPENSER:
+            case HOPPER:
+            case BLAST_FURNACE:
+            case CAULDRON:
+            case CAMPFIRE:
+            case BREWING_STAND:
+            case CARTOGRAPHY_TABLE:
+            case GRINDSTONE:
+            case SMOKER:
+            case STONECUTTER:
+            case LECTERN:
+            case ITEM_FRAME:
+            case JUKEBOX:
+            case ARMOR_STAND:
+            case REPEATER:
+            case ENCHANTING_TABLE:
+            case FARMLAND:
+            case BEACON:
+            case ANVIL:
+            case FLOWER_POT:
                 action = PermissibleAction.CONTAINER;
                 break;
             default:
@@ -222,16 +222,16 @@ public abstract class AbstractListener implements Listener {
             return true;
         }
 
-        switch (material.name()) {
-            case "CHEST":
-            case "TRAPPED_CHEST":
-            case "DARK_OAK_DOOR":
-            case "ACACIA_DOOR":
-            case "BIRCH_DOOR":
-            case "JUNGLE_DOOR":
-            case "OAK_DOOR":
-            case "SPRUCE_DOOR":
-            case "IRON_DOOR":
+        switch (material) {
+            case CHEST:
+            case TRAPPED_CHEST:
+            case DARK_OAK_DOOR:
+            case ACACIA_DOOR:
+            case BIRCH_DOOR:
+            case JUNGLE_DOOR:
+            case OAK_DOOR:
+            case SPRUCE_DOOR:
+            case IRON_DOOR:
                 return true;
             default:
                 break;
