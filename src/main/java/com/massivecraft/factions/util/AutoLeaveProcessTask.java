@@ -5,9 +5,9 @@ import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.perms.Role;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.logging.Level;
 
@@ -19,8 +19,7 @@ public class AutoLeaveProcessTask extends BukkitRunnable {
     private transient double toleranceMillis;
 
     public AutoLeaveProcessTask() {
-        ArrayList<FPlayer> fplayers = (ArrayList<FPlayer>) FPlayers.getInstance().getAllFPlayers();
-        this.iterator = fplayers.listIterator();
+        this.iterator = ((ObjectList<FPlayer>) FPlayers.getInstance().getAllFPlayers()).listIterator();
         this.toleranceMillis = FactionsPlugin.getInstance().conf().factions().other().getAutoLeaveAfterDaysOfInactivity() * 24 * 60 * 60 * 1000;
         this.readyToGo = true;
         this.finished = false;
