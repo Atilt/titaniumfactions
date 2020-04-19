@@ -1,6 +1,8 @@
 package com.massivecraft.factions.util;
 
 import com.google.common.collect.ImmutableList;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -9,9 +11,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -38,7 +38,7 @@ public class UUIDFetcher implements Callable<Map<String, UUID>> {
     }
 
     public Map<String, UUID> call() throws Exception {
-        Map<String, UUID> uuidMap = new HashMap<>();
+        Object2ObjectMap<String, UUID> uuidMap = new Object2ObjectOpenHashMap<>();
         int requests = (int) Math.ceil(names.size() / PROFILES_PER_REQUEST);
         for (int i = 0; i < requests; i++) {
             HttpURLConnection connection = createConnection();
@@ -60,10 +60,10 @@ public class UUIDFetcher implements Callable<Map<String, UUID>> {
     }
 
     private static void writeBody(HttpURLConnection connection, String body) throws Exception {
-        OutputStream stream = connection.getOutputStream();
-        stream.write(body.getBytes());
-        stream.flush();
-        stream.close();
+        try (OutputStream stream = connection.getOutputStream()) {
+            stream.write(body.getBytes());
+            stream.flush();
+        }
     }
 
     private static HttpURLConnection createConnection() throws Exception {
@@ -78,24 +78,24 @@ public class UUIDFetcher implements Callable<Map<String, UUID>> {
     }
 
     private static UUID getUUID(String id) {
-        return UUID.fromString(id.substring(0, 8) + "-" + id.substring(8, 12) + "-" + id.substring(12, 16) + "-" + id.substring(16, 20) + "-" + id.substring(20, 32));
+        return FastUUID.parseUUID(
+                id.substring(0, 8) +
+                "-" +
+                id.substring(8, 12) +
+                "-" +
+                id.substring(12, 16) +
+                "-" +
+                id.substring(16, 20) +
+                "-" +
+                id.substring(20, 32));
     }
 
     public static byte[] toBytes(UUID uuid) {
-        ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[16]);
-        byteBuffer.putLong(uuid.getMostSignificantBits());
-        byteBuffer.putLong(uuid.getLeastSignificantBits());
-        return byteBuffer.array();
+        return FastUUID.toBytes(uuid);
     }
 
     public static UUID fromBytes(byte[] array) {
-        if (array.length != 16) {
-            throw new IllegalArgumentException("Illegal byte array length: " + array.length);
-        }
-        ByteBuffer byteBuffer = ByteBuffer.wrap(array);
-        long mostSignificant = byteBuffer.getLong();
-        long leastSignificant = byteBuffer.getLong();
-        return new UUID(mostSignificant, leastSignificant);
+        return FastUUID.fromBytes(array);
     }
 
     public static UUID getUUIDOf(String name) throws Exception {

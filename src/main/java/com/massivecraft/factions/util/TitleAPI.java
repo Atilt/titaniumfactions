@@ -63,11 +63,6 @@ public class TitleAPI {
      * @param fadeOutTime The time the title takes to fade out
      */
     public void sendTitle(Player player, String title, String subtitle, int fadeInTime, int showTime, int fadeOutTime) {
-        if (supportsAPI) {
-            player.sendTitle(title, subtitle, fadeInTime, showTime, fadeOutTime);
-            return;
-        }
-
         if (bailOut) {
             return;
         }
@@ -111,16 +106,15 @@ public class TitleAPI {
      * @param name Name of the class
      * @return Class
      */
-    private Class<?> getNMSClass(String name) throws ClassNotFoundException {
-        String versionName = "net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + "." + name;
-
-        if (classCache.containsKey(versionName)) {
-            return classCache.get(versionName);
-        }
-
-        Class clazz = Class.forName(versionName);
-        classCache.put(name, clazz);
-        return clazz;
+    private Class<?> getNMSClass(String name) {
+        return classCache.computeIfAbsent(name, s -> {
+            try {
+                return Class.forName("net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + "." + name);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+            return null;
+        });
     }
 
     public static TitleAPI getInstance() {

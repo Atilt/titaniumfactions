@@ -7,6 +7,9 @@ import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.util.material.FactionMaterial;
 import com.massivecraft.factions.util.particle.ParticleColor;
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -15,14 +18,12 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 @SuppressWarnings("unchecked")
 public class SeeChunkUtil extends BukkitRunnable {
 
-    private Set<UUID> playersSeeingChunks = new HashSet<>();
+    private ObjectSet<UUID> playersSeeingChunks = new ObjectOpenHashSet<>();
     private boolean useColor;
     private Object effect;
 
@@ -36,10 +37,12 @@ public class SeeChunkUtil extends BukkitRunnable {
 
     @Override
     public void run() {
-        for (UUID playerId : playersSeeingChunks) {
+        ObjectIterator<UUID> iterator = playersSeeingChunks.iterator();
+        while (iterator.hasNext()) {
+            UUID playerId = iterator.next();
             Player player = Bukkit.getPlayer(playerId);
             if (player == null) {
-                playersSeeingChunks.remove(playerId);
+                iterator.remove();
                 continue;
             }
             FPlayer fme = FPlayers.getInstance().getByPlayer(player);
@@ -67,33 +70,25 @@ public class SeeChunkUtil extends BukkitRunnable {
             color = ParticleColor.fromChatColor(chatColor);
         }
 
-        int blockX;
-        int blockZ;
+        int blockX = chunkX << 4;
+        int blockZ = chunkZ << 4;
 
-        blockX = chunkX * 16;
-        blockZ = chunkZ * 16;
         showPillar(me, world, blockX, blockZ, effect, color);
 
-        blockX = chunkX * 16 + 16;
-        blockZ = chunkZ * 16;
-        showPillar(me, world, blockX, blockZ, effect, color);
+        showPillar(me, world, blockX + 16, blockZ, effect, color);
 
-        blockX = chunkX * 16;
-        blockZ = chunkZ * 16 + 16;
-        showPillar(me, world, blockX, blockZ, effect, color);
+        showPillar(me, world, blockX, blockZ + 16, effect, color);
 
-        blockX = chunkX * 16 + 16;
-        blockZ = chunkZ * 16 + 16;
-        showPillar(me, world, blockX, blockZ, effect, color);
+        showPillar(me, world, blockX + 16, blockZ + 16, effect, color);
     }
 
     public static void showPillar(Player player, World world, int blockX, int blockZ, Object effect, ParticleColor color) {
         // Lets start at the player's Y spot -30 to optimize
         for (int blockY = player.getLocation().getBlockY() - 30; blockY < player.getLocation().getBlockY() + 30; blockY++) {
-            Location loc = new Location(world, blockX, blockY, blockZ);
-            if (loc.getBlock().getType() != Material.AIR) {
+            if (world.getBlockTypeIdAt(blockX, blockY, blockZ) == 0) {
                 continue;
             }
+            Location loc = new Location(world, blockX, blockY, blockZ);
 
             if (effect != null) {
                 if (color == null) {
@@ -107,5 +102,4 @@ public class SeeChunkUtil extends BukkitRunnable {
             }
         }
     }
-
 }

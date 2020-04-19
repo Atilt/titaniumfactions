@@ -1,16 +1,15 @@
 package com.massivecraft.factions.util;
 
 import com.massivecraft.factions.FactionsPlugin;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.Permission;
-
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class PermUtil {
 
-    public Map<String, String> permissionDescriptions = new HashMap<>();
+    public Object2ObjectMap<String, String> permissionDescriptions = new Object2ObjectOpenHashMap<>();
 
     protected FactionsPlugin plugin;
 

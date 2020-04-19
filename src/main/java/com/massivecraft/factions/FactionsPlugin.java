@@ -51,7 +51,6 @@ import com.massivecraft.factions.util.material.FactionMaterial;
 import com.massivecraft.factions.util.material.MaterialDb;
 import com.massivecraft.factions.util.material.adapter.FactionMaterialAdapter;
 import com.massivecraft.factions.util.material.adapter.MaterialAdapter;
-import com.massivecraft.factions.util.particle.BukkitParticleProvider;
 import com.massivecraft.factions.util.particle.PacketParticleProvider;
 import com.massivecraft.factions.util.particle.ParticleProvider;
 import net.milkbowl.vault.permission.Permission;
@@ -394,7 +393,8 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         if (mcVersion < 1300) { // Before 1.13
             particleProvider = new PacketParticleProvider();
         } else {
-            particleProvider = new BukkitParticleProvider();
+            particleProvider = new PacketParticleProvider();
+            //particleProvider = new BukkitParticleProvider();
         }
         getLogger().info(txt.parse("Using %1s as a particle provider", particleProvider.name()));
 

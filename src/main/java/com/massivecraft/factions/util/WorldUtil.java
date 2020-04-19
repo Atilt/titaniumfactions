@@ -1,14 +1,14 @@
 package com.massivecraft.factions.util;
 
 import com.massivecraft.factions.FactionsPlugin;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.HashSet;
-
 public class WorldUtil {
-    private HashSet<String> worlds;
+    private ObjectSet<String> worlds;
     private boolean check;
     private boolean whitelist;
 
@@ -17,7 +17,7 @@ public class WorldUtil {
         if (!check) {
             return;
         }
-        worlds = new HashSet<>(plugin.conf().restrictWorlds().getWorldList());
+        worlds = new ObjectOpenHashSet<>(plugin.conf().restrictWorlds().getWorldList());
         whitelist = plugin.conf().restrictWorlds().isWhitelist();
     }
 

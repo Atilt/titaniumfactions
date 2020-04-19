@@ -21,12 +21,14 @@ public class MaterialProvider {
             return Material.AIR;
         }
 
-        if (!materialData.containsKey(name)) {
+        MaterialProvider.MaterialData data = materialData.get(name);
+
+        if (data == null) {
             FactionsPlugin.getInstance().log(Level.INFO, "Material does not exist: " + name.toUpperCase());
             return Material.AIR;
         }
 
-        Material material = materialData.get(name).get();
+        Material material = data.get();
         if (material == null) {
             // Could not create Material from provided String, return Air
             FactionsPlugin.getInstance().log(Level.INFO, "Invalid material: " + name.toUpperCase());

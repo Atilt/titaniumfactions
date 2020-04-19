@@ -10,8 +10,6 @@ import org.bukkit.ChatColor;
 public class RelationUtil {
 
     public static String describeThatToMe(RelationParticipator that, RelationParticipator me, boolean ucfirst) {
-        String ret = "";
-
         Faction thatFaction = getFaction(that);
         if (thatFaction == null) {
             return "ERROR"; // ERROR
@@ -19,6 +17,7 @@ public class RelationUtil {
 
         Faction myFaction = getFaction(me);
 //		if (myFaction == null) return that.describeTo(null); // no relation, but can show basic name or tag
+        String ret = "";
 
         if (that instanceof Faction) {
             if (me instanceof FPlayer && myFaction == thatFaction) {
