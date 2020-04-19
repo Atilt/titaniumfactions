@@ -107,7 +107,7 @@ public class Metrics {
             // Add default values
             config.addDefault("enabled", true);
             // Every server gets it's unique random id.
-            config.addDefault("serverUuid", UUID.randomUUID().toString());
+            config.addDefault("serverUuid", FastUUID.toString(UUID.randomUUID()));
             // Should failed request be logged?
             config.addDefault("logFailedRequests", false);
             // Should the sent data be logged?

@@ -13,6 +13,7 @@ import com.massivecraft.factions.integration.LWC;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.util.AsciiCompass;
 import com.massivecraft.factions.util.TL;
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -360,5 +361,5 @@ public abstract class MemoryBoard extends Board {
         return ret;
     }
 
-    public abstract void convertFrom(MemoryBoard old);
+    public abstract void convertFrom(MemoryBoard old, BooleanConsumer finish);
 }

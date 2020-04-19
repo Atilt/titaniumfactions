@@ -20,6 +20,7 @@ import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.struct.BanInfo;
 import com.massivecraft.factions.struct.Permission;
+import com.massivecraft.factions.util.FastUUID;
 import com.massivecraft.factions.util.LazyLocation;
 import com.massivecraft.factions.util.MiscUtil;
 import com.massivecraft.factions.util.RelationUtil;
@@ -38,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class MemoryFaction implements Faction, EconomyParticipator {
@@ -1115,7 +1115,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
             if (ownerList.length() > 0) {
                 ownerList.append(", ");
             }
-            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(UUID.fromString(anOwnerData));
+            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(FastUUID.parseUUID(anOwnerData));
             //TODO:TL
             ownerList.append(offlinePlayer != null ? offlinePlayer.getName() : "null player");
         }

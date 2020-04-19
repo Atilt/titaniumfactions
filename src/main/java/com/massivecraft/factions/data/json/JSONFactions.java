@@ -11,6 +11,7 @@ import com.massivecraft.factions.data.MemoryFaction;
 import com.massivecraft.factions.data.MemoryFactions;
 import com.massivecraft.factions.util.DiscUtil;
 import com.massivecraft.factions.util.UUIDFetcher;
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,25 +47,25 @@ public class JSONFactions extends MemoryFactions {
         this.nextId = 1;
     }
 
-    public void forceSave() {
-        forceSave(true);
+    public void forceSave(BooleanConsumer finish) {
+        forceSave(true, finish);
     }
 
-    public void forceSave(boolean sync) {
+    public void forceSave(boolean sync, BooleanConsumer finish) {
         final Map<String, JSONFaction> entitiesThatShouldBeSaved = new HashMap<>();
         for (Faction entity : this.factions.values()) {
             entitiesThatShouldBeSaved.put(entity.getId(), (JSONFaction) entity);
         }
 
-        saveCore(file, entitiesThatShouldBeSaved, sync);
+        saveCore(file, entitiesThatShouldBeSaved, sync, finish);
     }
 
-    private boolean saveCore(File target, Map<String, JSONFaction> entities, boolean sync) {
-        return DiscUtil.writeCatch(target, FactionsPlugin.getInstance().getGson().toJson(entities), sync);
+    private boolean saveCore(File target, Map<String, JSONFaction> entities, boolean sync, BooleanConsumer finish) {
+        return DiscUtil.writeCatch(target, FactionsPlugin.getInstance().getGson().toJson(entities), sync, finish);
     }
 
-    public int load() {
-        Map<String, JSONFaction> factions = this.loadCore();
+    public int load(BooleanConsumer finish) {
+        Map<String, JSONFaction> factions = this.loadCore(finish);
         if (factions == null) {
             return 0;
         }
@@ -74,7 +75,7 @@ public class JSONFactions extends MemoryFactions {
         return factions.size();
     }
 
-    private Map<String, JSONFaction> loadCore() {
+    private Map<String, JSONFaction> loadCore(BooleanConsumer finish) {
         if (!this.file.exists()) {
             return new HashMap<>();
         }
@@ -115,7 +116,7 @@ public class JSONFactions extends MemoryFactions {
             } catch (IOException e) {
                 FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to create file factions.json.old", e);
             }
-            saveCore(file, data, true);
+            saveCore(file, data, true, finish);
             FactionsPlugin.getInstance().log(Level.INFO, "Backed up your old data at " + file.getAbsolutePath());
 
             FactionsPlugin.getInstance().log(Level.INFO, "Please wait while Factions converts " + needsUpdate + " old player names to UUID. This may take a while.");
@@ -175,7 +176,7 @@ public class JSONFactions extends MemoryFactions {
                 }
             }
 
-            saveCore(this.file, data, true); // Update the flatfile
+            saveCore(this.file, data, true, finish); // Update the flatfile
             FactionsPlugin.getInstance().log(Level.INFO, "Done converting factions.json to UUID.");
         }
         return data;
@@ -243,10 +244,10 @@ public class JSONFactions extends MemoryFactions {
     }
 
     @Override
-    public void convertFrom(MemoryFactions old) {
+    public void convertFrom(MemoryFactions old, BooleanConsumer finish) {
         this.factions.putAll(Maps.transformValues(old.factions, faction -> new JSONFaction((MemoryFaction) faction)));
         this.nextId = old.nextId;
-        forceSave();
+        forceSave(finish);
         Factions.instance = this;
     }
 }

@@ -5,9 +5,11 @@ import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.Factions;
 import com.massivecraft.factions.FactionsPlugin;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class SaveTask implements Runnable {
 
-    private static boolean running = false;
+    private static AtomicBoolean running = new AtomicBoolean(false);
 
     private FactionsPlugin plugin;
 
@@ -16,13 +18,12 @@ public class SaveTask implements Runnable {
     }
 
     public void run() {
-        if (!plugin.getAutoSave() || running) {
+        if (!plugin.getAutoSave() || running.get()) {
             return;
         }
-        running = true;
-        Factions.getInstance().forceSave(false);
-        FPlayers.getInstance().forceSave(false);
-        Board.getInstance().forceSave(false);
-        running = false;
+        running.set(true);
+        Factions.getInstance().forceSave(false, null);
+        FPlayers.getInstance().forceSave(false, null);
+        Board.getInstance().forceSave(false, result -> running.set(false));
     }
 }

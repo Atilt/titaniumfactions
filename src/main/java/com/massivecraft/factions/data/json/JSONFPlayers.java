@@ -10,6 +10,7 @@ import com.massivecraft.factions.data.MemoryFPlayer;
 import com.massivecraft.factions.data.MemoryFPlayers;
 import com.massivecraft.factions.util.DiscUtil;
 import com.massivecraft.factions.util.UUIDFetcher;
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
@@ -41,17 +42,17 @@ public class JSONFPlayers extends MemoryFPlayers {
         file = new File(FactionsPlugin.getInstance().getDataFolder(), "data/players.json");
     }
 
-    public void convertFrom(MemoryFPlayers old) {
-        this.fPlayers.putAll(Maps.transformValues(old.fPlayers, faction -> new JSONFPlayer((MemoryFPlayer) faction)));
-        forceSave();
+    public void convertFrom(MemoryFPlayers old, BooleanConsumer finish) {
+        this.fPlayers.putAll(Maps.transformValues(old.getFPlayers(), faction -> new JSONFPlayer((MemoryFPlayer) faction)));
+        forceSave(finish);
         FPlayers.instance = this;
     }
 
-    public void forceSave() {
-        forceSave(true);
+    public void forceSave(BooleanConsumer finish) {
+        forceSave(true, finish);
     }
 
-    public void forceSave(boolean sync) {
+    public void forceSave(boolean sync, BooleanConsumer finish) {
         final Map<String, JSONFPlayer> entitiesThatShouldBeSaved = new HashMap<>();
         for (FPlayer entity : this.fPlayers.values()) {
             if (((MemoryFPlayer) entity).shouldBeSaved()) {
@@ -59,15 +60,15 @@ public class JSONFPlayers extends MemoryFPlayers {
             }
         }
 
-        saveCore(file, entitiesThatShouldBeSaved, sync);
+        saveCore(file, entitiesThatShouldBeSaved, sync, finish);
     }
 
-    private boolean saveCore(File target, Map<String, JSONFPlayer> data, boolean sync) {
-        return DiscUtil.writeCatch(target, FactionsPlugin.getInstance().getGson().toJson(data), sync);
+    private boolean saveCore(File target, Map<String, JSONFPlayer> data, boolean sync, BooleanConsumer finish) {
+        return DiscUtil.writeCatch(target, FactionsPlugin.getInstance().getGson().toJson(data), sync, finish);
     }
 
-    public int load() {
-        Map<String, JSONFPlayer> fplayers = this.loadCore();
+    public int load(BooleanConsumer finish) {
+        Map<String, JSONFPlayer> fplayers = this.loadCore(finish);
         if (fplayers == null) {
             return 0;
         }
@@ -76,7 +77,7 @@ public class JSONFPlayers extends MemoryFPlayers {
         return fPlayers.size();
     }
 
-    private Map<String, JSONFPlayer> loadCore() {
+    private Map<String, JSONFPlayer> loadCore(BooleanConsumer finish) {
         if (!this.file.exists()) {
             return new HashMap<>();
         }
@@ -114,7 +115,7 @@ public class JSONFPlayers extends MemoryFPlayers {
             } catch (IOException e) {
                 FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to create file players.json.old", e);
             }
-            saveCore(file, data, true);
+            saveCore(file, data, true, finish);
             FactionsPlugin.getInstance().log(Level.INFO, "Backed up your old data at " + file.getAbsolutePath());
 
             // Start fetching those UUIDs
@@ -158,7 +159,7 @@ public class JSONFPlayers extends MemoryFPlayers {
                 FactionsPlugin.getInstance().log(Level.INFO, "While converting we found names that either don't have a UUID or aren't players and removed them from storage.");
                 FactionsPlugin.getInstance().log(Level.INFO, "The following names were detected as being invalid: " + StringUtils.join(invalidList, ", "));
             }
-            saveCore(this.file, data, true); // Update the
+            saveCore(this.file, data, true, finish); // Update the
             // flatfile
             FactionsPlugin.getInstance().log(Level.INFO, "Done converting players.json to UUID.");
         }
@@ -182,7 +183,7 @@ public class JSONFPlayers extends MemoryFPlayers {
     @Override
     public FPlayer generateFPlayer(String id) {
         FPlayer player = new JSONFPlayer(id);
-        this.fPlayers.put(player.getId(), player);
+        this.fPlayers.put(id, player);
         return player;
     }
 }

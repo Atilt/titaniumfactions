@@ -24,10 +24,13 @@ import com.massivecraft.factions.scoreboards.sidebar.FInfoSidebar;
 import com.massivecraft.factions.struct.ChatMode;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.tag.Tag;
+import com.massivecraft.factions.util.FastUUID;
 import com.massivecraft.factions.util.RelationUtil;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TitleAPI;
 import com.massivecraft.factions.util.WarmUpUtil;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import mkremins.fanciful.FancyMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -39,10 +42,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 
 
 /**
@@ -106,7 +106,7 @@ public abstract class MemoryFPlayer implements FPlayer {
 
     public Faction getFaction() {
         if (this.factionId == null) {
-            this.factionId = "0";
+            this.factionId = MemoryBoard.NO_ID;
         }
         return Factions.getInstance().getFactionById(this.factionId);
     }
@@ -116,7 +116,7 @@ public abstract class MemoryFPlayer implements FPlayer {
     }
 
     public boolean hasFaction() {
-        return !factionId.equals("0");
+        return !factionId.equals(MemoryBoard.NO_ID);
     }
 
     public void setFaction(Faction faction) {
@@ -239,7 +239,7 @@ public abstract class MemoryFPlayer implements FPlayer {
     }
 
     public ChatMode getChatMode() {
-        if (this.chatMode == null || this.factionId.equals("0") || !FactionsPlugin.getInstance().conf().factions().chat().isFactionOnlyChat()) {
+        if (this.chatMode == null || this.factionId.equals(MemoryBoard.NO_ID) || !FactionsPlugin.getInstance().conf().factions().chat().isFactionOnlyChat()) {
             this.chatMode = ChatMode.PUBLIC;
         }
         return chatMode;
@@ -400,7 +400,7 @@ public abstract class MemoryFPlayer implements FPlayer {
             // Older versions of FactionsUUID don't save the name,
             // so `name` will be null the first time it's retrieved
             // after updating
-            OfflinePlayer offline = Bukkit.getOfflinePlayer(UUID.fromString(getId()));
+            OfflinePlayer offline = Bukkit.getOfflinePlayer(FastUUID.parseUUID(getId()));
             this.name = offline.getName() != null ? offline.getName() : getId();
         }
         return name;
@@ -508,10 +508,9 @@ public abstract class MemoryFPlayer implements FPlayer {
     //----------------------------------------------//
     public void heal(int amnt) {
         Player player = this.getPlayer();
-        if (player == null) {
-            return;
+        if (player != null) {
+            player.setHealth(player.getHealth() + amnt);
         }
-        player.setHealth(player.getHealth() + amnt);
     }
 
 
@@ -906,7 +905,7 @@ public abstract class MemoryFPlayer implements FPlayer {
         }
 
         // announce success
-        Set<FPlayer> informTheseFPlayers = new HashSet<>();
+        ObjectSet<FPlayer> informTheseFPlayers = new ObjectOpenHashSet<>();
         informTheseFPlayers.add(this);
         informTheseFPlayers.addAll(forFaction.getFPlayersWhereOnline(true));
         for (FPlayer fp : informTheseFPlayers) {
@@ -936,7 +935,7 @@ public abstract class MemoryFPlayer implements FPlayer {
     }
 
     public Player getPlayer() {
-        return Bukkit.getPlayer(UUID.fromString(this.getId()));
+        return Bukkit.getPlayer(FastUUID.parseUUID(this.getId()));
     }
 
     public boolean isOnline() {
@@ -1041,7 +1040,7 @@ public abstract class MemoryFPlayer implements FPlayer {
 
     public void setSeeingChunk(boolean seeingChunk) {
         this.seeingChunk = seeingChunk;
-        FactionsPlugin.getInstance().getSeeChunkUtil().updatePlayerInfo(UUID.fromString(getId()), seeingChunk);
+        FactionsPlugin.getInstance().getSeeChunkUtil().updatePlayerInfo(FastUUID.parseUUID(getId()), seeingChunk);
     }
 
     public boolean getFlyTrailsState() {
@@ -1077,10 +1076,9 @@ public abstract class MemoryFPlayer implements FPlayer {
             return;
         }
         Player player = this.getPlayer();
-        if (player == null) {
-            return;
+        if (player != null) {
+            player.sendMessage(msg);
         }
-        player.sendMessage(msg);
     }
 
     public void sendMessage(List<String> msgs) {

@@ -6,6 +6,7 @@ import com.massivecraft.factions.FLocation;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.data.MemoryBoard;
 import com.massivecraft.factions.util.DiscUtil;
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 
 import java.io.File;
 import java.lang.reflect.Type;
@@ -63,18 +64,18 @@ public class JSONBoard extends MemoryBoard {
         }
     }
 
-    public void forceSave() {
-        forceSave(true);
+    public void forceSave(BooleanConsumer finish) {
+        forceSave(true, finish);
     }
 
-    public void forceSave(boolean sync) {
-        DiscUtil.writeCatch(file, FactionsPlugin.getInstance().getGson().toJson(dumpAsSaveFormat()), sync);
+    public void forceSave(boolean sync, BooleanConsumer finish) {
+        DiscUtil.writeCatch(file, FactionsPlugin.getInstance().getGson().toJson(dumpAsSaveFormat()), sync, finish);
     }
 
-    public int load() {
+    public int load(BooleanConsumer finish) {
         if (!file.exists()) {
             FactionsPlugin.getInstance().getLogger().info("No board to load from disk. Creating new file.");
-            forceSave();
+            forceSave(finish);
             return 0;
         }
 
@@ -92,9 +93,9 @@ public class JSONBoard extends MemoryBoard {
     }
 
     @Override
-    public void convertFrom(MemoryBoard old) {
+    public void convertFrom(MemoryBoard old, BooleanConsumer finish) {
         this.flocationIds = old.flocationIds;
-        forceSave();
+        forceSave(finish);
         Board.instance = this;
     }
 }

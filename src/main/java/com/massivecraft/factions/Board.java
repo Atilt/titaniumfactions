@@ -1,6 +1,7 @@
 package com.massivecraft.factions;
 
 import com.massivecraft.factions.data.json.JSONBoard;
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import mkremins.fanciful.FancyMessage;
 import org.bukkit.World;
 
@@ -78,9 +79,9 @@ public abstract class Board {
      */
     public abstract List<FancyMessage> getMap(FPlayer fPlayer, FLocation flocation, double inDegrees);
 
-    public abstract void forceSave();
+    public abstract void forceSave(BooleanConsumer finish);
 
-    public abstract void forceSave(boolean sync);
+    public abstract void forceSave(boolean sync, BooleanConsumer finish);
 
-    public abstract int load();
+    public abstract int load(BooleanConsumer finish);
 }

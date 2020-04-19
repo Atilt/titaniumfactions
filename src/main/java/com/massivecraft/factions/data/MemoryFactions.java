@@ -4,6 +4,7 @@ import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.Factions;
 import com.massivecraft.factions.util.MiscUtil;
 import com.massivecraft.factions.util.TL;
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import org.bukkit.ChatColor;
 
 import java.util.ArrayList;
@@ -173,5 +174,5 @@ public abstract class MemoryFactions extends Factions {
         return factions.get("-2");
     }
 
-    public abstract void convertFrom(MemoryFactions old);
+    public abstract void convertFrom(MemoryFactions old, BooleanConsumer finish);
 }

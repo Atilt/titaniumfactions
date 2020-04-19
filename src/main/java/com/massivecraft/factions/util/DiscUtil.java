@@ -1,6 +1,7 @@
 package com.massivecraft.factions.util;
 
 import com.massivecraft.factions.FactionsPlugin;
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.BufferedInputStream;
@@ -14,7 +15,6 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 
@@ -64,25 +64,21 @@ public class DiscUtil {
 
     private static HashMap<String, Lock> locks = new HashMap<>();
 
-    public static boolean writeCatch(final File file, final String content, boolean sync) {
+    public static boolean writeCatch(final File file, final String content, boolean sync, BooleanConsumer finish) {
         String name = file.getName();
-        final Lock lock;
 
         // Create lock for each file if there isn't already one.
-        if (locks.containsKey(name)) {
-            lock = locks.get(name);
-        } else {
-            ReadWriteLock rwl = new ReentrantReadWriteLock();
-            lock = rwl.writeLock();
-            locks.put(name, lock);
-        }
+
+        Lock lock = locks.computeIfAbsent(name, s -> new ReentrantReadWriteLock().writeLock());
 
         if (sync) {
             lock.lock();
             try {
                 write(file, content);
+                if (finish != null) finish.accept(true);
             } catch (IOException e) {
                 FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to write file " + file.getAbsolutePath(), e);
+                if (finish != null) finish.accept(false);
             } finally {
                 lock.unlock();
             }
@@ -93,8 +89,10 @@ public class DiscUtil {
                     lock.lock();
                     try {
                         write(file, content);
+                        if (finish != null) finish.accept(true);
                     } catch (IOException e) {
                         FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to write file " + file.getAbsolutePath(), e);
+                        if (finish != null) finish.accept(false);
                     } finally {
                         lock.unlock();
                     }

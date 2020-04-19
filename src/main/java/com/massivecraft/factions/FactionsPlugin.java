@@ -343,8 +343,9 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
         hookedPlayervaults = setupPlayervaults();
 
-        int loadedPlayers = FPlayers.getInstance().load();
-        int loadedFactions = Factions.getInstance().load();
+        //implement async loading
+        int loadedPlayers = FPlayers.getInstance().load(null);
+        int loadedFactions = Factions.getInstance().load(null);
         for (FPlayer fPlayer : FPlayers.getInstance().getAllFPlayers()) {
             Faction faction = Factions.getInstance().getFactionById(fPlayer.getFactionId());
             if (faction == null) {
@@ -354,7 +355,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             }
             faction.addFPlayer(fPlayer);
         }
-        int loadedClaims = Board.getInstance().load();
+        int loadedClaims = Board.getInstance().load(null);
         Board.getInstance().clean();
         FactionsPlugin.getInstance().getLogger().info("Loaded " + loadedPlayers + " players in " + loadedFactions + " factions with " + loadedClaims + " claims");
 
@@ -992,9 +993,9 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         }
         // only save data if plugin actually loaded successfully
         if (loadSuccessful) {
-            Factions.getInstance().forceSave();
-            FPlayers.getInstance().forceSave();
-            Board.getInstance().forceSave();
+            Factions.getInstance().forceSave(null);
+            FPlayers.getInstance().forceSave(null);
+            Board.getInstance().forceSave(result -> log("Data saved!"));
         }
         log("Disabled");
     }
@@ -1104,8 +1105,8 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             FPlayer you = FPlayers.getInstance().getByPlayer(listener);
             if (you == null) {
                 tag = me.getChatTag().trim();
-            } else  // everything checks out, give the colored tag
-            {
+            }
+            else { // everything checks out, give the colored tag
                 tag = me.getChatTag(you).trim();
             }
         }
@@ -1140,7 +1141,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     // Get a list of all players in the specified faction
     @Override
     public Set<String> getPlayersInFaction(String factionTag) {
-        Set<String> players = new HashSet<>();
+        ObjectSet<String> players = new ObjectOpenHashSet<>();
         Faction faction = Factions.getInstance().getByTag(factionTag);
         if (faction != null) {
             for (FPlayer fplayer : faction.getFPlayers()) {
@@ -1153,7 +1154,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     // Get a list of all online players in the specified faction
     @Override
     public Set<String> getOnlinePlayersInFaction(String factionTag) {
-        Set<String> players = new HashSet<>();
+        ObjectSet<String> players = new ObjectOpenHashSet<>();
         Faction faction = Factions.getInstance().getByTag(factionTag);
         if (faction != null) {
             for (FPlayer fplayer : faction.getFPlayersWhereOnline(true)) {

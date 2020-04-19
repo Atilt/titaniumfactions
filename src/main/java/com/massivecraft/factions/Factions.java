@@ -1,6 +1,7 @@
 package com.massivecraft.factions;
 
 import com.massivecraft.factions.data.json.JSONFactions;
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -35,9 +36,9 @@ public abstract class Factions {
 
     public abstract Faction getWarZone();
 
-    public abstract void forceSave();
+    public abstract void forceSave(BooleanConsumer finish);
 
-    public abstract void forceSave(boolean sync);
+    public abstract void forceSave(boolean sync, BooleanConsumer finish);
 
     public static Factions getInstance() {
         return instance;
@@ -48,5 +49,5 @@ public abstract class Factions {
         return new JSONFactions();
     }
 
-    public abstract int load();
+    public abstract int load(BooleanConsumer finish);
 }

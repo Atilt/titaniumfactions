@@ -423,7 +423,7 @@ public class Econ {
     }
 
     public static String getFriendlyBalance(FPlayer player) {
-        return getFriendlyBalance(UUID.fromString(player.getId()));
+        return getFriendlyBalance(FastUUID.parseUUID(player.getId()));
     }
 
     public static boolean setBalance(String account, double amount) {

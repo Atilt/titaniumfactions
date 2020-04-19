@@ -4,20 +4,26 @@ import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.Factions;
 import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.util.FastUUID;
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.TreeMap;
 
 public abstract class MemoryFPlayers extends FPlayers {
-    public Map<String, FPlayer> fPlayers = new ConcurrentSkipListMap<>(String.CASE_INSENSITIVE_ORDER);
+    protected final Map<String, FPlayer> fPlayers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+    public Map<String, FPlayer> getFPlayers() {
+        return fPlayers;
+    }
 
     public void clean() {
         for (FPlayer fplayer : this.fPlayers.values()) {
@@ -29,8 +35,8 @@ public abstract class MemoryFPlayers extends FPlayers {
     }
 
     public Collection<FPlayer> getOnlinePlayers() {
-        Set<FPlayer> entities = new HashSet<>();
-        for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+        ObjectSet<FPlayer> entities = new ObjectOpenHashSet<>();
+        for (Player player : Bukkit.getOnlinePlayers()) {
             entities.add(this.getByPlayer(player));
         }
         return entities;
@@ -38,29 +44,26 @@ public abstract class MemoryFPlayers extends FPlayers {
 
     @Override
     public FPlayer getByPlayer(Player player) {
-        return getById(player.getUniqueId().toString());
+        return getById(FastUUID.toString(player.getUniqueId()));
     }
 
     @Override
     public List<FPlayer> getAllFPlayers() {
-        return new ArrayList<>(fPlayers.values());
+        return new ObjectArrayList<>(fPlayers.values());
     }
 
     @Override
     public FPlayer getByOfflinePlayer(OfflinePlayer player) {
-        return getById(player.getUniqueId().toString());
+        return getById(FastUUID.toString(player.getUniqueId()));
     }
 
     @Override
     public FPlayer getById(String id) {
         FPlayer player = fPlayers.get(id);
-        if (player == null) {
-            player = generateFPlayer(id);
-        }
-        return player;
+        return player == null ? generateFPlayer(id) : player;
     }
 
     protected abstract FPlayer generateFPlayer(String id);
 
-    public abstract void convertFrom(MemoryFPlayers old);
+    public abstract void convertFrom(MemoryFPlayers old, BooleanConsumer finish);
 }

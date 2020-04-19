@@ -1,6 +1,7 @@
 package com.massivecraft.factions;
 
 import com.massivecraft.factions.data.json.JSONFPlayers;
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -26,13 +27,13 @@ public abstract class FPlayers {
 
     public abstract Collection<FPlayer> getAllFPlayers();
 
-    public abstract void forceSave();
+    public abstract void forceSave(BooleanConsumer finish);
 
-    public abstract void forceSave(boolean sync);
+    public abstract void forceSave(boolean sync, BooleanConsumer finish);
 
     public abstract FPlayer getByOfflinePlayer(OfflinePlayer player);
 
     public abstract FPlayer getById(String string);
 
-    public abstract int load();
+    public abstract int load(BooleanConsumer finish);
 }
