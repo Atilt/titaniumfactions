@@ -46,9 +46,7 @@ public class EssentialsListener implements Listener {
                 FactionsPlugin.getInstance().getLogger().warning("Tried to check on home \"" + homeName + "\" for user \"" + event.getfPlayer().getName() + "\" but Essentials said world \"" + e.getWorld() + "\" does not exist. Skipping it.");
                 continue;
             }
-            FLocation floc = new FLocation(loc);
-
-            Faction factionAt = Board.getInstance().getFactionAt(floc);
+            Faction factionAt = Board.getInstance().getFactionAt(new FLocation(loc));
             // We're only going to remove homes in territory that belongs to THEIR faction.
             if (factionAt.equals(faction) && factionAt.isNormal()) {
                 user.delHome(homeName);

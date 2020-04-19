@@ -10,6 +10,8 @@ import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -28,7 +30,6 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.EntityBlockFormEvent;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class FactionsBlockListener implements Listener {
 
@@ -160,13 +161,13 @@ public class FactionsBlockListener implements Listener {
 
     private boolean canPistonMoveBlock(Faction pistonFaction, List<Block> blocks, BlockFace direction) {
         String world = blocks.get(0).getWorld().getName();
-        List<Faction> factions = (direction == null ? blocks.stream() : blocks.stream().map(b -> b.getRelative(direction)))
-                .map(Block::getLocation)
-                .map(FLocation::new)
-                .distinct()
-                .map(Board.getInstance()::getFactionAt)
-                .distinct()
-                .collect(Collectors.toList());
+        if (direction == null) {
+            return true;
+        }
+        ObjectSet<Faction> factions = new ObjectOpenHashSet<>(blocks.size());
+        for (Block block : blocks) {
+            factions.add(Board.getInstance().getFactionAt(new FLocation(block.getLocation().add(direction.getModX(), direction.getModY(), direction.getModZ()))));
+        }
 
         boolean disableOverall = FactionsPlugin.getInstance().conf().factions().other().isDisablePistonsInTerritory();
         for (Faction otherFaction : factions) {
