@@ -272,4 +272,8 @@ public class FLocation implements Serializable {
         FLocation that = (FLocation) obj;
         return this.x == that.x && this.z == that.z && (Objects.equals(this.worldName, that.worldName));
     }
+
+    public boolean is(Location bukkit) {
+        return blockToChunk(bukkit.getBlockX()) == this.x && blockToChunk(bukkit.getBlockZ()) == this.z && bukkit.getWorld().getName().equals(this.worldName);
+    }
 }

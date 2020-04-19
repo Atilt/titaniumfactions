@@ -18,9 +18,16 @@ import com.massivecraft.factions.scoreboards.FScoreboard;
 import com.massivecraft.factions.scoreboards.FTeamWrapper;
 import com.massivecraft.factions.scoreboards.sidebar.FDefaultSidebar;
 import com.massivecraft.factions.struct.Permission;
+import com.massivecraft.factions.util.FastUUID;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
 import com.massivecraft.factions.util.VisualizeUtil;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -47,8 +54,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.NumberConversions;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -58,6 +63,19 @@ public class FactionsPlayerListener extends AbstractListener {
 
     private FactionsPlugin plugin;
 
+    private static final ObjectSet<String> ITEMS = new ObjectOpenHashSet<>(8);
+
+    static {
+        ITEMS.add("ARMOR_STAND");
+        ITEMS.add("END_CRYSTAL");
+        ITEMS.add("MINECART");
+        ITEMS.add("CHEST_MINECART");
+        ITEMS.add("COMMAND_BLOCK_MINECART");
+        ITEMS.add("FURNACE_MINECART");
+        ITEMS.add("HOPPER_MINECART");
+        ITEMS.add("TNT_MINECART");
+    }
+
     public FactionsPlayerListener(FactionsPlugin plugin) {
         this.plugin = plugin;
         for (Player player : plugin.getServer().getOnlinePlayers()) {
@@ -65,7 +83,7 @@ public class FactionsPlayerListener extends AbstractListener {
         }
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         initPlayer(event.getPlayer());
         this.plugin.updatesOnJoin(event.getPlayer());
@@ -149,9 +167,8 @@ public class FactionsPlayerListener extends AbstractListener {
         me.logout(); // cache kills / deaths
 
         // if player is waiting for fstuck teleport but leaves, remove
-        if (FactionsPlugin.getInstance().getStuckMap().containsKey(me.getPlayer().getUniqueId())) {
+        if (FactionsPlugin.getInstance().getStuckMap().remove(me.getPlayer().getUniqueId()) != null) {
             FPlayers.getInstance().getByPlayer(me.getPlayer()).msg(TL.COMMAND_STUCK_CANCELLED);
-            FactionsPlugin.getInstance().getStuckMap().remove(me.getPlayer().getUniqueId());
             FactionsPlugin.getInstance().getTimers().remove(me.getPlayer().getUniqueId());
         }
 
@@ -171,12 +188,12 @@ public class FactionsPlayerListener extends AbstractListener {
         FScoreboard.remove(me, event.getPlayer());
 
         if (FactionsPlugin.getInstance().getSeeChunkUtil() != null) {
-            FactionsPlugin.getInstance().getSeeChunkUtil().updatePlayerInfo(UUID.fromString(me.getId()), false);
+            FactionsPlugin.getInstance().getSeeChunkUtil().updatePlayerInfo(FastUUID.parseUUID(me.getId()), false);
         }
     }
 
     // Holds the next time a player can have a map shown.
-    private HashMap<UUID, Long> showTimes = new HashMap<>();
+    private Object2LongMap<UUID> showTimes = new Object2LongOpenHashMap<>();
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerMove(PlayerMoveEvent event) {
@@ -203,14 +220,13 @@ public class FactionsPlayerListener extends AbstractListener {
 
         // Did we change coord?
         FLocation from = me.getLastStoodAt();
-        FLocation to = new FLocation(event.getTo());
 
-        if (from.equals(to)) {
+        if (from.is(event.getTo())) {
             return;
         }
 
         // Yes we did change coord (:
-
+        FLocation to = new FLocation(event.getTo());
         me.setLastStoodAt(to);
 
         if (me.getAutoClaimFor() != null) {
@@ -250,7 +266,7 @@ public class FactionsPlayerListener extends AbstractListener {
         }
 
         if (me.isMapAutoUpdating()) {
-            if (!showTimes.containsKey(player.getUniqueId()) || (showTimes.get(player.getUniqueId()) < System.currentTimeMillis())) {
+            if (!showTimes.containsKey(player.getUniqueId()) || (showTimes.getLong(player.getUniqueId()) < System.currentTimeMillis())) {
                 me.sendFancyMessage(Board.getInstance().getMap(me, to, player.getLocation().getYaw()));
                 showTimes.put(player.getUniqueId(), System.currentTimeMillis() + FactionsPlugin.getInstance().conf().commands().map().getCooldown());
             }
@@ -282,24 +298,24 @@ public class FactionsPlayerListener extends AbstractListener {
             return;
         }
 
-        switch (event.getRightClicked().getType()) {
-            case ITEM_FRAME:
+        switch (event.getRightClicked().getType().name()) {
+            case "ITEM_FRAME":
                 if (!canPlayerUseBlock(event.getPlayer(), Material.ITEM_FRAME, event.getRightClicked().getLocation(), false)) {
                     event.setCancelled(true);
                 }
                 break;
-            case HORSE:
-            case SKELETON_HORSE:
-            case ZOMBIE_HORSE:
-            case DONKEY:
-            case MULE:
-            case LLAMA:
-            case TRADER_LLAMA:
-            case PIG:
-            case LEASH_HITCH:
-            case MINECART_CHEST:
-            case MINECART_FURNACE:
-            case MINECART_HOPPER:
+            case "HORSE":
+            case "SKELETON_HORSE":
+            case "ZOMBIE_HORSE":
+            case "DONKEY":
+            case "MULE":
+            case "LLAMA":
+            case "TRADER_LLAMA":
+            case "PIG":
+            case "LEASH_HITCH":
+            case "MINECART_CHEST":
+            case "MINECART_FURNACE":
+            case "MINECART_HOPPER":
                 if (!this.playerCanInteractHere(event.getPlayer(), event.getRightClicked().getLocation())) {
                     event.setCancelled(true);
                 }
@@ -342,12 +358,7 @@ public class FactionsPlayerListener extends AbstractListener {
                 return;
             }
             if (FactionsPlugin.getInstance().conf().exploits().isInteractionSpam()) {
-                String name = player.getName();
-                InteractAttemptSpam attempt = interactSpammers.get(name);
-                if (attempt == null) {
-                    attempt = new InteractAttemptSpam();
-                    interactSpammers.put(name, attempt);
-                }
+                InteractAttemptSpam attempt = interactSpammers.computeIfAbsent(player.getName(), s -> new InteractAttemptSpam());
                 int count = attempt.increment();
                 if (count >= 10) {
                     FPlayer me = FPlayers.getInstance().getByPlayer(player);
@@ -362,35 +373,21 @@ public class FactionsPlayerListener extends AbstractListener {
             return;  // only interested on right-clicks for below
         }
 
-        ItemStack item;
-        if ((item = event.getItem()) != null) {
-            boolean ohNo = false;
-            switch (item.getType()) {
-                case ARMOR_STAND:
-                case END_CRYSTAL:
-                case MINECART:
-                case CHEST_MINECART:
-                case COMMAND_BLOCK_MINECART:
-                case FURNACE_MINECART:
-                case HOPPER_MINECART:
-                case TNT_MINECART:
-                    ohNo = true;
-            }
-            if (ohNo &&
-                    !FactionsPlugin.getInstance().conf().factions().specialCase().getIgnoreBuildMaterials().contains(item.getType()) &&
-                    !FactionsBlockListener.playerCanBuildDestroyBlock(event.getPlayer(), event.getClickedBlock().getRelative(event.getBlockFace()).getLocation(), PermissibleAction.BUILD, false)) {
-                event.setCancelled(true);
-            }
+        ItemStack item = event.getItem();
+        if (item != null && ITEMS.contains(item.getType().name()) && !FactionsPlugin.getInstance().conf().factions().specialCase().getIgnoreBuildMaterials().contains(item.getType()) &&
+                !FactionsBlockListener.playerCanBuildDestroyBlock(event.getPlayer(), event.getClickedBlock().getRelative(event.getBlockFace()).getLocation(), PermissibleAction.BUILD, false)) {
+            event.setCancelled(true);
+            return;
         }
 
-        if (!playerCanUseItemHere(player, block.getLocation(), event.getMaterial(), false)) {
+        if (event.getMaterial() != null && !playerCanUseItemHere(player, block.getLocation(), event.getMaterial(), false)) {
             event.setCancelled(true);
         }
     }
 
 
     // for handling people who repeatedly spam attempts to open a door (or similar) in another faction's territory
-    private Map<String, InteractAttemptSpam> interactSpammers = new HashMap<>();
+    private final Object2ObjectMap<String, InteractAttemptSpam> interactSpammers = new Object2ObjectOpenHashMap<>();
 
     private static class InteractAttemptSpam {
         private int attempts = 0;
@@ -653,7 +650,7 @@ public class FactionsPlayerListener extends AbstractListener {
         }
         if (event.getClickedInventory().getHolder() instanceof GUI) {
             event.setCancelled(true);
-            GUI ui = (GUI) event.getClickedInventory().getHolder();
+            GUI<?> ui = (GUI<?>) event.getClickedInventory().getHolder();
             ui.click(event.getRawSlot(), event.getClick());
         }
     }

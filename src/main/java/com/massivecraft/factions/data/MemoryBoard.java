@@ -13,17 +13,22 @@ import com.massivecraft.factions.integration.LWC;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.util.AsciiCompass;
 import com.massivecraft.factions.util.TL;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import mkremins.fanciful.FancyMessage;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -31,10 +36,10 @@ import java.util.Set;
 
 public abstract class MemoryBoard extends Board {
 
-    public class MemoryBoardMap extends HashMap<FLocation, String> {
+    public static class MemoryBoardMap extends Object2ObjectOpenHashMap<FLocation, String> {
         private static final long serialVersionUID = -6689617828610585368L;
 
-        Multimap<String, FLocation> factionToLandMap = HashMultimap.create();
+        private final Multimap<String, FLocation> factionToLandMap = HashMultimap.create();
 
         @Override
         public String put(FLocation floc, String factionId) {
@@ -90,16 +95,14 @@ public abstract class MemoryBoard extends Board {
     private char[] mapKeyChrs = "\\/#$%=&^ABCDEFGHJKLMNOPQRSTUVWXYZ1234567890abcdeghjmnopqrsuvwxyz?".toCharArray();
 
     public MemoryBoardMap flocationIds = new MemoryBoardMap();
+    public static String NO_ID = "0";
 
     //----------------------------------------------//
     // Get and Set
     //----------------------------------------------//
     public String getIdAt(FLocation flocation) {
-        if (!flocationIds.containsKey(flocation)) {
-            return "0";
-        }
-
-        return flocationIds.get(flocation);
+        String id = flocationIds.get(flocation);
+        return id == null ? NO_ID : id;
     }
 
     public Faction getFactionAt(FLocation flocation) {
@@ -109,7 +112,7 @@ public abstract class MemoryBoard extends Board {
     public void setIdAt(String id, FLocation flocation) {
         clearOwnershipAt(flocation);
 
-        if (id.equals("0")) {
+        if (id.equals(NO_ID)) {
             removeAt(flocation);
         }
 
@@ -124,15 +127,16 @@ public abstract class MemoryBoard extends Board {
         Faction faction = getFactionAt(flocation);
         faction.getWarps().values().removeIf(lazyLocation -> flocation.isInChunk(lazyLocation.getLocation()));
         for (Entity entity : flocation.getChunk().getEntities()) {
-            if (entity instanceof Player) {
-                FPlayer fPlayer = FPlayers.getInstance().getByPlayer((Player) entity);
-                if (!fPlayer.isAdminBypassing() && fPlayer.isFlying()) {
-                    fPlayer.setFlying(false);
-                }
-                if (fPlayer.isWarmingUp()) {
-                    fPlayer.clearWarmup();
-                    fPlayer.msg(TL.WARMUPS_CANCELLED);
-                }
+            if (entity.getType() != EntityType.PLAYER) {
+                continue;
+            }
+            FPlayer fPlayer = FPlayers.getInstance().getByPlayer((Player) entity);
+            if (!fPlayer.isAdminBypassing() && fPlayer.isFlying()) {
+                fPlayer.setFlying(false);
+            }
+            if (fPlayer.isWarmingUp()) {
+                fPlayer.clearWarmup();
+                fPlayer.msg(TL.WARMUPS_CANCELLED);
             }
         }
         clearOwnershipAt(flocation);
@@ -140,7 +144,7 @@ public abstract class MemoryBoard extends Board {
     }
 
     public Set<FLocation> getAllClaims(String factionId) {
-        Set<FLocation> locs = new HashSet<>();
+        ObjectSet<FLocation> locs = new ObjectOpenHashSet<>();
         for (Entry<FLocation, String> entry : flocationIds.entrySet()) {
             if (entry.getValue().equals(factionId)) {
                 locs.add(entry.getKey());
@@ -194,20 +198,12 @@ public abstract class MemoryBoard extends Board {
     // Simpler: Is there any nearby coord with a faction other than the faction here?
     public boolean isBorderLocation(FLocation flocation) {
         Faction faction = getFactionAt(flocation);
-        FLocation a = flocation.getRelative(1, 0);
-        FLocation b = flocation.getRelative(-1, 0);
-        FLocation c = flocation.getRelative(0, 1);
-        FLocation d = flocation.getRelative(0, -1);
-        return faction != getFactionAt(a) || faction != getFactionAt(b) || faction != getFactionAt(c) || faction != getFactionAt(d);
+        return faction != getFactionAt(flocation.getRelative(1, 0)) || faction != getFactionAt(flocation.getRelative(-1, 0)) || faction != getFactionAt(flocation.getRelative(0, 1)) || faction != getFactionAt(flocation.getRelative(0, -1));
     }
 
     // Is this coord connected to any coord claimed by the specified faction?
     public boolean isConnectedLocation(FLocation flocation, Faction faction) {
-        FLocation a = flocation.getRelative(1, 0);
-        FLocation b = flocation.getRelative(-1, 0);
-        FLocation c = flocation.getRelative(0, 1);
-        FLocation d = flocation.getRelative(0, -1);
-        return faction == getFactionAt(a) || faction == getFactionAt(b) || faction == getFactionAt(c) || faction == getFactionAt(d);
+        return faction == getFactionAt(flocation.getRelative(1, 0)) || faction == getFactionAt(flocation.getRelative(-1, 0)) || faction == getFactionAt(flocation.getRelative(0, 1)) || faction == getFactionAt(flocation.getRelative(0, -1));
     }
 
     /**
@@ -273,7 +269,7 @@ public abstract class MemoryBoard extends Board {
         int ret = 0;
         for (Entry<FLocation, String> entry : flocationIds.entrySet()) {
             if (entry.getValue().equals(factionId) && entry.getKey().getWorldName().equals(worldName)) {
-                ret += 1;
+                ret++;
             }
         }
         return ret;
@@ -287,14 +283,14 @@ public abstract class MemoryBoard extends Board {
      * The map is relative to a coord and a faction north is in the direction of decreasing x east is in the direction
      * of decreasing z
      */
-    public ArrayList<FancyMessage> getMap(FPlayer fplayer, FLocation flocation, double inDegrees) {
+    public List<FancyMessage> getMap(FPlayer fplayer, FLocation flocation, double inDegrees) {
         Faction faction = fplayer.getFaction();
-        ArrayList<FancyMessage> ret = new ArrayList<>();
+        ObjectList<FancyMessage> ret = new ObjectArrayList<>();
         Faction factionLoc = getFactionAt(flocation);
         ret.add(new FancyMessage(FactionsPlugin.getInstance().txt().titleize("(" + flocation.getCoordString() + ") " + factionLoc.getTag(fplayer))));
 
         // Get the compass
-        ArrayList<String> asciiCompass = AsciiCompass.getAsciiCompass(inDegrees, ChatColor.RED, FactionsPlugin.getInstance().txt().parse("<a>"));
+        List<String> asciiCompass = AsciiCompass.getAsciiCompass(inDegrees, ChatColor.RED, FactionsPlugin.getInstance().txt().parse("<a>"));
 
         int halfWidth = FactionsPlugin.getInstance().conf().map().getWidth() / 2;
         // Use player's value for height
@@ -355,7 +351,7 @@ public abstract class MemoryBoard extends Board {
         if (FactionsPlugin.getInstance().conf().map().isShowFactionKey()) {
             FancyMessage fRow = new FancyMessage("");
             for (String key : fList.keySet()) {
-                final Relation relation = fplayer.getRelationTo(Factions.getInstance().getByTag(key));
+                Relation relation = fplayer.getRelationTo(Factions.getInstance().getByTag(key));
                 fRow.then(String.format("%s: %s ", fList.get(key), key)).color(relation.getColor());
             }
             ret.add(fRow);
