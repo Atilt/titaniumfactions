@@ -1,6 +1,9 @@
 package com.massivecraft.factions;
 
 import com.massivecraft.factions.util.MiscUtil;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -11,7 +14,6 @@ import org.bukkit.entity.Player;
 
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -157,14 +159,16 @@ public class FLocation implements Serializable {
     }
 
     public double getDistanceTo(FLocation that) {
-        double dx = that.x - this.x;
-        double dz = that.z - this.z;
-        return Math.sqrt(dx * dx + dz * dz);
+        return Math.sqrt(getDistanceSquaredTo(that));
     }
 
     public double getDistanceSquaredTo(FLocation that) {
-        double dx = that.x - this.x;
-        double dz = that.z - this.z;
+        return getDistanceSquaredTo(that.x, that.z);
+    }
+
+    public double getDistanceSquaredTo(int thatx, int thatz) {
+        double dx = thatx - this.x;
+        double dz = thatz - this.z;
         return dx * dx + dz * dz;
     }
 
@@ -172,8 +176,7 @@ public class FLocation implements Serializable {
         if (loc == null) {
             return false;
         }
-        Chunk chunk = loc.getChunk();
-        return loc.getWorld().getName().equalsIgnoreCase(getWorldName()) && chunk.getX() == x && chunk.getZ() == z;
+        return loc.getWorld().getName().equals(getWorldName()) && loc.getBlockX() >> 4 == x && loc.getBlockZ() >> 4 == z;
     }
 
     /**
@@ -213,10 +216,12 @@ public class FLocation implements Serializable {
     public Set<FLocation> getCircle(double radius) {
         double radiusSquared = radius * radius;
 
-        Set<FLocation> ret = new LinkedHashSet<>();
         if (radius <= 0) {
-            return ret;
+            return new HashSet<>(0);
         }
+
+        int total = (int) Math.ceil(radius * 2);
+        ObjectSet<FLocation> ret = new ObjectLinkedOpenHashSet<>((total * total) + 1);
 
         int xfrom = (int) Math.floor(this.x - radius);
         int xto = (int) Math.ceil(this.x + radius);
@@ -225,18 +230,16 @@ public class FLocation implements Serializable {
 
         for (int x = xfrom; x <= xto; x++) {
             for (int z = zfrom; z <= zto; z++) {
-                FLocation potential = new FLocation(this.worldName, x, z);
-                if (this.getDistanceSquaredTo(potential) <= radiusSquared) {
-                    ret.add(potential);
+                if (this.getDistanceSquaredTo(x, z) <= radiusSquared) {
+                    ret.add(new FLocation(this.worldName, x, z));
                 }
             }
         }
-
         return ret;
     }
 
-    public static HashSet<FLocation> getArea(FLocation from, FLocation to) {
-        HashSet<FLocation> ret = new HashSet<>();
+    public static Set<FLocation> getArea(FLocation from, FLocation to) {
+        ObjectSet<FLocation> ret = new ObjectOpenHashSet<>();
 
         for (long x : MiscUtil.range(from.getX(), to.getX())) {
             for (long z : MiscUtil.range(from.getZ(), to.getZ())) {
