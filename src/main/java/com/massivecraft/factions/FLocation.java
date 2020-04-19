@@ -81,7 +81,7 @@ public class FLocation implements Serializable {
         this.worldName = worldName;
     }
 
-    public long getX() {
+    public int getX() {
         return x;
     }
 
@@ -89,7 +89,7 @@ public class FLocation implements Serializable {
         this.x = x;
     }
 
-    public long getZ() {
+    public int getZ() {
         return z;
     }
 
@@ -102,7 +102,7 @@ public class FLocation implements Serializable {
     }
 
     public Chunk getChunk() {
-        return new Location(getWorld(), chunkToBlock(x), 0, chunkToBlock(z)).getChunk();
+        return getWorld().getChunkAt(x, z);
     }
 
     @Override
