@@ -111,14 +111,14 @@ public enum FactionTag implements Tag {
     private final Function<Faction, String> function;
 
     public static String parse(String text, Faction faction, FPlayer player) {
-        for (FactionTag tag : FactionTag.values()) {
+        for (FactionTag tag : VALUES) {
             text = tag.replace(text, faction, player);
         }
         return text;
     }
 
     public static String parse(String text, Faction faction) {
-        for (FactionTag tag : FactionTag.values()) {
+        for (FactionTag tag : VALUES) {
             text = tag.replace(text, faction);
         }
         return text;
@@ -163,4 +163,6 @@ public enum FactionTag implements Tag {
     public String replace(String text, Faction faction) {
         return this.replace(text, faction, null);
     }
+    
+    public static final FactionTag[] VALUES = FactionTag.values();
 }

@@ -7,28 +7,29 @@ import com.massivecraft.factions.Factions;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.tag.Tag;
 import com.massivecraft.factions.util.TL;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class FTeamWrapper {
-    private static final Map<Faction, FTeamWrapper> wrappers = new HashMap<>();
-    private static final List<FScoreboard> tracking = new ArrayList<>();
+    private static final Object2ObjectMap<Faction, FTeamWrapper> wrappers = new Object2ObjectOpenHashMap<>();
+    private static final ObjectList<FScoreboard> tracking = new ObjectArrayList<>();
     private static int factionTeamPtr;
-    private static final Set<Faction> updating = new HashSet<>();
+    private static final ObjectSet<Faction> updating = new ObjectOpenHashSet<>();
 
-    private final Map<FScoreboard, Team> teams = new HashMap<>();
+    private final Object2ObjectMap<FScoreboard, Team> teams = new Object2ObjectOpenHashMap<>();
     private final String teamName;
     private final Faction faction;
-    private final Set<OfflinePlayer> members = new HashSet<>();
+    private final ObjectSet<OfflinePlayer> members = new ObjectOpenHashSet<>();
 
     public static void applyUpdatesLater(final Faction faction) {
         if (!FScoreboard.isSupportedByServer()) {
@@ -205,7 +206,7 @@ public class FTeamWrapper {
     }
 
     private Set<OfflinePlayer> getPlayers() {
-        return new HashSet<>(this.members);
+        return new ObjectOpenHashSet<>(this.members);
     }
 
     private void unregister() {

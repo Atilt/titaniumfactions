@@ -40,7 +40,7 @@ public enum PlayerTag implements Tag {
                 count++;
             }
         }
-        return String.valueOf(count);
+        return Integer.toString(count);
     }),
     ;
 
@@ -48,7 +48,7 @@ public enum PlayerTag implements Tag {
     private final Function<FPlayer, String> function;
 
     public static String parse(String text, FPlayer player) {
-        for (PlayerTag tag : PlayerTag.values()) {
+        for (PlayerTag tag : VALUES) {
             text = tag.replace(text, player);
         }
         return text;
@@ -76,4 +76,6 @@ public enum PlayerTag implements Tag {
         String result = this.function.apply(player);
         return result == null ? null : text.replace(this.tag, result);
     }
+
+    public static final PlayerTag[] VALUES = PlayerTag.values();
 }

@@ -7,6 +7,8 @@ import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.util.MiscUtil;
 import com.massivecraft.factions.util.QuadFunction;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import mkremins.fanciful.FancyMessage;
 import org.bukkit.ChatColor;
 
@@ -66,7 +68,7 @@ public enum FancyTag implements Tag {
     private final QuadFunction<Faction, FPlayer, String, Map<UUID, String>, List<FancyMessage>> function;
 
     private static List<FancyMessage> processRelation(String prefix, Faction faction, FPlayer fPlayer, Relation relation) {
-        List<FancyMessage> fancyMessages = new ArrayList<>();
+        ObjectList<FancyMessage> fancyMessages = new ObjectArrayList<>();
         FancyMessage message = FactionsPlugin.getInstance().txt().parseFancy(prefix);
         boolean first = true;
         for (Faction otherFaction : Factions.getInstance().getAllFactions()) {
@@ -89,7 +91,7 @@ public enum FancyTag implements Tag {
     }
 
     public static List<FancyMessage> parse(String text, Faction faction, FPlayer player, Map<UUID, String> groupMap) {
-        for (FancyTag tag : FancyTag.values()) {
+        for (FancyTag tag : VALUES) {
             if (tag.foundInString(text)) {
                 return tag.getMessage(text, faction, player, groupMap);
             }
@@ -102,7 +104,7 @@ public enum FancyTag implements Tag {
     }
 
     public static FancyTag getMatch(String text) {
-        for (FancyTag tag : FancyTag.values()) {
+        for (FancyTag tag : VALUES) {
             if (tag.foundInString(text)) {
                 return tag;
             }
@@ -117,7 +119,7 @@ public enum FancyTag implements Tag {
      * @return list of tooltips for a fancy message
      */
     private static List<String> tipFaction(Faction faction, FPlayer player) {
-        List<String> lines = new ArrayList<>();
+        ObjectList<String> lines = new ObjectArrayList<>();
         for (String line : FactionsPlugin.getInstance().conf().commands().toolTips().getFaction()) {
             String string = Tag.parsePlain(faction, player, line);
             if (string == null) {
@@ -135,7 +137,7 @@ public enum FancyTag implements Tag {
      * @return list of tooltips for a fancy message
      */
     private static List<String> tipPlayer(FPlayer fplayer, Map<UUID, String> groupMap) {
-        List<String> lines = new ArrayList<>();
+        ObjectList<String> lines = new ObjectArrayList<>();
         for (String line : FactionsPlugin.getInstance().conf().commands().toolTips().getPlayer()) {
             String newLine = line;
             everythingOnYourWayOut:
@@ -179,4 +181,6 @@ public enum FancyTag implements Tag {
         }
         return this.function.apply(faction, player, text.replace(this.getTag(), ""), groupMap);
     }
+    
+    public static final FancyTag[] VALUES = FancyTag.values();
 }
