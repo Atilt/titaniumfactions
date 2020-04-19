@@ -191,23 +191,12 @@ public class FLocation implements Serializable {
         }
 
         WorldBorder border = getWorld().getWorldBorder();
+        Chunk chunk = border.getCenter().getChunk();
 
-        Location center = border.getCenter();
-        double size = border.getSize();
-
-        int bufferBlocks = buffer << 4;
-
-        double borderMinX = (center.getX() - size / 2.0D) + bufferBlocks;
-        double borderMinZ = (center.getZ() - size / 2.0D) + bufferBlocks;
-        double borderMaxX = (center.getX() + size / 2.0D) - bufferBlocks;
-        double borderMaxZ = (center.getZ() + size / 2.0D) - bufferBlocks;
-
-        int chunkMinX = this.x << 4;
-        int chunkMaxX = chunkMinX | 15;
-        int chunkMinZ = this.z << 4;
-        int chunkMaxZ = chunkMinZ | 15;
-
-        return (chunkMinX >= borderMaxX) || (chunkMinZ >= borderMaxZ) || (chunkMaxX <= borderMinX) || (chunkMaxZ <= borderMinZ);
+        int lim = chunkToRegion((int) border.getSize()) - buffer;
+        int diffX = chunk.getX() - this.x;
+        int diffZ = chunk.getZ() - this.z;
+        return diffX > lim || diffZ > lim || -diffX > lim - 1 || -diffZ > lim - 1;
     }
 
     //----------------------------------------------//
