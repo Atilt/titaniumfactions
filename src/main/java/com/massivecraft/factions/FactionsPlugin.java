@@ -54,6 +54,12 @@ import com.massivecraft.factions.util.material.adapter.MaterialAdapter;
 import com.massivecraft.factions.util.particle.BukkitParticleProvider;
 import com.massivecraft.factions.util.particle.PacketParticleProvider;
 import com.massivecraft.factions.util.particle.ParticleProvider;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -86,7 +92,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -96,7 +101,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -150,10 +154,10 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     private Gson gson;
 
     // holds f stuck start times
-    private Map<UUID, Long> timers = new HashMap<>();
+    private Object2LongMap<UUID> timers = new Object2LongOpenHashMap<>();
 
     //holds f stuck taskids
-    private Map<UUID, Integer> stuckMap = new HashMap<>();
+    private Object2IntMap<UUID> stuckMap = new Object2IntOpenHashMap<>();
 
     // Persistence related
     private boolean locked = false;
@@ -163,10 +167,10 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     private boolean hookedPlayervaults;
     private ClipPlaceholderAPIManager clipPlaceholderAPIManager;
     private boolean mvdwPlaceholderAPIManager = false;
-    private Set<String> pluginsHandlingChat = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private ObjectSet<String> pluginsHandlingChat = new ObjectOpenHashSet<>();
 
     private SeeChunkUtil seeChunkUtil;
-    private ParticleProvider particleProvider;
+    private ParticleProvider<?> particleProvider;
     private IWorldguard worldguard;
     private Set<EntityType> safeZoneNerfedCreatureTypes = EnumSet.noneOf(EntityType.class);
     private LandRaidControl landRaidControl;
@@ -312,11 +316,10 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         String refCommand = "";
         try {
             Map<String, Map<String, Object>> refCmd = this.getDescription().getCommands();
-            if (refCmd != null && !refCmd.isEmpty()) {
+            if (!refCmd.isEmpty()) {
                 refCommand = (String) (refCmd.keySet().toArray()[0]);
             }
-        } catch (ClassCastException ex) {
-        }
+        } catch (ClassCastException ignored) {}
 
         // Register recurring tasks
         if (saveTask == null && this.conf().factions().other().getSaveToFileEveryXMinutes() > 0.0) {
@@ -440,12 +443,8 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             @Override
             public void run() {
                 if (checkForUpdates()) {
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            Bukkit.broadcast(updateMessage, com.massivecraft.factions.struct.Permission.UPDATES.toString());
-                        }
-                    }.runTask(FactionsPlugin.this);
+                    //chat packets are thread-safe
+                    Bukkit.broadcast(updateMessage, com.massivecraft.factions.struct.Permission.UPDATES.toString());
                     this.cancel();
                 }
             }
@@ -569,7 +568,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     }
 
     private Set<Plugin> getPlugins(HandlerList... handlerLists) {
-        Set<Plugin> plugins = new HashSet<>();
+        Set<Plugin> plugins = new HashSet<>(handlerLists.length);
         for (HandlerList handlerList : handlerLists) {
             plugins.addAll(this.getPlugins(handlerList));
         }
