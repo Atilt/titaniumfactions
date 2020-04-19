@@ -3,10 +3,10 @@ package com.massivecraft.factions.perms;
 import com.massivecraft.factions.config.file.DefaultPermissionsConfig;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.material.FactionMaterial;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.bukkit.Material;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Function;
 
 public enum PermissibleAction {
@@ -65,10 +65,11 @@ public enum PermissibleAction {
         this.materialName = materialName;
     }
 
-    private static Map<String, PermissibleAction> map = new HashMap<>();
+    private static Object2ObjectMap<String, PermissibleAction> map = new Object2ObjectOpenHashMap<>();
+    public static final PermissibleAction[] VALUES = PermissibleAction.values();
 
     static {
-        for (PermissibleAction action : values()) {
+        for (PermissibleAction action : VALUES) {
             map.put(action.name().toLowerCase(), action);
         }
     }
