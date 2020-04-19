@@ -8,10 +8,11 @@ import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.material.FactionMaterial;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.bukkit.event.inventory.ClickType;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -105,8 +106,8 @@ public class PermissibleRelationGUI extends GUI<Permissible> {
     }
 
     @Override
-    protected Map<Integer, Permissible> createSlotMap() {
-        Map<Integer, Permissible> map = new HashMap<>();
+    protected Int2ObjectMap<Permissible> createSlotMap() {
+        Int2ObjectMap<Permissible> map = new Int2ObjectOpenHashMap<>();
         if (online) {
             map.put(0, Role.RECRUIT);
             map.put(1, Role.NORMAL);

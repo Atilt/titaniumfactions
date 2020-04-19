@@ -9,10 +9,11 @@ import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.material.FactionMaterial;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.bukkit.ChatColor;
 import org.bukkit.event.inventory.ClickType;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -96,10 +97,10 @@ public class PermissibleActionGUI extends GUI<PermissibleAction> implements GUI.
     }
 
     @Override
-    protected Map<Integer, PermissibleAction> createSlotMap() {
-        Map<Integer, PermissibleAction> map = new HashMap<>();
+    protected Int2ObjectMap<PermissibleAction> createSlotMap() {
+        Int2ObjectMap<PermissibleAction> map = new Int2ObjectOpenHashMap<>();
         int i = 0;
-        for (PermissibleAction action : PermissibleAction.values()) {
+        for (PermissibleAction action : PermissibleAction.VALUES) {
             if (this.permissible instanceof Relation && action.isFactionOnly()) {
                 continue;
             }

@@ -3,13 +3,14 @@ package com.massivecraft.factions.gui;
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.tag.Tag;
 import com.massivecraft.factions.util.TextUtil;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +20,7 @@ public abstract class GUI<Type> implements InventoryHolder {
     protected final int size;
     protected int back = -1;
 
-    private Map<Integer, Type> slotMap = new HashMap<>();
+    private Int2ObjectMap<Type> slotMap = new Int2ObjectOpenHashMap<>();
 
     protected FPlayer user;
 
@@ -37,14 +38,15 @@ public abstract class GUI<Type> implements InventoryHolder {
 
     // Should only be called by the InventoryListener
     public void click(int slot, ClickType clickType) {
-        if (slotMap.containsKey(slot)) {
-            onClick(slotMap.get(slot), clickType);
+        Type type = slotMap.get(slot);
+        if (type != null) {
+            onClick(type, clickType);
         } else if (this instanceof Backable && back == slot) {
             ((Backable) this).onBack();
         }
     }
 
-    protected abstract Map<Integer, Type> createSlotMap();
+    protected abstract Int2ObjectMap<Type> createSlotMap();
 
     public void build() {
         String guiName = this.getName();

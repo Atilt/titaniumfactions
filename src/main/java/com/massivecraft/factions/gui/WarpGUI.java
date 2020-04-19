@@ -9,6 +9,10 @@ import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.WarmUpUtil;
 import com.massivecraft.factions.util.material.FactionMaterial;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.conversations.ConversationAbandonedEvent;
@@ -136,8 +140,8 @@ public class WarpGUI extends GUI<Integer> {
     }
 
     @Override
-    protected Map<Integer, Integer> createSlotMap() {
-        Map<Integer, Integer> map = new HashMap<>();
+    protected Int2ObjectMap<Integer> createSlotMap() {
+        Int2IntMap map = new Int2IntOpenHashMap();
         final int num;
         final int startingIndex;
         if (page == -1) {
@@ -163,7 +167,7 @@ public class WarpGUI extends GUI<Integer> {
             }
             map.put(count + modifier, warpIndex);
         }
-        return map;
+        return new Int2ObjectOpenHashMap<>(map); //disgusting
     }
 
     @Override
