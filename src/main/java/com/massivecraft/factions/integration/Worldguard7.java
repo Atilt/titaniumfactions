@@ -56,11 +56,7 @@ public class Worldguard7 implements IWorldguard {
         int maxChunkX = minChunkX + 15;
         int maxChunkZ = minChunkZ + 15;
 
-        int worldHeight = world.getMaxHeight(); // Allow for heights other than default
-
-        BlockVector3 min = BlockVector3.at(minChunkX, 0, minChunkZ);
-        BlockVector3 max = BlockVector3.at(maxChunkX, worldHeight, maxChunkZ);
-        ProtectedRegion region = new ProtectedCuboidRegion("wgregionflagcheckforfactions", min, max);
+        ProtectedRegion region = new ProtectedCuboidRegion("wgregionflagcheckforfactions", BlockVector3.at(minChunkX, 0, minChunkZ), BlockVector3.at(maxChunkX, world.getMaxHeight(), maxChunkZ));
         ApplicableRegionSet set = regions.getApplicableRegions(region);
 
         return set.size() > 0;

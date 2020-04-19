@@ -159,6 +159,14 @@ public class FastUUID {
         return new UUID(mostSignificantBits, leastSignificantBits);
     }
 
+    public static UUID parseUUIDNullable(final CharSequence sequence) {
+        try {
+            return parseUUID(sequence);
+        } catch (IllegalArgumentException exception) {
+            return null;
+        }
+    }
+
     /**
      * Returns a string representation of the given UUID. The returned string is formatted as described in
      * {@link UUID#toString()}.

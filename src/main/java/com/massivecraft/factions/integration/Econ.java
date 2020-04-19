@@ -6,8 +6,11 @@ import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.iface.EconomyParticipator;
 import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.struct.Permission;
+import com.massivecraft.factions.util.FastUUID;
 import com.massivecraft.factions.util.RelationUtil;
 import com.massivecraft.factions.util.TL;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
@@ -17,7 +20,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 import java.text.DecimalFormat;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -168,8 +170,9 @@ public class Econ {
         OfflinePlayer fromAcc;
         OfflinePlayer toAcc;
 
-        if (isUUID(from.getAccountId())) {
-            fromAcc = Bukkit.getOfflinePlayer(UUID.fromString(from.getAccountId()));
+        UUID fromId = FastUUID.parseUUIDNullable(from.getAccountId());
+        if (fromId != null) {
+            fromAcc = Bukkit.getOfflinePlayer(fromId);
             if (fromAcc.getName() == null) {
                 return false;
             }
@@ -177,8 +180,9 @@ public class Econ {
             fromAcc = Bukkit.getOfflinePlayer(from.getAccountId());
         }
 
-        if (isUUID(to.getAccountId())) {
-            toAcc = Bukkit.getOfflinePlayer(UUID.fromString(to.getAccountId()));
+        UUID toId = FastUUID.parseUUIDNullable(to.getAccountId());
+        if (toId != null) {
+            toAcc = Bukkit.getOfflinePlayer(toId);
             if (toAcc.getName() == null) {
                 return false;
             }
@@ -227,7 +231,7 @@ public class Econ {
     }
 
     public static Set<FPlayer> getFplayers(EconomyParticipator ep) {
-        Set<FPlayer> fplayers = new HashSet<>();
+        ObjectSet<FPlayer> fplayers = new ObjectOpenHashSet<>();
 
         if (ep != null) {
             if (ep instanceof FPlayer) {
@@ -241,7 +245,7 @@ public class Econ {
     }
 
     public static void sendTransferInfo(EconomyParticipator invoker, EconomyParticipator from, EconomyParticipator to, double amount) {
-        Set<FPlayer> recipients = new HashSet<>();
+        ObjectSet<FPlayer> recipients = new ObjectOpenHashSet<>();
         recipients.addAll(getFplayers(invoker));
         recipients.addAll(getFplayers(from));
         recipients.addAll(getFplayers(to));
@@ -274,10 +278,11 @@ public class Econ {
         boolean affordable = false;
         double currentBalance;
 
-        if (isUUID(ep.getAccountId())) {
-            OfflinePlayer offline = Bukkit.getOfflinePlayer(UUID.fromString(ep.getAccountId()));
+        UUID epId = FastUUID.parseUUIDNullable(ep.getAccountId());
+        if (epId != null) {
+            OfflinePlayer offline = Bukkit.getOfflinePlayer(epId);
             if (offline.getName() != null) {
-                currentBalance = econ.getBalance(Bukkit.getOfflinePlayer(UUID.fromString(ep.getAccountId())));
+                currentBalance = econ.getBalance(offline);
             } else {
                 currentBalance = 0;
             }
@@ -305,8 +310,9 @@ public class Econ {
 
         OfflinePlayer acc;
 
-        if (isUUID(ep.getAccountId())) {
-            acc = Bukkit.getOfflinePlayer(UUID.fromString(ep.getAccountId()));
+        UUID epId = FastUUID.parseUUIDNullable(ep.getAccountId());
+        if (epId != null) {
+            acc = Bukkit.getOfflinePlayer(epId);
             if (acc.getName() == null) {
                 return false;
             }
@@ -449,19 +455,5 @@ public class Econ {
         if (!econ.createPlayerAccount(name)) {
             FactionsPlugin.getInstance().getLogger().warning("FAILED TO CREATE ECONOMY ACCOUNT " + name);
         }
-    }
-
-    // ---------------------------------------
-    // Helpful Utilities
-    // ---------------------------------------
-
-    public static boolean isUUID(String uuid) {
-        try {
-            UUID.fromString(uuid);
-        } catch (IllegalArgumentException ex) {
-            return false;
-        }
-
-        return true;
     }
 }

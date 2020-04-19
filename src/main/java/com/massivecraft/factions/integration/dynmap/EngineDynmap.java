@@ -316,7 +316,7 @@ public class EngineDynmap {
         TileFlags allChunkFlags = new TileFlags();
         LinkedList<FLocation> allChunks = new LinkedList<>();
         for (FLocation chunk : chunks) {
-            allChunkFlags.setFlag((int) chunk.getX(), (int) chunk.getZ(), true); // Set flag for chunk
+            allChunkFlags.setFlag(chunk.getX(), chunk.getZ(), true); // Set flag for chunk
             allChunks.addLast(chunk);
         }
 
@@ -329,8 +329,8 @@ public class EngineDynmap {
             int minimumX = Integer.MAX_VALUE;
             int minimumZ = Integer.MAX_VALUE;
             for (FLocation chunk : allChunks) {
-                int chunkX = (int) chunk.getX();
-                int chunkZ = (int) chunk.getZ();
+                int chunkX = chunk.getX();
+                int chunkZ = chunk.getZ();
 
                 // If we need to start shape, and this block is not part of one yet
                 if (ourChunkFlags == null && allChunkFlags.getFlag(chunkX, chunkZ)) {

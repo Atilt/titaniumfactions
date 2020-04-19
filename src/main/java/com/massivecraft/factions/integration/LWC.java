@@ -6,16 +6,16 @@ import com.massivecraft.factions.FLocation;
 import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.FactionsPlugin;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
+import it.unimi.dsi.fastutil.objects.ObjectSets;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.plugin.Plugin;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Set;
 
 public class LWC {
     private static com.griefcraft.lwc.LWC lwc;
@@ -56,21 +56,18 @@ public class LWC {
         }
     }
 
-    private static List<Block> findBlocks(FLocation flocation) {
+    private static Set<Block> findBlocks(FLocation flocation) {
         World world = Bukkit.getWorld(flocation.getWorldName());
         if (world == null) {
-            return Collections.emptyList();  // world not loaded or something? cancel out to prevent error
+            return ObjectSets.emptySet(); // world not loaded or something? cancel out to prevent error
         }
-        Location location = new Location(world, flocation.getX() * 16, 5, flocation.getZ() * 16);
-
-        BlockState[] blocks = location.getChunk().getTileEntities();
-        List<Block> lwcBlocks = new LinkedList<>();
-
-        for (BlockState block : blocks) {
-            if (lwc.isProtectable(block)) {
-                lwcBlocks.add(block.getBlock());
+        ObjectSet<Block> blocks = new ObjectOpenHashSet<>();
+        for (BlockState tileEntity : world.getChunkAt(flocation.getX(), flocation.getZ()).getTileEntities()) {
+            if (!lwc.isProtectable(tileEntity)) {
+                continue;
             }
+            blocks.add(tileEntity.getBlock());
         }
-        return lwcBlocks;
+        return blocks;
     }
 }
