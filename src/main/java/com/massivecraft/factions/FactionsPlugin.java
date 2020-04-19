@@ -623,29 +623,29 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         safeZoneNerfedCreatureTypes.add(EntityType.WITHER);
         safeZoneNerfedCreatureTypes.add(EntityType.ZOMBIE);
         if (FactionsPlugin.getMCVersion() >= 900) {
-            safeZoneNerfedCreatureTypes.add(EntityType.SHULKER);
+            safeZoneNerfedCreatureTypes.add(EntityType.fromName("SHULKER"));
         }
         if (FactionsPlugin.getMCVersion() >= 1000) {
-            safeZoneNerfedCreatureTypes.add(EntityType.HUSK);
-            safeZoneNerfedCreatureTypes.add(EntityType.STRAY);
+            safeZoneNerfedCreatureTypes.add(EntityType.fromName("HUSK"));
+            safeZoneNerfedCreatureTypes.add(EntityType.fromName("STRAY"));
         }
         if (FactionsPlugin.getMCVersion() >= 1100) {
-            safeZoneNerfedCreatureTypes.add(EntityType.ELDER_GUARDIAN);
-            safeZoneNerfedCreatureTypes.add(EntityType.EVOKER);
-            safeZoneNerfedCreatureTypes.add(EntityType.VEX);
-            safeZoneNerfedCreatureTypes.add(EntityType.VINDICATOR);
-            safeZoneNerfedCreatureTypes.add(EntityType.ZOMBIE_VILLAGER);
+            safeZoneNerfedCreatureTypes.add(EntityType.fromName("ELDER_GUARDIAN"));
+            safeZoneNerfedCreatureTypes.add(EntityType.fromName("EVOKER"));
+            safeZoneNerfedCreatureTypes.add(EntityType.fromName("VEX"));
+            safeZoneNerfedCreatureTypes.add(EntityType.fromName("VINDICATOR"));
+            safeZoneNerfedCreatureTypes.add(EntityType.fromName("ZOMBIE_VILLAGER"));
         }
         if (FactionsPlugin.getMCVersion() >= 1300) {
-            safeZoneNerfedCreatureTypes.add(EntityType.DROWNED);
-            safeZoneNerfedCreatureTypes.add(EntityType.PHANTOM);
+            safeZoneNerfedCreatureTypes.add(EntityType.fromName("DROWNED"));
+            safeZoneNerfedCreatureTypes.add(EntityType.fromName("PHANTOM"));
         }
         if (FactionsPlugin.getMCVersion() >= 1400) {
-            safeZoneNerfedCreatureTypes.add(EntityType.PILLAGER);
-            safeZoneNerfedCreatureTypes.add(EntityType.RAVAGER);
+            safeZoneNerfedCreatureTypes.add(EntityType.fromName("PILLAGER"));
+            safeZoneNerfedCreatureTypes.add(EntityType.fromName("RAVAGER"));
         }
         if (FactionsPlugin.getMCVersion() >= 1500) {
-            safeZoneNerfedCreatureTypes.add(EntityType.BEE);
+            safeZoneNerfedCreatureTypes.add(EntityType.fromName("BEE"));
         }
     }
 
