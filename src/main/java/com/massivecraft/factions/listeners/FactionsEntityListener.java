@@ -14,16 +14,16 @@ import com.massivecraft.factions.util.TL;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Creeper;
-import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.Wither;
-import org.bukkit.entity.WitherSkull;
 import org.bukkit.entity.minecart.ExplosiveMinecart;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
@@ -46,12 +46,10 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 
 public class FactionsEntityListener extends AbstractListener {
@@ -95,18 +93,18 @@ public class FactionsEntityListener extends AbstractListener {
             Entity damagee = sub.getEntity();
             Entity damager = sub.getDamager();
 
-            if (damagee instanceof Player) {
+            if (damagee.getType() == EntityType.PLAYER) {
                 cancelFStuckTeleport((Player) damagee);
                 cancelFFly((Player) damagee);
             }
-            if (damager instanceof Player) {
+            if (damager.getType() == EntityType.PLAYER) {
                 cancelFStuckTeleport((Player) damager);
                 cancelFFly((Player) damager);
             }
         } else if (FactionsPlugin.getInstance().conf().factions().protection().isSafeZonePreventAllDamageToPlayers() && isPlayerInSafeZone(event.getEntity())) {
             // Players can not take any damage in a Safe Zone
             event.setCancelled(true);
-        } else if (event.getCause() == EntityDamageEvent.DamageCause.FALL && event.getEntity() instanceof Player) {
+        } else if (event.getCause() == EntityDamageEvent.DamageCause.FALL && event.getEntity().getType() == EntityType.PLAYER) {
             Player player = (Player) event.getEntity();
             FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
             if (fPlayer != null && !fPlayer.shouldTakeFallDamage()) {
@@ -116,7 +114,7 @@ public class FactionsEntityListener extends AbstractListener {
 
         // entity took generic damage?
         Entity entity = event.getEntity();
-        if (entity instanceof Player) {
+        if (entity.getType() == EntityType.PLAYER) {
             Player player = (Player) entity;
             FPlayer me = FPlayers.getInstance().getByPlayer(player);
             cancelFStuckTeleport(player);
@@ -148,10 +146,8 @@ public class FactionsEntityListener extends AbstractListener {
         if (player == null) {
             return;
         }
-        UUID uuid = player.getUniqueId();
-        if (FactionsPlugin.getInstance().getStuckMap().containsKey(uuid)) {
+        if (FactionsPlugin.getInstance().getStuckMap().remove(player.getUniqueId()) != null) {
             FPlayers.getInstance().getByPlayer(player).msg(TL.COMMAND_STUCK_CANCELLED);
-            FactionsPlugin.getInstance().getStuckMap().remove(uuid);
         }
     }
 
@@ -164,6 +160,15 @@ public class FactionsEntityListener extends AbstractListener {
     public void onBlockExplode(BlockExplodeEvent event) {
         this.handleExplosion(event.getBlock().getLocation(), null, event, event.blockList());
     }
+    
+    public static final BlockFace[] FACES = new BlockFace[]{
+            BlockFace.NORTH,
+            BlockFace.SOUTH,
+            BlockFace.EAST,
+            BlockFace.WEST,
+            BlockFace.UP,
+            BlockFace.DOWN
+    };
 
     private void handleExplosion(Location loc, Entity boomer, Cancellable event, List<Block> blockList) {
         if (!plugin.worldUtil().isEnabled(loc.getWorld())) {
@@ -177,44 +182,38 @@ public class FactionsEntityListener extends AbstractListener {
 
         blockList.removeIf(block -> explosionDisallowed(boomer, block.getLocation()));
 
-        if ((boomer instanceof TNTPrimed || boomer instanceof ExplosiveMinecart) && FactionsPlugin.getInstance().conf().exploits().isTntWaterlog()) {
+        if ((boomer.getType() == EntityType.PRIMED_TNT|| boomer.getType() == EntityType.MINECART_TNT) && FactionsPlugin.getInstance().conf().exploits().isTntWaterlog()) {
             // TNT in water/lava doesn't normally destroy any surrounding blocks, which is usually desired behavior, but...
             // this change below provides workaround for waterwalling providing perfect protection,
             // and makes cheap (non-obsidian) TNT cannons require minor maintenance between shots
             Block center = loc.getBlock();
             if (center.isLiquid()) {
                 // a single surrounding block in all 6 directions is broken if the material is weak enough
-                List<Block> targets = new ArrayList<>();
-                targets.add(center.getRelative(0, 0, 1));
-                targets.add(center.getRelative(0, 0, -1));
-                targets.add(center.getRelative(0, 1, 0));
-                targets.add(center.getRelative(0, -1, 0));
-                targets.add(center.getRelative(1, 0, 0));
-                targets.add(center.getRelative(-1, 0, 0));
-                for (Block target : targets) {
-                    if (explosionDisallowed(boomer, target.getLocation())) {
+                for (BlockFace target : FACES) {
+                    Block relative = center.getRelative(target);
+                    if (explosionDisallowed(boomer, relative.getLocation())) {
                         continue;
                     }
                     boolean go = true;
                     // TODO get resistance value via NMS for future-proofing
-                    switch (target.getType()) {
-                        case AIR:
-                        case BEDROCK:
-                        case WATER:
-                        case LAVA:
-                        case OBSIDIAN:
-                        case NETHER_PORTAL:
-                        case ENCHANTING_TABLE:
-                        case ANVIL:
-                        case CHIPPED_ANVIL:
-                        case DAMAGED_ANVIL:
-                        case END_PORTAL:
-                        case END_PORTAL_FRAME:
-                        case ENDER_CHEST:
+                    switch (relative.getType().name()) {
+                        case "AIR":
+                        case "BEDROCK":
+                        case "WATER":
+                        case "LAVA":
+                        case "OBSIDIAN":
+                        case "NETHER_PORTAL":
+                        case "ENCHANTING_TABLE":
+                        case "ANVIL":
+                        case "CHIPPED_ANVIL":
+                        case "DAMAGED_ANVIL":
+                        case "END_PORTAL":
+                        case "END_PORTAL_FRAME":
+                        case "ENDER_CHEST":
                             go = false;
                     }
                     if (go) {
-                        target.breakNaturally();
+                        relative.breakNaturally();
                     }
                 }
             }
@@ -236,10 +235,7 @@ public class FactionsEntityListener extends AbstractListener {
             // creeper which needs prevention
             return true;
         } else if (
-                (boomer instanceof Fireball || boomer instanceof WitherSkull || boomer instanceof Wither) && ((faction.isWilderness() && protection.isWildernessBlockFireballs() && !protection.getWorldsNoWildernessProtection().contains(location.getWorld().getName())) ||
-                        (faction.isNormal() && (online ? protection.isTerritoryBlockFireballs() : protection.isTerritoryBlockFireballsWhenOffline())) ||
-                        (faction.isWarZone() && protection.isWarZoneBlockFireballs()) ||
-                        faction.isSafeZone())) {
+                (boomer instanceof Fireball || boomer instanceof Wither) && (faction.isWilderness() && protection.isWildernessBlockFireballs() && !protection.getWorldsNoWildernessProtection().contains(location.getWorld().getName()) || faction.isNormal() && (online ? protection.isTerritoryBlockFireballs() : protection.isTerritoryBlockFireballsWhenOffline()) || faction.isWarZone() && protection.isWarZoneBlockFireballs() || faction.isSafeZone())) {
             // ghast fireball which needs prevention
             // it's a bit crude just using fireball protection for Wither boss too, but I'd rather not add in a whole new set of xxxBlockWitherExplosion or whatever
             return true;
@@ -249,13 +245,10 @@ public class FactionsEntityListener extends AbstractListener {
                 (faction.isSafeZone() && protection.isSafeZoneBlockTNT()))) {
             // TNT which needs prevention
             return true;
-        } else if (((faction.isWilderness() && protection.isWildernessBlockOtherExplosions() && !protection.getWorldsNoWildernessProtection().contains(location.getWorld().getName())) ||
+        } else return ((faction.isWilderness() && protection.isWildernessBlockOtherExplosions() && !protection.getWorldsNoWildernessProtection().contains(location.getWorld().getName())) ||
                 (faction.isNormal() && (online ? protection.isTerritoryBlockOtherExplosions() : protection.isTerritoryBlockOtherExplosionsWhenOffline())) ||
                 (faction.isWarZone() && protection.isWarZoneBlockOtherExplosions()) ||
-                (faction.isSafeZone() && protection.isSafeZoneBlockOtherExplosions()))) {
-            return true;
-        }
-        return false;
+                (faction.isSafeZone() && protection.isSafeZoneBlockOtherExplosions()));
     }
 
     // mainly for flaming arrows; don't want allies or people in safe zones to be ignited even after damage event is cancelled
@@ -299,7 +292,7 @@ public class FactionsEntityListener extends AbstractListener {
         if (thrower instanceof Player) {
             Player player = (Player) thrower;
             FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
-            if (badjuju && fPlayer.getFaction().isPeaceful()) {
+            if (fPlayer.getFaction().isPeaceful()) {
                 event.setCancelled(true);
                 return;
             }
@@ -343,11 +336,11 @@ public class FactionsEntityListener extends AbstractListener {
         if (damager instanceof Player) {
             Player player = (Player) damager;
             Material material = null;
-            switch (sub.getEntity().getType()) {
-                case ITEM_FRAME:
+            switch (sub.getEntity().getType().name()) {
+                case "ITEM_FRAME":
                     material = Material.ITEM_FRAME;
                     break;
-                case ARMOR_STAND:
+                case "ARMOR_STAND":
                     material = Material.ARMOR_STAND;
                     break;
             }
@@ -375,7 +368,7 @@ public class FactionsEntityListener extends AbstractListener {
 
         // Players can not take attack damage in a SafeZone, or possibly peaceful territory
         if (defLocFaction.noPvPInTerritory()) {
-            if (damager instanceof Player) {
+            if (damager.getType() == EntityType.PLAYER) {
                 if (notify) {
                     FPlayer attacker = FPlayers.getInstance().getByPlayer((Player) damager);
                     attacker.msg(TL.PLAYER_CANTHURT, (defLocFaction.isSafeZone() ? TL.REGION_SAFEZONE.toString() : TL.REGION_PEACEFUL.toString()));
@@ -385,7 +378,7 @@ public class FactionsEntityListener extends AbstractListener {
             return !defLocFaction.noMonstersInTerritory();
         }
 
-        if (!(damager instanceof Player)) {
+        if (damager.getType() != EntityType.PLAYER) {
             return true;
         }
 
@@ -510,11 +503,7 @@ public class FactionsEntityListener extends AbstractListener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onCreatureSpawn(CreatureSpawnEvent event) {
-        if (!plugin.worldUtil().isEnabled(event.getEntity().getWorld())) {
-            return;
-        }
-
-        if (event.getLocation() == null) {
+        if (event.getLocation() == null || !plugin.worldUtil().isEnabled(event.getEntity().getWorld())) {
             return;
         }
 
@@ -535,12 +524,12 @@ public class FactionsEntityListener extends AbstractListener {
             return;
         }
 
-        // We are interested in blocking targeting for certain mobs:
+        // We are interested in blocking targeting for certain mobs":
         if (!FactionsPlugin.getInstance().getSafeZoneNerfedCreatureTypes().contains(MiscUtil.creatureTypeFromEntity(event.getEntity()))) {
             return;
         }
 
-        // in case the target is in a safe zone.
+        // in case "the target is in a safe zone.
         if (Board.getInstance().getFactionAt(new FLocation(target.getLocation())).noMonstersInTerritory()) {
             event.setCancelled(true);
         }
@@ -606,20 +595,14 @@ public class FactionsEntityListener extends AbstractListener {
         Entity entity = event.getEntity();
 
         // for now, only interested in Enderman and Wither boss tomfoolery
-        if (!(entity instanceof Enderman) && !(entity instanceof Wither)) {
-            return;
-        }
-
-        Location loc = event.getBlock().getLocation();
-
-        if (entity instanceof Enderman) {
-            if (stopEndermanBlockManipulation(loc)) {
+        if (entity.getType() == EntityType.ENDERMAN) {
+            if (stopEndermanBlockManipulation(event.getBlock().getLocation())) {
                 event.setCancelled(true);
             }
-        } else if (entity instanceof Wither) {
-            Faction faction = Board.getInstance().getFactionAt(new FLocation(loc));
+        } else if (entity.getType() == EntityType.WITHER) {
+            Faction faction = Board.getInstance().getFactionAt(new FLocation(event.getBlock().getLocation()));
             // it's a bit crude just using fireball protection, but I'd rather not add in a whole new set of xxxBlockWitherExplosion or whatever
-            if ((faction.isWilderness() && FactionsPlugin.getInstance().conf().factions().protection().isWildernessBlockFireballs() && !FactionsPlugin.getInstance().conf().factions().protection().getWorldsNoWildernessProtection().contains(loc.getWorld().getName())) ||
+            if ((faction.isWilderness() && FactionsPlugin.getInstance().conf().factions().protection().isWildernessBlockFireballs() && !FactionsPlugin.getInstance().conf().factions().protection().getWorldsNoWildernessProtection().contains(event.getBlock().getWorld().getName())) ||
                     (faction.isNormal() && (faction.hasPlayersOnline() ? FactionsPlugin.getInstance().conf().factions().protection().isTerritoryBlockFireballs() : FactionsPlugin.getInstance().conf().factions().protection().isTerritoryBlockFireballsWhenOffline())) ||
                     (faction.isWarZone() && FactionsPlugin.getInstance().conf().factions().protection().isWarZoneBlockFireballs()) ||
                     faction.isSafeZone()) {
