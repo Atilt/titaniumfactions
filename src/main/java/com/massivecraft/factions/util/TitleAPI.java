@@ -63,6 +63,10 @@ public class TitleAPI {
      * @param fadeOutTime The time the title takes to fade out
      */
     public void sendTitle(Player player, String title, String subtitle, int fadeInTime, int showTime, int fadeOutTime) {
+        if (supportsAPI) {
+            player.sendTitle(title, subtitle, fadeInTime, showTime, fadeOutTime);
+            return;
+        }
         if (bailOut) {
             return;
         }
