@@ -50,8 +50,8 @@ public abstract class SpiralTask implements Runnable {
             return;
         }
 
-        this.x = (int) fLocation.getX();
-        this.z = (int) fLocation.getZ();
+        this.x = fLocation.getX();
+        this.z = fLocation.getZ();
 
         this.readyToGo = true;
 

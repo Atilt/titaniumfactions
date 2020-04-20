@@ -292,9 +292,6 @@ public class FactionsEntityListener extends AbstractListener {
         if (thrower instanceof Player) {
             Player player = (Player) thrower;
             FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
-            if (fPlayer.hasFaction()) {
-
-            }
             if (fPlayer.getFaction().isPeaceful()) {
                 event.setCancelled(true);
                 return;

@@ -6,6 +6,8 @@ import com.massivecraft.factions.config.annotation.Comment;
 import com.massivecraft.factions.config.annotation.WipeOnReload;
 import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.util.material.FactionMaterial;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSets;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -1146,7 +1148,7 @@ public class MainConfig {
             }
 
             public Set<String> getWorldsNoClaiming() {
-                return worldsNoClaiming == null ? Collections.emptySet() : Collections.unmodifiableSet(worldsNoClaiming);
+                return worldsNoClaiming == null ? ObjectSets.emptySet() : new ObjectOpenHashSet<>(worldsNoClaiming);
             }
         }
 

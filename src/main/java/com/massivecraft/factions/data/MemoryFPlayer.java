@@ -853,13 +853,12 @@ public abstract class MemoryFPlayer implements FPlayer {
         // notifyFailure is false if called by auto-claim; no need to notify on every failure for it
         // return value is false on failure, true on success
 
-        Faction currentFaction = Board.getInstance().getFactionAt(flocation);
-
         int ownedLand = forFaction.getLandRounded();
 
         if (!this.canClaimForFactionAtLocation(forFaction, flocation, notifyFailure)) {
             return false;
         }
+        Faction currentFaction = Board.getInstance().getFactionAt(flocation);
 
         // if economy is enabled and they're not on the bypass list, make sure they can pay
         boolean mustPay = Econ.shouldBeUsed() && !this.isAdminBypassing() && !forFaction.isSafeZone() && !forFaction.isWarZone();
@@ -1069,41 +1068,36 @@ public abstract class MemoryFPlayer implements FPlayer {
         if (msg.contains("{null}")) {
             return; // user wants this message to not send
         }
-        if (msg.contains("/n/")) {
-            for (String s : msg.split("/n/")) {
-                sendMessage(s);
+        for (String s : msg.split("/n/")) {
+            Player player = this.getPlayer();
+            if (player != null) {
+                player.sendMessage(s);
             }
-            return;
-        }
-        Player player = this.getPlayer();
-        if (player != null) {
-            player.sendMessage(msg);
         }
     }
 
     public void sendMessage(List<String> msgs) {
-        for (String msg : msgs) {
-            this.sendMessage(msg);
+        Player player = this.getPlayer();
+        if (player != null) {
+            for (String msg : msgs) {
+                player.sendMessage(msg);
+            }
         }
     }
 
     public void sendFancyMessage(FancyMessage message) {
         Player player = getPlayer();
-        if (player == null) {
-            return;
+        if (player != null) {
+            message.send(player);
         }
-
-        message.send(player);
     }
 
     public void sendFancyMessage(List<FancyMessage> messages) {
         Player player = getPlayer();
-        if (player == null) {
-            return;
-        }
-
-        for (FancyMessage msg : messages) {
-            msg.send(player);
+        if (player != null) {
+            for (FancyMessage msg : messages) {
+                msg.send(player);
+            }
         }
     }
 
