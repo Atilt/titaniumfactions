@@ -1,6 +1,7 @@
 package com.massivecraft.factions.util;
 
 import com.massivecraft.factions.FactionsPlugin;
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 
 import java.io.File;
 import java.lang.reflect.Type;
@@ -99,8 +100,12 @@ public class Persist {
         return save(instance, getFile(name));
     }
 
+    public boolean save(Object instance, File file, BooleanConsumer finish) {
+        return DiscUtil.writeCatch(file, plugin.getGson().toJson(instance), true, finish);
+    }
+
     public boolean save(Object instance, File file) {
-        return DiscUtil.writeCatch(file, plugin.getGson().toJson(instance), true);
+        return save(instance, file, null);
     }
 
     // LOAD BY CLASS
