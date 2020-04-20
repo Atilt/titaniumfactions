@@ -12,6 +12,7 @@ import com.massivecraft.factions.data.MemoryFactions;
 import com.massivecraft.factions.util.DiscUtil;
 import com.massivecraft.factions.util.UUIDFetcher;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
+import org.bukkit.Bukkit;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +23,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.IntConsumer;
 import java.util.logging.Level;
 
 public class JSONFactions extends MemoryFactions {
@@ -64,7 +66,7 @@ public class JSONFactions extends MemoryFactions {
         return DiscUtil.writeCatch(target, FactionsPlugin.getInstance().getGson().toJson(entities), sync, finish);
     }
 
-    public int load(BooleanConsumer finish) {
+/*    public int load(BooleanConsumer finish) {
         Map<String, JSONFaction> factions = this.loadCore(finish);
         if (factions == null) {
             return 0;
@@ -73,6 +75,21 @@ public class JSONFactions extends MemoryFactions {
 
         super.load();
         return factions.size();
+    }*/
+
+    @Override
+    public void load(IntConsumer loaded) {
+        Bukkit.getScheduler().runTaskAsynchronously(FactionsPlugin.getInstance(), () -> {
+            Map<String, JSONFaction> factions = this.loadCore(null);
+            int amount = factions.size();
+            Bukkit.getScheduler().runTask(FactionsPlugin.getInstance(), () -> {
+                if (amount > 0) {
+                    this.factions.clear();
+                    this.factions.putAll(factions);
+                }
+                loaded.accept(amount);
+            });
+        });
     }
 
     private Map<String, JSONFaction> loadCore(BooleanConsumer finish) {

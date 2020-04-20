@@ -7,6 +7,7 @@ import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.data.MemoryBoard;
 import com.massivecraft.factions.util.DiscUtil;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
+import org.bukkit.Bukkit;
 
 import java.io.File;
 import java.lang.reflect.Type;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.function.IntConsumer;
 import java.util.logging.Level;
 
 
@@ -90,6 +92,29 @@ public class JSONBoard extends MemoryBoard {
         }
 
         return flocationIds.size();
+    }
+
+    @Override
+    public void load(IntConsumer loaded) {
+        if (!file.exists()) {
+            FactionsPlugin.getInstance().getLogger().info("No board to load from disk. Creating new file.");
+            forceSave(null);
+            loaded.accept(0);
+            return;
+        }
+        Bukkit.getScheduler().runTaskAsynchronously(FactionsPlugin.getInstance(), () -> {
+            try {
+                Map<String, Map<String, String>> worldCoordIds = FactionsPlugin.getInstance().getGson().fromJson(DiscUtil.read(file), new TypeToken<Map<String, Map<String, String>>>(){}.getType());
+
+                Bukkit.getScheduler().runTask(FactionsPlugin.getInstance(), () -> {
+                    loadFromSaveFormat(worldCoordIds);
+                    loaded.accept(this.flocationIds.size());
+                });
+            } catch (Exception e) {
+                FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to load the board from disk.", e);
+                loaded.accept(0);
+            }
+        });
     }
 
     @Override
