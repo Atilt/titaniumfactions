@@ -984,6 +984,8 @@ public enum TL {
     private static YamlConfiguration LANG;
     public static SimpleDateFormat sdf;
 
+    private static final Object LOCK = new Object();
+
     /**
      * Lang enum constructor.
      *
@@ -1014,8 +1016,10 @@ public enum TL {
      * @param config The config to set.
      */
     public static void setFile(YamlConfiguration config) {
-        LANG = config;
-        sdf = new SimpleDateFormat(DATE_FORMAT.toString());
+        synchronized (LOCK) {
+            LANG = config;
+            sdf = new SimpleDateFormat(DATE_FORMAT.toString());
+        }
     }
 
     @Override
@@ -1044,4 +1048,6 @@ public enum TL {
     public String getPath() {
         return this.path;
     }
+
+    public static final TL[] VALUES = values();
 }

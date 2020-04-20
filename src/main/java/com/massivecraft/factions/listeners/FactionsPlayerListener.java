@@ -37,6 +37,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
@@ -47,6 +48,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -80,6 +82,19 @@ public class FactionsPlayerListener extends AbstractListener {
         this.plugin = plugin;
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             initPlayer(player);
+        }
+    }
+
+    /**
+     * Denies the player from joining the server if faction data has not yet been loaded.
+     * This will ensure that players do not grief areas (or similar) whose data has not yet loaded.
+     * @param event
+     */
+    @EventHandler
+    public void onAsyncPlayerPreLogin(AsyncPlayerPreLoginEvent event) {
+        if (!this.plugin.isFinishedLoading()) {
+            event.setResult(PlayerPreLoginEvent.Result.KICK_OTHER);
+            event.setKickMessage("implement customizable message here");
         }
     }
 
@@ -198,6 +213,11 @@ public class FactionsPlayerListener extends AbstractListener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerMove(PlayerMoveEvent event) {
         if (!plugin.worldUtil().isEnabled(event.getPlayer().getWorld())) {
+            return;
+        }
+        if (!plugin.isFinishedLoading()) {
+            //plugin not yet finished loading player & faction data
+            event.setCancelled(true);
             return;
         }
 
@@ -337,6 +357,11 @@ public class FactionsPlayerListener extends AbstractListener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (!plugin.worldUtil().isEnabled(event.getPlayer().getWorld())) {
+            return;
+        }
+        if (!plugin.isFinishedLoading()) {
+            //data not yet loaded
+            event.setCancelled(true);
             return;
         }
 
