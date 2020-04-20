@@ -292,6 +292,9 @@ public class FactionsEntityListener extends AbstractListener {
         if (thrower instanceof Player) {
             Player player = (Player) thrower;
             FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
+            if (fPlayer.hasFaction()) {
+
+            }
             if (fPlayer.getFaction().isPeaceful()) {
                 event.setCancelled(true);
                 return;
@@ -503,11 +506,10 @@ public class FactionsEntityListener extends AbstractListener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onCreatureSpawn(CreatureSpawnEvent event) {
-        if (event.getLocation() == null || !plugin.worldUtil().isEnabled(event.getEntity().getWorld())) {
+        if (!plugin.worldUtil().isEnabled(event.getEntity().getWorld())) {
             return;
         }
-
-        if (FactionsPlugin.getInstance().getSafeZoneNerfedCreatureTypes().contains(event.getEntityType()) && Board.getInstance().getFactionAt(new FLocation(event.getLocation())).noMonstersInTerritory()) {
+        if (FactionsPlugin.getInstance().getSafeZoneNerfedCreatureTypes().contains(event.getEntityType()) && Board.getInstance().getFactionAt(new FLocation(event.getLocation())).noMonstersInTerritory()){
             event.setCancelled(true);
         }
     }

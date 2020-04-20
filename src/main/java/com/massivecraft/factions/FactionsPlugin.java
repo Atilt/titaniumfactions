@@ -285,7 +285,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         this.getLogger().info("Server UUID " + this.serverUUID);
 
         loadLang(result -> {
-            if (result) {
+            if (!result) {
                 Bukkit.getPluginManager().disablePlugin(this);
                 return;
             }

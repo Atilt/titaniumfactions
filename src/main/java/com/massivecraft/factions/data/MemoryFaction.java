@@ -25,6 +25,12 @@ import com.massivecraft.factions.util.LazyLocation;
 import com.massivecraft.factions.util.MiscUtil;
 import com.massivecraft.factions.util.RelationUtil;
 import com.massivecraft.factions.util.TL;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
+import it.unimi.dsi.fastutil.objects.ObjectSets;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -823,14 +829,14 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     public Set<FPlayer> getFPlayers() {
         // return a shallow copy of the FPlayer list, to prevent tampering and
         // concurrency issues
-        return new HashSet<>(fplayers);
+        return new ObjectOpenHashSet<>(fplayers);
     }
 
     public Set<FPlayer> getFPlayersWhereOnline(boolean online) {
-        Set<FPlayer> ret = new HashSet<>();
         if (!this.isNormal()) {
-            return ret;
+            return ObjectSets.emptySet();
         }
+        ObjectSet<FPlayer> ret = new ObjectOpenHashSet<>();
 
         for (FPlayer fplayer : fplayers) {
             if (fplayer.isOnline() == online) {
@@ -842,11 +848,10 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     }
 
     public Set<FPlayer> getFPlayersWhereOnline(boolean online, FPlayer viewer) {
-        Set<FPlayer> ret = new HashSet<>();
         if (!this.isNormal()) {
-            return ret;
+            return ObjectSets.emptySet();
         }
-
+        ObjectSet<FPlayer> ret = new ObjectOpenHashSet<>();
         for (FPlayer viewed : fplayers) {
             // Add if their online status is what we want
             if (viewed.isOnline() == online) {
@@ -881,11 +886,11 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         return null;
     }
 
-    public ArrayList<FPlayer> getFPlayersWhereRole(Role role) {
-        ArrayList<FPlayer> ret = new ArrayList<>();
+    public List<FPlayer> getFPlayersWhereRole(Role role) {
         if (!this.isNormal()) {
-            return ret;
+            return ObjectLists.emptyList();
         }
+        ObjectList<FPlayer> ret = new ObjectArrayList<>();
 
         for (FPlayer fplayer : fplayers) {
             if (fplayer.getRole() == role) {
@@ -896,13 +901,13 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         return ret;
     }
 
-    public ArrayList<Player> getOnlinePlayers() {
-        ArrayList<Player> ret = new ArrayList<>();
+    public List<Player> getOnlinePlayers() {
         if (this.isPlayerFreeType()) {
-            return ret;
+            return ObjectLists.emptyList();
         }
+        ObjectList<Player> ret = new ObjectArrayList<>();
 
-        for (Player player : FactionsPlugin.getInstance().getServer().getOnlinePlayers()) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
             FPlayer fplayer = FPlayers.getInstance().getByPlayer(player);
             if (fplayer.getFaction() == this) {
                 ret.add(player);
@@ -920,7 +925,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
             return false;
         }
 
-        for (Player player : FactionsPlugin.getInstance().getServer().getOnlinePlayers()) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
             FPlayer fplayer = FPlayers.getInstance().getByPlayer(player);
             if (fplayer != null && fplayer.getFaction() == this) {
                 return true;
@@ -951,7 +956,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         FPlayer oldLeader = this.getFPlayerAdmin();
 
         // get list of coleaders, or mods, or list of normal members if there are no moderators
-        ArrayList<FPlayer> replacements = this.getFPlayersWhereRole(Role.COLEADER);
+        List<FPlayer> replacements = this.getFPlayersWhereRole(Role.COLEADER);
         if (replacements == null || replacements.isEmpty()) {
             replacements = this.getFPlayersWhereRole(Role.MODERATOR);
         }
@@ -1117,7 +1122,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
             }
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(FastUUID.parseUUID(anOwnerData));
             //TODO:TL
-            ownerList.append(offlinePlayer != null ? offlinePlayer.getName() : "null player");
+            ownerList.append(offlinePlayer.getName() == null ? "null player" : offlinePlayer.getName());
         }
         return ownerList.toString();
     }

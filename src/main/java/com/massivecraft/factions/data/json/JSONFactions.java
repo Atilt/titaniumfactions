@@ -87,6 +87,7 @@ public class JSONFactions extends MemoryFactions {
                 if (amount > 0) {
                     this.factions.putAll(factions);
                 }
+                super.load();
                 loaded.accept(amount);
             });
         });
@@ -94,6 +95,7 @@ public class JSONFactions extends MemoryFactions {
 
     private Map<String, JSONFaction> loadCore(BooleanConsumer finish) {
         if (!this.file.exists()) {
+            //wilderness not being loaded
             return new HashMap<>();
         }
 

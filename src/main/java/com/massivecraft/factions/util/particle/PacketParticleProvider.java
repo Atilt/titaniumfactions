@@ -26,6 +26,20 @@ public class PacketParticleProvider implements ParticleProvider<ParticleEffect> 
     }
 
     @Override
+    public void playerSpawn(Player player, ParticleEffect particleEffect, int count, Location... locations) {
+        for (Location location : locations) {
+            playerSpawn(player, particleEffect, location, count);
+        }
+    }
+
+    @Override
+    public void playerSpawn(Player player, ParticleEffect particleEffect, ParticleColor color, Location... locations) {
+        for (Location location : locations) {
+            playerSpawn(player, particleEffect, location, color);
+        }
+    }
+
+    @Override
     public void spawn(ParticleEffect particleEffect, Location location, int count, double speed, double offsetX, double offsetY, double offsetZ) {
         particleEffect.display((float) offsetX, (float) offsetY, (float) offsetZ, (float) speed, count, location, new ArrayList<>(Bukkit.getOnlinePlayers()));
     }

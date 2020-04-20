@@ -37,6 +37,12 @@ public class VisualizeUtil {
         player.sendBlockChange(location, material, (byte) 0);
     }
 
+    public static void addLocations(Player player, Material material, Location... locations) {
+        for (Location location : locations) {
+            addLocation(player, location, material);
+        }
+    }
+
     @SuppressWarnings("deprecation")
     public static void addLocations(Player player, Map<Location, Material> locationMaterialIds) {
         Set<Location> ploc = getPlayerLocations(player);

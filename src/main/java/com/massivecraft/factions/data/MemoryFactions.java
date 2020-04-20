@@ -18,61 +18,20 @@ public abstract class MemoryFactions extends Factions {
     public int nextId = 1;
 
     public int load() {
-        // Make sure the default neutral faction exists
-        if (!factions.containsKey("0")) {
-            Faction faction = generateFactionObject("0");
-            factions.put("0", faction);
-            faction.setTag(TL.WILDERNESS.toString());
-            faction.setDescription(TL.WILDERNESS_DESCRIPTION.toString());
-        } else {
-            Faction faction = factions.get("0");
-            if (!faction.getTag().equalsIgnoreCase(TL.WILDERNESS.toString())) {
-                faction.setTag(TL.WILDERNESS.toString());
-            }
-            if (!faction.getDescription().equalsIgnoreCase(TL.WILDERNESS_DESCRIPTION.toString())) {
-                faction.setDescription(TL.WILDERNESS_DESCRIPTION.toString());
-            }
-        }
+        // Make sure the default neutral factions exists
 
-        // Make sure the safe zone faction exists
-        if (!factions.containsKey("-1")) {
-            Faction faction = generateFactionObject("-1");
-            factions.put("-1", faction);
-            faction.setTag(TL.SAFEZONE.toString());
-            faction.setDescription(TL.SAFEZONE_DESCRIPTION.toString());
-        } else {
-            Faction faction = factions.get("-1");
-            if (!faction.getTag().equalsIgnoreCase(TL.SAFEZONE.toString())) {
-                faction.setTag(TL.SAFEZONE.toString());
-            }
-            if (!faction.getDescription().equalsIgnoreCase(TL.SAFEZONE_DESCRIPTION.toString())) {
-                faction.setDescription(TL.SAFEZONE_DESCRIPTION.toString());
-            }
-            // if SafeZone has old pre-1.6.0 name, rename it to remove troublesome " "
-            if (faction.getTag().contains(" ")) {
-                faction.setTag(TL.SAFEZONE.toString());
-            }
-        }
+        Faction wilderness = factions.computeIfAbsent("0", s -> generateFactionObject("0"));
+        wilderness.setTag(TL.WILDERNESS.toString());
+        wilderness.setDescription(TL.WILDERNESS_DESCRIPTION.toString());
 
-        // Make sure the war zone faction exists
-        if (!factions.containsKey("-2")) {
-            Faction faction = generateFactionObject("-2");
-            factions.put("-2", faction);
-            faction.setTag(TL.WARZONE.toString());
-            faction.setDescription(TL.WARZONE_DESCRIPTION.toString());
-        } else {
-            Faction faction = factions.get("-2");
-            if (!faction.getTag().equalsIgnoreCase(TL.WARZONE.toString())) {
-                faction.setTag(TL.WARZONE.toString());
-            }
-            if (!faction.getDescription().equalsIgnoreCase(TL.WARZONE_DESCRIPTION.toString())) {
-                faction.setDescription(TL.WARZONE_DESCRIPTION.toString());
-            }
-            // if WarZone has old pre-1.6.0 name, rename it to remove troublesome " "
-            if (faction.getTag().contains(" ")) {
-                faction.setTag(TL.WARZONE.toString());
-            }
-        }
+        Faction safezone = factions.computeIfAbsent("-1", s -> generateFactionObject("-1"));
+        safezone.setTag(TL.SAFEZONE.toString().replace(" ", ""));
+        safezone.setDescription(TL.SAFEZONE_DESCRIPTION.toString());
+
+        Faction warzone = factions.computeIfAbsent("-2", s -> generateFactionObject("-2"));
+        warzone.setTag(TL.WARZONE.toString().replace(" ", ""));
+        warzone.setDescription(TL.WARZONE_DESCRIPTION.toString());
+
         return 0;
     }
 

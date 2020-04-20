@@ -1,7 +1,6 @@
 package com.massivecraft.factions.util;
 
 import com.massivecraft.factions.Board;
-import com.massivecraft.factions.FLocation;
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.FactionsPlugin;
@@ -14,7 +13,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -47,6 +45,8 @@ public class SeeChunkUtil extends BukkitRunnable {
             }
             FPlayer fme = FPlayers.getInstance().getByPlayer(player);
             showPillars(player, fme, this.effect, useColor);
+
+            //implement this whole class as a bucket ??
         }
     }
 
@@ -56,50 +56,42 @@ public class SeeChunkUtil extends BukkitRunnable {
         } else {
             playersSeeingChunks.remove(uuid);
         }
-    }
+    };
 
     public static void showPillars(Player me, FPlayer fme, Object effect, boolean useColor) {
-        World world = me.getWorld();
-        FLocation flocation = new FLocation(me);
-        int chunkX = (int) flocation.getX();
-        int chunkZ = (int) flocation.getZ();
-
         ParticleColor color = null;
         if (useColor) {
-            ChatColor chatColor = Board.getInstance().getFactionAt(flocation).getRelationTo(fme).getColor();
+            ChatColor chatColor = Board.getInstance().getFactionAt(fme.getLastStoodAt()).getRelationTo(fme).getColor();
             color = ParticleColor.fromChatColor(chatColor);
         }
 
-        int blockX = chunkX << 4;
-        int blockZ = chunkZ << 4;
+        boolean hasEffect = effect != null;
+        boolean hasColor = color != null;
+        
+        int x = fme.getLastStoodAt().getX();
+        int y = me.getLocation().getBlockY();
+        int z = fme.getLastStoodAt().getZ();
 
-        showPillar(me, world, blockX, blockZ, effect, color);
+        Location corner1 = new Location(me.getWorld(), x << 4, y, z << 4);
+        Location corner2 = new Location(me.getWorld(), ((x << 4) | 15) + 1, y, z << 4);
+        Location corner3 = new Location(me.getWorld(), x << 4, y, ((z << 4) | 15) + 1);
+        Location corner4 = new Location(me.getWorld(), ((x << 4) | 15) + 1, y, ((z << 4) | 15) + 1);
 
-        showPillar(me, world, blockX + 16, blockZ, effect, color);
-
-        showPillar(me, world, blockX, blockZ + 16, effect, color);
-
-        showPillar(me, world, blockX + 16, blockZ + 16, effect, color);
-    }
-
-    public static void showPillar(Player player, World world, int blockX, int blockZ, Object effect, ParticleColor color) {
-        // Lets start at the player's Y spot -30 to optimize
-        for (int blockY = player.getLocation().getBlockY() - 30; blockY < player.getLocation().getBlockY() + 30; blockY++) {
-            if (world.getBlockTypeIdAt(blockX, blockY, blockZ) == 0) {
+        for (int height = 0; height < 16; height++) {
+            corner1.add(0, height, 0);
+            corner2.add(0, height, 0);
+            corner3.add(0, height, 0);
+            corner4.add(0, height, 0);
+            if (!hasEffect) {
+                Material mat = height % 2 == 0 ? FactionMaterial.from("REDSTONE_LAMP").get() : FactionMaterial.from("GLASS_PANE").get();
+                VisualizeUtil.addLocations(me, mat, corner1, corner2, corner3, corner4);
                 continue;
             }
-            Location loc = new Location(world, blockX, blockY, blockZ);
-
-            if (effect != null) {
-                if (color == null) {
-                    FactionsPlugin.getInstance().getParticleProvider().playerSpawn(player, effect, loc, 1);
-                } else {
-                    FactionsPlugin.getInstance().getParticleProvider().playerSpawn(player, effect, loc, color);
-                }
-            } else {
-                Material mat = blockY % 5 == 0 ? FactionMaterial.from("REDSTONE_LAMP").get() : FactionMaterial.from("GLASS_PANE").get();
-                VisualizeUtil.addLocation(player, loc, mat);
+            if (!hasColor) {
+                FactionsPlugin.getInstance().getParticleProvider().playerSpawn(me, effect, 1, corner1, corner2, corner3, corner4);
+                continue;
             }
+            FactionsPlugin.getInstance().getParticleProvider().playerSpawn(me, effect, color, corner1, corner2, corner3, corner4);
         }
     }
 }

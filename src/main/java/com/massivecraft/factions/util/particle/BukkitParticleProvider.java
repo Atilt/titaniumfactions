@@ -23,6 +23,20 @@ public class BukkitParticleProvider implements ParticleProvider<Particle> {
     }
 
     @Override
+    public void playerSpawn(Player player, Particle particle, int count, Location... locations) {
+        for (Location location : locations) {
+            playerSpawn(player, particle, location, count);
+        }
+    }
+
+    @Override
+    public void playerSpawn(Player player, Particle particle, ParticleColor color, Location... locations) {
+        for (Location location : locations) {
+            playerSpawn(player, particle, location, color);
+        }
+    }
+
+    @Override
     public void spawn(Particle particle, Location location, int count, double speed, double offsetX, double offsetY, double offsetZ) {
         location.getWorld().spawnParticle(particle, location, count, offsetX, offsetY, offsetZ, speed);
     }

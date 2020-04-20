@@ -28,6 +28,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -107,6 +108,9 @@ public class FactionsPlayerListener extends AbstractListener {
     private void initPlayer(Player player) {
         // Make sure that all online players do have a fplayer.
         final FPlayer me = FPlayers.getInstance().getByPlayer(player);
+        if (me == null) {
+            Bukkit.broadcastMessage("IT'S NULL? WTF");
+        }
         ((MemoryFPlayer) me).setName(player.getName());
 
         this.plugin.getLandRaidControl().onJoin(me);
