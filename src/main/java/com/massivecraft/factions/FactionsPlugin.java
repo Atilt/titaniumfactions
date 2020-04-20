@@ -344,7 +344,12 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         hookedPlayervaults = setupPlayervaults();
 
         //implement async loading
-        int loadedPlayers = FPlayers.getInstance().load(null);
+        getLogger().info("Loading player data...");
+
+        FPlayers.getInstance().load(loaded -> {
+            getLogger().info("Loaded data for " + loaded + " players.");
+        });
+
         int loadedFactions = Factions.getInstance().load(null);
         for (FPlayer fPlayer : FPlayers.getInstance().getAllFPlayers()) {
             Faction faction = Factions.getInstance().getFactionById(fPlayer.getFactionId());
@@ -357,7 +362,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         }
         int loadedClaims = Board.getInstance().load(null);
         Board.getInstance().clean();
-        FactionsPlugin.getInstance().getLogger().info("Loaded " + loadedPlayers + " players in " + loadedFactions + " factions with " + loadedClaims + " claims");
+        //FactionsPlugin.getInstance().getLogger().info("Loaded " + loadedPlayers + " players in " + loadedFactions + " factions with " + loadedClaims + " claims");
 
         // Add Base Commands
         FCmdRoot cmdBase = new FCmdRoot();
