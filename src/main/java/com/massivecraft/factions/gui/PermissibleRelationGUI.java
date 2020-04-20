@@ -85,10 +85,7 @@ public class PermissibleRelationGUI extends GUI<Permissible> {
     protected String parse(String toParse, Permissible permissible) {
         // Uppercase the first letter
         String name = permissible.toString().substring(0, 1).toUpperCase() + permissible.toString().substring(1);
-
-        toParse = toParse.replace("{relation-color}", permissible.getColor().toString());
-        toParse = toParse.replace("{relation}", name);
-        return toParse;
+        return toParse.replace("{relation-color}", permissible.getColor().toString()).replace("{relation}", name);
     }
 
     @Override
