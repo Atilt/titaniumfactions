@@ -24,7 +24,7 @@ import java.util.List;
  * necessary.
  */
 
-public interface FPlayer extends EconomyParticipator {
+public interface FPlayer extends EconomyParticipator, Comparable<FPlayer> {
     void login();
 
     void logout();

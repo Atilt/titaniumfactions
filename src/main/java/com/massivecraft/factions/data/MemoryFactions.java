@@ -5,10 +5,12 @@ import com.massivecraft.factions.Factions;
 import com.massivecraft.factions.util.MiscUtil;
 import com.massivecraft.factions.util.TL;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.bukkit.ChatColor;
 
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -95,7 +97,7 @@ public abstract class MemoryFactions extends Factions {
     }
 
     public Set<String> getFactionTags() {
-        Set<String> tags = new HashSet<>();
+        ObjectSet<String> tags = new ObjectOpenHashSet<>(factions.size());
         for (Faction faction : factions.values()) {
             tags.add(faction.getTag());
         }
@@ -109,8 +111,8 @@ public abstract class MemoryFactions extends Factions {
     }
 
     @Override
-    public ArrayList<Faction> getAllFactions() {
-        return new ArrayList<>(factions.values());
+    public List<Faction> getAllFactions() {
+        return new ObjectArrayList<>(factions.values());
     }
 
     @Override

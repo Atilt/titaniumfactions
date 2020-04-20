@@ -2,7 +2,6 @@ package com.massivecraft.factions.util;
 
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FactionsPlugin;
-import com.massivecraft.factions.perms.Role;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -13,8 +12,9 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
 
 public class MiscUtil {
 
@@ -51,9 +51,7 @@ public class MiscUtil {
 
     public static String getComparisonString(String str) {
         StringBuilder ret = new StringBuilder();
-
         str = ChatColor.stripColor(str);
-        str = str.toLowerCase();
 
         for (char c : str.toCharArray()) {
             if (substanceChars.contains(String.valueOf(c))) {
@@ -90,50 +88,9 @@ public class MiscUtil {
         return errors;
     }
 
-    public static Iterable<FPlayer> rankOrder(Iterable<FPlayer> players) {
-        ObjectList<FPlayer> admins = new ObjectArrayList<>();
-        ObjectList<FPlayer> coleaders = new ObjectArrayList<>();
-        ObjectList<FPlayer> moderators = new ObjectArrayList<>();
-        ObjectList<FPlayer> normal = new ObjectArrayList<>();
-        ObjectList<FPlayer> recruit = new ObjectArrayList<>();
-
-        for (FPlayer player : players) {
-
-            // Fix for some data being broken when we added the recruit rank.
-            if (player.getRole() == null) {
-                player.setRole(Role.NORMAL);
-                FactionsPlugin.getInstance().log(Level.WARNING, String.format("Player %s had null role. Setting them to normal. This isn't good D:", player.getName()));
-            }
-
-            switch (player.getRole()) {
-                case ADMIN:
-                    admins.add(player);
-                    break;
-
-                case COLEADER:
-                    coleaders.add(player);
-                    break;
-
-                case MODERATOR:
-                    moderators.add(player);
-                    break;
-
-                case NORMAL:
-                    normal.add(player);
-                    break;
-
-                case RECRUIT:
-                    recruit.add(player);
-                    break;
-            }
-        }
-
-        ObjectList<FPlayer> ret = new ObjectArrayList<>(admins.size() + coleaders.size() + moderators.size() + normal.size() + recruit.size());
-        ret.addAll(admins);
-        ret.addAll(coleaders);
-        ret.addAll(moderators);
-        ret.addAll(normal);
-        ret.addAll(recruit);
+    public static Iterable<FPlayer> rankOrder(Collection<FPlayer> players) {
+        ObjectList<FPlayer> ret = new ObjectArrayList<>(players.size());
+        Collections.sort(ret);
         return ret;
     }
 }

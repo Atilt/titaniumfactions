@@ -3,7 +3,7 @@ package com.massivecraft.factions;
 import com.massivecraft.factions.data.json.JSONFactions;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.function.IntConsumer;
 
@@ -26,7 +26,7 @@ public abstract class Factions {
 
     public abstract Set<String> getFactionTags();
 
-    public abstract ArrayList<Faction> getAllFactions();
+    public abstract List<Faction> getAllFactions();
 
     @Deprecated
     public abstract Faction getNone();

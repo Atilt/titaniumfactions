@@ -1068,11 +1068,12 @@ public abstract class MemoryFPlayer implements FPlayer {
         if (msg.contains("{null}")) {
             return; // user wants this message to not send
         }
+        Player player = this.getPlayer();
+        if (player == null) {
+            return;
+        }
         for (String s : msg.split("/n/")) {
-            Player player = this.getPlayer();
-            if (player != null) {
-                player.sendMessage(s);
-            }
+            player.sendMessage(s);
         }
     }
 
@@ -1158,4 +1159,9 @@ public abstract class MemoryFPlayer implements FPlayer {
         this.warmup = warmup;
         this.warmupTask = taskId;
     }
+
+    @Override
+    public int compareTo(FPlayer o) {
+        return Integer.compare(o.getRole().getValue(), this.role.getValue());
+}
 }

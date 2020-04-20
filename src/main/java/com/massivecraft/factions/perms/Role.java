@@ -21,6 +21,10 @@ public enum Role implements Permissible {
         this.translation = translation;
     }
 
+    public int getValue() {
+        return value;
+    }
+
     public boolean isAtLeast(Role role) {
         return this.value >= role.value;
     }
