@@ -7,6 +7,7 @@ import org.bukkit.World;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.IntConsumer;
 
 
 public abstract class Board {
@@ -83,5 +84,5 @@ public abstract class Board {
 
     public abstract void forceSave(boolean sync, BooleanConsumer finish);
 
-    public abstract int load(BooleanConsumer finish);
+    public abstract void load(IntConsumer loaded);
 }

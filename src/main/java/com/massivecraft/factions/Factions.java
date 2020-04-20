@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.function.IntConsumer;
 
 public abstract class Factions {
     protected static Factions instance = getFactionsImpl();
@@ -49,5 +50,5 @@ public abstract class Factions {
         return new JSONFactions();
     }
 
-    public abstract int load(BooleanConsumer finish);
+    public abstract void load(IntConsumer loaded);
 }

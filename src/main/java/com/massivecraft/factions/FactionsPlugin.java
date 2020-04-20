@@ -129,7 +129,9 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     private Integer saveTask = null;
     private boolean autoSave = true;
-    private boolean loadSuccessful = false;
+
+    private boolean loadDataSuccessful = false;
+    private boolean loadSettingsSuccessful = false;
 
     // Some utils
     private Persist persist;
@@ -190,7 +192,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     @Override
     public void onEnable() {
-        this.loadSuccessful = false;
         StringBuilder startupBuilder = new StringBuilder();
         StringBuilder startupExceptionBuilder = new StringBuilder();
         Handler handler = new Handler() {
@@ -343,27 +344,45 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
         hookedPlayervaults = setupPlayervaults();
 
-        //implement async loading
+        long start = System.currentTimeMillis();
         getLogger().info("Loading player data...");
+        FPlayers.getInstance().load(loadedPlayers -> {
+            getLogger().info("Loaded data for " + loadedPlayers + " players.");
 
-        FPlayers.getInstance().load(loaded -> {
-            getLogger().info("Loaded data for " + loaded + " players.");
+            getLogger().info("Loading faction data...");
+            Factions.getInstance().load(loadedFactions -> {
+                getLogger().info("Loaded data for " + loadedFactions + " factions.");
+                for (FPlayer fPlayer : FPlayers.getInstance().getAllFPlayers()) {
+                    Faction faction = Factions.getInstance().getFactionById(fPlayer.getFactionId());
+                    if (faction == null) {
+                        log("Invalid faction id on " + fPlayer.getName() + ":" + fPlayer.getFactionId());
+                        fPlayer.resetFactionData(false);
+                        continue;
+                    }
+                    faction.addFPlayer(fPlayer);
+                }
+                //board needs to be loaded after factions in order for cleaning to work correctly.
+                getLogger().info("Loading claim data...");
+                Board.getInstance().load(loadedClaims -> {
+                    Board.getInstance().clean();
+                    getLogger().info("Loaded data for " + loadedClaims + " claims.");
+
+                    //dynmap data needs to be loaded after board in order for display to work correctly.
+                    EngineDynmap.getInstance().init();
+
+                    // start up task which runs the autoLeaveAfterDaysOfInactivity routine
+                    //task needs to be instantiated after players in order for purging to work correctly
+                    startAutoLeaveTask(false);
+
+                    // Grand metrics adventure!
+                    //metrics needs to be instantiated after all the data in order for proper data collection
+                    this.setupMetrics();
+
+                    getLogger().info("Loaded all faction related data in " + (System.currentTimeMillis() - start) + "ms.");
+                    loadDataSuccessful = true; //1st checkpoint for proper saving when plugin disables
+                });
+            });
         });
-
-        int loadedFactions = Factions.getInstance().load(null);
-        for (FPlayer fPlayer : FPlayers.getInstance().getAllFPlayers()) {
-            Faction faction = Factions.getInstance().getFactionById(fPlayer.getFactionId());
-            if (faction == null) {
-                log("Invalid faction id on " + fPlayer.getName() + ":" + fPlayer.getFactionId());
-                fPlayer.resetFactionData(false);
-                continue;
-            }
-            faction.addFPlayer(fPlayer);
-        }
-        int loadedClaims = Board.getInstance().load(null);
-        Board.getInstance().clean();
-        //FactionsPlugin.getInstance().getLogger().info("Loaded " + loadedPlayers + " players in " + loadedFactions + " factions with " + loadedClaims + " claims");
-
         // Add Base Commands
         FCmdRoot cmdBase = new FCmdRoot();
 
@@ -393,11 +412,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         }
 
         loadWorldguard();
-
-        EngineDynmap.getInstance().init();
-
-        // start up task which runs the autoLeaveAfterDaysOfInactivity routine
-        startAutoLeaveTask(false);
 
         // Run before initializing listeners to handle reloads properly.
         if (mcVersion < 1300) { // Before 1.13
@@ -438,9 +452,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         new TitleAPI();
         setupPlaceholderAPI();
 
-        // Grand metrics adventure!
-        this.setupMetrics();
-
         if (ChatColor.stripColor(TL.NOFACTION_PREFIX.toString()).equals("[4-]")) {
             getLogger().warning("Looks like you have an old, mistaken 'nofactions-prefix' in your lang.yml. It currently displays [4-] which is... strange.");
         }
@@ -456,12 +467,14 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             }
         }.runTaskTimerAsynchronously(this, 0, 20 * 60 * 10); // ten minutes
 
-        getLogger().info("=== Ready to go after " + (System.currentTimeMillis() - timeEnableStart) + "ms! ===");
+        getLogger().info("=== Loaded factions settings in " + (System.currentTimeMillis() - timeEnableStart) + "ms! ===");
         getLogger().removeHandler(handler);
         this.startupLog = startupBuilder.toString();
         this.startupExceptionLog = startupExceptionBuilder.toString();
-        this.loadSuccessful = true;
+        this.loadSettingsSuccessful = true; //2nd checkpoint for proper saving when plugin disables
     }
+
+
 
     private int intOr(String in, int or) {
         try {
@@ -997,7 +1010,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             saveTask = null;
         }
         // only save data if plugin actually loaded successfully
-        if (loadSuccessful) {
+        if (loadDataSuccessful && loadSettingsSuccessful) {
             Factions.getInstance().forceSave(null);
             FPlayers.getInstance().forceSave(null);
             Board.getInstance().forceSave(result -> log("Data saved!"));
