@@ -83,8 +83,8 @@ public class JSONFactions extends MemoryFactions {
             Map<String, JSONFaction> factions = this.loadCore(null);
             int amount = factions.size();
             Bukkit.getScheduler().runTask(FactionsPlugin.getInstance(), () -> {
+                this.factions.clear();
                 if (amount > 0) {
-                    this.factions.clear();
                     this.factions.putAll(factions);
                 }
                 loaded.accept(amount);

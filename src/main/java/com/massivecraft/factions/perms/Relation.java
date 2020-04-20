@@ -49,7 +49,7 @@ public enum Relation implements Permissible {
     }
 
     public String getPluralTranslation() {
-        for (TL t : TL.values()) {
+        for (TL t : TL.VALUES) {
             if (t.name().equalsIgnoreCase("RELATION_" + name() + "_PLURAL")) {
                 return t.toString();
             }

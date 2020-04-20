@@ -49,19 +49,10 @@ public class JSONBoard extends MemoryBoard {
     public void loadFromSaveFormat(Map<String, Map<String, String>> worldCoordIds) {
         flocationIds.clear();
 
-        String worldName;
-        String[] coords;
-        int x, z;
-        String factionId;
-
         for (Entry<String, Map<String, String>> entry : worldCoordIds.entrySet()) {
-            worldName = entry.getKey();
             for (Entry<String, String> entry2 : entry.getValue().entrySet()) {
-                coords = entry2.getKey().trim().split("[,\\s]+");
-                x = Integer.parseInt(coords[0]);
-                z = Integer.parseInt(coords[1]);
-                factionId = entry2.getValue();
-                flocationIds.put(new FLocation(worldName, x, z), factionId);
+                String[] coords = entry2.getKey().trim().split("[,\\s]+");
+                flocationIds.put(new FLocation(entry.getKey(), Integer.parseInt(coords[0]), Integer.parseInt(coords[1])), entry2.getValue());
             }
         }
     }

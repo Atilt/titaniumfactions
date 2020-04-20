@@ -54,6 +54,7 @@ import com.massivecraft.factions.util.material.adapter.MaterialAdapter;
 import com.massivecraft.factions.util.particle.BukkitParticleProvider;
 import com.massivecraft.factions.util.particle.PacketParticleProvider;
 import com.massivecraft.factions.util.particle.ParticleProvider;
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
@@ -283,195 +284,200 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
         this.getLogger().info("Server UUID " + this.serverUUID);
 
-        loadLang();
-        this.gson = this.getGsonBuilder().create();
-
-        // Load Conf from disk
-        this.setNerfedEntities();
-        this.configManager.startup();
-
-        if (this.conf().data().json().useEfficientStorage()) {
-            getLogger().info("Using space efficient (less readable) storage.");
-        }
-
-        this.landRaidControl = LandRaidControl.getByName(this.conf().factions().landRaidControl().getSystem());
-
-        File dataFolder = new File(this.getDataFolder(), "data");
-        if (!dataFolder.exists()) {
-            dataFolder.mkdir();
-        }
-
-        // Load Material database
-        MaterialDb.load();
-
-        // Create Utility Instances
-        this.permUtil = new PermUtil(this);
-        this.persist = new Persist(this);
-        this.worldUtil = new WorldUtil(this);
-
-        this.txt = new TextUtil();
-        initTXT();
-
-        // attempt to get first command defined in plugin.yml as reference command, if any commands are defined in there
-        // reference command will be used to prevent "unknown command" console messages
-        String refCommand = "";
-        try {
-            Map<String, Map<String, Object>> refCmd = this.getDescription().getCommands();
-            if (!refCmd.isEmpty()) {
-                refCommand = (String) (refCmd.keySet().toArray()[0]);
+        loadLang(result -> {
+            if (result) {
+                Bukkit.getPluginManager().disablePlugin(this);
+                return;
             }
-        } catch (ClassCastException ignored) {}
+            this.gson = this.getGsonBuilder().create();
 
-        // Register recurring tasks
-        if (saveTask == null && this.conf().factions().other().getSaveToFileEveryXMinutes() > 0.0) {
-            long saveTicks = (long) (20 * 60 * this.conf().factions().other().getSaveToFileEveryXMinutes()); // Approximately every 30 min by default
-            saveTask = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new SaveTask(this), saveTicks, saveTicks);
-        }
+            // Load Conf from disk
+            this.setNerfedEntities();
+            this.configManager.startup();
 
-        // Check for Essentials
-        IEssentials ess = Essentials.setup();
-
-        if (ess != null) {
-            getLogger().info("Found and connected to Essentials");
-            if (conf().factions().other().isDeleteEssentialsHomes()) {
-                getLogger().info("Based on main.conf will delete Essentials player homes in their old faction when they leave");
-                getServer().getPluginManager().registerEvents(new EssentialsListener(ess), this);
+            if (this.conf().data().json().useEfficientStorage()) {
+                getLogger().info("Using space efficient (less readable) storage.");
             }
-            if (conf().factions().homes().isTeleportCommandEssentialsIntegration()) {
-                getLogger().info("Using Essentials for teleportation");
+
+            this.landRaidControl = LandRaidControl.getByName(this.conf().factions().landRaidControl().getSystem());
+
+            File dataFolder = new File(this.getDataFolder(), "data");
+            if (!dataFolder.exists()) {
+                dataFolder.mkdir();
             }
-        }
 
-        hookedPlayervaults = setupPlayervaults();
+            // Load Material database
+            MaterialDb.load();
 
-        long start = System.currentTimeMillis();
-        getLogger().info("Loading player data...");
-        FPlayers.getInstance().load(loadedPlayers -> {
-            getLogger().info("Loaded data for " + loadedPlayers + " players.");
+            // Create Utility Instances
+            this.permUtil = new PermUtil(this);
+            this.persist = new Persist(this);
+            this.worldUtil = new WorldUtil(this);
 
-            getLogger().info("Loading faction data...");
-            Factions.getInstance().load(loadedFactions -> {
-                getLogger().info("Loaded data for " + loadedFactions + " factions.");
-                for (FPlayer fPlayer : FPlayers.getInstance().getAllFPlayers()) {
-                    Faction faction = Factions.getInstance().getFactionById(fPlayer.getFactionId());
-                    if (faction == null) {
-                        log("Invalid faction id on " + fPlayer.getName() + ":" + fPlayer.getFactionId());
-                        fPlayer.resetFactionData(false);
-                        continue;
-                    }
-                    faction.addFPlayer(fPlayer);
+            this.txt = new TextUtil();
+            initTXT();
+
+            // attempt to get first command defined in plugin.yml as reference command, if any commands are defined in there
+            // reference command will be used to prevent "unknown command" console messages
+            String refCommand = "";
+            try {
+                Map<String, Map<String, Object>> refCmd = this.getDescription().getCommands();
+                if (!refCmd.isEmpty()) {
+                    refCommand = (String) (refCmd.keySet().toArray()[0]);
                 }
-                //board needs to be loaded after factions in order for cleaning to work correctly.
-                getLogger().info("Loading claim data...");
-                Board.getInstance().load(loadedClaims -> {
-                    Board.getInstance().clean();
-                    getLogger().info("Loaded data for " + loadedClaims + " claims.");
+            } catch (ClassCastException ignored) {}
 
-                    //dynmap data needs to be loaded after board in order for display to work correctly.
-                    EngineDynmap.getInstance().init();
+            // Register recurring tasks
+            if (saveTask == null && this.conf().factions().other().getSaveToFileEveryXMinutes() > 0.0) {
+                long saveTicks = (long) (20 * 60 * this.conf().factions().other().getSaveToFileEveryXMinutes()); // Approximately every 30 min by default
+                saveTask = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new SaveTask(this), saveTicks, saveTicks);
+            }
 
-                    // start up task which runs the autoLeaveAfterDaysOfInactivity routine
-                    //task needs to be instantiated after players in order for purging to work correctly
-                    startAutoLeaveTask(false);
+            // Check for Essentials
+            IEssentials ess = Essentials.setup();
 
-                    // Grand metrics adventure!
-                    //metrics needs to be instantiated after all the data in order for proper data collection
-                    this.setupMetrics();
+            if (ess != null) {
+                getLogger().info("Found and connected to Essentials");
+                if (conf().factions().other().isDeleteEssentialsHomes()) {
+                    getLogger().info("Based on main.conf will delete Essentials player homes in their old faction when they leave");
+                    getServer().getPluginManager().registerEvents(new EssentialsListener(ess), this);
+                }
+                if (conf().factions().homes().isTeleportCommandEssentialsIntegration()) {
+                    getLogger().info("Using Essentials for teleportation");
+                }
+            }
 
-                    getLogger().info("Loaded all faction related data in " + (System.currentTimeMillis() - start) + "ms.");
-                    loadDataSuccessful = true; //1st checkpoint for proper saving when plugin disables
+            hookedPlayervaults = setupPlayervaults();
+
+            long start = System.currentTimeMillis();
+            getLogger().info("Loading player data...");
+            FPlayers.getInstance().load(loadedPlayers -> {
+                getLogger().info("Loaded data for " + loadedPlayers + " players.");
+
+                getLogger().info("Loading faction data...");
+                Factions.getInstance().load(loadedFactions -> {
+                    getLogger().info("Loaded data for " + loadedFactions + " factions.");
+                    for (FPlayer fPlayer : FPlayers.getInstance().getAllFPlayers()) {
+                        Faction faction = Factions.getInstance().getFactionById(fPlayer.getFactionId());
+                        if (faction == null) {
+                            log("Invalid faction id on " + fPlayer.getName() + ":" + fPlayer.getFactionId());
+                            fPlayer.resetFactionData(false);
+                            continue;
+                        }
+                        faction.addFPlayer(fPlayer);
+                    }
+                    //board needs to be loaded after factions in order for cleaning to work correctly.
+                    getLogger().info("Loading claim data...");
+                    Board.getInstance().load(loadedClaims -> {
+                        Board.getInstance().clean();
+                        getLogger().info("Loaded data for " + loadedClaims + " claims.");
+
+                        //dynmap data needs to be loaded after board in order for display to work correctly.
+                        EngineDynmap.getInstance().init();
+
+                        // start up task which runs the autoLeaveAfterDaysOfInactivity routine
+                        //task needs to be instantiated after players in order for purging to work correctly
+                        startAutoLeaveTask(false);
+
+                        // Grand metrics adventure!
+                        //metrics needs to be instantiated after all the data in order for proper data collection
+                        this.setupMetrics();
+
+                        getLogger().info("Loaded all faction related data in " + (System.currentTimeMillis() - start) + "ms.");
+                        loadDataSuccessful = true; //1st checkpoint for proper saving when plugin disables
+                    });
                 });
             });
-        });
-        // Add Base Commands
-        FCmdRoot cmdBase = new FCmdRoot();
+            // Add Base Commands
+            FCmdRoot cmdBase = new FCmdRoot();
 
-        Econ.setup();
-        LWC.setup();
-        setupPermissions();
-        if (perms != null) {
-            getLogger().info("Using Vault with permissions plugin " + perms.getName());
-        }
-        if (getServer().getPluginManager().getPlugin("PermissionsEx") != null) {
-            if (getServer().getPluginManager().getPlugin("PermissionsEx").getDescription().getVersion().startsWith("1")) {
-                getLogger().info(" ");
-                getLogger().warning("Notice: PermissionsEx version 1.x is dead. We suggest using LuckPerms (or PEX 2.0 when available). https://luckperms.net/");
-                getLogger().info(" ");
+            Econ.setup();
+            LWC.setup();
+            setupPermissions();
+            if (perms != null) {
+                getLogger().info("Using Vault with permissions plugin " + perms.getName());
             }
-        }
-        if (getServer().getPluginManager().getPlugin("GroupManager") != null) {
-            getLogger().info(" ");
-            getLogger().warning("Notice: GroupManager died in 2014. We suggest using LuckPerms instead. https://luckperms.net/");
-            getLogger().info(" ");
-        }
-        Plugin lwc = getServer().getPluginManager().getPlugin("LWC");
-        if (lwc != null && lwc.getDescription().getWebsite() != null && !lwc.getDescription().getWebsite().contains("extended")) {
-            getLogger().info(" ");
-            getLogger().warning("Notice: LWC Extended is the updated, and best supported, continuation of LWC. https://www.spigotmc.org/resources/lwc-extended.69551/");
-            getLogger().info(" ");
-        }
-
-        loadWorldguard();
-
-        // Run before initializing listeners to handle reloads properly.
-        if (mcVersion < 1300) { // Before 1.13
-            particleProvider = new PacketParticleProvider();
-        } else {
-            particleProvider = new BukkitParticleProvider();
-        }
-        getLogger().info(txt.parse("Using %1s as a particle provider", particleProvider.name()));
-
-        if (conf().commands().seeChunk().isParticles()) {
-            double delay = Math.floor(conf().commands().seeChunk().getParticleUpdateTime() * 20);
-            seeChunkUtil = new SeeChunkUtil();
-            seeChunkUtil.runTaskTimer(this, 0, (long) delay);
-        }
-        // End run before registering event handlers.
-
-        // Register Event Handlers
-        getServer().getPluginManager().registerEvents(new FactionsPlayerListener(this), this);
-        getServer().getPluginManager().registerEvents(new FactionsChatListener(this), this);
-        getServer().getPluginManager().registerEvents(new FactionsEntityListener(this), this);
-        getServer().getPluginManager().registerEvents(new FactionsExploitListener(this), this);
-        getServer().getPluginManager().registerEvents(new FactionsBlockListener(this), this);
-
-        // Version specific portal listener check.
-        if (mcVersion >= 1400) { // Starting with 1.14
-            getServer().getPluginManager().registerEvents(new PortalListener_114(this), this);
-        } else {
-            getServer().getPluginManager().registerEvents(new PortalListenerLegacy(new PortalHandler()), this);
-        }
-
-        // since some other plugins execute commands directly through this command interface, provide it
-        this.getCommand(refCommand).setExecutor(cmdBase);
-
-        if (conf().commands().fly().isEnable()) {
-            FlightUtil.start();
-        }
-
-        new TitleAPI();
-        setupPlaceholderAPI();
-
-        if (ChatColor.stripColor(TL.NOFACTION_PREFIX.toString()).equals("[4-]")) {
-            getLogger().warning("Looks like you have an old, mistaken 'nofactions-prefix' in your lang.yml. It currently displays [4-] which is... strange.");
-        }
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (checkForUpdates()) {
-                    //chat packets are thread-safe
-                    Bukkit.broadcast(updateMessage, com.massivecraft.factions.struct.Permission.UPDATES.toString());
-                    this.cancel();
+            if (getServer().getPluginManager().getPlugin("PermissionsEx") != null) {
+                if (getServer().getPluginManager().getPlugin("PermissionsEx").getDescription().getVersion().startsWith("1")) {
+                    getLogger().info(" ");
+                    getLogger().warning("Notice: PermissionsEx version 1.x is dead. We suggest using LuckPerms (or PEX 2.0 when available). https://luckperms.net/");
+                    getLogger().info(" ");
                 }
             }
-        }.runTaskTimerAsynchronously(this, 0, 20 * 60 * 10); // ten minutes
+            if (getServer().getPluginManager().getPlugin("GroupManager") != null) {
+                getLogger().info(" ");
+                getLogger().warning("Notice: GroupManager died in 2014. We suggest using LuckPerms instead. https://luckperms.net/");
+                getLogger().info(" ");
+            }
+            Plugin lwc = getServer().getPluginManager().getPlugin("LWC");
+            if (lwc != null && lwc.getDescription().getWebsite() != null && !lwc.getDescription().getWebsite().contains("extended")) {
+                getLogger().info(" ");
+                getLogger().warning("Notice: LWC Extended is the updated, and best supported, continuation of LWC. https://www.spigotmc.org/resources/lwc-extended.69551/");
+                getLogger().info(" ");
+            }
 
-        getLogger().info("=== Loaded factions settings in " + (System.currentTimeMillis() - timeEnableStart) + "ms! ===");
-        getLogger().removeHandler(handler);
-        this.startupLog = startupBuilder.toString();
-        this.startupExceptionLog = startupExceptionBuilder.toString();
-        this.loadSettingsSuccessful = true; //2nd checkpoint for proper saving when plugin disables
+            loadWorldguard();
+
+            // Run before initializing listeners to handle reloads properly.
+            if (mcVersion < 1300) { // Before 1.13
+                particleProvider = new PacketParticleProvider();
+            } else {
+                particleProvider = new BukkitParticleProvider();
+            }
+            getLogger().info(txt.parse("Using %1s as a particle provider", particleProvider.name()));
+
+            if (conf().commands().seeChunk().isParticles()) {
+                double delay = Math.floor(conf().commands().seeChunk().getParticleUpdateTime() * 20);
+                seeChunkUtil = new SeeChunkUtil();
+                seeChunkUtil.runTaskTimer(this, 0, (long) delay);
+            }
+            // End run before registering event handlers.
+
+            // Register Event Handlers
+            getServer().getPluginManager().registerEvents(new FactionsPlayerListener(this), this);
+            getServer().getPluginManager().registerEvents(new FactionsChatListener(this), this);
+            getServer().getPluginManager().registerEvents(new FactionsEntityListener(this), this);
+            getServer().getPluginManager().registerEvents(new FactionsExploitListener(this), this);
+            getServer().getPluginManager().registerEvents(new FactionsBlockListener(this), this);
+
+            // Version specific portal listener check.
+            if (mcVersion >= 1400) { // Starting with 1.14
+                getServer().getPluginManager().registerEvents(new PortalListener_114(this), this);
+            } else {
+                getServer().getPluginManager().registerEvents(new PortalListenerLegacy(new PortalHandler()), this);
+            }
+
+            // since some other plugins execute commands directly through this command interface, provide it
+            this.getCommand(refCommand).setExecutor(cmdBase);
+
+            if (conf().commands().fly().isEnable()) {
+                FlightUtil.start();
+            }
+
+            new TitleAPI();
+            setupPlaceholderAPI();
+
+            if (ChatColor.stripColor(TL.NOFACTION_PREFIX.toString()).equals("[4-]")) {
+                getLogger().warning("Looks like you have an old, mistaken 'nofactions-prefix' in your lang.yml. It currently displays [4-] which is... strange.");
+            }
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (checkForUpdates()) {
+                        //chat packets are thread-safe
+                        Bukkit.broadcast(updateMessage, com.massivecraft.factions.struct.Permission.UPDATES.toString());
+                        this.cancel();
+                    }
+                }
+            }.runTaskTimerAsynchronously(this, 0, 20 * 60 * 10); // ten minutes
+
+            getLogger().info("=== Loaded factions settings in " + (System.currentTimeMillis() - timeEnableStart) + "ms! ===");
+            getLogger().removeHandler(handler);
+            this.startupLog = startupBuilder.toString();
+            this.startupExceptionLog = startupExceptionBuilder.toString();
+            this.loadSettingsSuccessful = true; //2nd checkpoint for proper saving when plugin disables
+        });
     }
 
 
@@ -690,67 +696,73 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         }
     }
 
-    public void loadLang() {
-        File lang = new File(getDataFolder(), "lang.yml");
-        OutputStream out = null;
-        InputStream defLangStream = this.getResource("lang.yml");
-        if (!lang.exists()) {
+    public void loadLang(BooleanConsumer result) {
+        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+            File lang = new File(getDataFolder(), "lang.yml");
+            OutputStream out = null;
+            InputStream defLangStream = this.getResource("lang.yml");
+            if (!lang.exists()) {
+                try {
+                    getDataFolder().mkdir();
+                    lang.createNewFile();
+                    if (defLangStream != null) {
+                        out = new FileOutputStream(lang);
+                        int read;
+                        byte[] bytes = new byte[1024];
+
+                        while ((read = defLangStream.read(bytes)) != -1) {
+                            out.write(bytes, 0, read);
+                        }
+                        YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(new BufferedReader(new InputStreamReader(defLangStream)));
+                        TL.setFile(defConfig);
+                    }
+                } catch (IOException e) {
+                    getLogger().log(Level.SEVERE, "[Factions] Couldn't create language file.", e);
+                    getLogger().severe("[Factions] This is a fatal error. Now disabling");
+                    this.setEnabled(false); // Without it loaded, we can't send them messages
+                } finally {
+                    if (defLangStream != null) {
+                        try {
+                            defLangStream.close();
+                        } catch (IOException e) {
+                            FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to close resource", e);
+                            Bukkit.getScheduler().runTask(this, () -> result.accept(false));
+                        }
+                    }
+                    if (out != null) {
+                        try {
+                            out.close();
+                        } catch (IOException e) {
+                            FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to close output", e);
+                            Bukkit.getScheduler().runTask(this, () -> result.accept(false));
+                        }
+                    }
+                }
+            }
+
+            YamlConfiguration conf = YamlConfiguration.loadConfiguration(lang);
+            for (TL item : TL.VALUES) {
+                if (conf.getString(item.getPath()) == null) {
+                    conf.set(item.getPath(), item.getDefault());
+                }
+            }
+
+            // Remove this here because I'm sick of dealing with bug reports due to bad decisions on my part.
+            if (conf.getString(TL.COMMAND_SHOW_POWER.getPath(), "").contains("%5$s")) {
+                conf.set(TL.COMMAND_SHOW_POWER.getPath(), TL.COMMAND_SHOW_POWER.getDefault());
+                log(Level.INFO, "Removed errant format specifier from f show power.");
+            }
+
+            TL.setFile(conf);
             try {
-                getDataFolder().mkdir();
-                lang.createNewFile();
-                if (defLangStream != null) {
-                    out = new FileOutputStream(lang);
-                    int read;
-                    byte[] bytes = new byte[1024];
-
-                    while ((read = defLangStream.read(bytes)) != -1) {
-                        out.write(bytes, 0, read);
-                    }
-                    YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(new BufferedReader(new InputStreamReader(defLangStream)));
-                    TL.setFile(defConfig);
-                }
+                conf.save(lang);
+                Bukkit.getScheduler().runTask(this, () -> result.accept(true));
             } catch (IOException e) {
-                getLogger().log(Level.SEVERE, "[Factions] Couldn't create language file.", e);
-                getLogger().severe("[Factions] This is a fatal error. Now disabling");
-                this.setEnabled(false); // Without it loaded, we can't send them messages
-            } finally {
-                if (defLangStream != null) {
-                    try {
-                        defLangStream.close();
-                    } catch (IOException e) {
-                        FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to close resource", e);
-                    }
-                }
-                if (out != null) {
-                    try {
-                        out.close();
-                    } catch (IOException e) {
-                        FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to close output", e);
-                    }
-                }
+                getLogger().log(Level.WARNING, "Factions: Report this stack trace to drtshock.");
+                FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to save lang.yml", e);
+                Bukkit.getScheduler().runTask(this, () -> result.accept(false));
             }
-        }
-
-        YamlConfiguration conf = YamlConfiguration.loadConfiguration(lang);
-        for (TL item : TL.values()) {
-            if (conf.getString(item.getPath()) == null) {
-                conf.set(item.getPath(), item.getDefault());
-            }
-        }
-
-        // Remove this here because I'm sick of dealing with bug reports due to bad decisions on my part.
-        if (conf.getString(TL.COMMAND_SHOW_POWER.getPath(), "").contains("%5$s")) {
-            conf.set(TL.COMMAND_SHOW_POWER.getPath(), TL.COMMAND_SHOW_POWER.getDefault());
-            log(Level.INFO, "Removed errant format specifier from f show power.");
-        }
-
-        TL.setFile(conf);
-        try {
-            conf.save(lang);
-        } catch (IOException e) {
-            getLogger().log(Level.WARNING, "Factions: Report this stack trace to drtshock.");
-            FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to save lang.yml", e);
-        }
+        });
     }
 
     private int getBuildNumber(String version) {
@@ -1010,12 +1022,12 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             saveTask = null;
         }
         // only save data if plugin actually loaded successfully
-        if (loadDataSuccessful && loadSettingsSuccessful) {
-            Factions.getInstance().forceSave(null);
-            FPlayers.getInstance().forceSave(null);
-            Board.getInstance().forceSave(result -> log("Data saved!"));
+        log("Saving data...");
+        if (this.isFinishedLoading()) {
+            Factions.getInstance().forceSave(result -> log("Faction data saved."));
+            FPlayers.getInstance().forceSave(result -> log("Player data saved."));
+            Board.getInstance().forceSave(result -> log("Claim data saved."));
         }
-        log("Disabled");
     }
 
     public void startAutoLeaveTask(boolean restartIfRunning) {
@@ -1188,6 +1200,10 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     public String getPrimaryGroup(OfflinePlayer player) {
         return perms == null || !perms.hasGroupSupport() ? " " : perms.getPrimaryGroup(Bukkit.getWorlds().get(0).toString(), player);
+    }
+
+    public boolean isFinishedLoading() {
+        return this.loadDataSuccessful && this.loadSettingsSuccessful;
     }
 
     public void debug(Level level, String s) {

@@ -85,8 +85,8 @@ public class JSONFPlayers extends MemoryFPlayers {
             Map<String, JSONFPlayer> fplayers = this.loadCore(null);
             int amount = fplayers.size();
             Bukkit.getScheduler().runTask(FactionsPlugin.getInstance(), () -> {
+                this.fPlayers.clear();
                 if (amount > 0) {
-                    this.fPlayers.clear();
                     this.fPlayers.putAll(fplayers);
                 }
                 loaded.accept(amount);
