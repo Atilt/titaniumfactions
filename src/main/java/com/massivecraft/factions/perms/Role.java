@@ -112,4 +112,6 @@ public enum Role implements Permissible {
     public ChatColor getColor() {
         return Relation.MEMBER.getColor();
     }
+
+    public static final Role[] VALUES = values();
 }

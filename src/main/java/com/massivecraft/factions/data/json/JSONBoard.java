@@ -10,7 +10,6 @@ import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import org.bukkit.Bukkit;
 
 import java.io.File;
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -27,20 +26,10 @@ public class JSONBoard extends MemoryBoard {
     // -------------------------------------------- //
 
     public Map<String, Map<String, String>> dumpAsSaveFormat() {
-        Map<String, Map<String, String>> worldCoordIds = new HashMap<>();
-
-        String worldName, coords;
-        String id;
+        Map<String, Map<String, String>> worldCoordIds = new HashMap<>(flocationIds.size());
 
         for (Entry<FLocation, String> entry : flocationIds.entrySet()) {
-            worldName = entry.getKey().getWorldName();
-            coords = entry.getKey().getCoordString();
-            id = entry.getValue();
-            if (!worldCoordIds.containsKey(worldName)) {
-                worldCoordIds.put(worldName, new TreeMap<>());
-            }
-
-            worldCoordIds.get(worldName).put(coords, id);
+            worldCoordIds.computeIfAbsent(entry.getKey().getWorldName(), s -> new TreeMap<>()).put(entry.getKey().getCoordString(), entry.getValue());
         }
 
         return worldCoordIds;
@@ -63,26 +52,6 @@ public class JSONBoard extends MemoryBoard {
 
     public void forceSave(boolean sync, BooleanConsumer finish) {
         DiscUtil.writeCatch(file, FactionsPlugin.getInstance().getGson().toJson(dumpAsSaveFormat()), sync, finish);
-    }
-
-    public int load(BooleanConsumer finish) {
-        if (!file.exists()) {
-            FactionsPlugin.getInstance().getLogger().info("No board to load from disk. Creating new file.");
-            forceSave(finish);
-            return 0;
-        }
-
-        try {
-            Type type = new TypeToken<Map<String, Map<String, String>>>() {
-            }.getType();
-            Map<String, Map<String, String>> worldCoordIds = FactionsPlugin.getInstance().getGson().fromJson(DiscUtil.read(file), type);
-            loadFromSaveFormat(worldCoordIds);
-        } catch (Exception e) {
-            FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to load the board from disk.", e);
-            return 0;
-        }
-
-        return flocationIds.size();
     }
 
     @Override

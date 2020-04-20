@@ -12,13 +12,14 @@ import com.massivecraft.factions.data.MemoryFactions;
 import com.massivecraft.factions.util.DiscUtil;
 import com.massivecraft.factions.util.UUIDFetcher;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.bukkit.Bukkit;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -81,7 +82,7 @@ public class JSONFactions extends MemoryFactions {
     public void load(IntConsumer loaded) {
         Bukkit.getScheduler().runTaskAsynchronously(FactionsPlugin.getInstance(), () -> {
             Map<String, JSONFaction> factions = this.loadCore(null);
-            int amount = factions.size();
+            int amount = factions == null ? 0 : factions.size();
             Bukkit.getScheduler().runTask(FactionsPlugin.getInstance(), () -> {
                 this.factions.clear();
                 if (amount > 0) {
@@ -95,8 +96,7 @@ public class JSONFactions extends MemoryFactions {
 
     private Map<String, JSONFaction> loadCore(BooleanConsumer finish) {
         if (!this.file.exists()) {
-            //wilderness not being loaded
-            return new HashMap<>();
+            return new HashMap<>(0);
         }
 
         String content = DiscUtil.readCatch(this.file);
@@ -202,7 +202,7 @@ public class JSONFactions extends MemoryFactions {
     }
 
     private Set<String> whichKeysNeedMigration(Set<String> keys) {
-        HashSet<String> list = new HashSet<>();
+        ObjectSet<String> list = new ObjectOpenHashSet<>();
         for (String value : keys) {
             if (!value.matches("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")) {
                 // Not a valid UUID..
@@ -222,7 +222,7 @@ public class JSONFactions extends MemoryFactions {
 
     public String getNextId() {
         while (!isIdFree(this.nextId)) {
-            this.nextId += 1;
+            this.nextId++;
         }
         return Integer.toString(this.nextId);
     }
@@ -245,8 +245,7 @@ public class JSONFactions extends MemoryFactions {
         try {
             int idAsInt = Integer.parseInt(id);
             this.updateNextIdForId(idAsInt);
-        } catch (Exception ignored) {
-        }
+        } catch (NumberFormatException ignored) {}
     }
 
     @Override

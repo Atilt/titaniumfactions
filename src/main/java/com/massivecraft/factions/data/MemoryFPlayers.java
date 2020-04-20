@@ -35,8 +35,9 @@ public abstract class MemoryFPlayers extends FPlayers {
     }
 
     public Collection<FPlayer> getOnlinePlayers() {
-        ObjectSet<FPlayer> entities = new ObjectOpenHashSet<>();
-        for (Player player : Bukkit.getOnlinePlayers()) {
+        Collection<? extends Player> players = Bukkit.getOnlinePlayers();
+        ObjectSet<FPlayer> entities = new ObjectOpenHashSet<>(players.size());
+        for (Player player : players) {
             entities.add(this.getByPlayer(player));
         }
         return entities;

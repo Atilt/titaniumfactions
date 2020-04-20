@@ -89,7 +89,7 @@ public class MiscUtil {
     }
 
     public static Iterable<FPlayer> rankOrder(Collection<FPlayer> players) {
-        ObjectList<FPlayer> ret = new ObjectArrayList<>(players.size());
+        ObjectList<FPlayer> ret = new ObjectArrayList<>(players);
         Collections.sort(ret);
         return ret;
     }

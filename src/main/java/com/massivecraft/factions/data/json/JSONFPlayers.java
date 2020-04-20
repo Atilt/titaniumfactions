@@ -83,7 +83,7 @@ public class JSONFPlayers extends MemoryFPlayers {
     public void load(IntConsumer loaded) {
         Bukkit.getScheduler().runTaskAsynchronously(FactionsPlugin.getInstance(), () -> {
             Map<String, JSONFPlayer> fplayers = this.loadCore(null);
-            int amount = fplayers.size();
+            int amount = fplayers == null ? 0 : fplayers.size();
             Bukkit.getScheduler().runTask(FactionsPlugin.getInstance(), () -> {
                 this.fPlayers.clear();
                 if (amount > 0) {
@@ -104,8 +104,7 @@ public class JSONFPlayers extends MemoryFPlayers {
             return null;
         }
 
-        Map<String, JSONFPlayer> data = FactionsPlugin.getInstance().getGson().fromJson(content, new TypeToken<Map<String, JSONFPlayer>>() {
-        }.getType());
+        Map<String, JSONFPlayer> data = FactionsPlugin.getInstance().getGson().fromJson(content, new TypeToken<Map<String, JSONFPlayer>>(){}.getType());
         ObjectSet<String> list = new ObjectOpenHashSet<>();
         ObjectSet<String> invalidList = new ObjectOpenHashSet<>();
         for (Entry<String, JSONFPlayer> entry : data.entrySet()) {

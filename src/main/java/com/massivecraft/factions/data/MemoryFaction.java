@@ -37,7 +37,6 @@ import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,6 +45,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public abstract class MemoryFaction implements Faction, EconomyParticipator {
     protected String id = null;
@@ -78,33 +78,31 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     protected long frozenDTRUntilTime;
     protected int tntBank;
 
-    public HashMap<String, List<String>> getAnnouncements() {
+    public Map<String, List<String>> getAnnouncements() {
         return this.announcements;
     }
 
     public void addAnnouncement(FPlayer fPlayer, String msg) {
-        List<String> list = announcements.containsKey(fPlayer.getId()) ? announcements.get(fPlayer.getId()) : new ArrayList<>();
-        list.add(msg);
-        announcements.put(fPlayer.getId(), list);
+        announcements.computeIfAbsent(fPlayer.getId(), s -> new ObjectArrayList<>()).add(msg);
     }
 
     public void sendUnreadAnnouncements(FPlayer fPlayer) {
-        if (!announcements.containsKey(fPlayer.getId())) {
+        List<String> messages = announcements.remove(fPlayer.getPlayer().getUniqueId().toString());
+        if (messages == null) {
             return;
         }
         fPlayer.msg(TL.FACTIONS_ANNOUNCEMENT_TOP);
-        for (String s : announcements.get(fPlayer.getPlayer().getUniqueId().toString())) {
+        for (String s : messages) {
             fPlayer.sendMessage(s);
         }
         fPlayer.msg(TL.FACTIONS_ANNOUNCEMENT_BOTTOM);
-        announcements.remove(fPlayer.getId());
     }
 
     public void removeAnnouncements(FPlayer fPlayer) {
         announcements.remove(fPlayer.getId());
     }
 
-    public ConcurrentHashMap<String, LazyLocation> getWarps() {
+    public ConcurrentMap<String, LazyLocation> getWarps() {
         return this.warps;
     }
 
@@ -174,8 +172,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     }
 
     public void ban(FPlayer target, FPlayer banner) {
-        BanInfo info = new BanInfo(banner.getId(), target.getId(), System.currentTimeMillis());
-        this.bans.add(info);
+        this.bans.add(new BanInfo(banner.getId(), target.getId(), System.currentTimeMillis()));
     }
 
     public void unban(FPlayer player) {
@@ -255,10 +252,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     }
 
     public void setTag(String str) {
-        if (FactionsPlugin.getInstance().conf().factions().other().isTagForceUpperCase()) {
-            str = str.toUpperCase();
-        }
-        this.tag = str;
+        this.tag = FactionsPlugin.getInstance().conf().factions().other().isTagForceUpperCase() ? str.toUpperCase() : str;
     }
 
     public String getComparisonTag() {
@@ -474,13 +468,13 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     private void resetPerms(Map<Permissible, Map<PermissibleAction, Boolean>> permissions, DefaultPermissionsConfig.Permissions defaults, boolean online) {
         permissions.clear();
 
-        for (Relation relation : Relation.values()) {
+        for (Relation relation : Relation.VALUES) {
             if (relation != Relation.MEMBER) {
                 permissions.put(relation, new HashMap<>());
             }
         }
         if (online) {
-            for (Role role : Role.values()) {
+            for (Role role : Role.VALUES) {
                 if (role != Role.ADMIN) {
                     permissions.put(role, new HashMap<>());
                 }
@@ -640,18 +634,15 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     }
 
     public Relation getRelationWish(Faction otherFaction) {
-        if (this.relationWish.containsKey(otherFaction.getId())) {
-            return this.relationWish.get(otherFaction.getId());
-        }
-        return Relation.fromString(FactionsPlugin.getInstance().conf().factions().other().getDefaultRelation()); // Always default to old behavior.
+        return this.relationWish.getOrDefault(otherFaction.getId(), Relation.fromString(FactionsPlugin.getInstance().conf().factions().other().getDefaultRelation()));
     }
 
     public void setRelationWish(Faction otherFaction, Relation relation) {
-        if (this.relationWish.containsKey(otherFaction.getId()) && relation.equals(Relation.NEUTRAL)) {
+        if (relation == Relation.NEUTRAL) {
             this.relationWish.remove(otherFaction.getId());
-        } else {
-            this.relationWish.put(otherFaction.getId(), relation);
+            return;
         }
+        this.relationWish.put(otherFaction.getId(), relation);
     }
 
     public int getRelationCount(Relation relation) {

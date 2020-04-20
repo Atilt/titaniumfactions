@@ -125,4 +125,6 @@ public enum Relation implements Permissible {
             return FactionsPlugin.getInstance().conf().economy().getCostNeutral();
         }
     }
+
+    public static final Relation[] VALUES = values();
 }
