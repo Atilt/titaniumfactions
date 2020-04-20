@@ -6,6 +6,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
+import java.util.function.IntConsumer;
 
 public abstract class FPlayers {
     protected static FPlayers instance = getFPlayersImpl();
@@ -35,5 +36,5 @@ public abstract class FPlayers {
 
     public abstract FPlayer getById(String string);
 
-    public abstract int load(BooleanConsumer finish);
+    public abstract void load(IntConsumer loaded);
 }

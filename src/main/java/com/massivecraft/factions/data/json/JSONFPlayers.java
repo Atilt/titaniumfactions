@@ -11,17 +11,19 @@ import com.massivecraft.factions.data.MemoryFPlayers;
 import com.massivecraft.factions.util.DiscUtil;
 import com.massivecraft.factions.util.UUIDFetcher;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.Bukkit;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.UUID;
+import java.util.function.IntConsumer;
 import java.util.logging.Level;
 
 public class JSONFPlayers extends MemoryFPlayers {
@@ -67,7 +69,7 @@ public class JSONFPlayers extends MemoryFPlayers {
         return DiscUtil.writeCatch(target, FactionsPlugin.getInstance().getGson().toJson(data), sync, finish);
     }
 
-    public int load(BooleanConsumer finish) {
+/*    public int load(BooleanConsumer finish) {
         Map<String, JSONFPlayer> fplayers = this.loadCore(finish);
         if (fplayers == null) {
             return 0;
@@ -75,6 +77,21 @@ public class JSONFPlayers extends MemoryFPlayers {
         this.fPlayers.clear();
         this.fPlayers.putAll(fplayers);
         return fPlayers.size();
+    }*/
+
+    @Override
+    public void load(IntConsumer loaded) {
+        Bukkit.getScheduler().runTaskAsynchronously(FactionsPlugin.getInstance(), () -> {
+            Map<String, JSONFPlayer> fplayers = this.loadCore(null);
+            int amount = fplayers.size();
+            Bukkit.getScheduler().runTask(FactionsPlugin.getInstance(), () -> {
+                if (amount > 0) {
+                    this.fPlayers.clear();
+                    this.fPlayers.putAll(fplayers);
+                }
+                loaded.accept(amount);
+            });
+        });
     }
 
     private Map<String, JSONFPlayer> loadCore(BooleanConsumer finish) {
@@ -89,8 +106,8 @@ public class JSONFPlayers extends MemoryFPlayers {
 
         Map<String, JSONFPlayer> data = FactionsPlugin.getInstance().getGson().fromJson(content, new TypeToken<Map<String, JSONFPlayer>>() {
         }.getType());
-        Set<String> list = new HashSet<>();
-        Set<String> invalidList = new HashSet<>();
+        ObjectSet<String> list = new ObjectOpenHashSet<>();
+        ObjectSet<String> invalidList = new ObjectOpenHashSet<>();
         for (Entry<String, JSONFPlayer> entry : data.entrySet()) {
             String key = entry.getKey();
             entry.getValue().setId(key);
@@ -103,7 +120,7 @@ public class JSONFPlayers extends MemoryFPlayers {
             }
         }
 
-        if (list.size() > 0) {
+        if (!list.isEmpty()) {
             // We've got some converting to do!
             FactionsPlugin.getInstance().log(Level.INFO, "Factions is now updating players.json");
 
@@ -120,7 +137,7 @@ public class JSONFPlayers extends MemoryFPlayers {
 
             // Start fetching those UUIDs
             FactionsPlugin.getInstance().log(Level.INFO, "Please wait while Factions converts " + list.size() + " old player names to UUID. This may take a while.");
-            UUIDFetcher fetcher = new UUIDFetcher(new ArrayList<>(list));
+            UUIDFetcher fetcher = new UUIDFetcher(new ObjectArrayList<>(list));
             try {
                 Map<String, UUID> response = fetcher.call();
                 for (String s : list) {
