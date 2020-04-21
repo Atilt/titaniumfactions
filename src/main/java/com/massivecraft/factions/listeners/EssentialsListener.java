@@ -13,7 +13,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.logging.Level;
 
 public class EssentialsListener implements Listener {
@@ -28,7 +27,7 @@ public class EssentialsListener implements Listener {
     public void onLeave(FPlayerLeaveEvent event) throws Exception {
         // Get the USER from their UUID.
         Faction faction = event.getFaction();
-        User user = ess.getUser(UUID.fromString(event.getfPlayer().getId()));
+        User user = ess.getUser(event.getfPlayer().getId());
 
         List<String> homes = user.getHomes();
         if (homes == null || homes.isEmpty()) {

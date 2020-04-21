@@ -13,7 +13,7 @@ import com.massivecraft.factions.util.MiscUtil;
 import com.massivecraft.factions.util.TL;
 import org.bukkit.Bukkit;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class CmdTag extends FCommand {
 
@@ -39,7 +39,7 @@ public class CmdTag extends FCommand {
             return;
         }
 
-        ArrayList<String> errors = MiscUtil.validateTag(tag);
+        List<String> errors = MiscUtil.validateTag(tag);
         if (errors.size() > 0) {
             context.sendMessage(errors);
             return;

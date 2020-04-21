@@ -18,7 +18,6 @@ import com.massivecraft.factions.scoreboards.FScoreboard;
 import com.massivecraft.factions.scoreboards.FTeamWrapper;
 import com.massivecraft.factions.scoreboards.sidebar.FDefaultSidebar;
 import com.massivecraft.factions.struct.Permission;
-import com.massivecraft.factions.util.FastUUID;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
 import com.massivecraft.factions.util.VisualizeUtil;
@@ -90,7 +89,7 @@ public class FactionsPlayerListener extends AbstractListener {
      * This will ensure that players do not grief areas (or similar) whose data has not yet loaded.
      * @param event
      */
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onAsyncPlayerPreLogin(AsyncPlayerPreLoginEvent event) {
         if (!this.plugin.isFinishedLoading()) {
             event.setResult(PlayerPreLoginEvent.Result.KICK_OTHER);
@@ -167,7 +166,7 @@ public class FactionsPlayerListener extends AbstractListener {
         }
 
         if (FactionsPlugin.getInstance().getSeeChunkUtil() != null) {
-            FactionsPlugin.getInstance().getSeeChunkUtil().updatePlayerInfo(UUID.fromString(me.getId()), me.isSeeingChunk());
+            FactionsPlugin.getInstance().getSeeChunkUtil().updatePlayerInfo(me.getId(), me.isSeeingChunk());
         }
     }
 
@@ -203,7 +202,7 @@ public class FactionsPlayerListener extends AbstractListener {
         FScoreboard.remove(me, event.getPlayer());
 
         if (FactionsPlugin.getInstance().getSeeChunkUtil() != null) {
-            FactionsPlugin.getInstance().getSeeChunkUtil().updatePlayerInfo(FastUUID.parseUUID(me.getId()), false);
+            FactionsPlugin.getInstance().getSeeChunkUtil().updatePlayerInfo(event.getPlayer(), false);
         }
     }
 

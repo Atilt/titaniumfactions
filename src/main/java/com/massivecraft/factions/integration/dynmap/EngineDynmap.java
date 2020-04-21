@@ -10,6 +10,7 @@ import com.massivecraft.factions.config.file.DynmapConfig;
 import com.massivecraft.factions.data.MemoryBoard;
 import com.massivecraft.factions.integration.Econ;
 import com.massivecraft.factions.perms.Role;
+import com.massivecraft.factions.util.FastUUID;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -25,6 +26,7 @@ import org.dynmap.utils.TileFlags;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -323,7 +325,7 @@ public class EngineDynmap {
         // Loop through until we don't find more areas
         while (allChunks != null) {
             TileFlags ourChunkFlags = null;
-            LinkedList<FLocation> ourChunks = null;
+            List<FLocation> ourChunks = null;
             LinkedList<FLocation> newChunks = null;
 
             int minimumX = Integer.MAX_VALUE;
@@ -373,7 +375,7 @@ public class EngineDynmap {
             int currentX = minimumX;
             int currentZ = minimumZ;
             Direction direction = Direction.XPLUS;
-            ArrayList<int[]> linelist = new ArrayList<>();
+            List<int[]> linelist = new ArrayList<>();
             linelist.add(new int[]{initialX, initialZ}); // Add start point
             while ((currentX != initialX) || (currentZ != initialZ) || (direction != Direction.ZMINUS)) {
                 switch (direction) {
@@ -528,15 +530,12 @@ public class EngineDynmap {
         if (faction.isWilderness()) {
             return null;
         }
-
-        Set<String> ret = new HashSet<>();
-
+        Set<String> ret = new HashSet<>(faction.getSize());
         for (FPlayer fplayer : faction.getFPlayers()) {
             // NOTE: We add both UUID and name. This might be a good idea for future proofing.
-            ret.add(fplayer.getId());
+            ret.add(FastUUID.toString(fplayer.getId()));
             ret.add(fplayer.getName());
         }
-
         return ret;
     }
 
@@ -768,7 +767,7 @@ public class EngineDynmap {
     // Find all contiguous blocks, set in target and clear in source
     private int floodFillTarget(TileFlags source, TileFlags destination, int x, int y) {
         int cnt = 0;
-        ArrayDeque<int[]> stack = new ArrayDeque<>();
+        Deque<int[]> stack = new ArrayDeque<>();
         stack.push(new int[]{x, y});
 
         while (!stack.isEmpty()) {

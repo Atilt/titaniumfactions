@@ -20,6 +20,7 @@ import com.massivecraft.factions.util.EnumTypeAdapter;
 import com.massivecraft.factions.util.LazyLocation;
 import com.massivecraft.factions.util.MapFLocToStringSetTypeAdapter;
 import com.massivecraft.factions.util.MyLocationTypeAdapter;
+import com.massivecraft.factions.util.UUIDTypeAdapter;
 import com.massivecraft.factions.util.material.FactionMaterial;
 import com.massivecraft.factions.util.material.adapter.FactionMaterialAdapter;
 import com.massivecraft.factions.util.material.adapter.MaterialAdapter;
@@ -37,6 +38,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Level;
 
 public class Transitioner {
@@ -150,6 +152,7 @@ public class Transitioner {
                 .registerTypeAdapter(accessTypeAdatper, new OldPermissionsMapTypeAdapterV0())
                 .registerTypeAdapter(LazyLocation.class, new MyLocationTypeAdapter())
                 .registerTypeAdapter(mapFLocToStringSetType, new MapFLocToStringSetTypeAdapter())
+                .registerTypeAdapter(UUID.class, new UUIDTypeAdapter())
                 .registerTypeAdapterFactory(EnumTypeAdapter.ENUM_FACTORY).create();
     }
 

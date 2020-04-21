@@ -11,7 +11,11 @@ import com.massivecraft.factions.util.TL;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.List;
 
+
+//todo
+//redo this entire class because it's ugly :(
 public class CmdTop extends FCommand {
 
     public CmdTop() {
@@ -29,7 +33,7 @@ public class CmdTop extends FCommand {
     public void perform(CommandContext context) {
         // Can sort by: money, members, online, allies, enemies, power, land.
         // Get all Factions and remove non player ones.
-        ArrayList<Faction> factionList = Factions.getInstance().getAllFactions();
+        List<Faction> factionList = Factions.getInstance().getAllFactions();
         factionList.remove(Factions.getInstance().getWilderness());
         factionList.remove(Factions.getInstance().getSafeZone());
         factionList.remove(Factions.getInstance().getWarZone());
@@ -161,7 +165,7 @@ public class CmdTop extends FCommand {
             for (FPlayer fp : faction.getFPlayers()) {
                 balance = balance + Econ.getBalance(fp.getAccountId());
             }
-            return String.valueOf(balance);
+            return Double.toString(balance);
         }
     }
 

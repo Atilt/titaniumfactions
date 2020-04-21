@@ -2,9 +2,11 @@ package com.massivecraft.factions.iface;
 
 import com.massivecraft.factions.util.TL;
 
+import java.util.UUID;
+
 public interface EconomyParticipator extends RelationParticipator {
 
-    String getAccountId();
+    UUID getAccountId();
 
     void msg(String str, Object... args);
 

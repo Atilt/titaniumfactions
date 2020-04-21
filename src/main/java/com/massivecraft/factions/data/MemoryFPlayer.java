@@ -43,6 +43,7 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
+import java.util.UUID;
 
 
 /**
@@ -67,7 +68,7 @@ public abstract class MemoryFPlayer implements FPlayer {
     protected long lastLoginTime;
     protected ChatMode chatMode;
     protected boolean ignoreAllianceChat = false;
-    protected String id;
+    protected UUID id;
     protected String name;
     protected boolean monitorJoins;
     protected boolean spyingChat = false;
@@ -261,15 +262,14 @@ public abstract class MemoryFPlayer implements FPlayer {
         return spyingChat;
     }
 
-    // FIELD: account
-    public String getAccountId() {
+    public UUID getAccountId() {
         return this.getId();
     }
 
     public MemoryFPlayer() {
     }
 
-    public MemoryFPlayer(String id) {
+    public MemoryFPlayer(UUID id) {
         this.id = id;
         this.resetFactionData(false);
         this.power = FactionsPlugin.getInstance().conf().factions().landRaidControl().power().getPlayerStarting();
@@ -400,8 +400,8 @@ public abstract class MemoryFPlayer implements FPlayer {
             // Older versions of FactionsUUID don't save the name,
             // so `name` will be null the first time it's retrieved
             // after updating
-            OfflinePlayer offline = Bukkit.getOfflinePlayer(FastUUID.parseUUID(getId()));
-            this.name = offline.getName() != null ? offline.getName() : getId();
+            OfflinePlayer offline = Bukkit.getOfflinePlayer(this.id);
+            this.name = offline.getName() != null ? offline.getName() : FastUUID.toString(this.id);
         }
         return name;
     }
@@ -417,12 +417,11 @@ public abstract class MemoryFPlayer implements FPlayer {
     // Base concatenations:
 
     public String getNameAndSomething(String something) {
-        String ret = this.role.getPrefix();
-        if (something != null && something.length() > 0) {
-            ret += something + " ";
+        StringBuilder builder = new StringBuilder(this.role.getPrefix());
+        if (something != null && !something.isEmpty()) {
+            builder.append(something).append(" ");
         }
-        ret += this.getName();
-        return ret;
+        return builder.append(this.getName()).toString();
     }
 
     public String getNameAndTitle() {
@@ -523,12 +522,7 @@ public abstract class MemoryFPlayer implements FPlayer {
     }
 
     public void alterPower(double delta) {
-        this.power += delta;
-        if (this.power > this.getPowerMax()) {
-            this.power = this.getPowerMax();
-        } else if (this.power < this.getPowerMin()) {
-            this.power = this.getPowerMin();
-        }
+        this.power = Math.max(this.getPowerMin(), Math.min(this.getPowerMax(), this.power += delta));
     }
 
     public double getPowerMax() {
@@ -552,25 +546,25 @@ public abstract class MemoryFPlayer implements FPlayer {
     }
 
     public void updatePower() {
-        if (this.isOffline()) {
+        Player player = getPlayer();
+        if (player == null) {
             losePowerFromBeingOffline();
             if (!FactionsPlugin.getInstance().conf().factions().landRaidControl().power().isRegenOffline()) {
                 return;
             }
-        } else if (hasFaction() && getFaction().isPowerFrozen()) {
-            return; // Don't let power regen if faction power is frozen.
+        } else {
+            if (hasFaction() && getFaction().isPowerFrozen()) {
+                return; // Don't let power regen if faction power is frozen.
+            }
         }
         long now = System.currentTimeMillis();
-        long millisPassed = now - this.lastPowerUpdateTime;
         this.lastPowerUpdateTime = now;
 
-        Player thisPlayer = this.getPlayer();
-        if (thisPlayer != null && thisPlayer.isDead()) {
+        if (player != null && player.isDead()) {
             return;  // don't let dead players regain power until they respawn
         }
 
-        int millisPerMinute = 60 * 1000;
-        this.alterPower(millisPassed * FactionsPlugin.getInstance().conf().factions().landRaidControl().power().getPowerPerMinute() / millisPerMinute);
+        this.alterPower((now - this.lastPowerUpdateTime) * FactionsPlugin.getInstance().conf().factions().landRaidControl().power().getPowerPerMinute() / 60000);
     }
 
     public void losePowerFromBeingOffline() {
@@ -618,12 +612,13 @@ public abstract class MemoryFPlayer implements FPlayer {
     }
 
     public void sendFactionHereMessage(Faction from) {
-        Faction toShow = Board.getInstance().getFactionAt(getLastStoodAt());
-        boolean showTitle = FactionsPlugin.getInstance().conf().factions().enterTitles().isEnabled();
-        boolean showChat = true;
         Player player = getPlayer();
+        if (player == null) {
+            return;
+        }
+        Faction toShow = Board.getInstance().getFactionAt(getLastStoodAt());
 
-        if (showTitle && player != null) {
+        if (FactionsPlugin.getInstance().conf().factions().enterTitles().isEnabled()) {
             int in = FactionsPlugin.getInstance().conf().factions().enterTitles().getFadeIn();
             int stay = FactionsPlugin.getInstance().conf().factions().enterTitles().getStay();
             int out = FactionsPlugin.getInstance().conf().factions().enterTitles().getFadeOut();
@@ -634,15 +629,12 @@ public abstract class MemoryFPlayer implements FPlayer {
             // We send null instead of empty because Spigot won't touch the title if it's null, but clears if empty.
             // We're just trying to be as unintrusive as possible.
             TitleAPI.getInstance().sendTitle(player, title, sub, in, stay, out);
-
-            showChat = FactionsPlugin.getInstance().conf().factions().enterTitles().isAlsoShowChat();
         }
 
         if (showInfoBoard(toShow)) {
             FScoreboard.get(this).setTemporarySidebar(new FInfoSidebar(toShow));
-            showChat = FactionsPlugin.getInstance().conf().scoreboard().info().isAlsoSendChat();
         }
-        if (showChat) {
+        if (FactionsPlugin.getInstance().conf().factions().enterTitles().isAlsoShowChat()) {
             this.sendMessage(FactionsPlugin.getInstance().txt().parse(TL.FACTION_LEAVE.format(from.getTag(this), toShow.getTag(this))));
         }
     }
@@ -913,9 +905,10 @@ public abstract class MemoryFPlayer implements FPlayer {
 
         Board.getInstance().setFactionAt(forFaction, flocation);
 
-        if (FactionsPlugin.getInstance().conf().logging().isLandClaims()) {
+        //temporary disable logging.
+/*        if (FactionsPlugin.getInstance().conf().logging().isLandClaims()) {
             FactionsPlugin.getInstance().log(TL.CLAIM_CLAIMEDLOG.toString(), this.getName(), flocation.getCoordString(), forFaction.getTag());
-        }
+        }*/
 
         return true;
     }
@@ -934,7 +927,7 @@ public abstract class MemoryFPlayer implements FPlayer {
     }
 
     public Player getPlayer() {
-        return Bukkit.getPlayer(FastUUID.parseUUID(this.getId()));
+        return Bukkit.getPlayer(this.getId());
     }
 
     public boolean isOnline() {
@@ -1039,7 +1032,7 @@ public abstract class MemoryFPlayer implements FPlayer {
 
     public void setSeeingChunk(boolean seeingChunk) {
         this.seeingChunk = seeingChunk;
-        FactionsPlugin.getInstance().getSeeChunkUtil().updatePlayerInfo(FastUUID.parseUUID(getId()), seeingChunk);
+        FactionsPlugin.getInstance().getSeeChunkUtil().updatePlayerInfo(getPlayer(), seeingChunk);
     }
 
     public boolean getFlyTrailsState() {
@@ -1119,12 +1112,12 @@ public abstract class MemoryFPlayer implements FPlayer {
     }
 
     @Override
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
     @Override
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

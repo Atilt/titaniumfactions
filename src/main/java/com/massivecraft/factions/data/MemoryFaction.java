@@ -20,7 +20,6 @@ import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.struct.BanInfo;
 import com.massivecraft.factions.struct.Permission;
-import com.massivecraft.factions.util.FastUUID;
 import com.massivecraft.factions.util.LazyLocation;
 import com.massivecraft.factions.util.MiscUtil;
 import com.massivecraft.factions.util.RelationUtil;
@@ -44,8 +43,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 public abstract class MemoryFaction implements Faction, EconomyParticipator {
     protected String id = null;
@@ -61,12 +60,12 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     protected transient long lastPlayerLoggedOffTime;
     protected double powerBoost;
     protected Map<String, Relation> relationWish = new HashMap<>();
-    protected Map<FLocation, Set<String>> claimOwnership = new ConcurrentHashMap<>();
+    protected Map<FLocation, Set<UUID>> claimOwnership = new ConcurrentHashMap<>();
     protected transient Set<FPlayer> fplayers = new HashSet<>();
-    protected Set<String> invites = new HashSet<>();
-    protected HashMap<String, List<String>> announcements = new HashMap<>();
-    protected ConcurrentHashMap<String, LazyLocation> warps = new ConcurrentHashMap<>();
-    protected ConcurrentHashMap<String, String> warpPasswords = new ConcurrentHashMap<>();
+    protected Set<UUID> invites = new HashSet<>();
+    protected HashMap<UUID, List<String>> announcements = new HashMap<>();
+    protected Map<String, LazyLocation> warps = new ConcurrentHashMap<>();
+    protected Map<String, String> warpPasswords = new ConcurrentHashMap<>();
     private long lastDeath;
     protected int maxVaults;
     protected Role defaultRole;
@@ -78,7 +77,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     protected long frozenDTRUntilTime;
     protected int tntBank;
 
-    public Map<String, List<String>> getAnnouncements() {
+    public Map<UUID, List<String>> getAnnouncements() {
         return this.announcements;
     }
 
@@ -87,7 +86,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     }
 
     public void sendUnreadAnnouncements(FPlayer fPlayer) {
-        List<String> messages = announcements.remove(fPlayer.getPlayer().getUniqueId().toString());
+        List<String> messages = announcements.remove(fPlayer.getId());
         if (messages == null) {
             return;
         }
@@ -102,7 +101,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         announcements.remove(fPlayer.getId());
     }
 
-    public ConcurrentMap<String, LazyLocation> getWarps() {
+    public Map<String, LazyLocation> getWarps() {
         return this.warps;
     }
 
@@ -147,7 +146,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         this.maxVaults = value;
     }
 
-    public Set<String> getInvites() {
+    public Set<UUID> getInvites() {
         return invites;
     }
 
@@ -176,12 +175,12 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     }
 
     public void unban(FPlayer player) {
-        bans.removeIf(banInfo -> banInfo.getBanned().equalsIgnoreCase(player.getId()));
+        bans.removeIf(banInfo -> banInfo.getBanned().equals(player.getId()));
     }
 
     public boolean isBanned(FPlayer player) {
         for (BanInfo info : bans) {
-            if (info.getBanned().equalsIgnoreCase(player.getId())) {
+            if (info.getBanned().equals(player.getId())) {
                 return true;
             }
         }
@@ -304,8 +303,9 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         this.home = null;
     }
 
-    public String getAccountId() {
-        String aid = "faction-" + this.getId();
+    public UUID getAccountId() {
+        String attempt = "faction-" + this.getId();
+        UUID aid = UUID.fromString(attempt.substring(0, Math.min(32, attempt.length()))); //cant use FastUUID because it only accepts real ids
 
         // We need to override the default money given to players.
         if (!Econ.hasAccount(aid)) {
@@ -1016,7 +1016,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     // Ownership of specific claims
     // ----------------------------------------------//
 
-    public Map<FLocation, Set<String>> getClaimOwnership() {
+    public Map<FLocation, Set<UUID>> getClaimOwnership() {
         return claimOwnership;
     }
 
@@ -1036,15 +1036,12 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
             return;
         }
 
-        Set<String> ownerData;
-
-        for (Entry<FLocation, Set<String>> entry : claimOwnership.entrySet()) {
-            ownerData = entry.getValue();
+        for (Entry<FLocation, Set<UUID>> entry : claimOwnership.entrySet()) {
+            Set<UUID> ownerData = entry.getValue();
 
             if (ownerData == null) {
                 continue;
             }
-
             ownerData.removeIf(s -> s.equals(player.getId()));
 
             if (ownerData.isEmpty()) {
@@ -1065,7 +1062,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
             return false;
         }
 
-        Set<String> ownerData = claimOwnership.get(loc);
+        Set<UUID> ownerData = claimOwnership.get(loc);
         return ownerData != null && !ownerData.isEmpty();
     }
 
@@ -1073,21 +1070,16 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         if (claimOwnership.isEmpty()) {
             return false;
         }
-        Set<String> ownerData = claimOwnership.get(loc);
+        Set<UUID> ownerData = claimOwnership.get(loc);
         return ownerData != null && ownerData.contains(player.getId());
     }
 
     public void setPlayerAsOwner(FPlayer player, FLocation loc) {
-        Set<String> ownerData = claimOwnership.get(loc);
-        if (ownerData == null) {
-            ownerData = new HashSet<>();
-        }
-        ownerData.add(player.getId());
-        claimOwnership.put(loc, ownerData);
+        claimOwnership.computeIfAbsent(loc, fLocation -> new HashSet<>()).add(player.getId());
     }
 
     public void removePlayerAsOwner(FPlayer player, FLocation loc) {
-        Set<String> ownerData = claimOwnership.get(loc);
+        Set<UUID> ownerData = claimOwnership.get(loc);
         if (ownerData == null) {
             return;
         }
@@ -1095,23 +1087,23 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         claimOwnership.put(loc, ownerData);
     }
 
-    public Set<String> getOwnerList(FLocation loc) {
+    public Set<UUID> getOwnerList(FLocation loc) {
         return claimOwnership.get(loc);
     }
 
     public String getOwnerListString(FLocation loc) {
-        Set<String> ownerData = claimOwnership.get(loc);
+        Set<UUID> ownerData = claimOwnership.get(loc);
         if (ownerData == null || ownerData.isEmpty()) {
             return "";
         }
 
         StringBuilder ownerList = new StringBuilder();
 
-        for (String anOwnerData : ownerData) {
+        for (UUID anOwnerData : ownerData) {
             if (ownerList.length() > 0) {
                 ownerList.append(", ");
             }
-            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(FastUUID.parseUUID(anOwnerData));
+            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(anOwnerData);
             //TODO:TL
             ownerList.append(offlinePlayer.getName() == null ? "null player" : offlinePlayer.getName());
         }
@@ -1131,7 +1123,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         }
 
         // need to check the ownership list, then
-        Set<String> ownerData = claimOwnership.get(loc);
+        Set<UUID> ownerData = claimOwnership.get(loc);
 
         // if no owner list, owner list is empty, or player is in owner list,
         // they're allowed

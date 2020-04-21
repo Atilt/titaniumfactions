@@ -6,6 +6,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
+import java.util.UUID;
 import java.util.function.IntConsumer;
 
 public abstract class FPlayers {
@@ -34,7 +35,7 @@ public abstract class FPlayers {
 
     public abstract FPlayer getByOfflinePlayer(OfflinePlayer player);
 
-    public abstract FPlayer getById(String string);
+    public abstract FPlayer getById(UUID id);
 
     public abstract void load(IntConsumer loaded);
 }

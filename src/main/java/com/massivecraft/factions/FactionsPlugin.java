@@ -46,6 +46,7 @@ import com.massivecraft.factions.util.SeeChunkUtil;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
 import com.massivecraft.factions.util.TitleAPI;
+import com.massivecraft.factions.util.UUIDTypeAdapter;
 import com.massivecraft.factions.util.WorldUtil;
 import com.massivecraft.factions.util.material.FactionMaterial;
 import com.massivecraft.factions.util.material.MaterialDb;
@@ -1007,6 +1008,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                 .registerTypeAdapter(accessType, new PermissionsMapTypeAdapter())
                 .registerTypeAdapter(LazyLocation.class, new MyLocationTypeAdapter())
                 .registerTypeAdapter(mapFLocToStringSetType, new MapFLocToStringSetTypeAdapter())
+                .registerTypeAdapter(UUID.class, new UUIDTypeAdapter())
                 .registerTypeAdapterFactory(EnumTypeAdapter.ENUM_FACTORY);
     }
 

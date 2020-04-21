@@ -50,13 +50,24 @@ public class SeeChunkUtil extends BukkitRunnable {
         }
     }
 
+    @Deprecated
     public void updatePlayerInfo(UUID uuid, boolean toggle) {
-        if (toggle) {
-            playersSeeingChunks.add(uuid);
-        } else {
-            playersSeeingChunks.remove(uuid);
+        Player player = Bukkit.getPlayer(uuid);
+        if (player == null) {
+            return;
         }
-    };
+        updatePlayerInfo(player, toggle);
+    }
+
+    public void updatePlayerInfo(Player player, boolean toggle) {
+        if (toggle) {
+            playersSeeingChunks.add(player.getUniqueId());
+        } else {
+            if (playersSeeingChunks.remove(player.getUniqueId())) {
+                VisualizeUtil.clear(player);
+            }
+        }
+    }
 
     public static void showPillars(Player me, FPlayer fme, Object effect, boolean useColor) {
         ParticleColor color = null;

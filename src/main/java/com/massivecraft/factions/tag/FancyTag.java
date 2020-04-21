@@ -5,7 +5,6 @@ import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.Factions;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.perms.Relation;
-import com.massivecraft.factions.util.FastUUID;
 import com.massivecraft.factions.util.MiscUtil;
 import com.massivecraft.factions.util.QuadFunction;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -144,7 +143,7 @@ public enum FancyTag implements Tag {
             everythingOnYourWayOut:
             if (line.contains("{group}")) {
                 if (groupMap != null) {
-                    String group = groupMap.get(FastUUID.parseUUID(fplayer.getId()));
+                    String group = groupMap.get(fplayer.getId());
                     if (!group.trim().isEmpty()) {
                         newLine = newLine.replace("{group}", group);
                         break everythingOnYourWayOut;

@@ -4,13 +4,15 @@ import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.data.MemoryFPlayer;
 
+import java.util.UUID;
+
 public class JSONFPlayer extends MemoryFPlayer {
 
     public JSONFPlayer(MemoryFPlayer arg0) {
         super(arg0);
     }
 
-    public JSONFPlayer(String id) {
+    public JSONFPlayer(UUID id) {
         super(id);
     }
 

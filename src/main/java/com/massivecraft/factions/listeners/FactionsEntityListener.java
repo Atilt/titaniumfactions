@@ -333,7 +333,7 @@ public class FactionsEntityListener extends AbstractListener {
             damager = (Entity) projectile.getShooter();
         }
 
-        if (damager instanceof Player) {
+        if (damager.getType() == EntityType.PLAYER) {
             Player player = (Player) damager;
             Material material = null;
             switch (sub.getEntity().getType().name()) {
@@ -359,8 +359,8 @@ public class FactionsEntityListener extends AbstractListener {
             return true;
         }
 
-        Location defenderLoc = defender.getPlayer().getLocation();
-        Faction defLocFaction = Board.getInstance().getFactionAt(new FLocation(defenderLoc));
+        FLocation defenderLoc = new FLocation(defender.getPlayer().getLocation());
+        Faction defLocFaction = Board.getInstance().getFactionAt(defenderLoc);
 
         if (damager == damagee) {  // ender pearl usage and other self-inflicted damage
             return true;
@@ -576,7 +576,7 @@ public class FactionsEntityListener extends AbstractListener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPaintingPlace(HangingPlaceEvent event) {
-        if (!plugin.worldUtil().isEnabled(event.getEntity().getWorld())) {
+        if (event.getPlayer() == null || !plugin.worldUtil().isEnabled(event.getPlayer().getWorld())) {
             return;
         }
 

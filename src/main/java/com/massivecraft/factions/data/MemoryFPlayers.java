@@ -4,7 +4,6 @@ import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.Factions;
 import com.massivecraft.factions.FactionsPlugin;
-import com.massivecraft.factions.util.FastUUID;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -14,14 +13,15 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.UUID;
 
 public abstract class MemoryFPlayers extends FPlayers {
-    protected final Map<String, FPlayer> fPlayers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    protected final Map<UUID, FPlayer> fPlayers = new HashMap<>();
 
-    public Map<String, FPlayer> getFPlayers() {
+    public Map<UUID, FPlayer> getFPlayers() {
         return fPlayers;
     }
 
@@ -45,7 +45,7 @@ public abstract class MemoryFPlayers extends FPlayers {
 
     @Override
     public FPlayer getByPlayer(Player player) {
-        return getById(FastUUID.toString(player.getUniqueId()));
+        return getById(player.getUniqueId());
     }
 
     @Override
@@ -55,16 +55,15 @@ public abstract class MemoryFPlayers extends FPlayers {
 
     @Override
     public FPlayer getByOfflinePlayer(OfflinePlayer player) {
-        return getById(FastUUID.toString(player.getUniqueId()));
+        return getById(player.getUniqueId());
     }
 
     @Override
-    public FPlayer getById(String id) {
-        FPlayer player = fPlayers.get(id);
-        return player == null ? generateFPlayer(id) : player;
+    public FPlayer getById(UUID id) {
+        return fPlayers.computeIfAbsent(id, this::generateFPlayer);
     }
 
-    protected abstract FPlayer generateFPlayer(String id);
+    protected abstract FPlayer generateFPlayer(UUID id);
 
     public abstract void convertFrom(MemoryFPlayers old, BooleanConsumer finish);
 }

@@ -11,6 +11,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.UUID;
 
 
 /**
@@ -217,7 +218,7 @@ public interface FPlayer extends EconomyParticipator, Comparable<FPlayer> {
 
     boolean attemptClaim(Faction forFaction, FLocation location, boolean notifyFailure);
 
-    String getId();
+    UUID getId();
 
     Player getPlayer();
 
@@ -241,7 +242,7 @@ public interface FPlayer extends EconomyParticipator, Comparable<FPlayer> {
 
     boolean isOffline();
 
-    void setId(String id);
+    void setId(UUID id);
 
     boolean isFlying();
 
