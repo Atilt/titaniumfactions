@@ -261,13 +261,8 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             IEssentials ess = Essentials.setup();
 
             if (ess != null) {
-                getLogger().info("Found and connected to Essentials");
                 if (conf().factions().other().isDeleteEssentialsHomes()) {
-                    getLogger().info("Based on main.conf will delete Essentials player homes in their old faction when they leave");
-                    getServer().getPluginManager().registerEvents(new EssentialsListener(ess), this);
-                }
-                if (conf().factions().homes().isTeleportCommandEssentialsIntegration()) {
-                    getLogger().info("Using Essentials for teleportation");
+                    Bukkit.getPluginManager().registerEvents(new EssentialsListener(ess), this);
                 }
             }
 
@@ -316,10 +311,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             Econ.setup();
             LWC.setup();
             setupPermissions();
-            if (perms != null) {
-                getLogger().info("Using Vault with permissions plugin " + perms.getName());
-            }
-
             loadWorldguard();
 
             // Run before initializing listeners to handle reloads properly.
@@ -328,7 +319,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             } else {
                 particleProvider = new BukkitParticleProvider();
             }
-            getLogger().info(txt.parse("Using %1s as a particle provider", particleProvider.name()));
 
             if (conf().commands().seeChunk().isParticles()) {
                 double delay = Math.floor(conf().commands().seeChunk().getParticleUpdateTime() * 20);
@@ -810,15 +800,12 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         Plugin clip = getServer().getPluginManager().getPlugin("PlaceholderAPI");
         if (clip != null && clip.isEnabled()) {
             this.clipPlaceholderAPIManager = new ClipPlaceholderAPIManager();
-            if (this.clipPlaceholderAPIManager.register()) {
-                getLogger().info("Successfully registered placeholders with PlaceholderAPI.");
-            }
+            this.clipPlaceholderAPIManager.register();
         }
 
         Plugin mvdw = getServer().getPluginManager().getPlugin("MVdWPlaceholderAPI");
         if (mvdw != null && mvdw.isEnabled()) {
             this.mvdwPlaceholderAPIManager = true;
-            getLogger().info("Found MVdWPlaceholderAPI. Adding hooks.");
         }
     }
 
@@ -848,17 +835,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     }
 
     private GsonBuilder getGsonBuilder() {
-        Type mapFLocToStringSetType = new TypeToken<Map<FLocation, Set<String>>>() {
-        }.getType();
-
-        Type accessType = new TypeToken<Map<Permissible, Map<PermissibleAction, Boolean>>>() {
-        }.getType();
-
-        Type factionMaterialType = new TypeToken<FactionMaterial>() {
-        }.getType();
-
-        Type materialType = new TypeToken<Material>() {
-        }.getType();
         GsonBuilder builder = new GsonBuilder();
 
         if (!this.conf().data().json().useEfficientStorage()) {
@@ -869,11 +845,11 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                 .disableHtmlEscaping()
                 .enableComplexMapKeySerialization()
                 .excludeFieldsWithModifiers(Modifier.TRANSIENT, Modifier.VOLATILE)
-                .registerTypeAdapter(factionMaterialType, new FactionMaterialAdapter())
-                .registerTypeAdapter(materialType, new MaterialAdapter())
-                .registerTypeAdapter(accessType, new PermissionsMapTypeAdapter())
+                .registerTypeAdapter(FactionMaterial.class, new FactionMaterialAdapter())
+                .registerTypeAdapter(Material.class, new MaterialAdapter())
+                .registerTypeAdapter(new TypeToken<Map<Permissible, Map<PermissibleAction, Boolean>>>(){}.getType(), new PermissionsMapTypeAdapter())
                 .registerTypeAdapter(LazyLocation.class, new MyLocationTypeAdapter())
-                .registerTypeAdapter(mapFLocToStringSetType, new MapFLocToStringSetTypeAdapter())
+                .registerTypeAdapter(new TypeToken<Map<FLocation, Set<String>>>(){}.getType(), new MapFLocToStringSetTypeAdapter())
                 .registerTypeAdapter(UUID.class, new UUIDTypeAdapter())
                 .registerTypeAdapterFactory(EnumTypeAdapter.ENUM_FACTORY);
     }

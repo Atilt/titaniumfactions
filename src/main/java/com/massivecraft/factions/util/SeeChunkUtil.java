@@ -26,11 +26,8 @@ public class SeeChunkUtil extends BukkitRunnable {
     private Object effect;
 
     public SeeChunkUtil() {
-        String effectName = FactionsPlugin.getInstance().conf().commands().seeChunk().getParticleName();
-        this.effect = FactionsPlugin.getInstance().getParticleProvider().effectFromString(effectName);
+        this.effect = FactionsPlugin.getInstance().getParticleProvider().effectFromString(FactionsPlugin.getInstance().conf().commands().seeChunk().getParticleName());
         this.useColor = FactionsPlugin.getInstance().conf().commands().seeChunk().isRelationalColor();
-
-        FactionsPlugin.getInstance().getLogger().info(FactionsPlugin.getInstance().txt().parse("Using %s as the ParticleEffect for /f sc", FactionsPlugin.getInstance().getParticleProvider().effectName(effect)));
     }
 
     @Override

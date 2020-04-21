@@ -210,18 +210,15 @@ public class FCmdRoot extends FCommand implements CommandExecutor {
         this.addSubCommand(this.cmdNear);
         this.addSubCommand(this.cmdDebug);
         if (FactionsPlugin.getInstance().getLandRaidControl() instanceof PowerControl) {
-            FactionsPlugin.getInstance().getLogger().info("Using POWER for land/raid control. Enabling power commands.");
             this.addSubCommand(this.cmdPermanentPower);
             this.addSubCommand(this.cmdPower);
             this.addSubCommand(this.cmdPowerBoost);
             this.addSubCommand(this.cmdModifyPower);
         } else if (FactionsPlugin.getInstance().getLandRaidControl() instanceof DTRControl) {
-            FactionsPlugin.getInstance().getLogger().info("Using DTR for land/raid control. Enabling DTR commands.");
             this.addSubCommand(this.cmdDTR);
         }
         if (FactionsPlugin.getInstance().conf().commands().tnt().isEnable()) {
             this.addSubCommand(this.cmdTNT);
-            FactionsPlugin.getInstance().getLogger().info("Enabling TNT bank management");
         }
         if (Bukkit.getServer().getPluginManager().isPluginEnabled("FactionsTop")) {
             FactionsPlugin.getInstance().getLogger().info("Found FactionsTop plugin. Disabling our own /f top command.");
@@ -237,9 +234,6 @@ public class FCmdRoot extends FCommand implements CommandExecutor {
         if (FactionsPlugin.getInstance().conf().commands().fly().isEnable()) {
             this.addSubCommand(this.cmdFly);
             this.addSubCommand(this.cmdTrail);
-            FactionsPlugin.getInstance().getLogger().info("Enabling /f fly command");
-        } else {
-            FactionsPlugin.getInstance().getLogger().info("Faction flight set to false in main.conf. Not enabling /f fly command.");
         }
 
         if (CommodoreProvider.isSupported()) {
