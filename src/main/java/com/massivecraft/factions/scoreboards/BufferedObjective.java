@@ -13,7 +13,6 @@ import org.bukkit.scoreboard.Team;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -123,7 +122,7 @@ public class BufferedObjective {
 
         ObjectList<Team> bufferTeams = new ObjectArrayList<>();
 
-        for (Map.Entry<Integer, String> entry : contents.entrySet()) {
+        for (Int2ObjectMap.Entry<String> entry : contents.int2ObjectEntrySet()) {
             if (entry.getValue().length() > 16) {
                 Team team = scoreboard.registerNewTeam(getNextTeamName());
                 bufferTeams.add(team);
@@ -201,9 +200,9 @@ public class BufferedObjective {
                     addEntryMethod.invoke(team, name);
                 } catch (ReflectiveOperationException ignored) {
                 }
-                buffer.getScore(name).setScore(entry.getKey());
+                buffer.getScore(name).setScore(entry.getIntKey());
             } else {
-                buffer.getScore(entry.getValue()).setScore(entry.getKey());
+                buffer.getScore(entry.getValue()).setScore(entry.getIntKey());
             }
         }
 
