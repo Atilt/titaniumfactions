@@ -31,9 +31,6 @@ public class JSONFPlayers extends MemoryFPlayers {
     private File file;
 
     public JSONFPlayers() {
-        if (FactionsPlugin.getInstance().getServerUUID() == null) {
-            FactionsPlugin.getInstance().grumpException(new RuntimeException());
-        }
         file = new File(FactionsPlugin.getInstance().getDataFolder(), "data/players.json");
     }
 

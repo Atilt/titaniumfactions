@@ -708,6 +708,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
             return this.getPermanentPower();
         }
 
+
         double ret = 0;
         for (FPlayer fplayer : fplayers) {
             ret += fplayer.getPower();

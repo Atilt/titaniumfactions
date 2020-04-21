@@ -6,7 +6,7 @@ import org.bukkit.Material;
 
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
-import java.util.HashMap;
+import java.util.Map;
 
 public class MaterialDb {
 
@@ -43,9 +43,8 @@ public class MaterialDb {
         }
 
         InputStreamReader reader = new InputStreamReader(FactionsPlugin.getInstance().getResource("materials.json"));
-        Type typeToken = new TypeToken<HashMap<String, MaterialProvider.MaterialData>>() {
-        }.getType();
-        HashMap<String, MaterialProvider.MaterialData> materialData = FactionsPlugin.getInstance().getGson().fromJson(reader, typeToken);
+        Type typeToken = new TypeToken<Map<String, MaterialProvider.MaterialData>>(){}.getType();
+        Map<String, MaterialProvider.MaterialData> materialData = FactionsPlugin.getInstance().getGson().fromJson(reader, typeToken);
         FactionsPlugin.getInstance().getLogger().info(String.format("Loaded %s material mappings.", materialData.keySet().size()));
         instance.provider = new MaterialProvider(materialData);
     }

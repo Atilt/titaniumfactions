@@ -628,7 +628,7 @@ public abstract class MemoryFPlayer implements FPlayer {
 
             // We send null instead of empty because Spigot won't touch the title if it's null, but clears if empty.
             // We're just trying to be as unintrusive as possible.
-            TitleAPI.getInstance().sendTitle(player, title, sub, in, stay, out);
+            TitleAPI.get().sendTitle(player, title, sub, in, stay, out);
         }
 
         if (showInfoBoard(toShow)) {

@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.zip.GZIPOutputStream;
@@ -76,9 +75,6 @@ public class Metrics {
     // Should the response text be logged?
     private static boolean logResponseStatusText;
 
-    // The uuid of the server
-    private static String serverUUID;
-
     // The plugin
     private final Plugin plugin;
 
@@ -102,12 +98,10 @@ public class Metrics {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(configFile);
 
         // Check if the config file exists
-        if (!config.isSet("serverUuid")) {
+        if (!config.isSet("logSentData")) {
 
             // Add default values
             config.addDefault("enabled", true);
-            // Every server gets it's unique random id.
-            config.addDefault("serverUuid", FastUUID.toString(UUID.randomUUID()));
             // Should failed request be logged?
             config.addDefault("logFailedRequests", false);
             // Should the sent data be logged?
@@ -130,7 +124,6 @@ public class Metrics {
 
         // Load the data
         enabled = config.getBoolean("enabled", true);
-        serverUUID = config.getString("serverUuid");
         logFailedRequests = config.getBoolean("logFailedRequests", false);
         logSentData = config.getBoolean("logSentData", false);
         logResponseStatusText = config.getBoolean("logResponseStatusText", false);
@@ -257,8 +250,6 @@ public class Metrics {
 
         JsonObject data = new JsonObject();
 
-        data.addProperty("serverUUID", serverUUID);
-
         data.addProperty("playerAmount", playerAmount);
         data.addProperty("onlineMode", onlineMode);
         data.addProperty("bukkitVersion", bukkitVersion);
@@ -305,7 +296,7 @@ public class Metrics {
                                 if (logFailedRequests) {
                                     this.plugin.getLogger().log(Level.SEVERE, "Encountered unexpected exception", e);
                                 }
-                                continue; // continue looping since we cannot do any other thing.
+                                // continue looping since we cannot do any other thing.
                             }
                         }
                     } catch (NullPointerException | NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {

@@ -39,12 +39,14 @@ public abstract class MemoryBoard extends Board {
     public static class MemoryBoardMap extends Object2ObjectOpenHashMap<FLocation, String> {
         private static final long serialVersionUID = -6689617828610585368L;
 
+
+        //better implementation ?? probably? yes. setIdAt = 0.06%
         private final Multimap<String, FLocation> factionToLandMap = HashMultimap.create();
 
         @Override
         public String put(FLocation floc, String factionId) {
             String previousValue = super.put(floc, factionId);
-            if (previousValue != null) {
+            if (previousValue != null) { //if there was a previous value, then remove it from the multimap.
                 factionToLandMap.remove(previousValue, floc);
             }
 

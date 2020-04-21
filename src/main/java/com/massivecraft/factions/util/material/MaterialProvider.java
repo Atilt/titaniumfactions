@@ -4,14 +4,14 @@ import com.google.gson.annotations.SerializedName;
 import com.massivecraft.factions.FactionsPlugin;
 import org.bukkit.Material;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 
 public class MaterialProvider {
 
-    protected HashMap<String, MaterialData> materialData;
+    protected Map<String, MaterialData> materialData;
 
-    MaterialProvider(HashMap<String, MaterialData> materialData) {
+    MaterialProvider(Map<String, MaterialData> materialData) {
         this.materialData = materialData;
     }
 

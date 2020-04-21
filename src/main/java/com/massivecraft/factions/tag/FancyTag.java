@@ -9,11 +9,11 @@ import com.massivecraft.factions.util.MiscUtil;
 import com.massivecraft.factions.util.QuadFunction;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import mkremins.fanciful.FancyMessage;
 import org.bukkit.ChatColor;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -77,8 +77,9 @@ public enum FancyTag implements Tag {
             }
             String s = otherFaction.getTag(fPlayer);
             if (otherFaction.getRelationTo(faction) == relation) {
-                message.then(first ? s : ", " + s);
-                message.tooltip(tipFaction(otherFaction, fPlayer)).color(fPlayer.getColorTo(otherFaction));
+                message.then(first ? s : ", " + s)
+                        .tooltip(tipFaction(otherFaction, fPlayer))
+                        .color(fPlayer.getColorTo(otherFaction));
                 first = false;
                 if (message.toJSONString().length() > ARBITRARY_LIMIT) {
                     fancyMessages.add(message);
@@ -96,7 +97,7 @@ public enum FancyTag implements Tag {
                 return tag.getMessage(text, faction, player, groupMap);
             }
         }
-        return Collections.emptyList(); // We really shouldn't be here.
+        return ObjectLists.emptyList(); // We really shouldn't be here.
     }
 
     public static boolean anyMatch(String text) {
@@ -177,7 +178,7 @@ public enum FancyTag implements Tag {
 
     public List<FancyMessage> getMessage(String text, Faction faction, FPlayer player, Map<UUID, String> groupMap) {
         if (!this.foundInString(text)) {
-            return Collections.emptyList(); // We really, really shouldn't be here.
+            return ObjectLists.emptyList(); // We really, really shouldn't be here.
         }
         return this.function.apply(faction, player, text.replace(this.getTag(), ""), groupMap);
     }

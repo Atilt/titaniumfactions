@@ -36,7 +36,6 @@ public class CmdDebug extends FCommand {
     public void perform(CommandContext context) {
         StringBuilder mainInfo = new StringBuilder();
         mainInfo.append(Bukkit.getName()).append(" version: ").append(Bukkit.getServer().getVersion()).append('\n');
-        mainInfo.append("Server ID: ").append(FactionsPlugin.getInstance().getServerUUID()).append('\n');
         mainInfo.append("Plugin version: ").append(FactionsPlugin.getInstance().getDescription().getVersion()).append('\n');
         mainInfo.append("Java version: ").append(System.getProperty("java.version")).append('\n');
         if (!context.args.isEmpty() && context.argAsString(0).equalsIgnoreCase("mini")) {
@@ -90,10 +89,6 @@ public class CmdDebug extends FCommand {
                 try {
                     Path dataPath = FactionsPlugin.getInstance().getDataFolder().toPath();
                     add("info.txt", mainInfo.toString());
-                    add("startup.txt", plugin.getStartupLog());
-                    if (!plugin.getStartupExceptionLog().isEmpty()) {
-                        add("startupexceptions.txt", plugin.getStartupExceptionLog());
-                    }
                     add("server.properties", getFile(Paths.get("server.properties")).replaceAll("(?:(?:server-ip=)|(?:server-port=)|(?:rcon\\.port=)|(?:rcon\\.password=)|(?:query.port=))[^\n]*[\r\n]*", ""));
                     add("main.conf", getFile(dataPath.resolve("config/main.conf")));
                     add("spigot.yml", getFile(Paths.get("spigot.yml")));

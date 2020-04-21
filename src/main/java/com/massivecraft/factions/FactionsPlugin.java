@@ -45,7 +45,6 @@ import com.massivecraft.factions.util.Persist;
 import com.massivecraft.factions.util.SeeChunkUtil;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
-import com.massivecraft.factions.util.TitleAPI;
 import com.massivecraft.factions.util.UUIDTypeAdapter;
 import com.massivecraft.factions.util.WorldUtil;
 import com.massivecraft.factions.util.material.FactionMaterial;
@@ -76,7 +75,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -85,28 +83,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
-import java.util.logging.Handler;
 import java.util.logging.Level;
-import java.util.logging.LogRecord;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -148,10 +139,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         return worldUtil;
     }
 
-    public void grumpException(RuntimeException e) {
-        this.grumpyExceptions.add(e);
-    }
-
     private PermUtil permUtil;
 
     // Persist related
@@ -180,13 +167,10 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     private LandRaidControl landRaidControl;
 
     private Metrics metrics;
-    private final Pattern factionsVersionPattern = Pattern.compile("b(\\d{1,4})");
+    private static final Pattern FACTIONS_VERSION_PATTERN = Pattern.compile("b(\\d{1,4})");
+    private static final Pattern VERSION_PATTERN = Pattern.compile("1\\.(\\d{1,2})(?:\\.(\\d{1,2}))?");
     private String updateMessage;
     private int buildNumber = -1;
-    private UUID serverUUID;
-    private String startupLog;
-    private String startupExceptionLog;
-    private List<RuntimeException> grumpyExceptions = new ArrayList<>();
 
     public FactionsPlugin() {
         instance = this;
@@ -194,69 +178,14 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     @Override
     public void onEnable() {
-        StringBuilder startupBuilder = new StringBuilder();
-        StringBuilder startupExceptionBuilder = new StringBuilder();
-        Handler handler = new Handler() {
-            @Override
-            public void publish(LogRecord record) {
-                startupBuilder.append('[').append(record.getLevel().getName()).append("] ").append(record.getMessage()).append('\n');
-                if (record.getThrown() != null) {
-                    StringWriter stringWriter = new StringWriter();
-                    PrintWriter printWriter = new PrintWriter(stringWriter);
-                    record.getThrown().printStackTrace(printWriter);
-                    startupExceptionBuilder.append('[').append(record.getLevel().getName()).append("] ").append(record.getMessage()).append('\n')
-                            .append(stringWriter.toString()).append('\n');
-                }
-            }
-
-            @Override
-            public void flush() {
-
-            }
-
-            @Override
-            public void close() throws SecurityException {
-
-            }
-        };
-        getLogger().addHandler(handler);
         getLogger().info("=== Starting up! ===");
         long timeEnableStart = System.currentTimeMillis();
-
-        if (!this.grumpyExceptions.isEmpty()) {
-            this.grumpyExceptions.forEach(e -> getLogger().log(Level.WARNING, "Found issue with plugin touching FactionsUUID before it starts up!", e));
-        }
 
         // Ensure basefolder exists!
         this.getDataFolder().mkdirs();
 
-        byte[] m = Bukkit.getMotd().getBytes(StandardCharsets.UTF_8);
-        if (m.length == 0) {
-            m = new byte[]{0x6b, 0x69, 0x74, 0x74, 0x65, 0x6e};
-        }
-        int u = intOr("%%__USER__%%", 987654321), n = intOr("%%__NONCE__%%", 1234567890), x = 0, p = Math.min(Bukkit.getMaxPlayers(), 65535);
-        long ms = (0x4fac & 0xffffL);
-        if (n != 1234567890) {
-            ms += (n & 0xffffffffL) << 32;
-            x = 4;
-        }
-        for (int i = 0; x < 6; i++, x++) {
-            if (i == m.length) {
-                i = 0;
-            }
-            ms += ((m[i] & 0xFFL) << (8 + (8 * (6 - x))));
-        }
-        this.serverUUID = new UUID(ms, ((0xaf & 0xffL) << 56) + ((0xac & 0xffL) << 48) + (u & 0xffffffffL) + ((p & 0xffffL) << 32));
-
         // Version party
-        Pattern versionPattern = Pattern.compile("1\\.(\\d{1,2})(?:\\.(\\d{1,2}))?");
-        Matcher versionMatcher = versionPattern.matcher(this.getServer().getVersion());
-        getLogger().info("");
-        getLogger().info("Factions UUID!");
-        getLogger().info("Version " + this.getDescription().getVersion());
-        getLogger().info("");
-        getLogger().info("Need support? https://factions.support/help/");
-        getLogger().info("");
+        Matcher versionMatcher = VERSION_PATTERN.matcher(this.getServer().getVersion());
         Integer versionInteger = null;
         if (versionMatcher.find()) {
             try {
@@ -283,8 +212,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         getLogger().info("");
         this.buildNumber = this.getBuildNumber(this.getDescription().getVersion());
 
-        this.getLogger().info("Server UUID " + this.serverUUID);
-
         loadLang(result -> {
             if (!result) {
                 Bukkit.getPluginManager().disablePlugin(this);
@@ -295,10 +222,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             // Load Conf from disk
             this.setNerfedEntities();
             this.configManager.startup();
-
-            if (this.conf().data().json().useEfficientStorage()) {
-                getLogger().info("Using space efficient (less readable) storage.");
-            }
 
             this.landRaidControl = LandRaidControl.getByName(this.conf().factions().landRaidControl().getSystem());
 
@@ -390,31 +313,11 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                 });
             });
             // Add Base Commands
-            FCmdRoot cmdBase = new FCmdRoot();
-
             Econ.setup();
             LWC.setup();
             setupPermissions();
             if (perms != null) {
                 getLogger().info("Using Vault with permissions plugin " + perms.getName());
-            }
-            if (getServer().getPluginManager().getPlugin("PermissionsEx") != null) {
-                if (getServer().getPluginManager().getPlugin("PermissionsEx").getDescription().getVersion().startsWith("1")) {
-                    getLogger().info(" ");
-                    getLogger().warning("Notice: PermissionsEx version 1.x is dead. We suggest using LuckPerms (or PEX 2.0 when available). https://luckperms.net/");
-                    getLogger().info(" ");
-                }
-            }
-            if (getServer().getPluginManager().getPlugin("GroupManager") != null) {
-                getLogger().info(" ");
-                getLogger().warning("Notice: GroupManager died in 2014. We suggest using LuckPerms instead. https://luckperms.net/");
-                getLogger().info(" ");
-            }
-            Plugin lwc = getServer().getPluginManager().getPlugin("LWC");
-            if (lwc != null && lwc.getDescription().getWebsite() != null && !lwc.getDescription().getWebsite().contains("extended")) {
-                getLogger().info(" ");
-                getLogger().warning("Notice: LWC Extended is the updated, and best supported, continuation of LWC. https://www.spigotmc.org/resources/lwc-extended.69551/");
-                getLogger().info(" ");
             }
 
             loadWorldguard();
@@ -449,46 +352,21 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             }
 
             // since some other plugins execute commands directly through this command interface, provide it
-            this.getCommand(refCommand).setExecutor(cmdBase);
+            this.getCommand(refCommand).setExecutor(new FCmdRoot());
 
             if (conf().commands().fly().isEnable()) {
                 FlightUtil.start();
             }
 
-            new TitleAPI();
             setupPlaceholderAPI();
 
             if (ChatColor.stripColor(TL.NOFACTION_PREFIX.toString()).equals("[4-]")) {
                 getLogger().warning("Looks like you have an old, mistaken 'nofactions-prefix' in your lang.yml. It currently displays [4-] which is... strange.");
             }
 
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (checkForUpdates()) {
-                        //chat packets are thread-safe
-                        Bukkit.broadcast(updateMessage, com.massivecraft.factions.struct.Permission.UPDATES.toString());
-                        this.cancel();
-                    }
-                }
-            }.runTaskTimerAsynchronously(this, 0, 20 * 60 * 10); // ten minutes
-
             getLogger().info("=== Loaded factions settings in " + (System.currentTimeMillis() - timeEnableStart) + "ms! ===");
-            getLogger().removeHandler(handler);
-            this.startupLog = startupBuilder.toString();
-            this.startupExceptionLog = startupExceptionBuilder.toString();
             this.loadSettingsSuccessful = true; //2nd checkpoint for proper saving when plugin disables
         });
-    }
-
-
-
-    private int intOr(String in, int or) {
-        try {
-            return Integer.parseInt(in);
-        } catch (NumberFormatException ignored) {
-            return or;
-        }
     }
 
     private void setupMetrics() {
@@ -498,8 +376,8 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         String verString = this.getDescription().getVersion().replace("${build.number}", "selfbuilt");
         Pattern verPattern = Pattern.compile("U([\\d.]+)-b(.*)");
         Matcher matcher = verPattern.matcher(verString);
-        final String fuuidVersion;
-        final String fuuidBuild;
+        String fuuidVersion;
+        String fuuidBuild;
         if (matcher.find()) {
             fuuidVersion = matcher.group(1);
             fuuidBuild = matcher.group(2);
@@ -767,7 +645,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     }
 
     private int getBuildNumber(String version) {
-        Matcher factionsVersionMatcher = factionsVersionPattern.matcher(version);
+        Matcher factionsVersionMatcher = FACTIONS_VERSION_PATTERN.matcher(version);
         if (factionsVersionMatcher.find()) {
             try {
                 return Integer.parseInt(factionsVersionMatcher.group(1));
@@ -802,18 +680,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         } catch (Exception ignored) {
         }
         return false;
-    }
-
-    public UUID getServerUUID() {
-        return this.serverUUID;
-    }
-
-    public String getStartupLog() {
-        return this.startupLog;
-    }
-
-    public String getStartupExceptionLog() {
-        return this.startupExceptionLog;
     }
 
     public void updatesOnJoin(Player player) {

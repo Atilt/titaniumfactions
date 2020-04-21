@@ -36,9 +36,6 @@ public class JSONFactions extends MemoryFactions {
     // -------------------------------------------- //
 
     public JSONFactions() {
-        if (FactionsPlugin.getInstance().getServerUUID() == null) {
-            FactionsPlugin.getInstance().grumpException(new RuntimeException());
-        }
         this.file = new File(FactionsPlugin.getInstance().getDataFolder(), "data/factions.json");
         this.nextId = 1;
     }
