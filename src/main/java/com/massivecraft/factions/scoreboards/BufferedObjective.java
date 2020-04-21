@@ -1,5 +1,9 @@
 package com.massivecraft.factions.scoreboards;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.bukkit.ChatColor;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -7,12 +11,10 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,7 +27,7 @@ public class BufferedObjective {
     private final String baseName;
 
     private Objective current;
-    private List<Team> currentTeams = new ArrayList<>();
+    private ObjectList<Team> currentTeams = new ObjectArrayList<>();
     private String title;
     private DisplaySlot displaySlot;
 
@@ -33,7 +35,7 @@ public class BufferedObjective {
     private int teamPtr;
     private boolean requiresUpdate = false;
 
-    private final Map<Integer, String> contents = new HashMap<>();
+    private final Int2ObjectMap<String> contents = new Int2ObjectOpenHashMap<>();
 
     static {
         // Check for long line support.
@@ -63,10 +65,9 @@ public class BufferedObjective {
     }
 
     private String createBaseName() {
-        Random random = new Random();
         StringBuilder builder = new StringBuilder();
         while (builder.length() < 14) {
-            builder.append(Integer.toHexString(random.nextInt()));
+            builder.append(Integer.toHexString(ThreadLocalRandom.current().nextInt()));
         }
         return builder.toString().substring(0, 14);
     }
@@ -120,7 +121,7 @@ public class BufferedObjective {
         Objective buffer = scoreboard.registerNewObjective(getNextObjectiveName(), "dummy");
         buffer.setDisplayName(title);
 
-        List<Team> bufferTeams = new ArrayList<>();
+        ObjectList<Team> bufferTeams = new ObjectArrayList<>();
 
         for (Map.Entry<Integer, String> entry : contents.entrySet()) {
             if (entry.getValue().length() > 16) {
