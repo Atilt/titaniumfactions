@@ -1156,5 +1156,5 @@ public abstract class MemoryFPlayer implements FPlayer {
     @Override
     public int compareTo(FPlayer o) {
         return Integer.compare(o.getRole().getValue(), this.role.getValue());
-}
+    }
 }

@@ -10,7 +10,6 @@ import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
 import org.bukkit.Material;
-import org.bukkit.block.Dispenser;
 
 import java.util.List;
 
@@ -49,7 +48,7 @@ public class CmdTNTSiphon extends FCommand {
             return;
         }
 
-        List<Dispenser> list = CmdTNTFill.getDispensers(context.player.getLocation(), radius, context.faction.getId());
+        List<CmdTNTFill.DistancedDispenser> dispensers = CmdTNTFill.getDispensers(context.player.getLocation(), radius, context.faction.getId());
 
         int canTake;
         if (FactionsPlugin.getInstance().conf().commands().tnt().getMaxStorage() < 0) {
@@ -66,8 +65,8 @@ public class CmdTNTSiphon extends FCommand {
 
         int remaining = canTake;
 
-        for (Dispenser dispenser : list) {
-            if (remaining > (64 * 9)) {
+        for (CmdTNTFill.DistancedDispenser dispenser : dispensers) {
+            if (remaining > (576)) { // 64 * 9
                 remaining -= CmdTNTFill.getCount(dispenser.getInventory().all(Material.TNT).values());
                 dispenser.getInventory().remove(Material.TNT);
             } else {

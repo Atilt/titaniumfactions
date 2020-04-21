@@ -15,11 +15,13 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Dispenser;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 public class CmdTNTFill extends FCommand {
     public CmdTNTFill() {
@@ -56,16 +58,15 @@ public class CmdTNTFill extends FCommand {
             return;
         }
 
-        ObjectList<Dispenser> list = getDispensers(context.player.getLocation(), radius, context.faction.getId());
-        Collections.reverse(list);
+        List<DistancedDispenser> dispensers = getDispensers(context.player.getLocation(), radius, context.faction.getId());
 
         int remaining = amount;
         int dispenserCount = 0;
         boolean firstRound = true;
 
-        while (remaining > 0 && !list.isEmpty()) {
-            int per = Math.max(1, remaining / list.size());
-            Iterator<Dispenser> iterator = list.iterator();
+        while (remaining > 0 && !dispensers.isEmpty()) {
+            int per = Math.max(1, remaining / dispensers.size());
+            Iterator<DistancedDispenser> iterator = dispensers.iterator();
             while (iterator.hasNext() && remaining >= per) {
                 int left = getCount(iterator.next().getInventory().addItem(getStacks(per)).values());
                 remaining -= per - left;
@@ -97,21 +98,43 @@ public class CmdTNTFill extends FCommand {
         }
     }
 
+    public static class DistancedDispenser implements Comparable<DistancedDispenser> {
+        private final double distance;
+        private final Inventory inventory;
 
-    //redo this
-    static ObjectList<Dispenser> getDispensers(Location location, int radius, String id) {
-        ObjectList<Dispenser> dispensers = new ObjectArrayList<>();
+        public DistancedDispenser(double distance, Inventory inventory) {
+            this.distance = distance;
+            this.inventory = inventory;
+        }
+
+        public double getDistance() {
+            return distance;
+        }
+
+        public Inventory getInventory() {
+            return inventory;
+        }
+
+        @Override
+        public int compareTo(DistancedDispenser o) {
+            return Double.compare(this.distance, o.getDistance());
+        }
+    }
+
+    static List<DistancedDispenser> getDispensers(Location location, int radius, String id) {
+        ObjectList<DistancedDispenser> dispensers = new ObjectArrayList<>();
         for (int x = -radius; x < radius; x++) {
             for (int y = -radius; y < radius; y++) {
                 for (int z = -radius; z < radius; z++) {
-                    Block block = location.getWorld().getBlockAt(x, y, z);
+                    Block block = location.getBlock().getRelative(x, y, z);
                     if (block.getType() != Material.DISPENSER || !Board.getInstance().getIdAt(new FLocation(block)).equals(id)) {
                         continue;
                     }
-                    dispensers.add((Dispenser) block.getState());
+                    dispensers.add(new DistancedDispenser(location.distanceSquared(block.getLocation()), ((Dispenser) block.getState()).getInventory()));
                 }
             }
         }
+        Collections.sort(dispensers);
         return dispensers;
     }
 
