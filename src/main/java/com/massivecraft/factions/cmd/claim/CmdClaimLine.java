@@ -30,6 +30,23 @@ public class CmdClaimLine extends FCommand {
                 .build();
     }
 
+    public enum ValidCardinal {
+        NORTH(BlockFace.NORTH),
+        SOUTH(BlockFace.SOUTH),
+        EAST(BlockFace.EAST),
+        WEST(BlockFace.WEST);
+
+        private BlockFace face;
+
+        ValidCardinal(BlockFace face) {
+            this.face = face;
+        }
+
+        public BlockFace getFace() {
+            return face;
+        }
+    }
+
     @Override
     public void perform(CommandContext context) {
         // Args
@@ -45,26 +62,24 @@ public class CmdClaimLine extends FCommand {
 
         if (direction == null) {
             blockFace = axis[Math.round(context.player.getLocation().getYaw() / 90f) & 0x3];
-        } else if (direction.equalsIgnoreCase("north")) {
-            blockFace = BlockFace.NORTH;
-        } else if (direction.equalsIgnoreCase("east")) {
-            blockFace = BlockFace.EAST;
-        } else if (direction.equalsIgnoreCase("south")) {
-            blockFace = BlockFace.SOUTH;
-        } else if (direction.equalsIgnoreCase("west")) {
-            blockFace = BlockFace.WEST;
         } else {
-            context.fPlayer.msg(TL.COMMAND_CLAIMLINE_NOTVALID, direction);
-            return;
+            try {
+                blockFace = ValidCardinal.valueOf(direction.toUpperCase()).getFace();
+            } catch (IllegalArgumentException exception) {
+                context.fPlayer.msg(TL.COMMAND_CLAIMLINE_NOTVALID, direction);
+                return;
+            }
         }
-
-        final Faction forFaction = context.argAsFaction(2, context.faction);
+        Faction forFaction = context.argAsFaction(2, context.faction);
         Location location = context.player.getLocation();
+
+        int bX = blockFace.getModX() << 4;
+        int bZ = blockFace.getModZ() << 4;
 
         // TODO: make this a task like claiming a radius?
         for (int i = 0; i < amount; i++) {
             context.fPlayer.attemptClaim(forFaction, location, true);
-            location = location.add(blockFace.getModX() * 16, 0, blockFace.getModZ() * 16);
+            location = location.add(bX, 0, bZ);
         }
     }
 

@@ -6,8 +6,14 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class PacketParticleProvider implements ParticleProvider<ParticleEffect> {
+
+    private final Map<String, ParticleEffect> cache = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+    private static final ParticleEffect[] VALUES = ParticleEffect.values();
 
     @Override
     public String name() {
@@ -61,13 +67,14 @@ public class PacketParticleProvider implements ParticleProvider<ParticleEffect> 
 
     @Override
     public ParticleEffect effectFromString(String string) {
-        for (ParticleEffect effect : ParticleEffect.values()) {
-            if (effect.name().equalsIgnoreCase(string)) {
-                return effect;
+        return cache.computeIfAbsent(string, s -> {
+            for (ParticleEffect particle : VALUES) {
+                if (particle.name().equalsIgnoreCase(string)) {
+                    return particle;
+                }
             }
-        }
-        // If none of the Enum name matches fallback to the other names
-        return ParticleEffect.fromName(string);
+            return ParticleEffect.fromName(string);
+        });
     }
 
     @Override

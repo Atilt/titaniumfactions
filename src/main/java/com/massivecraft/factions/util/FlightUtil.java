@@ -7,6 +7,7 @@ import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.struct.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -71,21 +72,22 @@ public class FlightUtil {
             }
             List<Entity> nearbyEntities = target.getPlayer().getNearbyEntities(radius, radius, radius);
             for (Entity entity : nearbyEntities) {
-                if (entity instanceof Player) {
-                    FPlayer playerNearby = FPlayers.getInstance().getByPlayer((Player) entity);
-                    if (playerNearby.isAdminBypassing() || playerNearby.isVanished()) {
-                        continue;
-                    }
-                    if (playerNearby.getRelationTo(target) == Relation.ENEMY) {
-                        return true;
-                    }
+                if (entity.getType() != EntityType.PLAYER) {
+                    continue;
+                }
+                FPlayer playerNearby = FPlayers.getInstance().getByPlayer((Player) entity);
+                if (playerNearby.isAdminBypassing() || playerNearby.isVanished()) {
+                    continue;
+                }
+                if (playerNearby.getRelationTo(target) == Relation.ENEMY) {
+                    return true;
                 }
             }
             return false;
         }
     }
 
-    public class ParticleTrailsTask extends BukkitRunnable {
+    public static class ParticleTrailsTask extends BukkitRunnable {
 
         private int amount;
         private float speed;
@@ -101,13 +103,10 @@ public class FlightUtil {
                 FPlayer pilot = FPlayers.getInstance().getByPlayer(player);
                 if (pilot.isFlying()) {
                     if (pilot.getFlyTrailsEffect() != null && Permission.FLY_TRAILS.has(player) && pilot.getFlyTrailsState()) {
-                        Object effect = FactionsPlugin.getInstance().getParticleProvider().effectFromString(pilot.getFlyTrailsEffect());
-                        FactionsPlugin.getInstance().getParticleProvider().spawn(effect, player.getLocation(), amount, speed, 0, 0, 0);
+                        FactionsPlugin.getInstance().getParticleProvider().spawn(FactionsPlugin.getInstance().getParticleProvider().effectFromString(pilot.getFlyTrailsEffect()), player.getLocation(), amount, speed, 0, 0, 0);
                     }
                 }
             }
         }
-
     }
-
 }

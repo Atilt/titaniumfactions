@@ -87,7 +87,6 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -100,7 +99,6 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
@@ -470,7 +468,11 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     }
 
     private Set<Plugin> getPlugins(HandlerList handlerList) {
-        return Arrays.stream(handlerList.getRegisteredListeners()).map(RegisteredListener::getPlugin).collect(Collectors.toSet());
+        Set<Plugin> plugins = new HashSet<>();
+        for (RegisteredListener registeredListener : handlerList.getRegisteredListeners()) {
+            plugins.add(registeredListener.getPlugin());
+        }
+        return plugins;
     }
 
     private void metricsLine(String name, Callable<Integer> callable) {
@@ -544,24 +546,19 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     private void loadWorldguard() {
         if (!this.conf().worldGuard().isChecking() && !this.conf().worldGuard().isBuildPriority()) {
-            getLogger().info("Not enabling WorldGuard check since no options for it are enabled.");
             return;
         }
-
         Plugin plugin = getServer().getPluginManager().getPlugin("WorldGuard");
         if (plugin != null) {
             String version = plugin.getDescription().getVersion();
             if (version.startsWith("6")) {
                 this.worldguard = new Worldguard6(plugin);
-                getLogger().info("Found support for WorldGuard version " + version);
             } else if (version.startsWith("7")) {
                 this.worldguard = new Worldguard7();
-                getLogger().info("Found support for WorldGuard version " + version);
-            } else {
-                log(Level.WARNING, "Found WorldGuard but couldn't support this version: " + version);
             }
-        } else {
-            log(Level.WARNING, "WorldGuard checks were turned in on config/main.conf, but WorldGuard isn't present on the server.");
+            if (this.worldguard != null) {
+                this.getLogger().info("WorldGuard support enabled.");
+            }
         }
     }
 
@@ -627,7 +624,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                 conf.save(lang);
                 Bukkit.getScheduler().runTask(this, () -> result.accept(true));
             } catch (IOException e) {
-                getLogger().log(Level.WARNING, "Factions: Report this stack trace to drtshock.");
                 FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to save lang.yml", e);
                 Bukkit.getScheduler().runTask(this, () -> result.accept(false));
             }

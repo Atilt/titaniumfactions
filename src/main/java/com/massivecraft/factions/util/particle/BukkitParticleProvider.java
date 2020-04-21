@@ -4,7 +4,14 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 public class BukkitParticleProvider implements ParticleProvider<Particle> {
+
+    private final Map<String, Particle> cache = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+    private static final Particle[] VALUES = Particle.values();
 
     @Override
     public String name() {
@@ -58,12 +65,14 @@ public class BukkitParticleProvider implements ParticleProvider<Particle> {
 
     @Override
     public Particle effectFromString(String string) {
-        for (Particle particle : Particle.values()) {
-            if (particle.name().equalsIgnoreCase(string)) {
-                return particle;
+        return cache.computeIfAbsent(string, s -> {
+            for (Particle particle : VALUES) {
+                if (particle.name().equalsIgnoreCase(string)) {
+                    return particle;
+                }
             }
-        }
-        return null;
+            return null;
+        });
     }
 
     @Override

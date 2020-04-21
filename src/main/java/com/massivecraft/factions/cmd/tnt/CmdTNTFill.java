@@ -8,21 +8,18 @@ import com.massivecraft.factions.cmd.CommandRequirements;
 import com.massivecraft.factions.cmd.FCommand;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.struct.Permission;
-import com.massivecraft.factions.util.Pair;
 import com.massivecraft.factions.util.TL;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Dispenser;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class CmdTNTFill extends FCommand {
     public CmdTNTFill() {
@@ -59,7 +56,7 @@ public class CmdTNTFill extends FCommand {
             return;
         }
 
-        List<Dispenser> list = getDispensers(context.player.getLocation(), radius, context.faction.getId());
+        ObjectList<Dispenser> list = getDispensers(context.player.getLocation(), radius, context.faction.getId());
         Collections.reverse(list);
 
         int remaining = amount;
@@ -91,7 +88,7 @@ public class CmdTNTFill extends FCommand {
         if (count < 65) {
             return new ItemStack[]{new ItemStack(Material.TNT, count)};
         } else {
-            List<ItemStack> stack = new ArrayList<>();
+            ObjectList<ItemStack> stack = new ObjectArrayList<>();
             while (count > 0) {
                 stack.add(new ItemStack(Material.TNT, Math.min(64, count)));
                 count -= Math.min(64, count);
@@ -100,23 +97,22 @@ public class CmdTNTFill extends FCommand {
         }
     }
 
-    static List<Dispenser> getDispensers(Location location, int radius, String id) {
-        List<Pair<Dispenser, Double>> list = new ArrayList<>();
-        for (int x = location.getBlockX() - radius; x <= location.getBlockX() + radius; x++) {
-            for (int y = location.getBlockY() - radius; y <= location.getBlockY() + radius; y++) {
-                for (int z = location.getBlockZ() - radius; z <= location.getBlockZ() + radius; z++) {
+
+    //redo this
+    static ObjectList<Dispenser> getDispensers(Location location, int radius, String id) {
+        ObjectList<Dispenser> dispensers = new ObjectArrayList<>();
+        for (int x = -radius; x < radius; x++) {
+            for (int y = -radius; y < radius; y++) {
+                for (int z = -radius; z < radius; z++) {
                     Block block = location.getWorld().getBlockAt(x, y, z);
-                    if (!Board.getInstance().getIdAt(new FLocation(block)).equals(id)) {
+                    if (block.getType() != Material.DISPENSER || !Board.getInstance().getIdAt(new FLocation(block)).equals(id)) {
                         continue;
                     }
-                    if (block.getType() == Material.DISPENSER) {
-                        list.add(Pair.of((Dispenser) block.getState(), Math.sqrt(((location.getBlockX() - x) ^ 2) + ((location.getBlockY() - y) ^ 2) + ((location.getBlockZ() - z) ^ 2))));
-                    }
+                    dispensers.add((Dispenser) block.getState());
                 }
             }
         }
-        list.sort(Comparator.comparing(Pair::getRight));
-        return list.stream().map(Pair::getLeft).collect(Collectors.toCollection(ArrayList::new));
+        return dispensers;
     }
 
     static int getCount(Collection<? extends ItemStack> items) {

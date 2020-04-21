@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.IntConsumer;
 
 public abstract class MemoryFPlayers extends FPlayers {
     protected final Map<UUID, FPlayer> fPlayers = new HashMap<>();
@@ -51,6 +52,21 @@ public abstract class MemoryFPlayers extends FPlayers {
     @Override
     public List<FPlayer> getAllFPlayers() {
         return new ObjectArrayList<>(fPlayers.values());
+    }
+
+    @Override
+    public void forceSave(BooleanConsumer finish) {
+
+    }
+
+    @Override
+    public void forceSave(boolean sync, BooleanConsumer finish) {
+
+    }
+
+    @Override
+    public void load(IntConsumer loaded) {
+
     }
 
     @Override
