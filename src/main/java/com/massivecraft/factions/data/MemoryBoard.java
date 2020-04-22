@@ -95,14 +95,11 @@ public abstract class MemoryBoard extends Board {
         }
     }
 
-    private char[] mapKeyChrs = "\\/#$%=&^ABCDEFGHJKLMNOPQRSTUVWXYZ1234567890abcdeghjmnopqrsuvwxyz?".toCharArray();
+    private static final char[] mapKeyChrs = "\\/#$%=&^ABCDEFGHJKLMNOPQRSTUVWXYZ1234567890abcdeghjmnopqrsuvwxyz?".toCharArray();
 
     public MemoryBoardMap flocationIds = new MemoryBoardMap();
-    public static String NO_ID = "0";
+    public static final String NO_ID = "0";
 
-    //----------------------------------------------//
-    // Get and Set
-    //----------------------------------------------//
     public String getIdAt(FLocation flocation) {
         String id = flocationIds.get(flocation);
         return id == null ? NO_ID : id;
@@ -131,6 +128,9 @@ public abstract class MemoryBoard extends Board {
         faction.getWarps().values().removeIf(lazyLocation -> flocation.isInChunk(lazyLocation.getLocation()));
 
         for (FPlayer fPlayer : faction.getFPlayersWhereOnline(true)) {
+            if (!fPlayer.getLastStoodAt().equals(flocation)) {
+                continue;
+            }
             if (!fPlayer.isAdminBypassing() && fPlayer.isFlying()) {
                 fPlayer.setFlying(false);
             }

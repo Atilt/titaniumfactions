@@ -221,7 +221,7 @@ public class FactionsEntityListener extends AbstractListener {
     }
 
     private boolean explosionDisallowed(Entity boomer, Location location) {
-        Faction faction = Board.getInstance().getFactionAt(new FLocation(location));
+        Faction faction = Board.getInstance().getFactionAt(FLocation.wrap(location));
         boolean online = faction.hasPlayersOnline();
         if (faction.noExplosionsInTerritory() || (faction.isPeaceful() && FactionsPlugin.getInstance().conf().factions().specialCase().isPeacefulTerritoryDisableBoom())) {
             // faction is peaceful and has explosions set to disabled
@@ -311,7 +311,7 @@ public class FactionsEntityListener extends AbstractListener {
         if (!(damagee instanceof Player)) {
             return false;
         }
-        return Board.getInstance().getFactionAt(new FLocation(damagee.getLocation())).isSafeZone();
+        return Board.getInstance().getFactionAt(FLocation.wrap(damagee.getLocation())).isSafeZone();
     }
 
     public boolean canDamagerHurtDamagee(EntityDamageByEntityEvent sub) {
@@ -359,7 +359,7 @@ public class FactionsEntityListener extends AbstractListener {
             return true;
         }
 
-        FLocation defenderLoc = new FLocation(defender.getPlayer().getLocation());
+        FLocation defenderLoc = FLocation.wrap(defender.getPlayer().getLocation());
         Faction defLocFaction = Board.getInstance().getFactionAt(defenderLoc);
 
         if (damager == damagee) {  // ender pearl usage and other self-inflicted damage
@@ -399,7 +399,7 @@ public class FactionsEntityListener extends AbstractListener {
             return false;
         }
 
-        Faction locFaction = Board.getInstance().getFactionAt(new FLocation(attacker));
+        Faction locFaction = Board.getInstance().getFactionAt(FLocation.wrap(attacker));
 
         // so we know from above that the defender isn't in a safezone... what about the attacker, sneaky dog that he might be?
         if (locFaction.noPvPInTerritory()) {
@@ -506,7 +506,7 @@ public class FactionsEntityListener extends AbstractListener {
         if (!plugin.worldUtil().isEnabled(event.getEntity().getWorld())) {
             return;
         }
-        if (FactionsPlugin.getInstance().getSafeZoneNerfedCreatureTypes().contains(event.getEntityType()) && Board.getInstance().getFactionAt(new FLocation(event.getLocation())).noMonstersInTerritory()){
+        if (FactionsPlugin.getInstance().getSafeZoneNerfedCreatureTypes().contains(event.getEntityType()) && Board.getInstance().getFactionAt(FLocation.wrap(event.getLocation())).noMonstersInTerritory()){
             event.setCancelled(true);
         }
     }
@@ -529,7 +529,7 @@ public class FactionsEntityListener extends AbstractListener {
         }
 
         // in case "the target is in a safe zone.
-        if (Board.getInstance().getFactionAt(new FLocation(target.getLocation())).noMonstersInTerritory()) {
+        if (Board.getInstance().getFactionAt(FLocation.wrap(target.getLocation())).noMonstersInTerritory()) {
             event.setCancelled(true);
         }
     }
@@ -542,7 +542,7 @@ public class FactionsEntityListener extends AbstractListener {
 
         if (event.getCause() == RemoveCause.EXPLOSION) {
             Location loc = event.getEntity().getLocation();
-            Faction faction = Board.getInstance().getFactionAt(new FLocation(loc));
+            Faction faction = Board.getInstance().getFactionAt(FLocation.wrap(loc));
             if (faction.noExplosionsInTerritory()) {
                 // faction is peaceful and has explosions set to disabled
                 event.setCancelled(true);
@@ -565,11 +565,14 @@ public class FactionsEntityListener extends AbstractListener {
         }
 
         Entity breaker = ((HangingBreakByEntityEvent) event).getRemover();
-        if (!(breaker instanceof Player)) {
-            return;
+        if (breaker instanceof Projectile) {
+            ProjectileSource source = ((Projectile) breaker).getShooter();
+            if (!(source instanceof Player)) {
+                return;
+            }
+            breaker = (Player) source;
         }
-
-        if (!FactionsBlockListener.playerCanBuildDestroyBlock((Player) breaker, event.getEntity().getLocation(), PermissibleAction.DESTROY, false)) {
+        if (breaker != null && breaker.getType() == EntityType.PLAYER && !FactionsBlockListener.playerCanBuildDestroyBlock((Player) breaker, event.getEntity().getLocation(), PermissibleAction.DESTROY, false)) {
             event.setCancelled(true);
         }
     }
@@ -599,7 +602,7 @@ public class FactionsEntityListener extends AbstractListener {
                 event.setCancelled(true);
             }
         } else if (entity.getType() == EntityType.WITHER) {
-            Faction faction = Board.getInstance().getFactionAt(new FLocation(event.getBlock().getLocation()));
+            Faction faction = Board.getInstance().getFactionAt(FLocation.wrap(event.getBlock().getLocation()));
             // it's a bit crude just using fireball protection, but I'd rather not add in a whole new set of xxxBlockWitherExplosion or whatever
             if ((faction.isWilderness() && FactionsPlugin.getInstance().conf().factions().protection().isWildernessBlockFireballs() && !FactionsPlugin.getInstance().conf().factions().protection().getWorldsNoWildernessProtection().contains(event.getBlock().getWorld().getName())) ||
                     (faction.isNormal() && (faction.hasPlayersOnline() ? FactionsPlugin.getInstance().conf().factions().protection().isTerritoryBlockFireballs() : FactionsPlugin.getInstance().conf().factions().protection().isTerritoryBlockFireballsWhenOffline())) ||
@@ -623,8 +626,7 @@ public class FactionsEntityListener extends AbstractListener {
             return true;
         }
 
-        FLocation fLoc = new FLocation(loc);
-        Faction claimFaction = Board.getInstance().getFactionAt(fLoc);
+        Faction claimFaction = Board.getInstance().getFactionAt(FLocation.wrap(loc));
 
         if (claimFaction.isWilderness()) {
             return FactionsPlugin.getInstance().conf().factions().protection().isWildernessDenyEndermanBlocks();

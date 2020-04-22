@@ -36,7 +36,7 @@ public class CmdTNTFill extends FCommand {
 
     @Override
     public void perform(CommandContext context) {
-        if (!context.faction.equals(Board.getInstance().getFactionAt(new FLocation(context.player.getLocation())))) {
+        if (!context.faction.equals(Board.getInstance().getFactionAt(FLocation.wrap(context.player.getLocation())))) {
             context.msg(TL.COMMAND_TNT_TERRITORYONLY);
             return;
         }
@@ -127,7 +127,7 @@ public class CmdTNTFill extends FCommand {
             for (int y = -radius; y < radius; y++) {
                 for (int z = -radius; z < radius; z++) {
                     Block block = location.getBlock().getRelative(x, y, z);
-                    if (block.getType() != Material.DISPENSER || !Board.getInstance().getIdAt(new FLocation(block)).equals(id)) {
+                    if (block.getType() != Material.DISPENSER || !Board.getInstance().getIdAt(FLocation.wrap(block)).equals(id)) {
                         continue;
                     }
                     dispensers.add(new DistancedDispenser(location.distanceSquared(block.getLocation()), ((Dispenser) block.getState()).getInventory()));

@@ -20,7 +20,7 @@ public class PortalHandler implements PortalListenerBase {
         if (!FactionsPlugin.getInstance().conf().factions().portals().isLimit()) {
             return false; // Don't do anything if they don't want us to.
         }
-        FLocation loc = new FLocation(location);
+        FLocation loc = FLocation.wrap(location);
         Faction faction = Board.getInstance().getFactionAt(loc);
         if (faction.isWilderness()) {
             return false; // We don't care about wilderness.

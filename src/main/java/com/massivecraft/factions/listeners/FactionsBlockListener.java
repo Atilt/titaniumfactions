@@ -54,7 +54,7 @@ public class FactionsBlockListener implements Listener {
             return;
         }
 
-        Faction targetFaction = Board.getInstance().getFactionAt(new FLocation(event.getBlock().getLocation()));
+        Faction targetFaction = Board.getInstance().getFactionAt(FLocation.wrap(event.getBlock().getLocation()));
         if (targetFaction.isNormal() && !targetFaction.isPeaceful() && FactionsPlugin.getInstance().conf().factions().specialCase().getIgnoreBuildMaterials().contains(event.getBlock().getType())) {
             return;
         }
@@ -75,8 +75,8 @@ public class FactionsBlockListener implements Listener {
         }
         if (event.getBlock().isLiquid()) {
             if (event.getToBlock().isEmpty()) {
-                Faction from = Board.getInstance().getFactionAt(new FLocation(event.getBlock()));
-                Faction to = Board.getInstance().getFactionAt(new FLocation(event.getToBlock()));
+                Faction from = Board.getInstance().getFactionAt(FLocation.wrap(event.getBlock()));
+                Faction to = Board.getInstance().getFactionAt(FLocation.wrap(event.getToBlock()));
                 if (from == to) {
                     // not concerned with inter-faction events
                     return;
@@ -129,7 +129,7 @@ public class FactionsBlockListener implements Listener {
             return;
         }
 
-        Faction pistonFaction = Board.getInstance().getFactionAt(new FLocation(event.getBlock()));
+        Faction pistonFaction = Board.getInstance().getFactionAt(FLocation.wrap(event.getBlock()));
 
         if (!canPistonMoveBlock(pistonFaction, event.getBlocks(), event.getDirection())) {
             event.setCancelled(true);
@@ -152,7 +152,7 @@ public class FactionsBlockListener implements Listener {
             return;
         }
 
-        Faction pistonFaction = Board.getInstance().getFactionAt(new FLocation(event.getBlock()));
+        Faction pistonFaction = Board.getInstance().getFactionAt(FLocation.wrap(event.getBlock()));
 
         if (!canPistonMoveBlock(pistonFaction, event.getBlocks(), null)) {
             event.setCancelled(true);
@@ -166,7 +166,7 @@ public class FactionsBlockListener implements Listener {
         }
         ObjectSet<Faction> factions = new ObjectOpenHashSet<>(blocks.size());
         for (Block block : blocks) {
-            factions.add(Board.getInstance().getFactionAt(new FLocation(block.getLocation().add(direction.getModX(), direction.getModY(), direction.getModZ()))));
+            factions.add(Board.getInstance().getFactionAt(FLocation.wrap(block.getLocation().add(direction.getModX(), direction.getModY(), direction.getModZ()))));
         }
 
         boolean disableOverall = FactionsPlugin.getInstance().conf().factions().other().isDisablePistonsInTerritory();
@@ -230,7 +230,7 @@ public class FactionsBlockListener implements Listener {
             return true;
         }
 
-        FLocation loc = new FLocation(location);
+        FLocation loc = FLocation.wrap(location);
         Faction otherFaction = Board.getInstance().getFactionAt(loc);
 
         if (otherFaction.isWilderness()) {

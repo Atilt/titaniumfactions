@@ -26,7 +26,7 @@ public class CmdTNTSiphon extends FCommand {
 
     @Override
     public void perform(CommandContext context) {
-        if (!context.faction.equals(Board.getInstance().getFactionAt(new FLocation(context.player.getLocation())))) {
+        if (!context.faction.equals(Board.getInstance().getFactionAt(FLocation.wrap(context.player.getLocation())))) {
             context.msg(TL.COMMAND_TNT_TERRITORYONLY);
             return;
         }

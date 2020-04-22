@@ -85,7 +85,7 @@ public class PowerControl implements LandRaidControl {
     @Override
     public void onDeath(Player player) {
         FPlayer fplayer = FPlayers.getInstance().getByPlayer(player);
-        Faction faction = Board.getInstance().getFactionAt(new FLocation(player.getLocation()));
+        Faction faction = Board.getInstance().getFactionAt(FLocation.wrap(player.getLocation()));
 
         PowerLossEvent powerLossEvent = new PowerLossEvent(faction, fplayer);
         // Check for no power loss conditions

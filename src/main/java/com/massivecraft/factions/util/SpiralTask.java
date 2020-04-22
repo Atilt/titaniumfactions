@@ -70,7 +70,7 @@ public abstract class SpiralTask implements Runnable {
      * Returns an FLocation pointing at the current chunk X and Z values.
      */
     public final FLocation currentFLocation() {
-        return new FLocation(world.getName(), x, z);
+        return FLocation.wrap(world.getName(), x, z);
     }
 
     /*

@@ -30,7 +30,7 @@ public abstract class AbstractListener implements Listener {
             return true;
         }
 
-        FLocation loc = new FLocation(location);
+        FLocation loc = FLocation.wrap(location);
         Faction otherFaction = Board.getInstance().getFactionAt(loc);
 
         if (FactionsPlugin.getInstance().getLandRaidControl().isRaidable(otherFaction)) {
@@ -85,7 +85,7 @@ public abstract class AbstractListener implements Listener {
             return true;
         }
 
-        FLocation loc = new FLocation(location);
+        FLocation loc = FLocation.wrap(location);
         Faction otherFaction = Board.getInstance().getFactionAt(loc);
 
         // no door/chest/whatever protection in wilderness, war zones, or safe zones

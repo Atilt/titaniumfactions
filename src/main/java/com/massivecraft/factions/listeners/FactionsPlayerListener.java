@@ -113,7 +113,7 @@ public class FactionsPlayerListener extends AbstractListener {
         me.setLastLoginTime(System.currentTimeMillis());
 
         // Store player's current FLocation and notify them where they are
-        me.setLastStoodAt(new FLocation(player.getLocation()));
+        me.setLastStoodAt(FLocation.wrap(player.getLocation()));
 
         me.login(); // set kills / deaths
 
@@ -245,7 +245,7 @@ public class FactionsPlayerListener extends AbstractListener {
         }
 
         // Yes we did change coord (:
-        FLocation to = new FLocation(event.getTo());
+        FLocation to = FLocation.wrap(event.getTo());
         me.setLastStoodAt(to);
 
         if (me.getAutoClaimFor() != null) {
@@ -441,7 +441,7 @@ public class FactionsPlayerListener extends AbstractListener {
             return true;
         }
 
-        FLocation loc = new FLocation(location);
+        FLocation loc = FLocation.wrap(location);
         Faction otherFaction = Board.getInstance().getFactionAt(loc);
 
         if (FactionsPlugin.getInstance().getLandRaidControl().isRaidable(otherFaction)) {
@@ -544,7 +544,7 @@ public class FactionsPlayerListener extends AbstractListener {
             this.initFactionWorld(me);
         }
 
-        FLocation to = new FLocation(event.getTo());
+        FLocation to = FLocation.wrap(event.getTo());
         me.setLastStoodAt(to);
 
         // Check the location they're teleporting to and check if they can fly there.
@@ -620,7 +620,7 @@ public class FactionsPlayerListener extends AbstractListener {
             return true;
         }
 
-        Faction at = Board.getInstance().getFactionAt(new FLocation(player.getLocation()));
+        Faction at = Board.getInstance().getFactionAt(FLocation.wrap(player.getLocation()));
         if (at.isWilderness() && !FactionsPlugin.getInstance().conf().factions().protection().getWildernessDenyCommands().isEmpty() && !me.isAdminBypassing() && isCommandInSet(fullCmd, shortCmd, FactionsPlugin.getInstance().conf().factions().protection().getWildernessDenyCommands())) {
             me.msg(TL.PLAYER_COMMAND_WILDERNESS, fullCmd);
             return true;

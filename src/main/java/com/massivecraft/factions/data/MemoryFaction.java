@@ -295,7 +295,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     }
 
     public void confirmValidHome() {
-        if (!FactionsPlugin.getInstance().conf().factions().homes().isMustBeInClaimedTerritory() || this.home == null || (this.home.getLocation() != null && Board.getInstance().getFactionAt(new FLocation(this.home.getLocation())) == this)) {
+        if (!FactionsPlugin.getInstance().conf().factions().homes().isMustBeInClaimedTerritory() || this.home == null || (this.home.getLocation() != null && Board.getInstance().getFactionAt(FLocation.wrap(this.home.getLocation())) == this)) {
             return;
         }
 

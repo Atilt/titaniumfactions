@@ -44,7 +44,7 @@ public class JSONBoard extends MemoryBoard {
         for (Entry<String, Map<String, String>> entry : worldCoordIds.entrySet()) {
             for (Entry<String, String> entry2 : entry.getValue().entrySet()) {
                 String[] coords = entry2.getKey().trim().split("[,\\s]+");
-                flocationIds.put(new FLocation(entry.getKey(), Integer.parseInt(coords[0]), Integer.parseInt(coords[1])), entry2.getValue());
+                flocationIds.put(FLocation.wrap(entry.getKey(), Integer.parseInt(coords[0]), Integer.parseInt(coords[1])), entry2.getValue());
             }
         }
     }

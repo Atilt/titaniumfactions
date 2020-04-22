@@ -43,7 +43,7 @@ public class PortalListener_114 implements Listener {
 
         // Only 8 blocks so a loop should be fine.
         for (BlockState block : event.getBlocks()) {
-            FLocation loc = new FLocation(block.getLocation());
+            FLocation loc = FLocation.wrap(block.getLocation());
             Faction faction = Board.getInstance().getFactionAt(loc);
 
             if (faction.isWilderness()) {

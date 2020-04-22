@@ -86,7 +86,7 @@ public abstract class MemoryFPlayer implements FPlayer {
 
     protected boolean seeingChunk = false;
 
-    protected transient FLocation lastStoodAt = new FLocation(); // Where did this player stand the last time we checked?
+    protected transient FLocation lastStoodAt = FLocation.empty(); // Where did this player stand the last time we checked?
     protected transient boolean mapAutoUpdating;
     protected transient Faction autoClaimFor;
     protected transient boolean autoSafeZoneEnabled;
@@ -494,7 +494,7 @@ public abstract class MemoryFPlayer implements FPlayer {
     }
 
     public Relation getRelationToLocation() {
-        return Board.getInstance().getFactionAt(new FLocation(this)).getRelationTo(this);
+        return Board.getInstance().getFactionAt(FLocation.wrap(this)).getRelationTo(this);
     }
 
     @Override
@@ -591,24 +591,24 @@ public abstract class MemoryFPlayer implements FPlayer {
     // Territory
     //----------------------------------------------//
     public boolean isInOwnTerritory() {
-        return Board.getInstance().getFactionAt(new FLocation(this)) == this.getFaction();
+        return Board.getInstance().getFactionAt(FLocation.wrap(this)) == this.getFaction();
     }
 
     public boolean isInOthersTerritory() {
-        Faction factionHere = Board.getInstance().getFactionAt(new FLocation(this));
+        Faction factionHere = Board.getInstance().getFactionAt(FLocation.wrap(this));
         return factionHere != null && factionHere.isNormal() && factionHere != this.getFaction();
     }
 
     public boolean isInAllyTerritory() {
-        return Board.getInstance().getFactionAt(new FLocation(this)).getRelationTo(this).isAlly();
+        return Board.getInstance().getFactionAt(FLocation.wrap(this)).getRelationTo(this).isAlly();
     }
 
     public boolean isInNeutralTerritory() {
-        return Board.getInstance().getFactionAt(new FLocation(this)).getRelationTo(this).isNeutral();
+        return Board.getInstance().getFactionAt(FLocation.wrap(this)).getRelationTo(this).isNeutral();
     }
 
     public boolean isInEnemyTerritory() {
-        return Board.getInstance().getFactionAt(new FLocation(this)).getRelationTo(this).isEnemy();
+        return Board.getInstance().getFactionAt(FLocation.wrap(this)).getRelationTo(this).isEnemy();
     }
 
     public void sendFactionHereMessage(Faction from) {
@@ -740,7 +740,7 @@ public abstract class MemoryFPlayer implements FPlayer {
 
     // Not used
     public boolean canClaimForFactionAtLocation(Faction forFaction, Location location, boolean notifyFailure) {
-        return canClaimForFactionAtLocation(forFaction, new FLocation(location), notifyFailure);
+        return canClaimForFactionAtLocation(forFaction, FLocation.wrap(location), notifyFailure);
     }
 
     public boolean canClaimForFactionAtLocation(Faction forFaction, FLocation flocation, boolean notifyFailure) {
@@ -838,7 +838,7 @@ public abstract class MemoryFPlayer implements FPlayer {
     }
 
     public boolean attemptClaim(Faction forFaction, Location location, boolean notifyFailure) {
-        return attemptClaim(forFaction, new FLocation(location), notifyFailure);
+        return attemptClaim(forFaction, FLocation.wrap(location), notifyFailure);
     }
 
     public boolean attemptClaim(Faction forFaction, FLocation flocation, boolean notifyFailure) {

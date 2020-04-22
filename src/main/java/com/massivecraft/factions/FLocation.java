@@ -17,50 +17,76 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public class FLocation implements Serializable {
+public final class FLocation implements Serializable {
     private static final long serialVersionUID = -8292915234027387983L;
-    private static final boolean worldBorderSupport;
+    private static boolean worldBorderSupport = false;
+
     private String worldName = "world";
     private int x = 0;
     private int z = 0;
 
     static {
-        boolean worldBorderClassPresent = false;
         try {
             Class.forName("org.bukkit.WorldBorder");
-            worldBorderClassPresent = true;
+            worldBorderSupport = true;
         } catch (ClassNotFoundException ignored) {
+            worldBorderSupport = false;
         }
-
-        worldBorderSupport = worldBorderClassPresent;
     }
 
-    //----------------------------------------------//
-    // Constructors
-    //----------------------------------------------//
+    public FLocation() {}
 
-    public FLocation() {
-
+    public static FLocation empty() {
+        return new FLocation();
     }
 
+    public static FLocation wrap(String world, int x, int z) {
+        return new FLocation(world, x, z);
+    }
+
+    public static FLocation wrap(Chunk chunk) {
+        return wrap(chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
+    }
+
+    public static FLocation wrap(Location location) {
+        return new FLocation(location);
+    }
+
+    public static FLocation wrap(Block block) {
+        return wrap(block.getLocation());
+    }
+
+    public static FLocation wrap(Player player) {
+        return wrap(player.getLocation());
+    }
+
+    public static FLocation wrap(FPlayer fPlayer) {
+        return wrap(fPlayer.getPlayer());
+    }
+
+    @Deprecated
     public FLocation(String worldName, int x, int z) {
         this.worldName = worldName;
         this.x = x;
         this.z = z;
     }
 
+    @Deprecated
     public FLocation(Location location) {
         this(location.getWorld().getName(), blockToChunk(location.getBlockX()), blockToChunk(location.getBlockZ()));
     }
 
+    @Deprecated
     public FLocation(Player player) {
         this(player.getLocation());
     }
 
+    @Deprecated
     public FLocation(FPlayer fplayer) {
         this(fplayer.getPlayer());
     }
 
+    @Deprecated
     public FLocation(Block block) {
         this(block.getLocation());
     }
@@ -231,7 +257,7 @@ public class FLocation implements Serializable {
         for (int x = xfrom; x <= xto; x++) {
             for (int z = zfrom; z <= zto; z++) {
                 if (this.getDistanceSquaredTo(x, z) <= radiusSquared) {
-                    ret.add(new FLocation(this.worldName, x, z));
+                    ret.add(FLocation.wrap(this.worldName, x, z));
                 }
             }
         }
@@ -243,7 +269,7 @@ public class FLocation implements Serializable {
 
         for (long x : MiscUtil.range(from.getX(), to.getX())) {
             for (long z : MiscUtil.range(from.getZ(), to.getZ())) {
-                ret.add(new FLocation(from.getWorldName(), (int) x, (int) z));
+                ret.add(FLocation.wrap(from.getWorldName(), (int) x, (int) z));
             }
         }
 

@@ -2,6 +2,8 @@ package com.massivecraft.factions.util;
 
 import com.massivecraft.factions.FactionsPlugin;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.BufferedInputStream;
@@ -13,7 +15,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
@@ -62,14 +63,14 @@ public class DiscUtil {
     // CATCH
     // -------------------------------------------- //
 
-    private static HashMap<String, Lock> locks = new HashMap<>();
+    private static final Object2ObjectMap<String, Lock> LOCKS = new Object2ObjectOpenHashMap<>();
 
     public static boolean writeCatch(final File file, final String content, boolean sync, BooleanConsumer finish) {
         String name = file.getName();
 
         // Create lock for each file if there isn't already one.
 
-        Lock lock = locks.computeIfAbsent(name, s -> new ReentrantReadWriteLock().writeLock());
+        Lock lock = LOCKS.computeIfAbsent(name, s -> new ReentrantReadWriteLock().writeLock());
 
         if (sync) {
             lock.lock();
