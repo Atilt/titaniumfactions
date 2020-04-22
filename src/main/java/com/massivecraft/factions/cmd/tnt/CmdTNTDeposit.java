@@ -18,8 +18,10 @@ import java.util.Map;
 public class CmdTNTDeposit extends FCommand {
     public CmdTNTDeposit() {
         super();
+
         this.aliases.add("deposit");
         this.aliases.add("d");
+
         this.requiredArgs.add("amount");
 
         this.requirements = new CommandRequirements.Builder(Permission.TNT_DEPOSIT).withAction(PermissibleAction.TNTDEPOSIT).memberOnly().build();
@@ -53,8 +55,8 @@ public class CmdTNTDeposit extends FCommand {
         int current = amount;
         Map<Integer, ? extends ItemStack> all = player.getInventory().all(Material.TNT);
         for (Map.Entry<Integer, ? extends ItemStack> entry : all.entrySet()) {
-            final int count = entry.getValue().getAmount();
-            final int newCount = Math.max(0, count - current);
+            int count = entry.getValue().getAmount();
+            int newCount = Math.max(0, count - current);
             current -= (count - newCount);
             if (newCount == 0) {
                 player.getInventory().setItem(entry.getKey(), null);

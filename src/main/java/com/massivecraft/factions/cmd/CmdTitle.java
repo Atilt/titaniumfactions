@@ -10,6 +10,8 @@ import com.massivecraft.factions.util.TextUtil;
 public class CmdTitle extends FCommand {
 
     public CmdTitle() {
+        super();
+
         this.aliases.add("title");
 
         this.requiredArgs.add("player");

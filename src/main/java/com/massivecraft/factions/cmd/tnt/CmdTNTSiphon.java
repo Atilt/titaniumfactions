@@ -16,8 +16,10 @@ import java.util.List;
 public class CmdTNTSiphon extends FCommand {
     public CmdTNTSiphon() {
         super();
+
         this.aliases.add("siphon");
         this.aliases.add("s");
+
         this.requiredArgs.add("radius");
         this.optionalArgs.put("amount", "all");
 

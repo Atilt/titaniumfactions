@@ -18,6 +18,8 @@ import java.util.List;
 public class CmdTag extends FCommand {
 
     public CmdTag() {
+        super();
+
         this.aliases.add("tag");
         this.aliases.add("rename");
 

@@ -12,6 +12,7 @@ public class CmdInvite extends FCommand {
 
     public CmdInvite() {
         super();
+
         this.aliases.add("invite");
         this.aliases.add("inv");
 

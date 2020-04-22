@@ -13,6 +13,7 @@ public class CmdSetDefaultRole extends FCommand {
         this.aliases.add("defaultrank");
         this.aliases.add("default");
         this.aliases.add("def");
+
         this.requiredArgs.add("role");
 
         this.requirements = new CommandRequirements.Builder(Permission.DEFAULTRANK)

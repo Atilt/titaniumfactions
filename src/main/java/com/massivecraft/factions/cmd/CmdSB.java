@@ -7,6 +7,8 @@ import com.massivecraft.factions.util.TL;
 public class CmdSB extends FCommand {
 
     public CmdSB() {
+        super();
+
         this.aliases.add("sb");
         this.aliases.add("scoreboard");
 

@@ -8,6 +8,7 @@ public class CmdMoney extends MoneyCommand {
 
     public CmdMoney() {
         super();
+
         this.aliases.add("money");
 
         this.helpLong.add(plugin.txt().parseTags(TL.COMMAND_MONEY_LONG.toString()));

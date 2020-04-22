@@ -7,6 +7,8 @@ import com.massivecraft.factions.config.annotation.ConfigName;
 import com.massivecraft.factions.config.annotation.DefinedType;
 import com.massivecraft.factions.config.annotation.WipeOnReload;
 import com.typesafe.config.ConfigRenderOptions;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
@@ -57,21 +59,21 @@ public class Loader {
         loadNode(node, loader.createEmptyNode(), config);
     }
 
-    private static Set<Class<?>> types = new HashSet<>();
+    private static final ObjectSet<Class<?>> TYPES = new ObjectOpenHashSet<>();
 
     static {
-        types.add(Boolean.TYPE);
-        types.add(Byte.TYPE);
-        types.add(Character.TYPE);
-        types.add(Double.TYPE);
-        types.add(Float.TYPE);
-        types.add(Integer.TYPE);
-        types.add(Long.TYPE);
-        types.add(Short.TYPE);
-        types.add(List.class);
-        types.add(Map.class);
-        types.add(Set.class);
-        types.add(String.class);
+        TYPES.add(Boolean.TYPE);
+        TYPES.add(Byte.TYPE);
+        TYPES.add(Character.TYPE);
+        TYPES.add(Double.TYPE);
+        TYPES.add(Float.TYPE);
+        TYPES.add(Integer.TYPE);
+        TYPES.add(Long.TYPE);
+        TYPES.add(Short.TYPE);
+        TYPES.add(List.class);
+        TYPES.add(Map.class);
+        TYPES.add(Set.class);
+        TYPES.add(String.class);
     }
 
     private static void loadNode(CommentedConfigurationNode current, CommentedConfigurationNode newNode, Object object) throws IllegalAccessException {
@@ -98,7 +100,7 @@ public class Loader {
                 newNewNode.setComment(comment.value());
             }
             Object defaultValue = field.get(object);
-            if (types.contains(field.getType())) {
+            if (TYPES.contains(field.getType())) {
                 if (needsValue) {
                     if (definedType == null) {
                         newNewNode.setValue(defaultValue);
@@ -114,7 +116,7 @@ public class Loader {
                 } else {
                     try {
                         if (Set.class.isAssignableFrom(field.getType()) && List.class.isAssignableFrom(curNode.getValue().getClass())) {
-                            field.set(object, new HashSet((List<?>) curNode.getValue()));
+                            field.set(object, new HashSet<>((List<?>) curNode.getValue()));
                         } else {
                             field.set(object, curNode.getValue());
                         }

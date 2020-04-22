@@ -31,10 +31,6 @@ public class JSONFactions extends MemoryFactions {
         return file;
     }
 
-    // -------------------------------------------- //
-    // CONSTRUCTORS
-    // -------------------------------------------- //
-
     public JSONFactions() {
         this.file = new File(FactionsPlugin.getInstance().getDataFolder(), "data/factions.json");
         this.nextId = 1;
@@ -56,17 +52,6 @@ public class JSONFactions extends MemoryFactions {
     private boolean saveCore(File target, Map<String, JSONFaction> entities, boolean sync, BooleanConsumer finish) {
         return DiscUtil.writeCatch(target, FactionsPlugin.getInstance().getGson().toJson(entities), sync, finish);
     }
-
-/*    public int load(BooleanConsumer finish) {
-        Map<String, JSONFaction> factions = this.loadCore(finish);
-        if (factions == null) {
-            return 0;
-        }
-        this.factions.putAll(factions);
-
-        super.load();
-        return factions.size();
-    }*/
 
     @Override
     public void load(IntConsumer loaded) {
@@ -114,10 +99,6 @@ public class JSONFactions extends MemoryFactions {
         }
         return list;
     }
-
-    // -------------------------------------------- //
-    // ID MANAGEMENT
-    // -------------------------------------------- //
 
     public String getNextId() {
         while (!isIdFree(this.nextId)) {

@@ -333,11 +333,6 @@ public abstract class MemoryFPlayer implements FPlayer {
         this.resetFactionData(true);
     }
 
-    // -------------------------------------------- //
-    // Getters And Setters
-    // -------------------------------------------- //
-
-
     public long getLastLoginTime() {
         return lastLoginTime;
     }
@@ -376,12 +371,6 @@ public abstract class MemoryFPlayer implements FPlayer {
         this.lastStoodAt = flocation;
     }
 
-    //----------------------------------------------//
-    // Title, Name, Faction Tag and Chat
-    //----------------------------------------------//
-
-    // Base:
-
     public String getTitle() {
         return this.hasFaction() ? title : TL.NOFACTION_PREFIX.toString();
     }
@@ -397,9 +386,6 @@ public abstract class MemoryFPlayer implements FPlayer {
 
     public String getName() {
         if (this.name == null) {
-            // Older versions of FactionsUUID don't save the name,
-            // so `name` will be null the first time it's retrieved
-            // after updating
             OfflinePlayer offline = Bukkit.getOfflinePlayer(this.id);
             this.name = offline.getName() != null ? offline.getName() : FastUUID.toString(this.id);
         }
@@ -587,9 +573,6 @@ public abstract class MemoryFPlayer implements FPlayer {
         }
     }
 
-    //----------------------------------------------//
-    // Territory
-    //----------------------------------------------//
     public boolean isInOwnTerritory() {
         return Board.getInstance().getFactionAt(FLocation.wrap(this)) == this.getFaction();
     }
@@ -658,10 +641,6 @@ public abstract class MemoryFPlayer implements FPlayer {
     public void setShowScoreboard(boolean show) {
         this.showScoreboard = show;
     }
-
-    // -------------------------------
-    // Actions
-    // -------------------------------
 
     public void leave(boolean makePay) {
         Faction myFaction = this.getFaction();
@@ -1052,10 +1031,6 @@ public abstract class MemoryFPlayer implements FPlayer {
         flyTrailsEffect = effect;
         msg(TL.COMMAND_FLYTRAILS_PARTICLE_CHANGE, effect);
     }
-
-    // -------------------------------------------- //
-    // Message Sending Helpers
-    // -------------------------------------------- //
 
     public void sendMessage(String msg) {
         if (msg.contains("{null}")) {

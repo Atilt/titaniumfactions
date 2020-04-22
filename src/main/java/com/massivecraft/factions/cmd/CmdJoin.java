@@ -13,6 +13,7 @@ public class CmdJoin extends FCommand {
 
     public CmdJoin() {
         super();
+
         this.aliases.add("join");
 
         this.requiredArgs.add("faction");

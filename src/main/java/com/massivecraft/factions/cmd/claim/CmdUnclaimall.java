@@ -15,6 +15,8 @@ import org.bukkit.Bukkit;
 public class CmdUnclaimall extends FCommand {
 
     public CmdUnclaimall() {
+        super();
+
         this.aliases.add("unclaimall");
         this.aliases.add("declaimall");
 

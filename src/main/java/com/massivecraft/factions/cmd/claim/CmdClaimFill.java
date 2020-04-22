@@ -21,12 +21,10 @@ import java.util.Set;
 public class CmdClaimFill extends FCommand {
 
     public CmdClaimFill() {
-
-        // Aliases
+        super();
         this.aliases.add("claimfill");
         this.aliases.add("cf");
 
-        // Args
         this.optionalArgs.put("limit", String.valueOf(FactionsPlugin.getInstance().conf().factions().claims().getFillClaimMaxClaims()));
         this.optionalArgs.put("faction", "you");
 
@@ -72,11 +70,10 @@ public class CmdClaimFill extends FCommand {
 
         ObjectSet<FLocation> toClaim = new ObjectOpenHashSet<>();
         Queue<FLocation> queue = new LinkedList<>();
-        FLocation currentHead;
         queue.add(loc);
         toClaim.add(loc);
         while (!queue.isEmpty() && toClaim.size() <= limit) {
-            currentHead = queue.poll();
+            FLocation currentHead = queue.poll();
 
             if (Math.abs(currentHead.getX() - startX) > distance || Math.abs(currentHead.getZ() - startZ) > distance) {
                 context.msg(TL.COMMAND_CLAIMFILL_TOOFAR, distance);

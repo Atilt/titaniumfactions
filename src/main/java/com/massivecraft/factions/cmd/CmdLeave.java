@@ -7,6 +7,7 @@ public class CmdLeave extends FCommand {
 
     public CmdLeave() {
         super();
+
         this.aliases.add("leave");
 
         this.requirements = new CommandRequirements.Builder(Permission.LEAVE)

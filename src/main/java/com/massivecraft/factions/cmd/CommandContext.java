@@ -10,12 +10,12 @@ import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.WarmUpUtil;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mkremins.fanciful.FancyMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -33,7 +33,7 @@ public class CommandContext {
     public List<String> args;
     public String alias;
 
-    public List<FCommand> commandChain = new ArrayList<>(); // The command chain used to execute this command
+    public List<FCommand> commandChain = new ObjectArrayList<>(); // The command chain used to execute this command
 
     public CommandContext(CommandSender sender, List<String> args, String alias) {
         this.sender = sender;
@@ -46,10 +46,6 @@ public class CommandContext {
             this.faction = fPlayer.getFaction();
         }
     }
-
-    // -------------------------------------------- //
-    // Message Sending Helpers
-    // -------------------------------------------- //
 
     public void msg(String str, Object... args) {
         sender.sendMessage(FactionsPlugin.getInstance().txt().parse(str, args));
@@ -79,17 +75,10 @@ public class CommandContext {
         }
     }
 
-    // TODO: Clean this UP
-    // -------------------------------------------- //
-    // Argument Readers
-    // -------------------------------------------- //
-
-    // Is set? ======================
     public boolean argIsSet(int idx) {
         return args.size() >= idx + 1;
     }
 
-    // STRING ======================
     public String argAsString(int idx, String def) {
         if (args.size() < idx + 1) {
             return def;
@@ -101,7 +90,6 @@ public class CommandContext {
         return argAsString(idx, null);
     }
 
-    // INT ======================
     public Integer strAsInt(String str, Integer def) {
         if (str == null) {
             return def;
@@ -191,13 +179,12 @@ public class CommandContext {
         return argAsPlayer(idx, null);
     }
 
-    // BEST PLAYER MATCH ======================
     public Player strAsBestPlayerMatch(String name, Player def, boolean msg) {
         Player ret = def;
 
         if (name != null) {
-            List<Player> players = Bukkit.getServer().matchPlayer(name);
-            if (players.size() > 0) {
+            List<Player> players = Bukkit.matchPlayer(name);
+            if (!players.isEmpty()) {
                 ret = players.get(0);
             }
         }

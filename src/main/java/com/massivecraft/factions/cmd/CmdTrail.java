@@ -7,6 +7,7 @@ public class CmdTrail extends FCommand {
 
     public CmdTrail() {
         super();
+
         this.aliases.add("trail");
         this.aliases.add("trails");
 

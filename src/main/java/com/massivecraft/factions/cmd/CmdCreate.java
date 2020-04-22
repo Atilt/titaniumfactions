@@ -20,6 +20,7 @@ public class CmdCreate extends FCommand {
 
     public CmdCreate() {
         super();
+
         this.aliases.add("create");
 
         this.requiredArgs.add("faction tag");
@@ -98,5 +99,4 @@ public class CmdCreate extends FCommand {
     public TL getUsageTranslation() {
         return TL.COMMAND_CREATE_DESCRIPTION;
     }
-
 }

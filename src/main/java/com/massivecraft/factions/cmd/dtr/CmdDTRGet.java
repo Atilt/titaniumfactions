@@ -12,6 +12,7 @@ import com.massivecraft.factions.util.TL;
 public class CmdDTRGet extends FCommand {
     public CmdDTRGet() {
         super();
+
         this.aliases.add("get");
         this.optionalArgs.put("faction", "yours");
 

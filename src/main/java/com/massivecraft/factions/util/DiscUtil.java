@@ -21,11 +21,6 @@ import java.util.logging.Level;
 
 public class DiscUtil {
 
-    // -------------------------------------------- //
-    // BYTE
-    // -------------------------------------------- //
-
-
     public static byte[] readBytes(File file) throws IOException {
         int length = (int) file.length();
         byte[] output = new byte[length];
@@ -47,10 +42,6 @@ public class DiscUtil {
         }
     }
 
-    // -------------------------------------------- //
-    // STRING
-    // -------------------------------------------- //
-
     public static void write(File file, String content) throws IOException {
         writeBytes(file, content.getBytes(StandardCharsets.UTF_8));
     }
@@ -58,10 +49,6 @@ public class DiscUtil {
     public static String read(File file) throws IOException {
         return new String(readBytes(file), StandardCharsets.UTF_8);
     }
-
-    // -------------------------------------------- //
-    // CATCH
-    // -------------------------------------------- //
 
     private static final Object2ObjectMap<String, Lock> LOCKS = new Object2ObjectOpenHashMap<>();
 

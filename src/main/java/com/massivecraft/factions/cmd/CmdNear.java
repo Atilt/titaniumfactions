@@ -1,21 +1,18 @@
 package com.massivecraft.factions.cmd;
 
 import com.massivecraft.factions.FPlayer;
-import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.tag.Tag;
 import com.massivecraft.factions.util.TL;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-
-import java.util.ArrayList;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class CmdNear extends FCommand {
 
     public CmdNear() {
         super();
+
         this.aliases.add("near");
 
         this.requirements = new CommandRequirements.Builder(Permission.NEAR)
@@ -26,15 +23,13 @@ public class CmdNear extends FCommand {
     @Override
     public void perform(CommandContext context) {
         int radius = FactionsPlugin.getInstance().conf().commands().near().getRadius();
-        List<Entity> nearbyEntities = context.player.getNearbyEntities(radius, radius, radius);
-        List<FPlayer> nearbyMembers = new ArrayList<>();
-
-        for (Entity entity : nearbyEntities) {
-            if (entity instanceof Player) {
-                FPlayer target = FPlayers.getInstance().getByPlayer((Player) entity);
-                if (target.getFaction() == context.fPlayer.getFaction()) {
-                    nearbyMembers.add(target);
-                }
+        ObjectList<FPlayer> nearbyMembers = new ObjectArrayList<>();
+        for (FPlayer fPlayer : context.fPlayer.getFaction().getFPlayersWhereOnline(true)) {
+            if (fPlayer == context.fPlayer) {
+                continue;
+            }
+            if (fPlayer.getLastStoodAt().getDistanceSquaredTo(context.fPlayer.getLastStoodAt()) <= radius * radius) {
+                nearbyMembers.add(fPlayer);
             }
         }
 

@@ -12,15 +12,12 @@ import org.bukkit.block.BlockFace;
 
 public class CmdClaimLine extends FCommand {
 
-    public static final BlockFace[] axis = {BlockFace.SOUTH, BlockFace.WEST, BlockFace.NORTH, BlockFace.EAST};
-
     public CmdClaimLine() {
+        super();
 
-        // Aliases
         this.aliases.add("claimline");
         this.aliases.add("cl");
 
-        // Args
         this.optionalArgs.put("amount", "1");
         this.optionalArgs.put("direction", "facing");
         this.optionalArgs.put("faction", "you");
@@ -31,12 +28,14 @@ public class CmdClaimLine extends FCommand {
     }
 
     public enum ValidCardinal {
-        NORTH(BlockFace.NORTH),
         SOUTH(BlockFace.SOUTH),
-        EAST(BlockFace.EAST),
-        WEST(BlockFace.WEST);
+        WEST(BlockFace.WEST),
+        NORTH(BlockFace.NORTH),
+        EAST(BlockFace.EAST);
 
         private BlockFace face;
+
+        public static final ValidCardinal[] VALUES = values();
 
         ValidCardinal(BlockFace face) {
             this.face = face;
@@ -61,7 +60,7 @@ public class CmdClaimLine extends FCommand {
         BlockFace blockFace;
 
         if (direction == null) {
-            blockFace = axis[Math.round(context.player.getLocation().getYaw() / 90f) & 0x3];
+            blockFace = ValidCardinal.VALUES[Math.round(context.player.getLocation().getYaw() / 90f) & 0x3].getFace();
         } else {
             try {
                 blockFace = ValidCardinal.valueOf(direction.toUpperCase()).getFace();

@@ -14,19 +14,19 @@ import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.SmokeUtil;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.WarmUpUtil;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class CmdHome extends FCommand {
 
     public CmdHome() {
         super();
+
         this.aliases.add("home");
 
         this.optionalArgs.put("faction", "yours");
@@ -149,7 +149,7 @@ public class CmdHome extends FCommand {
         context.doWarmUp(WarmUpUtil.Warmup.HOME, TL.WARMUPS_NOTIFY_TELEPORT, "Home", () -> {
             // Create a smoke effect
             if (FactionsPlugin.getInstance().conf().factions().homes().isTeleportCommandSmokeEffectEnabled()) {
-                List<Location> smokeLocations = new ArrayList<>();
+                ObjectList<Location> smokeLocations = new ObjectArrayList<>();
                 smokeLocations.add(loc);
                 smokeLocations.add(loc.add(0, 1, 0));
                 smokeLocations.add(destination);

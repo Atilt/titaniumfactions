@@ -8,6 +8,7 @@ import com.massivecraft.factions.util.TL;
 public class CmdPermanentPower extends FCommand {
     public CmdPermanentPower() {
         super();
+
         this.aliases.add("permanentpower");
 
         this.requiredArgs.add("faction");

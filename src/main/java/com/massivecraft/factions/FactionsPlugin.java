@@ -61,6 +61,7 @@ import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
+import it.unimi.dsi.fastutil.objects.ObjectSets;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -102,8 +103,6 @@ import java.util.regex.Pattern;
 
 public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
-    // Our single plugin instance.
-    // Single 4 life.
     private static FactionsPlugin instance;
     private Permission perms = null;
     private static int mcVersion;
@@ -724,7 +723,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         this.persist.save(this.rawTags, "tags");
 
         for (Map.Entry<String, String> rawTag : this.rawTags.entrySet()) {
-            this.txt.tags.put(rawTag.getKey(), TextUtil.parseColor(rawTag.getValue()));
+            this.txt.put(rawTag.getKey(), TextUtil.parseColor(rawTag.getValue()));
         }
     }
 
@@ -1011,12 +1010,14 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     // Get a list of all players in the specified faction
     @Override
     public Set<String> getPlayersInFaction(String factionTag) {
-        ObjectSet<String> players = new ObjectOpenHashSet<>();
         Faction faction = Factions.getInstance().getByTag(factionTag);
-        if (faction != null) {
-            for (FPlayer fplayer : faction.getFPlayers()) {
-                players.add(fplayer.getName());
-            }
+        if (faction == null) {
+            return ObjectSets.emptySet();
+        }
+        Set<FPlayer> fPlayers = faction.getFPlayers();
+        ObjectSet<String> players = new ObjectOpenHashSet<>(fPlayers.size());
+        for (FPlayer fplayer : fPlayers) {
+            players.add(fplayer.getName());
         }
         return players;
     }
@@ -1024,12 +1025,14 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     // Get a list of all online players in the specified faction
     @Override
     public Set<String> getOnlinePlayersInFaction(String factionTag) {
-        ObjectSet<String> players = new ObjectOpenHashSet<>();
         Faction faction = Factions.getInstance().getByTag(factionTag);
-        if (faction != null) {
-            for (FPlayer fplayer : faction.getFPlayersWhereOnline(true)) {
-                players.add(fplayer.getName());
-            }
+        if (faction == null) {
+            return ObjectSets.emptySet();
+        }
+        Set<FPlayer> fPlayers = faction.getFPlayersWhereOnline(true);
+        ObjectSet<String> players = new ObjectOpenHashSet<>(fPlayers.size());
+        for (FPlayer fplayer : fPlayers) {
+            players.add(fplayer.getName());
         }
         return players;
     }

@@ -14,6 +14,8 @@ import org.bukkit.World;
 public class CmdSafeunclaimall extends FCommand {
 
     public CmdSafeunclaimall() {
+        super();
+
         this.aliases.add("safeunclaimall");
         this.aliases.add("safedeclaimall");
 

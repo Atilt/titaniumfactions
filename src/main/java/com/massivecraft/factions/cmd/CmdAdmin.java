@@ -13,6 +13,7 @@ public class CmdAdmin extends FCommand {
 
     public CmdAdmin() {
         super();
+
         this.aliases.add("admin");
         this.aliases.add("setadmin");
         this.aliases.add("leader");

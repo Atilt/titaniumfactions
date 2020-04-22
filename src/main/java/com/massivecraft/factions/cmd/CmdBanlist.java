@@ -6,14 +6,14 @@ import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.struct.BanInfo;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
-
-import java.util.ArrayList;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class CmdBanlist extends FCommand {
 
     public CmdBanlist() {
         super();
+
         this.aliases.add("banlist");
         this.aliases.add("bans");
         this.aliases.add("banl");
@@ -42,7 +42,7 @@ public class CmdBanlist extends FCommand {
             return;
         }
 
-        List<String> lines = new ArrayList<>();
+        ObjectList<String> lines = new ObjectArrayList<>();
         lines.add(TL.COMMAND_BANLIST_HEADER.format(target.getBannedPlayers().size(), target.getTag(context.faction)));
         int i = 1;
 

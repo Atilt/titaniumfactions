@@ -11,6 +11,7 @@ public class CmdDTR extends FCommand {
 
     public CmdDTR() {
         super();
+
         this.aliases.add("dtr");
         this.aliases.add("deathstilraidable"); // YOLO
 

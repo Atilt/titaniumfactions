@@ -11,6 +11,7 @@ public class CmdSeeChunk extends FCommand {
 
     public CmdSeeChunk() {
         super();
+
         this.aliases.add("seechunk");
         this.aliases.add("sc");
 

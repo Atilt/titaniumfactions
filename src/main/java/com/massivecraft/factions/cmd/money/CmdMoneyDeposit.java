@@ -14,6 +14,7 @@ public class CmdMoneyDeposit extends MoneyCommand {
 
     public CmdMoneyDeposit() {
         super();
+
         this.aliases.add("d");
         this.aliases.add("deposit");
 
@@ -32,9 +33,7 @@ public class CmdMoneyDeposit extends MoneyCommand {
         if (faction == null) {
             return;
         }
-        boolean success = Econ.transferMoney(context.fPlayer, context.fPlayer, faction, amount);
-
-        if (success && FactionsPlugin.getInstance().conf().logging().isMoneyTransactions()) {
+        if (Econ.transferMoney(context.fPlayer, context.fPlayer, faction, amount) && FactionsPlugin.getInstance().conf().logging().isMoneyTransactions()) {
             FactionsPlugin.getInstance().log(ChatColor.stripColor(FactionsPlugin.getInstance().txt().parse(TL.COMMAND_MONEYDEPOSIT_DEPOSITED.toString(), context.fPlayer.getName(), Econ.moneyString(amount), faction.describeTo(null))));
         }
     }

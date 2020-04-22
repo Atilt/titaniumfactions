@@ -16,6 +16,7 @@ public class CmdKick extends FCommand {
 
     public CmdKick() {
         super();
+
         this.aliases.add("kick");
 
         this.optionalArgs.put("player", "player");

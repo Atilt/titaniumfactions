@@ -788,11 +788,6 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         this.tntBank = amount;
     }
 
-    // -------------------------------
-    // FPlayers
-    // -------------------------------
-
-    // maintain the reference list of FPlayers in this faction
     public void refreshFPlayers() {
         fplayers.clear();
         if (this.isPlayerFreeType()) {

@@ -14,6 +14,7 @@ public class CmdHelp extends FCommand {
 
     public CmdHelp() {
         super();
+
         this.aliases.add("help");
         this.aliases.add("h");
 

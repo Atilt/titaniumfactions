@@ -12,6 +12,7 @@ public class CmdFly extends FCommand {
 
     public CmdFly() {
         super();
+
         this.aliases.add("fly");
 
         this.optionalArgs.put("on/off/auto", "flip");

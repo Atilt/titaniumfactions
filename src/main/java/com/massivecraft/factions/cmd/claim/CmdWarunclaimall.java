@@ -14,10 +14,11 @@ import org.bukkit.World;
 public class CmdWarunclaimall extends FCommand {
 
     public CmdWarunclaimall() {
+        super();
+
         this.aliases.add("warunclaimall");
         this.aliases.add("wardeclaimall");
 
-        //this.requiredArgs.add("");
         this.optionalArgs.put("world", "all");
 
         this.requirements = new CommandRequirements.Builder(Permission.MANAGE_WAR_ZONE).build();

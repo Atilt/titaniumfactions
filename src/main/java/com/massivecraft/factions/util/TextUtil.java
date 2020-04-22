@@ -17,9 +17,9 @@ public class TextUtil {
 
     private final Object2ObjectMap<String, String> tags = new Object2ObjectOpenHashMap<>();
 
-    // -------------------------------------------- //
-    // Top-level parsing functions.
-    // -------------------------------------------- //
+    public String put(String key, String value) {
+        return this.tags.put(key, value);
+    }
 
     public String parse(String str, Object... args) {
         return String.format(this.parse(str), args);
@@ -28,11 +28,6 @@ public class TextUtil {
     public String parse(String str) {
         return this.parseTags(parseColor(str));
     }
-
-    // -------------------------------------------- //
-    // Tag parsing
-    // -------------------------------------------- //
-
     public String parseTags(String str) {
         return replaceTags(str, this.tags);
     }

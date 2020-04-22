@@ -63,7 +63,7 @@ public class CmdStuck extends FCommand {
 
                     // check for world difference or radius exceeding
                     final World world = chunk.getWorld();
-                    if (world.getUID() != player.getWorld().getUID() || sentAt.distance(player.getLocation()) > radius) {
+                    if (!world.equals(player.getWorld()) || sentAt.distanceSquared(player.getLocation()) > radius * radius) {
                         context.msg(TL.COMMAND_STUCK_OUTSIDE.format(radius));
                         FactionsPlugin.getInstance().getTimers().remove(player.getUniqueId());
                         FactionsPlugin.getInstance().getStuckMap().remove(player.getUniqueId());
@@ -85,8 +85,8 @@ public class CmdStuck extends FCommand {
 
                             Faction faction = board.getFactionAt(chunk);
                             if (faction.isWilderness()) {
-                                int cx = FLocation.chunkToBlock((int) chunk.getX());
-                                int cz = FLocation.chunkToBlock((int) chunk.getZ());
+                                int cx = FLocation.chunkToBlock(chunk.getX());
+                                int cz = FLocation.chunkToBlock(chunk.getZ());
                                 int y = world.getHighestBlockYAt(cx, cz);
                                 Location tp = new Location(world, cx, y, cz);
                                 context.msg(TL.COMMAND_STUCK_TELEPORT, tp.getBlockX(), tp.getBlockY(), tp.getBlockZ());

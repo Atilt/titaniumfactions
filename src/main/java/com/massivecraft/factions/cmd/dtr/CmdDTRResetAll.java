@@ -1,5 +1,6 @@
 package com.massivecraft.factions.cmd.dtr;
 
+import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.Factions;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.cmd.CommandContext;
@@ -13,6 +14,7 @@ public class CmdDTRResetAll extends FCommand {
 
     public CmdDTRResetAll() {
         super();
+
         this.aliases.add("resetall");
 
         this.requirements = new CommandRequirements.Builder(Permission.MODIFY_DTR).build();
@@ -25,7 +27,9 @@ public class CmdDTRResetAll extends FCommand {
         }
 
         DTRControl dtr = (DTRControl) FactionsPlugin.getInstance().getLandRaidControl();
-        Factions.getInstance().getAllFactions().forEach(target -> target.setDTR(dtr.getMaxDTR(target)));
+        for (Faction faction : Factions.getInstance().getAllFactions()) {
+            faction.setDTR(dtr.getMaxDTR(faction));
+        }
         context.msg(TL.COMMAND_DTR_MODIFY_DONE, "EVERYONE", "MAX");
     }
 

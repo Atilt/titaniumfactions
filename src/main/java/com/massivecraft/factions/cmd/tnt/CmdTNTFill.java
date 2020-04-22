@@ -26,8 +26,10 @@ import java.util.List;
 public class CmdTNTFill extends FCommand {
     public CmdTNTFill() {
         super();
+
         this.aliases.add("fill");
         this.aliases.add("f");
+
         this.requiredArgs.add("radius");
         this.requiredArgs.add("amount");
 

@@ -8,6 +8,8 @@ import com.massivecraft.factions.util.TL;
 public class CmdVersion extends FCommand {
 
     public CmdVersion() {
+        super();
+
         this.aliases.add("version");
         this.aliases.add("ver");
 

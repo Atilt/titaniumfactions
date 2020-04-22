@@ -11,6 +11,11 @@ import com.massivecraft.factions.tag.FancyTag;
 import com.massivecraft.factions.tag.Tag;
 import com.massivecraft.factions.util.MiscUtil;
 import com.massivecraft.factions.util.TL;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import mkremins.fanciful.FancyMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -18,17 +23,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class CmdShow extends FCommand {
 
-    List<String> defaults = new ArrayList<>();
+    private final ObjectList<String> defaults = new ObjectArrayList<>();
 
     public CmdShow() {
         this.aliases.add("show");
@@ -94,7 +96,7 @@ public class CmdShow extends FCommand {
             return; // we only show header for non-normal factions
         }
 
-        List<String> messageList = new ArrayList<>();
+        ObjectList<String> messageList = new ObjectArrayList<>();
         for (String raw : show) {
             String parsed = Tag.parsePlain(faction, context.fPlayer, raw); // use relations
             if (parsed == null) {
@@ -110,8 +112,7 @@ public class CmdShow extends FCommand {
                     // replaces all variables with no home TL
                     parsed = parsed.substring(0, parsed.indexOf("{ig}")) + TL.COMMAND_SHOW_NOHOME.toString();
                 }
-                parsed = parsed.replace("%", ""); // Just in case it got in there before we disallowed it.
-                messageList.add(parsed);
+                messageList.add(parsed.replace("%", ""));
             }
         }
         if (context.fPlayer != null && this.groupPresent()) {
@@ -206,12 +207,17 @@ public class CmdShow extends FCommand {
             this.messageList = messageList;
             this.sender = sender;
             this.faction = faction;
-            this.players = faction.getFPlayers().stream().map(fp -> Bukkit.getOfflinePlayer(fp.getId())).collect(Collectors.toSet());
+
+            Set<FPlayer> players = faction.getFPlayers();
+            this.players = new ObjectOpenHashSet<>(players.size());
+            for (FPlayer player : players) {
+                this.players.add(Bukkit.getOfflinePlayer(player.getId()));
+            }
         }
 
         @Override
         public void run() {
-            Map<UUID, String> map = new HashMap<>();
+            Object2ObjectMap<UUID, String> map = new Object2ObjectOpenHashMap<>();
             for (OfflinePlayer player : this.players) {
                 map.put(player.getUniqueId(), FactionsPlugin.getInstance().getPrimaryGroup(player));
             }
@@ -234,7 +240,7 @@ public class CmdShow extends FCommand {
 
         @Override
         public void run() {
-            Player player = Bukkit.getPlayerExact(sender.getName());
+            Player player = Bukkit.getPlayer(sender.getName());
             if (player != null) {
                 CmdShow.this.sendMessages(messageList, player, faction, sender, map);
             }

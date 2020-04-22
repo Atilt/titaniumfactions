@@ -11,6 +11,7 @@ public class CmdOpen extends FCommand {
 
     public CmdOpen() {
         super();
+
         this.aliases.add("open");
 
         this.optionalArgs.put("yes/no", "flip");

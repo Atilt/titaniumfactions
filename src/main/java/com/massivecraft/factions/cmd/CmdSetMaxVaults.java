@@ -12,6 +12,8 @@ import org.bukkit.ChatColor;
 public class CmdSetMaxVaults extends FCommand {
 
     public CmdSetMaxVaults() {
+        super();
+
         this.aliases.add("setmaxvaults");
         this.aliases.add("smv");
 

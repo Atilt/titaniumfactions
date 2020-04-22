@@ -10,6 +10,7 @@ public class CmdDelWarp extends FCommand {
 
     public CmdDelWarp() {
         super();
+
         this.aliases.add("delwarp");
         this.aliases.add("dw");
         this.aliases.add("deletewarp");

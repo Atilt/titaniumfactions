@@ -13,7 +13,9 @@ public class CmdDTRModify extends FCommand {
 
     public CmdDTRModify() {
         super();
+
         this.aliases.add("modify");
+
         this.requiredArgs.add("faction");
         this.requiredArgs.add("amount");
 

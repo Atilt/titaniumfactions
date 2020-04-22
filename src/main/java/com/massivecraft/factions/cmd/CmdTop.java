@@ -8,9 +8,10 @@ import com.massivecraft.factions.integration.Econ;
 import com.massivecraft.factions.landraidcontrol.PowerControl;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -20,6 +21,7 @@ public class CmdTop extends FCommand {
 
     public CmdTop() {
         super();
+
         this.aliases.add("top");
         this.aliases.add("t");
 
@@ -120,7 +122,7 @@ public class CmdTop extends FCommand {
             return;
         }
 
-        ArrayList<String> lines = new ArrayList<>();
+        ObjectList<String> lines = new ObjectArrayList<>();
 
         final int pageheight = 9;
         int pagenumber = context.argAsInt(1, 1);
@@ -151,19 +153,19 @@ public class CmdTop extends FCommand {
 
     private String getValue(Faction faction, String criteria) {
         if (criteria.equalsIgnoreCase("online")) {
-            return String.valueOf(faction.getFPlayersWhereOnline(true).size());
+            return Integer.toString(faction.getFPlayersWhereOnline(true).size());
         } else if (criteria.equalsIgnoreCase("start")) {
             return TL.sdf.format(faction.getFoundedDate());
         } else if (criteria.equalsIgnoreCase("members")) {
-            return String.valueOf(faction.getFPlayers().size());
+            return Integer.toString(faction.getFPlayers().size());
         } else if (criteria.equalsIgnoreCase("land")) {
-            return String.valueOf(faction.getLandRounded());
+            return Double.toString(faction.getLandRounded());
         } else if (FactionsPlugin.getInstance().getLandRaidControl() instanceof PowerControl && criteria.equalsIgnoreCase("power")) {
-            return String.valueOf(faction.getPowerRounded());
+            return Double.toString(faction.getPowerRounded());
         } else { // Last one is balance, and it has 3 different things it could be.
             double balance = Econ.getBalance(faction.getAccountId());
             for (FPlayer fp : faction.getFPlayers()) {
-                balance = balance + Econ.getBalance(fp.getAccountId());
+                balance += Econ.getBalance(fp.getAccountId());
             }
             return Double.toString(balance);
         }

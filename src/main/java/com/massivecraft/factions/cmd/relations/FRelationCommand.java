@@ -21,8 +21,11 @@ public abstract class FRelationCommand extends FCommand {
 
     public FRelationCommand(Relation targetRelation, String alias) {
         super();
+
         this.targetRelation = targetRelation;
+
         this.aliases.add(alias);
+
         this.requiredArgs.add("faction tag");
 
         this.requirements = new CommandRequirements.Builder(Permission.RELATION)
@@ -106,15 +109,16 @@ public abstract class FRelationCommand extends FCommand {
     private boolean hasMaxRelations(Faction them, Relation targetRelation, CommandContext context) {
         if (FactionsPlugin.getInstance().conf().factions().maxRelations().isEnabled()) {
             int max = targetRelation.getMax();
-            if (max != -1) {
-                if (context.faction.getRelationCount(targetRelation) >= max) {
-                    context.msg(TL.COMMAND_RELATIONS_EXCEEDS_ME, max, targetRelation.getPluralTranslation());
-                    return true;
-                }
-                if (them.getRelationCount(targetRelation) >= max) {
-                    context.msg(TL.COMMAND_RELATIONS_EXCEEDS_THEY, max, targetRelation.getPluralTranslation());
-                    return true;
-                }
+            if (max == -1) {
+                return false;
+            }
+            if (context.faction.getRelationCount(targetRelation) >= max) {
+                context.msg(TL.COMMAND_RELATIONS_EXCEEDS_ME, max, targetRelation.getPluralTranslation());
+                return true;
+            }
+            if (them.getRelationCount(targetRelation) >= max) {
+                context.msg(TL.COMMAND_RELATIONS_EXCEEDS_THEY, max, targetRelation.getPluralTranslation());
+                return true;
             }
         }
         return false;

@@ -9,6 +9,7 @@ public class CmdCoords extends FCommand {
 
     public CmdCoords() {
         super();
+
         this.aliases.add("coords");
         this.aliases.add("coord");
 

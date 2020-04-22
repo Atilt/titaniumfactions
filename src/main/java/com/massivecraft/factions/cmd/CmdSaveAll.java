@@ -10,6 +10,7 @@ public class CmdSaveAll extends FCommand {
 
     public CmdSaveAll() {
         super();
+
         this.aliases.add("saveall");
         this.aliases.add("save");
 
@@ -20,8 +21,9 @@ public class CmdSaveAll extends FCommand {
     public void perform(CommandContext context) {
         FPlayers.getInstance().forceSave(null);
         Factions.getInstance().forceSave(null);
-        Board.getInstance().forceSave(null);
-        context.msg(TL.COMMAND_SAVEALL_SUCCESS);
+        Board.getInstance().forceSave(result -> {
+            context.msg(TL.COMMAND_SAVEALL_SUCCESS);
+        });
     }
 
     @Override

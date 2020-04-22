@@ -14,6 +14,7 @@ public class CmdOwner extends FCommand {
 
     public CmdOwner() {
         super();
+
         this.aliases.add("owner");
 
         this.optionalArgs.put("player", "you");

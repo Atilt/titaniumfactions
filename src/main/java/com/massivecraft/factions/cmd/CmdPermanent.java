@@ -12,6 +12,7 @@ public class CmdPermanent extends FCommand {
 
     public CmdPermanent() {
         super();
+
         this.aliases.add("permanent");
 
         this.requiredArgs.add("faction");
@@ -26,12 +27,11 @@ public class CmdPermanent extends FCommand {
             return;
         }
 
-        String change;
+        String change = TL.COMMAND_PERMANENT_GRANT.toString();
         if (faction.isPermanent()) {
             change = TL.COMMAND_PERMANENT_REVOKE.toString();
             faction.setPermanent(false);
         } else {
-            change = TL.COMMAND_PERMANENT_GRANT.toString();
             faction.setPermanent(true);
         }
 

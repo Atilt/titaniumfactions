@@ -10,6 +10,7 @@ public class CmdPowerBoost extends FCommand {
 
     public CmdPowerBoost() {
         super();
+
         this.aliases.add("powerboost");
 
         this.requiredArgs.add("p/f/player/faction");

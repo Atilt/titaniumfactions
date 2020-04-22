@@ -9,6 +9,7 @@ public class CmdPower extends FCommand {
 
     public CmdPower() {
         super();
+
         this.aliases.add("power");
         this.aliases.add("pow");
 
@@ -20,11 +21,7 @@ public class CmdPower extends FCommand {
     @Override
     public void perform(CommandContext context) {
         FPlayer target = context.argAsBestFPlayerMatch(0, context.fPlayer);
-        if (target == null) {
-            return;
-        }
-
-        if (target != context.fPlayer && !Permission.POWER_ANY.has(context.sender, true)) {
+        if (target == null || (target != context.fPlayer && !Permission.POWER_ANY.has(context.sender, true))) {
             return;
         }
 

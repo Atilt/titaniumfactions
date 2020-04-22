@@ -25,6 +25,7 @@ import java.util.logging.Level;
 public class CmdDebug extends FCommand {
     public CmdDebug() {
         super();
+
         this.aliases.add("debug");
         this.aliases.add("helpme");
         this.optionalArgs.put("mini/full", "full");

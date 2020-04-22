@@ -12,6 +12,7 @@ public class CmdChat extends FCommand {
 
     public CmdChat() {
         super();
+
         this.aliases.add("c");
         this.aliases.add("chat");
 

@@ -13,6 +13,7 @@ public class CmdMod extends FCommand {
 
     public CmdMod() {
         super();
+
         this.aliases.add("mod");
         this.aliases.add("setmod");
         this.aliases.add("officer");

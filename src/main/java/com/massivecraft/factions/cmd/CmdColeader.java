@@ -13,6 +13,7 @@ public class CmdColeader extends FCommand {
 
     public CmdColeader() {
         super();
+
         this.aliases.add("coleader");
         this.aliases.add("setcoleader");
         this.aliases.add("cl");

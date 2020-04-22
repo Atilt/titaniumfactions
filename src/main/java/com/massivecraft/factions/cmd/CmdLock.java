@@ -14,6 +14,7 @@ public class CmdLock extends FCommand {
 
     public CmdLock() {
         super();
+
         this.aliases.add("lock");
 
         this.optionalArgs.put("on/off", "flip");

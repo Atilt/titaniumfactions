@@ -19,12 +19,8 @@ import java.util.logging.Level;
 
 
 public class JSONBoard extends MemoryBoard {
-    private static transient File file = new File(FactionsPlugin.getInstance().getDataFolder(), "data/board.json");
 
-    // -------------------------------------------- //
-    // Persistance
-    // -------------------------------------------- //
-
+    private static final transient File FILE = new File(FactionsPlugin.getInstance().getDataFolder(), "data/board.json");
 
     //Map<World, <CompactCoord, FactionId>>
     public Map<String, Map<String, String>> dumpAsSaveFormat() {
@@ -54,12 +50,12 @@ public class JSONBoard extends MemoryBoard {
     }
 
     public void forceSave(boolean sync, BooleanConsumer finish) {
-        DiscUtil.writeCatch(file, FactionsPlugin.getInstance().getGson().toJson(dumpAsSaveFormat()), sync, finish);
+        DiscUtil.writeCatch(FILE, FactionsPlugin.getInstance().getGson().toJson(dumpAsSaveFormat()), sync, finish);
     }
 
     @Override
     public void load(IntConsumer loaded) {
-        if (!file.exists()) {
+        if (!FILE.exists()) {
             FactionsPlugin.getInstance().getLogger().info("No board to load from disk. Creating new file.");
             forceSave(null);
             loaded.accept(0);
@@ -67,7 +63,7 @@ public class JSONBoard extends MemoryBoard {
         }
         Bukkit.getScheduler().runTaskAsynchronously(FactionsPlugin.getInstance(), () -> {
             try {
-                Map<String, Map<String, String>> worldCoordIds = FactionsPlugin.getInstance().getGson().fromJson(DiscUtil.read(file), new TypeToken<Map<String, Map<String, String>>>(){}.getType());
+                Map<String, Map<String, String>> worldCoordIds = FactionsPlugin.getInstance().getGson().fromJson(DiscUtil.read(FILE), new TypeToken<Map<String, Map<String, String>>>(){}.getType());
 
                 Bukkit.getScheduler().runTask(FactionsPlugin.getInstance(), () -> {
                     loadFromSaveFormat(worldCoordIds);

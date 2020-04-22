@@ -11,14 +11,14 @@ import com.massivecraft.factions.util.WarmUpUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.UUID;
-
 public class CmdWarp extends FCommand {
 
     public CmdWarp() {
         super();
+
         this.aliases.add("warp");
         this.aliases.add("warps");
+
         this.optionalArgs.put("warp", "warp");
         this.optionalArgs.put("password", "password");
 
@@ -38,8 +38,7 @@ public class CmdWarp extends FCommand {
         }
 
         if (context.args.size() == 0) {
-            WarpGUI ui = new WarpGUI(context.fPlayer, context.faction);
-            ui.open();
+            new WarpGUI(context.fPlayer, context.faction).open();
         } else if (context.args.size() > 2) {
             context.msg(TL.COMMAND_FWARP_COMMANDFORMAT);
         } else {
@@ -62,10 +61,9 @@ public class CmdWarp extends FCommand {
                     return;
                 }
                 final FPlayer fPlayer = context.fPlayer;
-                final UUID uuid = context.fPlayer.getPlayer().getUniqueId();
+                Player player = context.fPlayer.getPlayer();
                 context.doWarmUp(WarmUpUtil.Warmup.WARP, TL.WARMUPS_NOTIFY_TELEPORT, warpName, () -> {
-                    Player player = Bukkit.getPlayer(uuid);
-                    if (player != null) {
+                    if (player.isOnline()) {
                         player.teleport(fPlayer.getFaction().getWarp(warpName).getLocation());
                         fPlayer.msg(TL.COMMAND_FWARP_WARPED, warpName);
                     }

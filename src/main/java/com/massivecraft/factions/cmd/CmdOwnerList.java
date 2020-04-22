@@ -11,6 +11,7 @@ public class CmdOwnerList extends FCommand {
 
     public CmdOwnerList() {
         super();
+
         this.aliases.add("ownerlist");
 
         this.requirements = new CommandRequirements.Builder(Permission.OWNERLIST)

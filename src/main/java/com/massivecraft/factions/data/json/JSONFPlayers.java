@@ -24,9 +24,7 @@ public class JSONFPlayers extends MemoryFPlayers {
         return FactionsPlugin.getInstance().getGson();
     }
 
-    public void setGson(Gson gson) {
-        // NOOP
-    }
+    public void setGson(Gson gson) {}
 
     private File file;
 

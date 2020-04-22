@@ -20,15 +20,15 @@ import com.massivecraft.factions.cmd.role.CmdPromote;
 import com.massivecraft.factions.landraidcontrol.DTRControl;
 import com.massivecraft.factions.landraidcontrol.PowerControl;
 import com.massivecraft.factions.util.TL;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import me.lucko.commodore.CommodoreProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 
 public class FCmdRoot extends FCommand implements CommandExecutor {
 
@@ -133,7 +133,7 @@ public class FCmdRoot extends FCommand implements CommandExecutor {
         }
 
         this.aliases.addAll(FactionsPlugin.getInstance().conf().getCommandBase());
-        this.aliases.removeAll(Collections.<String>singletonList(null));  // remove any nulls from extra commas
+        this.aliases.removeAll(ObjectLists.<String>singleton(null));  // remove any nulls from extra commas
 
         this.setHelpShort("The faction base command");
         this.helpLong.add(FactionsPlugin.getInstance().txt().parseTags("<i>This command contains all faction stuff."));
@@ -254,7 +254,7 @@ public class FCmdRoot extends FCommand implements CommandExecutor {
             return false;
         }
 
-        this.execute(new CommandContext(sender, new ArrayList<>(Arrays.asList(args)), label));
+        this.execute(new CommandContext(sender, new ObjectArrayList<>(Arrays.asList(args)), label));
         return true;
     }
 

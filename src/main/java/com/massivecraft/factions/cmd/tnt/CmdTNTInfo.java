@@ -9,6 +9,7 @@ import com.massivecraft.factions.util.TL;
 public class CmdTNTInfo extends FCommand {
     public CmdTNTInfo() {
         super();
+
         this.aliases.add("info");
         this.aliases.add("status");
 

@@ -14,6 +14,8 @@ import org.bukkit.ChatColor;
 public class CmdMoneyWithdraw extends MoneyCommand {
 
     public CmdMoneyWithdraw() {
+        super();
+
         this.aliases.add("w");
         this.aliases.add("withdraw");
 

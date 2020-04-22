@@ -6,10 +6,10 @@ import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.tag.Tag;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.bukkit.ChatColor;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,14 +23,13 @@ public abstract class FCommand {
     }
 
     public FactionsPlugin plugin;
-    public SimpleDateFormat sdf = new SimpleDateFormat(TL.DATE_FORMAT.toString());
 
     // Command Aliases
-    public List<String> aliases;
+    public ObjectList<String> aliases;
 
     // Information on the args
-    public List<String> requiredArgs;
-    public LinkedHashMap<String, String> optionalArgs;
+    public ObjectList<String> requiredArgs;
+    public Map<String, String> optionalArgs;
 
     // Requirements to execute this command
     public CommandRequirements requirements;
@@ -40,14 +39,14 @@ public abstract class FCommand {
 
         requirements = new CommandRequirements.Builder(null).build();
 
-        this.subCommands = new ArrayList<>();
-        this.aliases = new ArrayList<>();
+        this.subCommands = new ObjectArrayList<>();
+        this.aliases = new ObjectArrayList<>();
 
-        this.requiredArgs = new ArrayList<>();
+        this.requiredArgs = new ObjectArrayList<>();
         this.optionalArgs = new LinkedHashMap<>();
 
         this.helpShort = null;
-        this.helpLong = new ArrayList<>();
+        this.helpLong = new ObjectArrayList<>();
         this.visibility = CommandVisibility.VISIBLE;
     }
 
@@ -122,7 +121,7 @@ public abstract class FCommand {
     /*
         Help
      */
-    public List<String> helpLong;
+    public ObjectList<String> helpLong;
     public CommandVisibility visibility;
 
     private String helpShort;
@@ -145,16 +144,18 @@ public abstract class FCommand {
         Common Logic
      */
     public List<String> getToolTips(FPlayer player) {
-        List<String> lines = new ArrayList<>();
-        for (String s : FactionsPlugin.getInstance().conf().commands().toolTips().getPlayer()) {
+        List<String> tips = FactionsPlugin.getInstance().conf().commands().toolTips().getPlayer();
+        ObjectList<String> lines = new ObjectArrayList<>(tips.size());
+        for (String s : tips) {
             lines.add(ChatColor.translateAlternateColorCodes('&', Tag.parsePlain(player, s)));
         }
         return lines;
     }
 
     public List<String> getToolTips(Faction faction) {
-        List<String> lines = new ArrayList<>();
-        for (String s : FactionsPlugin.getInstance().conf().commands().toolTips().getFaction()) {
+        List<String> tips = FactionsPlugin.getInstance().conf().commands().toolTips().getFaction();
+        ObjectList<String> lines = new ObjectArrayList<>(tips.size());
+        for (String s : tips) {
             lines.add(ChatColor.translateAlternateColorCodes('&', Tag.parsePlain(faction, s)));
         }
         return lines;
@@ -175,7 +176,7 @@ public abstract class FCommand {
 
         ret.append(TextUtil.implode(this.aliases, ","));
 
-        List<String> args = new ArrayList<>();
+        ObjectList<String> args = new ObjectArrayList<>();
 
         for (String requiredArg : this.requiredArgs) {
             args.add("<" + requiredArg + ">");
@@ -207,5 +208,4 @@ public abstract class FCommand {
     public String getUsageTemplate(CommandContext context) {
         return getUsageTemplate(context, false);
     }
-
 }

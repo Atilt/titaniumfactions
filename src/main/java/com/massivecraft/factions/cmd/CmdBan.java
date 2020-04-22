@@ -15,6 +15,7 @@ public class CmdBan extends FCommand {
 
     public CmdBan() {
         super();
+
         this.aliases.add("ban");
 
         this.requiredArgs.add("target");

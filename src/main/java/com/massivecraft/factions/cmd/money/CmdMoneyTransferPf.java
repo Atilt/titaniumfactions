@@ -13,6 +13,8 @@ import org.bukkit.ChatColor;
 public class CmdMoneyTransferPf extends MoneyCommand {
 
     public CmdMoneyTransferPf() {
+        super();
+
         this.aliases.add("pf");
 
         this.requiredArgs.add("amount");
@@ -33,10 +35,7 @@ public class CmdMoneyTransferPf extends MoneyCommand {
         if (to == null) {
             return;
         }
-
-        boolean success = Econ.transferMoney(context.fPlayer, from, to, amount);
-
-        if (success && FactionsPlugin.getInstance().conf().logging().isMoneyTransactions()) {
+        if (Econ.transferMoney(context.fPlayer, from, to, amount) && FactionsPlugin.getInstance().conf().logging().isMoneyTransactions()) {
             FactionsPlugin.getInstance().log(ChatColor.stripColor(FactionsPlugin.getInstance().txt().parse(TL.COMMAND_MONEYTRANSFERPF_TRANSFER.toString(), context.fPlayer.getName(), Econ.moneyString(amount), from.describeTo(null), to.describeTo(null))));
         }
     }

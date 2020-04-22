@@ -10,6 +10,8 @@ import com.massivecraft.factions.util.TL;
 public class CmdSethome extends FCommand {
 
     public CmdSethome() {
+        super();
+
         this.aliases.add("sethome");
 
         this.requirements = new CommandRequirements.Builder(Permission.SETHOME)

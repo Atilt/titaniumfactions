@@ -9,6 +9,8 @@ import com.massivecraft.factions.util.TL;
 public class CmdDelhome extends FCommand {
 
     public CmdDelhome() {
+        super();
+
         this.aliases.add("delhome");
 
         this.requirements = new CommandRequirements.Builder(Permission.DELHOME)

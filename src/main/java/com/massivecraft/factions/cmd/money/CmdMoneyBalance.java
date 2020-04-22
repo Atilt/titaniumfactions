@@ -11,10 +11,10 @@ public class CmdMoneyBalance extends MoneyCommand {
 
     public CmdMoneyBalance() {
         super();
+
         this.aliases.add("b");
         this.aliases.add("balance");
 
-        //this.requiredArgs.add("");
         this.optionalArgs.put("faction", "yours");
 
         this.requirements = new CommandRequirements.Builder(Permission.MONEY_BALANCE).build();
@@ -29,13 +29,9 @@ public class CmdMoneyBalance extends MoneyCommand {
             faction = context.argAsFaction(0);
         }
 
-        if (faction == null) {
+        if (faction == null || (faction != context.faction && !Permission.MONEY_BALANCE_ANY.has(context.sender, true))) {
             return;
         }
-        if (faction != context.faction && !Permission.MONEY_BALANCE_ANY.has(context.sender, true)) {
-            return;
-        }
-
         if (context.fPlayer != null) {
             Econ.sendBalanceInfo(context.fPlayer, faction);
         } else {

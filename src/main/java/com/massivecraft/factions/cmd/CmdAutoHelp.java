@@ -8,6 +8,8 @@ import java.util.ArrayList;
 public class CmdAutoHelp extends FCommand {
 
     public CmdAutoHelp() {
+        super();
+
         this.aliases.add("?");
         this.aliases.add("h");
         this.aliases.add("help");

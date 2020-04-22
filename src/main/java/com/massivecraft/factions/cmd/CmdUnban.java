@@ -10,6 +10,7 @@ public class CmdUnban extends FCommand {
 
     public CmdUnban() {
         super();
+
         this.aliases.add("unban");
 
         this.requiredArgs.add("target");

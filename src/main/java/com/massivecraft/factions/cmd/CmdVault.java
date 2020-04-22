@@ -17,6 +17,8 @@ import org.bukkit.entity.Player;
 public class CmdVault extends FCommand {
 
     public CmdVault() {
+        super();
+
         this.aliases.add("vault");
 
         this.optionalArgs.put("number", "number");
@@ -69,7 +71,7 @@ public class CmdVault extends FCommand {
         } // end listing vaults.
 
         // Attempt to open vault.
-        if (VaultOperations.openOtherVault(player, vaultName, String.valueOf(number))) {
+        if (VaultOperations.openOtherVault(player, vaultName, Integer.toString(number))) {
             // Success
             PlayerVaults.getInstance().getInVault().put(player.getUniqueId().toString(), new VaultViewInfo(vaultName, number));
         }

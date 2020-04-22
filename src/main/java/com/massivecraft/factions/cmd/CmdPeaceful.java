@@ -10,6 +10,7 @@ public class CmdPeaceful extends FCommand {
 
     public CmdPeaceful() {
         super();
+
         this.aliases.add("peaceful");
 
         this.requiredArgs.add("faction");
@@ -24,12 +25,11 @@ public class CmdPeaceful extends FCommand {
             return;
         }
 
-        String change;
+        String change = TL.COMMAND_PEACEFUL_GRANT.toString();
         if (faction.isPeaceful()) {
             change = TL.COMMAND_PEACEFUL_REVOKE.toString();
             faction.setPeaceful(false);
         } else {
-            change = TL.COMMAND_PEACEFUL_GRANT.toString();
             faction.setPeaceful(true);
         }
 

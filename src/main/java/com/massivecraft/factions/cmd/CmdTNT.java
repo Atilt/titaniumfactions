@@ -13,6 +13,7 @@ public class CmdTNT extends FCommand {
 
     public CmdTNT() {
         super();
+
         this.aliases.add("tnt");
         this.aliases.add("trinitrotoluene");
 

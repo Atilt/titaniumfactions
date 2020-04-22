@@ -9,15 +9,16 @@ import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 public class CmdPerm extends FCommand {
 
     public CmdPerm() {
         super();
+
         this.aliases.add("perm");
         this.aliases.add("perms");
         this.aliases.add("permission");
@@ -36,12 +37,10 @@ public class CmdPerm extends FCommand {
     @Override
     public void perform(CommandContext context) {
         if (context.args.size() == 0) {
-            PermissibleRelationGUI ui = new PermissibleRelationGUI(true, context.fPlayer);
-            ui.open();
+            new PermissibleRelationGUI(true, context.fPlayer).open();
             return;
         } else if (context.args.size() == 1 && getPermissible(context.argAsString(0)) != null) {
-            PermissibleActionGUI ui = new PermissibleActionGUI(true, context.fPlayer, getPermissible(context.argAsString(0)));
-            ui.open();
+            new PermissibleActionGUI(true, context.fPlayer, getPermissible(context.argAsString(0))).open();
             return;
         }
 
@@ -51,8 +50,8 @@ public class CmdPerm extends FCommand {
             return;
         }
 
-        Set<Permissible> permissibles = new HashSet<>();
-        Set<PermissibleAction> permissibleActions = new HashSet<>();
+        ObjectSet<Permissible> permissibles = new ObjectOpenHashSet<>();
+        ObjectSet<PermissibleAction> permissibleActions = new ObjectOpenHashSet<>();
 
         boolean allRelations = context.argAsString(0).equalsIgnoreCase("all");
         boolean allActions = context.argAsString(1).equalsIgnoreCase("all");
@@ -112,13 +111,11 @@ public class CmdPerm extends FCommand {
     }
 
     private Permissible getPermissible(String name) {
-        if (Role.fromString(name.toUpperCase()) != null) {
-            return Role.fromString(name.toUpperCase());
-        } else if (Relation.fromString(name.toUpperCase()) != null) {
-            return Relation.fromString(name.toUpperCase());
-        } else {
-            return null;
+        Role role = Role.fromString(name.toUpperCase());
+        if (role != null) {
+            return role;
         }
+        return Relation.fromString(name.toUpperCase());
     }
 
     @Override
