@@ -35,5 +35,8 @@ public interface FactionsAPI {
 
     Set<String> getPlayersInFaction(String factionTag);
 
+    @Deprecated
     Set<String> getOnlinePlayersInFaction(String factionTag);
+
+    Set<Player> getRawOnlinePlayersInFaction(String factionTag);
 }

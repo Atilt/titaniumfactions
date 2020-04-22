@@ -1,4 +1,4 @@
-package com.massivecraft.factions.util;
+package com.massivecraft.factions.data.json.adapters;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;

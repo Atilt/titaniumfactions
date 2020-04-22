@@ -8,6 +8,10 @@ import com.massivecraft.factions.cmd.FCmdRoot;
 import com.massivecraft.factions.config.ConfigManager;
 import com.massivecraft.factions.config.file.MainConfig;
 import com.massivecraft.factions.data.SaveTask;
+import com.massivecraft.factions.data.json.adapters.EnumTypeAdapter;
+import com.massivecraft.factions.data.json.adapters.MapFLocToStringSetTypeAdapter;
+import com.massivecraft.factions.data.json.adapters.MyLocationTypeAdapter;
+import com.massivecraft.factions.data.json.adapters.UUIDTypeAdapter;
 import com.massivecraft.factions.event.FactionCreateEvent;
 import com.massivecraft.factions.event.FactionEvent;
 import com.massivecraft.factions.event.FactionRelationEvent;
@@ -35,17 +39,13 @@ import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.perms.PermissionsMapTypeAdapter;
 import com.massivecraft.factions.struct.ChatMode;
 import com.massivecraft.factions.util.AutoLeaveTask;
-import com.massivecraft.factions.util.EnumTypeAdapter;
 import com.massivecraft.factions.util.FlightUtil;
 import com.massivecraft.factions.util.LazyLocation;
-import com.massivecraft.factions.util.MapFLocToStringSetTypeAdapter;
-import com.massivecraft.factions.util.MyLocationTypeAdapter;
 import com.massivecraft.factions.util.PermUtil;
 import com.massivecraft.factions.util.Persist;
 import com.massivecraft.factions.util.SeeChunkUtil;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
-import com.massivecraft.factions.util.UUIDTypeAdapter;
 import com.massivecraft.factions.util.WorldUtil;
 import com.massivecraft.factions.util.material.FactionMaterial;
 import com.massivecraft.factions.util.material.MaterialDb;
@@ -1023,6 +1023,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     }
 
     // Get a list of all online players in the specified faction
+    @Deprecated
     @Override
     public Set<String> getOnlinePlayersInFaction(String factionTag) {
         Faction faction = Factions.getInstance().getByTag(factionTag);
@@ -1035,6 +1036,15 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             players.add(fplayer.getName());
         }
         return players;
+    }
+
+    @Override
+    public Set<Player> getRawOnlinePlayersInFaction(String factionTag) {
+        Faction faction = Factions.getInstance().getByTag(factionTag);
+        if (faction == null) {
+            return ObjectSets.emptySet();
+        }
+        return new ObjectOpenHashSet<>(faction.getOnlinePlayers());
     }
 
     public boolean isHookedPlayervaults() {

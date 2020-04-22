@@ -16,11 +16,11 @@ import com.massivecraft.factions.config.transition.oldclass.v0.OldPermissionsMap
 import com.massivecraft.factions.config.transition.oldclass.v0.TransitionConfigV0;
 import com.massivecraft.factions.config.transition.oldclass.v1.OldMainConfigV1;
 import com.massivecraft.factions.config.transition.oldclass.v1.TransitionConfigV1;
-import com.massivecraft.factions.util.EnumTypeAdapter;
+import com.massivecraft.factions.data.json.adapters.EnumTypeAdapter;
+import com.massivecraft.factions.data.json.adapters.MapFLocToStringSetTypeAdapter;
+import com.massivecraft.factions.data.json.adapters.MyLocationTypeAdapter;
+import com.massivecraft.factions.data.json.adapters.UUIDTypeAdapter;
 import com.massivecraft.factions.util.LazyLocation;
-import com.massivecraft.factions.util.MapFLocToStringSetTypeAdapter;
-import com.massivecraft.factions.util.MyLocationTypeAdapter;
-import com.massivecraft.factions.util.UUIDTypeAdapter;
 import com.massivecraft.factions.util.material.FactionMaterial;
 import com.massivecraft.factions.util.material.adapter.FactionMaterialAdapter;
 import com.massivecraft.factions.util.material.adapter.MaterialAdapter;
