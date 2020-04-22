@@ -1,11 +1,13 @@
 package com.massivecraft.factions.util;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import mkremins.fanciful.FancyMessage;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -13,11 +15,7 @@ import java.util.regex.Pattern;
 
 public class TextUtil {
 
-    public Map<String, String> tags;
-
-    public TextUtil() {
-        this.tags = new HashMap<>();
-    }
+    private final Object2ObjectMap<String, String> tags = new Object2ObjectOpenHashMap<>();
 
     // -------------------------------------------- //
     // Top-level parsing functions.
@@ -39,19 +37,15 @@ public class TextUtil {
         return replaceTags(str, this.tags);
     }
 
-    public static final transient Pattern patternTag = Pattern.compile("<([a-zA-Z0-9_]*)>");
+    public static final transient Pattern PATTERN_TAG = Pattern.compile("<([a-zA-Z0-9_]*)>");
 
     public static String replaceTags(String str, Map<String, String> tags) {
         StringBuffer ret = new StringBuffer();
-        Matcher matcher = patternTag.matcher(str);
+        Matcher matcher = PATTERN_TAG.matcher(str);
         while (matcher.find()) {
             String tag = matcher.group(1);
             String repl = tags.get(tag);
-            if (repl == null) {
-                matcher.appendReplacement(ret, "<" + tag + ">");
-            } else {
-                matcher.appendReplacement(ret, repl);
-            }
+            matcher.appendReplacement(ret, repl == null ? "<" + tag + ">" : repl);
         }
         matcher.appendTail(ret);
         return ret.toString();
@@ -105,18 +99,17 @@ public class TextUtil {
     // Color parsing
     // -------------------------------------------- //
 
-    public static String parseColor(String string) {
-        string = parseColorAmp(string);
-        string = parseColorAcc(string);
-        string = parseColorTags(string);
+    public static String parseColorBukkit(String string) {
         return ChatColor.translateAlternateColorCodes('&', string);
     }
 
+    public static String parseColor(String string) {
+        return parseColorTags(parseColorAcc(parseColorBukkit(string)));
+    }
+
+    @Deprecated
     public static String parseColorAmp(String string) {
-        string = string.replaceAll("(§([a-z0-9]))", "\u00A7$2");
-        string = string.replaceAll("(&([a-z0-9]))", "\u00A7$2");
-        string = string.replace("&&", "&");
-        return string;
+        return parseColorBukkit(string);
     }
 
     public static String parseColorAcc(String string) {
@@ -183,30 +176,21 @@ public class TextUtil {
         }
     }
 
-    public ArrayList<String> getPage(List<String> lines, int pageHumanBased, String title) {
-        ArrayList<String> ret = new ArrayList<>();
+    public List<String> getPage(List<String> lines, int pageHumanBased, String title) {
+        ObjectList<String> ret = new ObjectArrayList<>();
         int pageZeroBased = pageHumanBased - 1;
         int pageheight = 9;
         int pagecount = (lines.size() / pageheight) + 1;
 
         ret.add(this.titleize(title + " " + pageHumanBased + "/" + pagecount));
 
-        if (pagecount == 0) {
-            ret.add(this.parseTags(TL.NOPAGES.toString()));
-            return ret;
-        } else if (pageZeroBased < 0 || pageHumanBased > pagecount) {
+        if (pageZeroBased < 0 || pageHumanBased > pagecount) {
             ret.add(this.parseTags(TL.INVALIDPAGE.format(pagecount)));
             return ret;
         }
 
         int from = pageZeroBased * pageheight;
-        int to = from + pageheight;
-        if (to > lines.size()) {
-            to = lines.size();
-        }
-
-        ret.addAll(lines.subList(from, to));
-
+        ret.addAll(lines.subList(from, Math.min(from + pageheight, lines.size())));
         return ret;
     }
 }

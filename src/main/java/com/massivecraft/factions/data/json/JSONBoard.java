@@ -25,6 +25,8 @@ public class JSONBoard extends MemoryBoard {
     // Persistance
     // -------------------------------------------- //
 
+
+    //Map<World, <CompactCoord, FactionId>>
     public Map<String, Map<String, String>> dumpAsSaveFormat() {
         Map<String, Map<String, String>> worldCoordIds = new HashMap<>(flocationIds.size());
 
@@ -35,6 +37,7 @@ public class JSONBoard extends MemoryBoard {
         return worldCoordIds;
     }
 
+    //world, //
     public void loadFromSaveFormat(Map<String, Map<String, String>> worldCoordIds) {
         flocationIds.clear();
 

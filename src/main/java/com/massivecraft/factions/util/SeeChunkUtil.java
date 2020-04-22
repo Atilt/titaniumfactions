@@ -42,8 +42,6 @@ public class SeeChunkUtil extends BukkitRunnable {
             }
             FPlayer fme = FPlayers.getInstance().getByPlayer(player);
             showPillars(player, fme, this.effect, useColor);
-
-            //implement this whole class as a bucket ??
         }
     }
 

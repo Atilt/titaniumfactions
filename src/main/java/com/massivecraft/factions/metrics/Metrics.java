@@ -1,4 +1,4 @@
-package com.massivecraft.factions.util;
+package com.massivecraft.factions.metrics;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

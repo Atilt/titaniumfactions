@@ -23,9 +23,6 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
 import mkremins.fanciful.FancyMessage;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -36,11 +33,15 @@ import java.util.Set;
 
 public abstract class MemoryBoard extends Board {
 
+    //this is what's being used to determine each chunk's ownership.
     public static class MemoryBoardMap extends Object2ObjectOpenHashMap<FLocation, String> {
         private static final long serialVersionUID = -6689617828610585368L;
 
 
-        //better implementation ?? probably? yes. setIdAt = 0.06%
+        //better implementation. setIdAt = 0.06%
+        //this is what's being used to save in json
+        //Multimap<FactionId, Chunk> aka Map<FactionId, Set<Chunk>>
+        //
         private final Multimap<String, FLocation> factionToLandMap = HashMultimap.create();
 
         @Override
@@ -128,11 +129,8 @@ public abstract class MemoryBoard extends Board {
     public void removeAt(FLocation flocation) {
         Faction faction = getFactionAt(flocation);
         faction.getWarps().values().removeIf(lazyLocation -> flocation.isInChunk(lazyLocation.getLocation()));
-        for (Entity entity : flocation.getChunk().getEntities()) {
-            if (entity.getType() != EntityType.PLAYER) {
-                continue;
-            }
-            FPlayer fPlayer = FPlayers.getInstance().getByPlayer((Player) entity);
+
+        for (FPlayer fPlayer : faction.getFPlayersWhereOnline(true)) {
             if (!fPlayer.isAdminBypassing() && fPlayer.isFlying()) {
                 fPlayer.setFlying(false);
             }
