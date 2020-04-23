@@ -47,7 +47,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class MemoryFaction implements Faction, EconomyParticipator {
-    protected String id = null;
+    protected int id = -10;
     protected boolean peacefulExplosionsEnabled;
     protected boolean permanent;
     protected String tag;
@@ -59,7 +59,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     protected long foundedDate;
     protected transient long lastPlayerLoggedOffTime;
     protected double powerBoost;
-    protected Map<String, Relation> relationWish = new HashMap<>();
+    protected Map<Integer, Relation> relationWish = new HashMap<>();
     protected Map<FLocation, Set<UUID>> claimOwnership = new ConcurrentHashMap<>();
     protected transient Set<FPlayer> fplayers = new HashSet<>();
     protected Set<UUID> invites = new HashSet<>();
@@ -151,10 +151,21 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     }
 
     public String getId() {
-        return id;
+        return Integer.toString(getIdRaw());
     }
 
+    @Override
+    public int getIdRaw() {
+        return this.id;
+    }
+
+    @Override
     public void setId(String id) {
+        this.setIdRaw(Integer.parseInt(id));
+    }
+
+    @Override
+    public void setIdRaw(int id) {
         this.id = id;
     }
 
@@ -342,11 +353,6 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         return deaths;
     }
 
-    // -------------------------------------------- //
-    // F Permissions stuff
-    // -------------------------------------------- //
-
-
     public boolean hasAccess(boolean online, Permissible permissible, PermissibleAction permissibleAction) {
         if (permissible == null || permissibleAction == null) {
             return false; // Fail in a safe way
@@ -521,7 +527,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     protected MemoryFaction() {
     }
 
-    public MemoryFaction(String id) {
+    public MemoryFaction(int id) {
         this.id = id;
         this.open = FactionsPlugin.getInstance().conf().factions().other().isNewFactionsDefaultOpen();
         this.tag = "???";
@@ -585,19 +591,19 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     }
 
     public boolean isNone() {
-        return this.getId().equals("0");
+        return this.id == 0;
     }
 
     public boolean isWilderness() {
-        return this.getId().equals("0");
+        return this.id == 0;
     }
 
     public boolean isSafeZone() {
-        return this.getId().equals("-1");
+        return this.id == -1;
     }
 
     public boolean isWarZone() {
-        return this.getId().equals("-2");
+        return this.id == -2;
     }
 
     public boolean isPlayerFreeType() {
@@ -634,15 +640,15 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     }
 
     public Relation getRelationWish(Faction otherFaction) {
-        return this.relationWish.getOrDefault(otherFaction.getId(), Relation.fromString(FactionsPlugin.getInstance().conf().factions().other().getDefaultRelation()));
+        return this.relationWish.getOrDefault(otherFaction.getIdRaw(), Relation.fromString(FactionsPlugin.getInstance().conf().factions().other().getDefaultRelation()));
     }
 
     public void setRelationWish(Faction otherFaction, Relation relation) {
         if (relation == Relation.NEUTRAL) {
-            this.relationWish.remove(otherFaction.getId());
+            this.relationWish.remove(otherFaction.getIdRaw());
             return;
         }
-        this.relationWish.put(otherFaction.getId(), relation);
+        this.relationWish.put(otherFaction.getIdRaw(), relation);
     }
 
     public int getRelationCount(Relation relation) {
@@ -795,7 +801,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         }
 
         for (FPlayer fplayer : FPlayers.getInstance().getAllFPlayers()) {
-            if (fplayer.getFactionId().equalsIgnoreCase(id)) {
+            if (fplayer.getFactionIdRaw() == id) {
                 fplayers.add(fplayer);
             }
         }
@@ -969,7 +975,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
                 fplayer.msg(TL.LEAVE_DISBANDED, this.getTag(fplayer));
             }
 
-            Factions.getInstance().removeFaction(getId());
+            Factions.getInstance().removeFaction(getIdRaw());
         } else { // promote new faction admin
             if (oldLeader != null) {
                 oldLeader.setRole(Role.COLEADER);
@@ -1028,7 +1034,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     }
 
     public void clearClaimOwnership(FPlayer player) {
-        if (id == null || id.isEmpty()) {
+        if (id == -10) {
             return;
         }
 
@@ -1135,7 +1141,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         }
 
         // Clean the board
-        ((MemoryBoard) Board.getInstance()).clean(id);
+        ((MemoryBoard) Board.getInstance()).cleanRaw(id);
 
         for (FPlayer fPlayer : fplayers) {
             fPlayer.resetFactionData(false);

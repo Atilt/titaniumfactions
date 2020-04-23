@@ -5,6 +5,7 @@ import com.massivecraft.factions.Board;
 import com.massivecraft.factions.FLocation;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.data.MemoryBoard;
+import com.massivecraft.factions.data.json.adapters.MapFLocToStringSetTypeAdapter;
 import com.massivecraft.factions.util.DiscUtil;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import org.bukkit.Bukkit;
@@ -22,11 +23,11 @@ public class JSONBoard extends MemoryBoard {
 
     private static final transient File FILE = new File(FactionsPlugin.getInstance().getDataFolder(), "data/board.json");
 
-    //Map<World, <CompactCoord, FactionId>>
-    public Map<String, Map<String, String>> dumpAsSaveFormat() {
-        Map<String, Map<String, String>> worldCoordIds = new HashMap<>(flocationIds.size());
+    //Map<World, Map<CompactCoord, FactionId>>
+    public Map<String, Map<String, Integer>> dumpAsSaveFormat() {
+        Map<String, Map<String, Integer>> worldCoordIds = new HashMap<>(flocationIds.size());
 
-        for (Entry<FLocation, String> entry : flocationIds.entrySet()) {
+        for (Entry<FLocation, Integer> entry : flocationIds.entrySet()) {
             worldCoordIds.computeIfAbsent(entry.getKey().getWorldName(), s -> new TreeMap<>()).put(entry.getKey().getCoordString(), entry.getValue());
         }
 
@@ -34,12 +35,12 @@ public class JSONBoard extends MemoryBoard {
     }
 
     //world, //
-    public void loadFromSaveFormat(Map<String, Map<String, String>> worldCoordIds) {
+    public void loadFromSaveFormat(Map<String, Map<String, Integer>> worldCoordIds) {
         flocationIds.clear();
 
-        for (Entry<String, Map<String, String>> entry : worldCoordIds.entrySet()) {
-            for (Entry<String, String> entry2 : entry.getValue().entrySet()) {
-                String[] coords = entry2.getKey().trim().split("[,\\s]+");
+        for (Entry<String, Map<String, Integer>> entry : worldCoordIds.entrySet()) {
+            for (Entry<String, Integer> entry2 : entry.getValue().entrySet()) {
+                String[] coords = MapFLocToStringSetTypeAdapter.COORDINATE_PATTERN.split(entry2.getKey().trim());
                 flocationIds.put(FLocation.wrap(entry.getKey(), Integer.parseInt(coords[0]), Integer.parseInt(coords[1])), entry2.getValue());
             }
         }
@@ -50,7 +51,7 @@ public class JSONBoard extends MemoryBoard {
     }
 
     public void forceSave(boolean sync, BooleanConsumer finish) {
-        DiscUtil.writeCatch(FILE, FactionsPlugin.getInstance().getGson().toJson(dumpAsSaveFormat()), sync, finish);
+        DiscUtil.writeCatch(FILE, FactionsPlugin.getInstance().getGson(), dumpAsSaveFormat(), sync, finish);
     }
 
     @Override
@@ -63,7 +64,7 @@ public class JSONBoard extends MemoryBoard {
         }
         Bukkit.getScheduler().runTaskAsynchronously(FactionsPlugin.getInstance(), () -> {
             try {
-                Map<String, Map<String, String>> worldCoordIds = FactionsPlugin.getInstance().getGson().fromJson(DiscUtil.read(FILE), new TypeToken<Map<String, Map<String, String>>>(){}.getType());
+                Map<String, Map<String, Integer>> worldCoordIds = FactionsPlugin.getInstance().getGson().fromJson(DiscUtil.read(FILE), new TypeToken<Map<String, Map<String, Integer>>>(){}.getType());
 
                 Bukkit.getScheduler().runTask(FactionsPlugin.getInstance(), () -> {
                     loadFromSaveFormat(worldCoordIds);

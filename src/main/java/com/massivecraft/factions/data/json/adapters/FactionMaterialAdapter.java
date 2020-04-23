@@ -1,4 +1,4 @@
-package com.massivecraft.factions.util.material.adapter;
+package com.massivecraft.factions.data.json.adapters;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;

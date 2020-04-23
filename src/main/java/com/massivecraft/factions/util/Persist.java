@@ -101,7 +101,9 @@ public class Persist {
     }
 
     public boolean save(Object instance, File file, BooleanConsumer finish) {
-        return DiscUtil.writeCatch(file, plugin.getGson().toJson(instance), true, finish);
+        DiscUtil.writeCatch(file, plugin.getGson(), instance, true, finish);
+        return true;
+       // return DiscUtil.writeCatch(file, plugin.getGson().toJson(instance), true, finish);
     }
 
     public boolean save(Object instance, File file) {

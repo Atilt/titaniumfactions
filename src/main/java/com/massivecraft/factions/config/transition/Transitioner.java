@@ -17,13 +17,13 @@ import com.massivecraft.factions.config.transition.oldclass.v0.TransitionConfigV
 import com.massivecraft.factions.config.transition.oldclass.v1.OldMainConfigV1;
 import com.massivecraft.factions.config.transition.oldclass.v1.TransitionConfigV1;
 import com.massivecraft.factions.data.json.adapters.EnumTypeAdapter;
+import com.massivecraft.factions.data.json.adapters.FactionMaterialAdapter;
 import com.massivecraft.factions.data.json.adapters.MapFLocToStringSetTypeAdapter;
+import com.massivecraft.factions.data.json.adapters.MaterialAdapter;
 import com.massivecraft.factions.data.json.adapters.MyLocationTypeAdapter;
 import com.massivecraft.factions.data.json.adapters.UUIDTypeAdapter;
 import com.massivecraft.factions.util.LazyLocation;
 import com.massivecraft.factions.util.material.FactionMaterial;
-import com.massivecraft.factions.util.material.adapter.FactionMaterialAdapter;
-import com.massivecraft.factions.util.material.adapter.MaterialAdapter;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import org.bukkit.Material;

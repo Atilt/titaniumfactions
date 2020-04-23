@@ -48,7 +48,10 @@ public interface Faction extends EconomyParticipator {
 
     Set<UUID> getInvites();
 
+    @Deprecated
     String getId();
+
+    int getIdRaw();
 
     void invite(FPlayer fplayer);
 
@@ -281,12 +284,12 @@ public interface Faction extends EconomyParticipator {
 
     boolean playerHasOwnershipRights(FPlayer fplayer, FLocation loc);
 
-    // ----------------------------------------------//
-    // Persistance and entity management
-    // ----------------------------------------------//
     void remove();
 
     Set<FLocation> getAllClaims();
 
+    @Deprecated
     void setId(String id);
+
+    void setIdRaw(int id);
 }

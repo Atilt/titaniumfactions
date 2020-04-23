@@ -59,7 +59,7 @@ import java.util.UUID;
 
 public abstract class MemoryFPlayer implements FPlayer {
 
-    protected String factionId;
+    protected int factionId;
     protected Role role;
     protected String title;
     protected double power;
@@ -106,18 +106,25 @@ public abstract class MemoryFPlayer implements FPlayer {
     }
 
     public Faction getFaction() {
-        if (this.factionId == null) {
+        if (this.factionId == -10) {
             this.factionId = MemoryBoard.NO_ID;
         }
         return Factions.getInstance().getFactionById(this.factionId);
     }
 
+    @Deprecated
+    @Override
     public String getFactionId() {
+        return Integer.toString(this.factionId);
+    }
+
+    @Override
+    public int getFactionIdRaw() {
         return this.factionId;
     }
 
     public boolean hasFaction() {
-        return !factionId.equals(MemoryBoard.NO_ID);
+        return factionId != -10 && factionId != MemoryBoard.NO_ID;
     }
 
     public void setFaction(Faction faction) {
@@ -126,7 +133,7 @@ public abstract class MemoryFPlayer implements FPlayer {
             oldFaction.removeFPlayer(this);
         }
         faction.addFPlayer(this);
-        this.factionId = faction.getId();
+        this.factionId = faction.getIdRaw();
     }
 
     public void setMonitorJoins(boolean monitor) {
@@ -240,7 +247,7 @@ public abstract class MemoryFPlayer implements FPlayer {
     }
 
     public ChatMode getChatMode() {
-        if (this.chatMode == null || this.factionId.equals(MemoryBoard.NO_ID) || !FactionsPlugin.getInstance().conf().factions().chat().isFactionOnlyChat()) {
+        if (this.chatMode == null || this.factionId == -10 || this.factionId == MemoryBoard.NO_ID || !FactionsPlugin.getInstance().conf().factions().chat().isFactionOnlyChat()) {
             this.chatMode = ChatMode.PUBLIC;
         }
         return chatMode;
@@ -286,7 +293,7 @@ public abstract class MemoryFPlayer implements FPlayer {
         this.mapHeight = FactionsPlugin.getInstance().conf().map().getHeight();
 
         if (!FactionsPlugin.getInstance().conf().factions().other().getNewPlayerStartingFactionID().equals("0") && Factions.getInstance().isValidFactionId(FactionsPlugin.getInstance().conf().factions().other().getNewPlayerStartingFactionID())) {
-            this.factionId = FactionsPlugin.getInstance().conf().factions().other().getNewPlayerStartingFactionID();
+            this.factionId = Integer.parseInt(FactionsPlugin.getInstance().conf().factions().other().getNewPlayerStartingFactionID());
         }
     }
 
@@ -314,7 +321,7 @@ public abstract class MemoryFPlayer implements FPlayer {
 
     public void resetFactionData(boolean doSpoutUpdate) {
         // clean up any territory ownership in old faction, if there is one
-        if (factionId != null && Factions.getInstance().isValidFactionId(this.getFactionId())) {
+        if (factionId != -10 && Factions.getInstance().isValidFactionId(this.getFactionIdRaw())) {
             Faction currentFaction = this.getFaction();
             currentFaction.removeFPlayer(this);
             if (currentFaction.isNormal()) {
@@ -322,7 +329,7 @@ public abstract class MemoryFPlayer implements FPlayer {
             }
         }
 
-        this.factionId = "0"; // The default neutral faction
+        this.factionId = 0; // The default neutral faction
         this.chatMode = ChatMode.PUBLIC;
         this.role = Role.NORMAL;
         this.title = "";
@@ -706,9 +713,9 @@ public abstract class MemoryFPlayer implements FPlayer {
                 fplayer.msg(TL.LEAVE_DISBANDED, myFaction.describeTo(fplayer, true));
             }
 
-            Factions.getInstance().removeFaction(myFaction.getId());
+            Factions.getInstance().removeFaction(myFaction.getIdRaw());
             if (FactionsPlugin.getInstance().conf().logging().isFactionDisband()) {
-                FactionsPlugin.getInstance().log(TL.LEAVE_DISBANDEDLOG.format(myFaction.getTag(), myFaction.getId(), this.getName()));
+                FactionsPlugin.getInstance().log(TL.LEAVE_DISBANDEDLOG.format(myFaction.getTag(), myFaction.getIdRaw(), this.getName()));
             }
         }
     }

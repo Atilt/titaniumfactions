@@ -1,94 +1,66 @@
 package com.massivecraft.factions.util;
 
+import com.google.gson.Gson;
 import com.massivecraft.factions.FactionsPlugin;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.Bukkit;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.logging.Level;
 
 public class DiscUtil {
 
-    public static byte[] readBytes(File file) throws IOException {
-        int length = (int) file.length();
-        byte[] output = new byte[length];
-        try (InputStream in = new BufferedInputStream(new FileInputStream(file))) {
-            int offset = 0;
-            while (offset < length) {
-                offset += in.read(output, offset, (length - offset));
-            }
-        }
-        return output;
-    }
+    private static final Object2ObjectMap<String, Lock> LOCKS = new Object2ObjectOpenHashMap<>();
 
-    public static void writeBytes(File file, byte[] bytes) throws IOException {
-        if (!file.exists()) {
-            file.createNewFile();
-        }
-        try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
-            out.write(bytes);
-        }
-    }
-
-    public static void write(File file, String content) throws IOException {
-        writeBytes(file, content.getBytes(StandardCharsets.UTF_8));
+    private DiscUtil() {
+        throw new UnsupportedOperationException("This class cannot be instantiated");
     }
 
     public static String read(File file) throws IOException {
-        return new String(readBytes(file), StandardCharsets.UTF_8);
+        return new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
     }
 
-    private static final Object2ObjectMap<String, Lock> LOCKS = new Object2ObjectOpenHashMap<>();
-
-    public static boolean writeCatch(final File file, final String content, boolean sync, BooleanConsumer finish) {
-        String name = file.getName();
-
-        // Create lock for each file if there isn't already one.
-
-        Lock lock = LOCKS.computeIfAbsent(name, s -> new ReentrantReadWriteLock().writeLock());
-
+    public static <T> void writeCatch(File file, Gson gson, T data, boolean sync, BooleanConsumer finish) {
+        Lock lock = LOCKS.computeIfAbsent(file.getName(), s -> new ReentrantReadWriteLock().writeLock());
         if (sync) {
             lock.lock();
-            try {
-                write(file, content);
+            try (Writer writer = new FileWriter(file)) {
+                if (!file.exists()) {
+                    file.createNewFile();
+                }
+                gson.toJson(data, writer);
                 if (finish != null) finish.accept(true);
-            } catch (IOException e) {
-                FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to write file " + file.getAbsolutePath(), e);
+            } catch (IOException exception) {
+                exception.printStackTrace();
                 if (finish != null) finish.accept(false);
             } finally {
                 lock.unlock();
             }
         } else {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    lock.lock();
-                    try {
-                        write(file, content);
-                        if (finish != null) finish.accept(true);
-                    } catch (IOException e) {
-                        FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to write file " + file.getAbsolutePath(), e);
-                        if (finish != null) finish.accept(false);
-                    } finally {
-                        lock.unlock();
+            Bukkit.getScheduler().runTaskAsynchronously(FactionsPlugin.getInstance(), () -> {
+                lock.lock();
+                try (Writer writer = new FileWriter(file)) {
+                    if (!file.exists()) {
+                        file.createNewFile();
                     }
+                    gson.toJson(data, writer);
+                    if (finish != null) finish.accept(true);
+                } catch (IOException exception) {
+                    exception.printStackTrace();
+                    if (finish != null) finish.accept(false);
+                } finally {
+                    lock.unlock();
                 }
-            }.runTaskAsynchronously(FactionsPlugin.getInstance());
+            });
         }
-
-        return true; // don't really care but for some reason this is a boolean.
     }
 
     public static String readCatch(File file) {

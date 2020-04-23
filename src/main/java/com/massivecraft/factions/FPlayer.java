@@ -34,6 +34,8 @@ public interface FPlayer extends EconomyParticipator, Comparable<FPlayer> {
 
     String getFactionId();
 
+    int getFactionIdRaw();
+
     boolean hasFaction();
 
     void setFaction(Faction faction);

@@ -34,7 +34,7 @@ import java.util.Set;
 public abstract class MemoryBoard extends Board {
 
     //this is what's being used to determine each chunk's ownership.
-    public static class MemoryBoardMap extends Object2ObjectOpenHashMap<FLocation, String> {
+    public static class MemoryBoardMap extends Object2ObjectOpenHashMap<FLocation, Integer> {
         private static final long serialVersionUID = -6689617828610585368L;
 
 
@@ -42,11 +42,11 @@ public abstract class MemoryBoard extends Board {
         //this is what's being used to save in json
         //Multimap<FactionId, Chunk> aka Map<FactionId, Set<Chunk>>
         //
-        private final Multimap<String, FLocation> factionToLandMap = HashMultimap.create();
+        private final Multimap<Integer, FLocation> factionToLandMap = HashMultimap.create();
 
         @Override
-        public String put(FLocation floc, String factionId) {
-            String previousValue = super.put(floc, factionId);
+        public Integer put(FLocation floc, Integer factionId) {
+            Integer previousValue = super.put(floc, factionId);
             if (previousValue != null) { //if there was a previous value, then remove it from the multimap.
                 factionToLandMap.remove(previousValue, floc);
             }
@@ -56,8 +56,8 @@ public abstract class MemoryBoard extends Board {
         }
 
         @Override
-        public String remove(Object key) {
-            String result = super.remove(key);
+        public Integer remove(Object key) {
+            Integer result = super.remove(key);
             if (result != null) {
                 FLocation floc = (FLocation) key;
                 factionToLandMap.remove(result, floc);
@@ -72,11 +72,21 @@ public abstract class MemoryBoard extends Board {
             factionToLandMap.clear();
         }
 
+        @Deprecated
         public int getOwnedLandCount(String factionId) {
+            return getOwnedLandCount(Integer.parseInt(factionId));
+        }
+
+        public int getOwnedLandCount(int factionId) {
             return factionToLandMap.get(factionId).size();
         }
 
+        @Deprecated
         public void removeFaction(String factionId) {
+            removeFactionRaw(Integer.parseInt(factionId));
+        }
+
+        public void removeFactionRaw(int factionId) {
             Collection<FLocation> fLocations = factionToLandMap.removeAll(factionId);
             for (FPlayer fPlayer : FPlayers.getInstance().getOnlinePlayers()) {
                 if (fLocations.contains(fPlayer.getLastStoodAt())) {
@@ -98,21 +108,33 @@ public abstract class MemoryBoard extends Board {
     private static final char[] mapKeyChrs = "\\/#$%=&^ABCDEFGHJKLMNOPQRSTUVWXYZ1234567890abcdeghjmnopqrsuvwxyz?".toCharArray();
 
     public MemoryBoardMap flocationIds = new MemoryBoardMap();
-    public static final String NO_ID = "0";
+    public static final int NO_ID = 0;
 
+    @Deprecated
     public String getIdAt(FLocation flocation) {
-        String id = flocationIds.get(flocation);
-        return id == null ? NO_ID : id;
+        return Integer.toString(getIdAtRaw(flocation));
     }
 
+    public int getIdAtRaw(FLocation flocation) {
+        return flocationIds.getOrDefault(flocation, NO_ID);
+    }
+
+    @Override
     public Faction getFactionAt(FLocation flocation) {
-        return Factions.getInstance().getFactionById(getIdAt(flocation));
+        return Factions.getInstance().getFactionById(getIdAtRaw(flocation));
     }
 
+    @Deprecated
+    @Override
     public void setIdAt(String id, FLocation flocation) {
+        setIdAt(Integer.parseInt(id), flocation);
+    }
+
+    @Override
+    public void setIdAt(int id, FLocation flocation) {
         clearOwnershipAt(flocation);
 
-        if (id.equals(NO_ID)) {
+        if (id == NO_ID) {
             removeAt(flocation);
         }
 
@@ -120,7 +142,7 @@ public abstract class MemoryBoard extends Board {
     }
 
     public void setFactionAt(Faction faction, FLocation flocation) {
-        setIdAt(faction.getId(), flocation);
+        setIdAt(faction.getIdRaw(), flocation);
     }
 
     public void removeAt(FLocation flocation) {
@@ -143,10 +165,16 @@ public abstract class MemoryBoard extends Board {
         flocationIds.remove(flocation);
     }
 
+    @Deprecated
     public Set<FLocation> getAllClaims(String factionId) {
+        return getAllClaims(Integer.parseInt(factionId));
+    }
+
+    @Override
+    public Set<FLocation> getAllClaims(int factionId) {
         ObjectSet<FLocation> locs = new ObjectOpenHashSet<>();
-        for (Entry<FLocation, String> entry : flocationIds.entrySet()) {
-            if (entry.getValue().equals(factionId)) {
+        for (Entry<FLocation, Integer> entry : flocationIds.entrySet()) {
+            if (entry.getValue() == factionId) {
                 locs.add(entry.getKey());
             }
         }
@@ -166,15 +194,25 @@ public abstract class MemoryBoard extends Board {
     }
 
     public void unclaimAll(String factionId) {
+        unclaimAll(Integer.parseInt(factionId));
+    }
+
+    @Override
+    public void unclaimAll(int factionId) {
         Faction faction = Factions.getInstance().getFactionById(factionId);
         if (faction != null && faction.isNormal()) {
             faction.clearAllClaimOwnership();
             faction.clearWarps();
         }
-        clean(factionId);
+        cleanRaw(factionId);
     }
 
     public void unclaimAllInWorld(String factionId, World world) {
+        unclaimAllInWorld(Integer.parseInt(factionId), world);
+    }
+
+    @Override
+    public void unclaimAllInWorld(int factionId, World world) {
         for (FLocation loc : getAllClaims(factionId)) {
             if (loc.getWorldName().equals(world.getName())) {
                 removeAt(loc);
@@ -182,16 +220,21 @@ public abstract class MemoryBoard extends Board {
         }
     }
 
+    @Deprecated
     public void clean(String factionId) {
+        cleanRaw(Integer.parseInt(factionId));
+    }
+
+    public void cleanRaw(int factionId) {
         if (LWC.getEnabled() && FactionsPlugin.getInstance().conf().lwc().isResetLocksOnUnclaim()) {
-            for (Entry<FLocation, String> entry : flocationIds.entrySet()) {
-                if (entry.getValue().equals(factionId)) {
+            for (Entry<FLocation, Integer> entry : flocationIds.entrySet()) {
+                if (entry.getValue() == factionId) {
                     LWC.clearAllLocks(entry.getKey());
                 }
             }
         }
 
-        flocationIds.removeFaction(factionId);
+        flocationIds.removeFactionRaw(factionId);
     }
 
     // Is this coord NOT completely surrounded by coords claimed by the same faction?
@@ -239,9 +282,9 @@ public abstract class MemoryBoard extends Board {
     //----------------------------------------------//
 
     public void clean() {
-        Iterator<Entry<FLocation, String>> iter = flocationIds.entrySet().iterator();
+        Iterator<Entry<FLocation, Integer>> iter = flocationIds.entrySet().iterator();
         while (iter.hasNext()) {
-            Entry<FLocation, String> entry = iter.next();
+            Entry<FLocation, Integer> entry = iter.next();
             if (!Factions.getInstance().isValidFactionId(entry.getValue())) {
                 if (LWC.getEnabled() && FactionsPlugin.getInstance().conf().lwc().isResetLocksOnUnclaim()) {
                     LWC.clearAllLocks(entry.getKey());
@@ -256,19 +299,27 @@ public abstract class MemoryBoard extends Board {
     // Coord count
     //----------------------------------------------//
 
+    @Deprecated
+    @Override
     public int getFactionCoordCount(String factionId) {
+        return getFactionCoordCount(Integer.parseInt(factionId));
+    }
+
+    @Override
+    public int getFactionCoordCount(int factionId) {
         return flocationIds.getOwnedLandCount(factionId);
     }
 
+    @Override
     public int getFactionCoordCount(Faction faction) {
-        return getFactionCoordCount(faction.getId());
+        return getFactionCoordCount(faction.getIdRaw());
     }
 
     public int getFactionCoordCountInWorld(Faction faction, String worldName) {
-        String factionId = faction.getId();
+        int factionId = faction.getIdRaw();
         int ret = 0;
-        for (Entry<FLocation, String> entry : flocationIds.entrySet()) {
-            if (entry.getValue().equals(factionId) && entry.getKey().getWorldName().equals(worldName)) {
+        for (Entry<FLocation, Integer> entry : flocationIds.entrySet()) {
+            if (entry.getValue() == factionId && entry.getKey().getWorldName().equals(worldName)) {
                 ret++;
             }
         }
@@ -335,7 +386,7 @@ public abstract class MemoryBoard extends Board {
                             (FactionsPlugin.getInstance().conf().map().isShowEnemyFactions() && relation.equals(Relation.ENEMY)) ||
                             FactionsPlugin.getInstance().conf().map().isShowTruceFactions() && relation.equals(Relation.TRUCE)) {
                         if (!fList.containsKey(factionHere.getTag())) {
-                            fList.put(factionHere.getTag(), this.mapKeyChrs[Math.min(chrIdx++, this.mapKeyChrs.length - 1)]);
+                            fList.put(factionHere.getTag(), mapKeyChrs[Math.min(chrIdx++, mapKeyChrs.length - 1)]);
                         }
                         char tag = fList.get(factionHere.getTag());
                         row.then(String.valueOf(tag)).color(factionHere.getColorTo(faction));

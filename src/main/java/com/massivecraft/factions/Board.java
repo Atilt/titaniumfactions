@@ -28,22 +28,34 @@ public abstract class Board {
 
     public abstract Faction getFactionAt(FLocation flocation);
 
+    @Deprecated
     public abstract void setIdAt(String id, FLocation flocation);
+
+    public abstract void setIdAt(int id, FLocation fLocation);
 
     public abstract void setFactionAt(Faction faction, FLocation flocation);
 
     public abstract void removeAt(FLocation flocation);
 
+    @Deprecated
     public abstract Set<FLocation> getAllClaims(String factionId);
+
+    public abstract Set<FLocation> getAllClaims(int factionId);
 
     public abstract Set<FLocation> getAllClaims(Faction faction);
 
     // not to be confused with claims, ownership referring to further member-specific ownership of a claim
     public abstract void clearOwnershipAt(FLocation flocation);
 
+    @Deprecated
     public abstract void unclaimAll(String factionId);
 
+    public abstract void unclaimAll(int factionId);
+
+    @Deprecated
     public abstract void unclaimAllInWorld(String factionId, World world);
+
+    public abstract void unclaimAllInWorld(int factionId, World world);
 
     // Is this coord NOT completely surrounded by coords claimed by the same faction?
     // Simpler: Is there any nearby coord with a faction other than the faction here?
@@ -54,17 +66,12 @@ public abstract class Board {
 
     public abstract boolean hasFactionWithin(FLocation flocation, Faction faction, int radius);
 
-    //----------------------------------------------//
-    // Cleaner. Remove orphaned foreign keys
-    //----------------------------------------------//
-
     public abstract void clean();
 
-    //----------------------------------------------//
-    // Coord count
-    //----------------------------------------------//
-
+    @Deprecated
     public abstract int getFactionCoordCount(String factionId);
+
+    public abstract int getFactionCoordCount(int factionId);
 
     public abstract int getFactionCoordCount(Faction faction);
 

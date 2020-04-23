@@ -27,7 +27,7 @@ public abstract class MemoryFPlayers extends FPlayers {
 
     public void clean() {
         for (FPlayer fplayer : this.fPlayers.values()) {
-            if (!Factions.getInstance().isValidFactionId(fplayer.getFactionId())) {
+            if (!Factions.getInstance().isValidFactionId(fplayer.getFactionIdRaw())) {
                 FactionsPlugin.getInstance().log("Reset faction data (invalid faction:" + fplayer.getFactionId() + ") for player " + fplayer.getName());
                 fplayer.resetFactionData(false);
             }

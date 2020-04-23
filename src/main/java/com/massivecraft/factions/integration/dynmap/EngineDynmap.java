@@ -254,17 +254,11 @@ public class EngineDynmap {
         // Note: The board is the world. The board id is the world name.
         MemoryBoard board = (MemoryBoard) Board.getInstance();
 
-        for (Entry<FLocation, String> entry : board.flocationIds.entrySet()) {
+        for (Entry<FLocation, Integer> entry : board.flocationIds.entrySet()) {
             String world = entry.getKey().getWorldName();
             Faction chunkOwner = Factions.getInstance().getFactionById(entry.getValue());
-
-            Map<Faction, Set<FLocation>> factionChunks = worldFactionChunks.computeIfAbsent(world, k -> new HashMap<>());
-
-            Set<FLocation> factionTerritory = factionChunks.computeIfAbsent(chunkOwner, k -> new HashSet<>());
-
-            factionTerritory.add(entry.getKey());
+            worldFactionChunks.computeIfAbsent(world, k -> new HashMap<>()).computeIfAbsent(chunkOwner, k -> new HashSet<>()).add(entry.getKey());
         }
-
         return worldFactionChunks;
     }
 

@@ -9,7 +9,9 @@ import com.massivecraft.factions.config.ConfigManager;
 import com.massivecraft.factions.config.file.MainConfig;
 import com.massivecraft.factions.data.SaveTask;
 import com.massivecraft.factions.data.json.adapters.EnumTypeAdapter;
+import com.massivecraft.factions.data.json.adapters.FactionMaterialAdapter;
 import com.massivecraft.factions.data.json.adapters.MapFLocToStringSetTypeAdapter;
+import com.massivecraft.factions.data.json.adapters.MaterialAdapter;
 import com.massivecraft.factions.data.json.adapters.MyLocationTypeAdapter;
 import com.massivecraft.factions.data.json.adapters.UUIDTypeAdapter;
 import com.massivecraft.factions.event.FactionCreateEvent;
@@ -49,8 +51,6 @@ import com.massivecraft.factions.util.TextUtil;
 import com.massivecraft.factions.util.WorldUtil;
 import com.massivecraft.factions.util.material.FactionMaterial;
 import com.massivecraft.factions.util.material.MaterialDb;
-import com.massivecraft.factions.util.material.adapter.FactionMaterialAdapter;
-import com.massivecraft.factions.util.material.adapter.MaterialAdapter;
 import com.massivecraft.factions.util.particle.BukkitParticleProvider;
 import com.massivecraft.factions.util.particle.PacketParticleProvider;
 import com.massivecraft.factions.util.particle.ParticleProvider;
@@ -274,9 +274,9 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                 Factions.getInstance().load(loadedFactions -> {
                     getLogger().info("Loaded data for " + loadedFactions + " factions.");
                     for (FPlayer fPlayer : FPlayers.getInstance().getAllFPlayers()) {
-                        Faction faction = Factions.getInstance().getFactionById(fPlayer.getFactionId());
+                        Faction faction = Factions.getInstance().getFactionById(fPlayer.getFactionIdRaw());
                         if (faction == null) {
-                            log("Invalid faction id on " + fPlayer.getName() + ":" + fPlayer.getFactionId());
+                            log("Invalid faction id on " + fPlayer.getName() + ":" + fPlayer.getFactionIdRaw());
                             fPlayer.resetFactionData(false);
                             continue;
                         }

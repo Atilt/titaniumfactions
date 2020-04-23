@@ -41,22 +41,24 @@ public class JSONFactions extends MemoryFactions {
     }
 
     public void forceSave(boolean sync, BooleanConsumer finish) {
-        final Map<String, JSONFaction> entitiesThatShouldBeSaved = new HashMap<>();
+        Map<Integer, JSONFaction> entitiesThatShouldBeSaved = new HashMap<>(this.factions.size());
         for (Faction entity : this.factions.values()) {
-            entitiesThatShouldBeSaved.put(entity.getId(), (JSONFaction) entity);
+            entitiesThatShouldBeSaved.put(entity.getIdRaw(), (JSONFaction) entity);
         }
 
         saveCore(file, entitiesThatShouldBeSaved, sync, finish);
     }
 
-    private boolean saveCore(File target, Map<String, JSONFaction> entities, boolean sync, BooleanConsumer finish) {
-        return DiscUtil.writeCatch(target, FactionsPlugin.getInstance().getGson().toJson(entities), sync, finish);
+    private boolean saveCore(File target, Map<Integer, JSONFaction> entities, boolean sync, BooleanConsumer finish) {
+        DiscUtil.writeCatch(target, FactionsPlugin.getInstance().getGson(), entities, sync, finish);
+        return true;
+        //return DiscUtil.writeCatch(target, FactionsPlugin.getInstance().getGson().toJson(entities), sync, finish);
     }
 
     @Override
     public void load(IntConsumer loaded) {
         Bukkit.getScheduler().runTaskAsynchronously(FactionsPlugin.getInstance(), () -> {
-            Map<String, JSONFaction> factions = this.loadCore(null);
+            Map<Integer, JSONFaction> factions = this.loadCore(null);
             int amount = factions == null ? 0 : factions.size();
             Bukkit.getScheduler().runTask(FactionsPlugin.getInstance(), () -> {
                 this.factions.clear();
@@ -69,7 +71,7 @@ public class JSONFactions extends MemoryFactions {
         });
     }
 
-    private Map<String, JSONFaction> loadCore(BooleanConsumer finish) {
+    private Map<Integer, JSONFaction> loadCore(BooleanConsumer finish) {
         if (!this.file.exists()) {
             return new HashMap<>(0);
         }
@@ -78,7 +80,7 @@ public class JSONFactions extends MemoryFactions {
             return null;
         }
 
-        Map<String, JSONFaction> data = FactionsPlugin.getInstance().getGson().fromJson(content, new TypeToken<Map<String, JSONFaction>>(){}.getType());
+        Map<Integer, JSONFaction> data = FactionsPlugin.getInstance().getGson().fromJson(content, new TypeToken<Map<Integer, JSONFaction>>(){}.getType());
 
         this.nextId = 1;
         saveCore(this.file, data, true, finish); // Update the flatfile
@@ -100,44 +102,40 @@ public class JSONFactions extends MemoryFactions {
         return list;
     }
 
-    public String getNextId() {
+    public int getNextId() {
         while (!isIdFree(this.nextId)) {
             this.nextId++;
         }
-        return Integer.toString(this.nextId);
+        return this.nextId;
     }
-
-    public boolean isIdFree(String id) {
-        return !this.factions.containsKey(id);
-    }
-
     public boolean isIdFree(int id) {
-        return this.isIdFree(Integer.toString(id));
+        return this.factions.containsKey(id);
     }
 
-    protected synchronized void updateNextIdForId(int id) {
-        if (this.nextId < id) {
-            this.nextId = id + 1;
+    protected void updateNextIdForId(int id) {
+        synchronized (JSONFactions.class) {
+            if (this.nextId < id) {
+                this.nextId = id + 1;
+            }
         }
-    }
-
-    protected void updateNextIdForId(String id) {
-        try {
-            int idAsInt = Integer.parseInt(id);
-            this.updateNextIdForId(idAsInt);
-        } catch (NumberFormatException ignored) {}
     }
 
     @Override
     public Faction generateFactionObject() {
-        String id = getNextId();
+        int id = getNextId();
         Faction faction = new JSONFaction(id);
         updateNextIdForId(id);
         return faction;
     }
 
+    @Deprecated
     @Override
     public Faction generateFactionObject(String id) {
+        return generateFactionObject(Integer.parseInt(id));
+    }
+
+    @Override
+    public Faction generateFactionObject(int id) {
         return new JSONFaction(id);
     }
 

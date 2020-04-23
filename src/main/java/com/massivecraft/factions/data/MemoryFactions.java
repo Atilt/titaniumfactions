@@ -16,32 +16,43 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class MemoryFactions extends Factions {
-    public final Map<String, Faction> factions = new ConcurrentHashMap<>();
+
+    public final Map<Integer, Faction> factions = new ConcurrentHashMap<>();
     public int nextId = 1;
 
     public int load() {
         // Make sure the default neutral factions exists
 
-        Faction wilderness = factions.computeIfAbsent("0", s -> generateFactionObject("0"));
+        Faction wilderness = factions.computeIfAbsent(0, id -> generateFactionObject("0"));
         wilderness.setTag(TL.WILDERNESS.toString());
         wilderness.setDescription(TL.WILDERNESS_DESCRIPTION.toString());
 
-        Faction safezone = factions.computeIfAbsent("-1", s -> generateFactionObject("-1"));
+        Faction safezone = factions.computeIfAbsent(-1, s -> generateFactionObject("-1"));
         safezone.setTag(TL.SAFEZONE.toString().replace(" ", ""));
         safezone.setDescription(TL.SAFEZONE_DESCRIPTION.toString());
 
-        Faction warzone = factions.computeIfAbsent("-2", s -> generateFactionObject("-2"));
+        Faction warzone = factions.computeIfAbsent(-2, s -> generateFactionObject("-2"));
         warzone.setTag(TL.WARZONE.toString().replace(" ", ""));
         warzone.setDescription(TL.WARZONE_DESCRIPTION.toString());
 
         return 0;
     }
 
+    @Deprecated
+    @Override
     public Faction getFactionById(String id) {
+        return getFactionById(Integer.parseInt(id));
+    }
+
+    @Override
+    public Faction getFactionById(int id) {
         return factions.get(id);
     }
 
+    @Deprecated
     public abstract Faction generateFactionObject(String string);
+
+    public abstract Faction generateFactionObject(int id);
 
     public Faction getByTag(String str) {
         String compStr = MiscUtil.getComparisonString(str);
@@ -59,8 +70,7 @@ public abstract class MemoryFactions extends Factions {
         int minlength = start.length();
         Faction bestMatch = null;
         for (Faction faction : factions.values()) {
-            String candidate = faction.getTag();
-            candidate = ChatColor.stripColor(candidate);
+            String candidate = ChatColor.stripColor(faction.getTag());
             if (candidate.length() < minlength) {
                 continue;
             }
@@ -86,13 +96,20 @@ public abstract class MemoryFactions extends Factions {
         return this.getByTag(str) != null;
     }
 
+    @Deprecated
+    @Override
     public boolean isValidFactionId(String id) {
-        return factions.containsKey(id);
+        return isValidFactionId(Integer.parseInt(id));
+    }
+
+    @Override
+    public boolean isValidFactionId(int id) {
+        return this.factions.containsKey(id);
     }
 
     public Faction createFaction() {
         Faction faction = generateFactionObject();
-        factions.put(faction.getId(), faction);
+        factions.put(faction.getIdRaw(), faction);
         return faction;
     }
 
@@ -106,7 +123,14 @@ public abstract class MemoryFactions extends Factions {
 
     public abstract Faction generateFactionObject();
 
+    @Deprecated
+    @Override
     public void removeFaction(String id) {
+        removeFaction(Integer.parseInt(id));
+    }
+
+    @Override
+    public void removeFaction(int id) {
         factions.remove(id).remove();
     }
 
@@ -117,22 +141,22 @@ public abstract class MemoryFactions extends Factions {
 
     @Override
     public Faction getNone() {
-        return factions.get("0");
+        return factions.get(0);
     }
 
     @Override
     public Faction getWilderness() {
-        return factions.get("0");
+        return factions.get(0);
     }
 
     @Override
     public Faction getSafeZone() {
-        return factions.get("-1");
+        return factions.get(-1);
     }
 
     @Override
     public Faction getWarZone() {
-        return factions.get("-2");
+        return factions.get(-2);
     }
 
     public abstract void convertFrom(MemoryFactions old, BooleanConsumer finish);

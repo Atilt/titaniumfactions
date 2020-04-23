@@ -43,18 +43,13 @@ public class JSONFPlayers extends MemoryFPlayers {
     }
 
     public void forceSave(boolean sync, BooleanConsumer finish) {
-        Map<UUID, JSONFPlayer> entitiesThatShouldBeSaved = new HashMap<>();
+        Map<UUID, JSONFPlayer> entitiesThatShouldBeSaved = new HashMap<>(this.fPlayers.size());
         for (FPlayer entity : this.fPlayers.values()) {
             if (((MemoryFPlayer) entity).shouldBeSaved()) {
                 entitiesThatShouldBeSaved.put(entity.getId(), (JSONFPlayer) entity);
             }
         }
-
-        saveCore(file, entitiesThatShouldBeSaved, sync, finish);
-    }
-
-    private boolean saveCore(File target, Map<UUID, JSONFPlayer> data, boolean sync, BooleanConsumer finish) {
-        return DiscUtil.writeCatch(target, FactionsPlugin.getInstance().getGson().toJson(data), sync, finish);
+        DiscUtil.writeCatch(file, FactionsPlugin.getInstance().getGson(), entitiesThatShouldBeSaved, sync, finish);
     }
 
     @Override
