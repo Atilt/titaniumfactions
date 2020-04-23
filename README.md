@@ -10,8 +10,8 @@ High performance Factions fork that prioritizes efficiency, speed, and low memor
 - Faster query times for local and in-memory data
 - Faster math implementations for particles, chunk claiming, and block scanning
 - Faction, claim, and player data are loaded async
+- Faster, less intensive land fetching & claiming
 - Proper async implementations for local data saving
-- Optimized land fetching & claiming
 - Implements fast and low memory collections and maps
 
 ## Features
