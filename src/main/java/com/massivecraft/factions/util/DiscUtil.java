@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.locks.Lock;
@@ -31,15 +30,6 @@ public class DiscUtil {
             return gson.fromJson(reader, type);
         } catch (IOException exception) {
             exception.printStackTrace();
-        }
-        return null;
-    }
-
-    public static String readRaw(Path path) {
-        try {
-            return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         return null;
     }
