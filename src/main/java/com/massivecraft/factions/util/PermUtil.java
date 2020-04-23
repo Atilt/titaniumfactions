@@ -9,7 +9,7 @@ import org.bukkit.permissions.Permission;
 
 public class PermUtil {
 
-    public Object2ObjectMap<String, String> permissionDescriptions = new Object2ObjectOpenHashMap<>();
+    private final Object2ObjectMap<String, String> permissionDescriptions = new Object2ObjectOpenHashMap<>();
 
     protected FactionsPlugin plugin;
 
@@ -33,11 +33,7 @@ public class PermUtil {
     }
 
     public String getPermissionDescription(String perm) {
-        String desc = permissionDescriptions.get(perm);
-        if (desc == null) {
-            return TL.GENERIC_DOTHAT.toString();
-        }
-        return desc;
+        return permissionDescriptions.getOrDefault(perm, TL.GENERIC_DOTHAT.toString());
     }
 
     public boolean has(CommandSender me, String perm, boolean informSenderIfNot) {

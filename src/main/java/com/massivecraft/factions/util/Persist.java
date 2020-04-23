@@ -3,8 +3,10 @@ package com.massivecraft.factions.util;
 import com.massivecraft.factions.FactionsPlugin;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 
-import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.logging.Level;
 
 // TODO: Give better name and place to differentiate from the entity-orm-ish system in "com.massivecraft.core.persist".
@@ -34,127 +36,99 @@ public class Persist {
     }
 
     // ------------------------------------------------------------ //
-    // GET FILE - In which file would we like to store this object?
+    // GET Path - In which Path would we like to store this object?
     // ------------------------------------------------------------ //
 
-    public File getFile(String name) {
-        return new File(plugin.getDataFolder(), name + ".json");
+    public Path getPath(String name) {
+        return plugin.getDataFolder().toPath().resolve(name + ".json");
     }
 
-    public File getFile(Class<?> clazz) {
-        return getFile(getName(clazz));
+    public Path getPath(Class<?> clazz) {
+        return getPath(getName(clazz));
     }
 
-    public File getFile(Object obj) {
-        return getFile(getName(obj));
+    public Path getPath(Object obj) {
+        return getPath(getName(obj));
     }
 
-    public File getFile(Type type) {
-        return getFile(getName(type));
+    public Path getPath(Type type) {
+        return getPath(getName(type));
     }
-
-
-    // NICE WRAPPERS
 
     public <T> T loadOrSaveDefault(T def, Class<T> clazz) {
-        return loadOrSaveDefault(def, clazz, getFile(clazz));
+        return loadOrSaveDefault(def, clazz, getPath(clazz));
     }
 
     public <T> T loadOrSaveDefault(T def, Class<T> clazz, String name) {
-        return loadOrSaveDefault(def, clazz, getFile(name));
+        return loadOrSaveDefault(def, clazz, getPath(name));
     }
 
-    public <T> T loadOrSaveDefault(T def, Class<T> clazz, File file) {
-        if (!file.exists()) {
-            plugin.getLogger().info("Creating default: " + file);
-            this.save(def, file);
+    public <T> T loadOrSaveDefault(T def, Class<T> clazz, Path path) {
+        String name = path.getFileName().toString();
+        if (Files.notExists(path)) {
+            plugin.getLogger().info("Creating default: " + name);
+            this.save(def, path);
             return def;
         }
 
-        T loaded = this.load(clazz, file);
+        T loaded = this.load(clazz, path);
 
         if (loaded == null) {
-            plugin.log(Level.WARNING, "Using default as I failed to load: " + file);
+            plugin.log(Level.WARNING, "Using default as I failed to load: " + name);
 
-            // backup bad file, so user can attempt to recover their changes from it
-            File backup = new File(file.getPath() + "_bad");
-            if (backup.exists()) {
-                backup.delete();
+            // backup bad Path, so user can attempt to recover their changes from it
+            Path backup = path.resolve(name + "_bad");
+            try {
+                Files.deleteIfExists(backup);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            plugin.log(Level.WARNING, "Backing up copy of bad file to: " + backup);
-            file.renameTo(backup);
-
+            plugin.log(Level.WARNING, "Backing up copy of bad Path to: " + backup.getFileName().toString());
+            try {
+                Files.move(path, backup);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             return def;
         }
-
         return loaded;
     }
-
-    // SAVE
-
     public boolean save(Object instance) {
-        return save(instance, getFile(instance));
+        return save(instance, getPath(instance));
     }
 
     public boolean save(Object instance, String name) {
-        return save(instance, getFile(name));
+        return save(instance, getPath(name));
     }
 
-    public boolean save(Object instance, File file, BooleanConsumer finish) {
-        DiscUtil.writeCatch(file, plugin.getGson(), instance, true, finish);
+    public boolean save(Object instance, Path path, BooleanConsumer finish) {
+        DiscUtil.write(path, plugin.getGson(), instance, true, finish);
         return true;
-       // return DiscUtil.writeCatch(file, plugin.getGson().toJson(instance), true, finish);
     }
 
-    public boolean save(Object instance, File file) {
-        return save(instance, file, null);
+    public boolean save(Object instance, Path path) {
+        return save(instance, path, null);
     }
-
-    // LOAD BY CLASS
 
     public <T> T load(Class<T> clazz) {
-        return load(clazz, getFile(clazz));
+        return load(clazz, getPath(clazz));
     }
 
     public <T> T load(Class<T> clazz, String name) {
-        return load(clazz, getFile(name));
+        return load(clazz, getPath(name));
     }
 
-    public <T> T load(Class<T> clazz, File file) {
-        String content = DiscUtil.readCatch(file);
-        if (content == null) {
-            return null;
-        }
-
-        try {
-            return plugin.getGson().fromJson(content, clazz);
-        } catch (Exception ex) {    // output the error message rather than full stack trace; error parsing the file, most likely
-            plugin.log(Level.WARNING, ex.getMessage());
-        }
-
-        return null;
+    public <T> T load(Class<T> clazz, Path path) {
+        return DiscUtil.read(path, FactionsPlugin.getInstance().getGson(), clazz);
     }
 
 
-    // LOAD BY TYPE
     @SuppressWarnings("unchecked")
     public <T> T load(Type typeOfT, String name) {
-        return (T) load(typeOfT, getFile(name));
+        return (T) load(typeOfT, getPath(name));
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T load(Type typeOfT, File file) {
-        String content = DiscUtil.readCatch(file);
-        if (content == null) {
-            return null;
-        }
-
-        try {
-            return (T) plugin.getGson().fromJson(content, typeOfT);
-        } catch (Exception ex) {    // output the error message rather than full stack trace; error parsing the file, most likely
-            plugin.log(Level.WARNING, ex.getMessage());
-        }
-
-        return null;
+    public <T> T load(Type typeOfT, Path path) {
+        return DiscUtil.read(path, FactionsPlugin.getInstance().getGson(), typeOfT);
     }
 }

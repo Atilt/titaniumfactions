@@ -83,10 +83,10 @@ public abstract class MemoryBoard extends Board {
 
         @Deprecated
         public void removeFaction(String factionId) {
-            removeFactionRaw(Integer.parseInt(factionId));
+            removeFaction(Integer.parseInt(factionId));
         }
 
-        public void removeFactionRaw(int factionId) {
+        public void removeFaction(int factionId) {
             Collection<FLocation> fLocations = factionToLandMap.removeAll(factionId);
             for (FPlayer fPlayer : FPlayers.getInstance().getOnlinePlayers()) {
                 if (fLocations.contains(fPlayer.getLastStoodAt())) {
@@ -234,7 +234,7 @@ public abstract class MemoryBoard extends Board {
             }
         }
 
-        flocationIds.removeFactionRaw(factionId);
+        flocationIds.removeFaction(factionId);
     }
 
     // Is this coord NOT completely surrounded by coords claimed by the same faction?

@@ -291,5 +291,5 @@ public interface Faction extends EconomyParticipator {
     @Deprecated
     void setId(String id);
 
-    void setIdRaw(int id);
+    void setId(int id);
 }

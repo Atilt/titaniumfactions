@@ -10,7 +10,8 @@ import com.massivecraft.factions.util.DiscUtil;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import org.bukkit.Bukkit;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,7 +22,7 @@ import java.util.logging.Level;
 
 public class JSONBoard extends MemoryBoard {
 
-    private static final transient File FILE = new File(FactionsPlugin.getInstance().getDataFolder(), "data/board.json");
+    private static final transient Path BOARD_PATH = FactionsPlugin.getInstance().getDataFolder().toPath().resolve("data/board.json");
 
     //Map<World, Map<CompactCoord, FactionId>>
     public Map<String, Map<String, Integer>> dumpAsSaveFormat() {
@@ -51,23 +52,24 @@ public class JSONBoard extends MemoryBoard {
     }
 
     public void forceSave(boolean sync, BooleanConsumer finish) {
-        DiscUtil.writeCatch(FILE, FactionsPlugin.getInstance().getGson(), dumpAsSaveFormat(), sync, finish);
+        DiscUtil.write(BOARD_PATH, FactionsPlugin.getInstance().getGson(), dumpAsSaveFormat(), sync, finish);
     }
 
     @Override
     public void load(IntConsumer loaded) {
-        if (!FILE.exists()) {
+        if (Files.notExists(BOARD_PATH)) {
             FactionsPlugin.getInstance().getLogger().info("No board to load from disk. Creating new file.");
-            forceSave(null);
-            loaded.accept(0);
+            forceSave(result -> loaded.accept(0));
             return;
         }
         Bukkit.getScheduler().runTaskAsynchronously(FactionsPlugin.getInstance(), () -> {
             try {
-                Map<String, Map<String, Integer>> worldCoordIds = FactionsPlugin.getInstance().getGson().fromJson(DiscUtil.read(FILE), new TypeToken<Map<String, Map<String, Integer>>>(){}.getType());
+                Map<String, Map<String, Integer>> worldCoordIds = DiscUtil.read(BOARD_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Map<String, Map<String, Integer>>>(){}.getType());
 
                 Bukkit.getScheduler().runTask(FactionsPlugin.getInstance(), () -> {
-                    loadFromSaveFormat(worldCoordIds);
+                    if (worldCoordIds != null) {
+                        loadFromSaveFormat(worldCoordIds);
+                    }
                     loaded.accept(this.flocationIds.size());
                 });
             } catch (Exception e) {

@@ -161,11 +161,11 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
 
     @Override
     public void setId(String id) {
-        this.setIdRaw(Integer.parseInt(id));
+        this.setId(Integer.parseInt(id));
     }
 
     @Override
-    public void setIdRaw(int id) {
+    public void setId(int id) {
         this.id = id;
     }
 

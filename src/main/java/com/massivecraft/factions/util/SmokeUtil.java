@@ -4,7 +4,7 @@ import org.bukkit.Effect;
 import org.bukkit.Location;
 
 import java.util.Collection;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 // http://mc.kev009.com/Protocol
 // -----------------------------
@@ -24,8 +24,6 @@ import java.util.Random;
 
 public class SmokeUtil {
 
-    public static Random random = new Random();
-
     // -------------------------------------------- //
     // Spawn once
     // -------------------------------------------- //
@@ -35,7 +33,7 @@ public class SmokeUtil {
         if (location == null) {
             return;
         }
-        location.getWorld().playEffect(location.clone(), Effect.SMOKE, direction);
+        location.getWorld().playEffect(location, Effect.SMOKE, direction);
     }
 
     public static void spawnSingle(Location location) {
@@ -43,7 +41,7 @@ public class SmokeUtil {
     }
 
     public static void spawnSingleRandom(Location location) {
-        spawnSingle(location, random.nextInt(9));
+        spawnSingle(location, ThreadLocalRandom.current().nextInt(9));
     }
 
     // Simple Cloud ========
@@ -59,11 +57,10 @@ public class SmokeUtil {
         }
     }
 
-    // Random Cloud ========
     public static void spawnCloudRandom(Location location, float thickness) {
         int singles = (int) Math.floor(thickness * 9);
         for (int i = 0; i < singles; i++) {
-            spawnSingleRandom(location.clone());
+            spawnSingleRandom(location);
         }
     }
 
@@ -72,11 +69,4 @@ public class SmokeUtil {
             spawnCloudRandom(location, thickness);
         }
     }
-
-    // -------------------------------------------- //
-    // Attach continuous effects to or locations
-    // -------------------------------------------- //
-
-    // TODO
-
 }

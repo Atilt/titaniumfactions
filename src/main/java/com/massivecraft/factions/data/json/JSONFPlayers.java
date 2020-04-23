@@ -12,7 +12,8 @@ import com.massivecraft.factions.util.DiscUtil;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import org.bukkit.Bukkit;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -26,11 +27,7 @@ public class JSONFPlayers extends MemoryFPlayers {
 
     public void setGson(Gson gson) {}
 
-    private File file;
-
-    public JSONFPlayers() {
-        file = new File(FactionsPlugin.getInstance().getDataFolder(), "data/players.json");
-    }
+    private static final Path PLAYERS_PATH = FactionsPlugin.getInstance().getDataFolder().toPath().resolve("data").resolve("players.json");
 
     public void convertFrom(MemoryFPlayers old, BooleanConsumer finish) {
         this.fPlayers.putAll(Maps.transformValues(old.getFPlayers(), faction -> new JSONFPlayer((MemoryFPlayer) faction)));
@@ -49,7 +46,7 @@ public class JSONFPlayers extends MemoryFPlayers {
                 entitiesThatShouldBeSaved.put(entity.getId(), (JSONFPlayer) entity);
             }
         }
-        DiscUtil.writeCatch(file, FactionsPlugin.getInstance().getGson(), entitiesThatShouldBeSaved, sync, finish);
+        DiscUtil.write(PLAYERS_PATH, FactionsPlugin.getInstance().getGson(), entitiesThatShouldBeSaved, sync, finish);
     }
 
     @Override
@@ -68,16 +65,10 @@ public class JSONFPlayers extends MemoryFPlayers {
     }
 
     private Map<UUID, JSONFPlayer> loadCore(BooleanConsumer finish) {
-        if (!this.file.exists()) {
+        if (Files.notExists(PLAYERS_PATH)) {
             return new HashMap<>(0);
         }
-
-        String content = DiscUtil.readCatch(this.file);
-        if (content == null) {
-            return null;
-        }
-
-        return FactionsPlugin.getInstance().getGson().fromJson(content, new TypeToken<Map<UUID, JSONFPlayer>>(){}.getType());
+        return DiscUtil.read(PLAYERS_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Map<UUID, JSONFPlayer>>(){}.getType());
     }
 
     @Override

@@ -10,14 +10,12 @@ import com.massivecraft.factions.data.MemoryFaction;
 import com.massivecraft.factions.data.MemoryFactions;
 import com.massivecraft.factions.util.DiscUtil;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.bukkit.Bukkit;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.IntConsumer;
 
 public class JSONFactions extends MemoryFactions {
@@ -25,14 +23,13 @@ public class JSONFactions extends MemoryFactions {
         return FactionsPlugin.getInstance().getGson();
     }
 
-    private final File file;
+    private static final Path FACTIONS_PATH = FactionsPlugin.getInstance().getDataFolder().toPath().resolve("data").resolve("factions.json");
 
-    public File getFile() {
-        return file;
+    public Path toPath() {
+        return FACTIONS_PATH;
     }
 
     public JSONFactions() {
-        this.file = new File(FactionsPlugin.getInstance().getDataFolder(), "data/factions.json");
         this.nextId = 1;
     }
 
@@ -46,11 +43,11 @@ public class JSONFactions extends MemoryFactions {
             entitiesThatShouldBeSaved.put(entity.getIdRaw(), (JSONFaction) entity);
         }
 
-        saveCore(file, entitiesThatShouldBeSaved, sync, finish);
+        saveCore(entitiesThatShouldBeSaved, sync, finish);
     }
 
-    private boolean saveCore(File target, Map<Integer, JSONFaction> entities, boolean sync, BooleanConsumer finish) {
-        DiscUtil.writeCatch(target, FactionsPlugin.getInstance().getGson(), entities, sync, finish);
+    private boolean saveCore(Map<Integer, JSONFaction> entities, boolean sync, BooleanConsumer finish) {
+        DiscUtil.write(FACTIONS_PATH, FactionsPlugin.getInstance().getGson(), entities, sync, finish);
         return true;
         //return DiscUtil.writeCatch(target, FactionsPlugin.getInstance().getGson().toJson(entities), sync, finish);
     }
@@ -72,34 +69,13 @@ public class JSONFactions extends MemoryFactions {
     }
 
     private Map<Integer, JSONFaction> loadCore(BooleanConsumer finish) {
-        if (!this.file.exists()) {
+        if (Files.notExists(FACTIONS_PATH)) {
             return new HashMap<>(0);
         }
-        String content = DiscUtil.readCatch(this.file);
-        if (content == null) {
-            return null;
-        }
-
-        Map<Integer, JSONFaction> data = FactionsPlugin.getInstance().getGson().fromJson(content, new TypeToken<Map<Integer, JSONFaction>>(){}.getType());
-
+        Map<Integer, JSONFaction> data = DiscUtil.read(FACTIONS_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Map<Integer, JSONFaction>>(){}.getType());
         this.nextId = 1;
-        saveCore(this.file, data, true, finish); // Update the flatfile
+        saveCore(data, true, finish);
         return data;
-    }
-
-    private Set<String> whichKeysNeedMigration(Set<String> keys) {
-        ObjectSet<String> list = new ObjectOpenHashSet<>();
-        for (String value : keys) {
-            if (!value.matches("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")) {
-                // Not a valid UUID..
-                if (value.matches("[a-zA-Z0-9_]{2,16}")) {
-                    // Valid playername, we'll mark this as one for conversion
-                    // to UUID
-                    list.add(value);
-                }
-            }
-        }
-        return list;
     }
 
     public int getNextId() {
