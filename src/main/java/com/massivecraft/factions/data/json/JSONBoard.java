@@ -22,7 +22,7 @@ import java.util.logging.Level;
 
 public class JSONBoard extends MemoryBoard {
 
-    private static final transient Path BOARD_PATH = FactionsPlugin.getInstance().getDataFolder().toPath().resolve("data/board.json");
+    private static final transient Path BOARD_PATH = FactionsPlugin.getInstance().getDataFolder().toPath().resolve("data").resolve("board.json");
 
     //Map<World, Map<CompactCoord, FactionId>>
     public Map<String, Map<String, Integer>> dumpAsSaveFormat() {
