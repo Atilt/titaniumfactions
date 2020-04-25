@@ -1,5 +1,7 @@
 package com.massivecraft.factions.data;
 
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import com.massivecraft.factions.Board;
 import com.massivecraft.factions.FLocation;
 import com.massivecraft.factions.FPlayer;
@@ -24,6 +26,8 @@ import com.massivecraft.factions.util.LazyLocation;
 import com.massivecraft.factions.util.MiscUtil;
 import com.massivecraft.factions.util.RelationUtil;
 import com.massivecraft.factions.util.TL;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
@@ -36,15 +40,14 @@ import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class MemoryFaction implements Faction, EconomyParticipator {
     protected int id = -10;
@@ -59,34 +62,35 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     protected long foundedDate;
     protected transient long lastPlayerLoggedOffTime;
     protected double powerBoost;
-    protected Map<Integer, Relation> relationWish = new HashMap<>();
-    protected Map<FLocation, Set<UUID>> claimOwnership = new ConcurrentHashMap<>();
-    protected transient Set<FPlayer> fplayers = new HashSet<>();
-    protected Set<UUID> invites = new HashSet<>();
-    protected HashMap<UUID, List<String>> announcements = new HashMap<>();
-    protected Map<String, LazyLocation> warps = new ConcurrentHashMap<>();
-    protected Map<String, String> warpPasswords = new ConcurrentHashMap<>();
+    protected Map<Integer, Relation> relationWish = new Int2ObjectOpenHashMap<>();
+    protected Multimap<FLocation, UUID> claimOwnership = Multimaps.newSetMultimap(new Object2ObjectOpenHashMap<>(), ObjectOpenHashSet::new);
+    protected transient ObjectSet<FPlayer> fplayers = new ObjectOpenHashSet<>();
+    protected Set<UUID> invites = new ObjectOpenHashSet<>();
+    protected Multimap<UUID, String> announcements = Multimaps.newListMultimap(new Object2ObjectOpenHashMap<>(), ObjectArrayList::new);
+    protected Map<String, LazyLocation> warps = new Object2ObjectOpenHashMap<>();
+    protected Map<String, String> warpPasswords = new Object2ObjectOpenHashMap<>();
     private long lastDeath;
     protected int maxVaults;
     protected Role defaultRole;
-    protected Map<Permissible, Map<PermissibleAction, Boolean>> permissions = new HashMap<>();
-    protected Map<Permissible, Map<PermissibleAction, Boolean>> permissionsOffline = new HashMap<>();
-    protected Set<BanInfo> bans = new HashSet<>();
+    protected Map<Permissible, Map<PermissibleAction, Boolean>> permissions = new Object2ObjectOpenHashMap<>();
+    protected Map<Permissible, Map<PermissibleAction, Boolean>> permissionsOffline = new Object2ObjectOpenHashMap<>();
+    protected ObjectSet<BanInfo> bans = new ObjectOpenHashSet<>();
     protected double dtr;
     protected long lastDTRUpdateTime;
     protected long frozenDTRUntilTime;
     protected int tntBank;
 
-    public Map<UUID, List<String>> getAnnouncements() {
+    @Override
+    public Multimap<UUID, String> getAnnouncements() {
         return this.announcements;
     }
 
     public void addAnnouncement(FPlayer fPlayer, String msg) {
-        announcements.computeIfAbsent(fPlayer.getId(), s -> new ObjectArrayList<>()).add(msg);
+        announcements.asMap().computeIfAbsent(fPlayer.getId(), s -> new ObjectArrayList<>()).add(msg);
     }
 
     public void sendUnreadAnnouncements(FPlayer fPlayer) {
-        List<String> messages = announcements.remove(fPlayer.getId());
+        Collection<String> messages = announcements.removeAll(fPlayer.getId());
         if (messages == null) {
             return;
         }
@@ -98,7 +102,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     }
 
     public void removeAnnouncements(FPlayer fPlayer) {
-        announcements.remove(fPlayer.getId());
+        announcements.removeAll(fPlayer.getId());
     }
 
     public Map<String, LazyLocation> getWarps() {
@@ -560,7 +564,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         powerBoost = old.powerBoost;
         relationWish = old.relationWish;
         claimOwnership = old.claimOwnership;
-        fplayers = new HashSet<>();
+        fplayers = new ObjectOpenHashSet<>();
         invites = old.invites;
         announcements = old.announcements;
         this.defaultRole = old.defaultRole;
@@ -1018,7 +1022,8 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     // Ownership of specific claims
     // ----------------------------------------------//
 
-    public Map<FLocation, Set<UUID>> getClaimOwnership() {
+    @Override
+    public Multimap<FLocation, UUID> getClaimOwnership() {
         return claimOwnership;
     }
 
@@ -1030,7 +1035,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         if (LWC.getEnabled() && FactionsPlugin.getInstance().conf().lwc().isResetLocksOnUnclaim()) {
             LWC.clearAllLocks(loc);
         }
-        claimOwnership.remove(loc);
+        claimOwnership.removeAll(loc);
     }
 
     public void clearClaimOwnership(FPlayer player) {
@@ -1038,8 +1043,8 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
             return;
         }
 
-        for (Entry<FLocation, Set<UUID>> entry : claimOwnership.entrySet()) {
-            Set<UUID> ownerData = entry.getValue();
+        for (Entry<FLocation, Collection<UUID>> entry : claimOwnership.asMap().entrySet()) {
+            Collection<UUID> ownerData = entry.getValue();
 
             if (ownerData == null) {
                 continue;
@@ -1050,7 +1055,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
                 if (LWC.getEnabled() && FactionsPlugin.getInstance().conf().lwc().isResetLocksOnUnclaim()) {
                     LWC.clearAllLocks(entry.getKey());
                 }
-                claimOwnership.remove(entry.getKey());
+                claimOwnership.removeAll(entry.getKey());
             }
         }
     }
@@ -1064,7 +1069,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
             return false;
         }
 
-        Set<UUID> ownerData = claimOwnership.get(loc);
+        Collection<UUID> ownerData = claimOwnership.get(loc);
         return ownerData != null && !ownerData.isEmpty();
     }
 
@@ -1072,29 +1077,29 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         if (claimOwnership.isEmpty()) {
             return false;
         }
-        Set<UUID> ownerData = claimOwnership.get(loc);
+        Collection<UUID> ownerData = claimOwnership.get(loc);
         return ownerData != null && ownerData.contains(player.getId());
     }
 
     public void setPlayerAsOwner(FPlayer player, FLocation loc) {
-        claimOwnership.computeIfAbsent(loc, fLocation -> new HashSet<>()).add(player.getId());
+        claimOwnership.asMap().computeIfAbsent(loc, fLocation -> new ObjectOpenHashSet<>()).add(player.getId());
     }
 
     public void removePlayerAsOwner(FPlayer player, FLocation loc) {
-        Set<UUID> ownerData = claimOwnership.get(loc);
+        Collection<UUID> ownerData = claimOwnership.get(loc);
         if (ownerData == null) {
             return;
         }
         ownerData.remove(player.getId());
-        claimOwnership.put(loc, ownerData);
+        claimOwnership.putAll(loc, ownerData);
     }
 
-    public Set<UUID> getOwnerList(FLocation loc) {
+    public Collection<UUID> getOwnerList(FLocation loc) {
         return claimOwnership.get(loc);
     }
 
     public String getOwnerListString(FLocation loc) {
-        Set<UUID> ownerData = claimOwnership.get(loc);
+        Collection<UUID> ownerData = claimOwnership.get(loc);
         if (ownerData == null || ownerData.isEmpty()) {
             return "";
         }
@@ -1125,7 +1130,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         }
 
         // need to check the ownership list, then
-        Set<UUID> ownerData = claimOwnership.get(loc);
+        Collection<UUID> ownerData = claimOwnership.get(loc);
 
         // if no owner list, owner list is empty, or player is in owner list,
         // they're allowed

@@ -10,6 +10,8 @@ import com.massivecraft.factions.data.MemoryFaction;
 import com.massivecraft.factions.data.MemoryFactions;
 import com.massivecraft.factions.util.DiscUtil;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.bukkit.Bukkit;
 
 import java.nio.file.Files;
@@ -68,11 +70,11 @@ public class JSONFactions extends MemoryFactions {
         });
     }
 
-    private Map<Integer, JSONFaction> loadCore(BooleanConsumer finish) {
+    private Int2ObjectMap<JSONFaction> loadCore(BooleanConsumer finish) {
         if (Files.notExists(FACTIONS_PATH)) {
-            return new HashMap<>(0);
+            return new Int2ObjectOpenHashMap<>(0);
         }
-        Map<Integer, JSONFaction> data = DiscUtil.read(FACTIONS_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Map<Integer, JSONFaction>>(){}.getType());
+        Int2ObjectMap<JSONFaction> data = DiscUtil.read(FACTIONS_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Int2ObjectMap<JSONFaction>>(){}.getType());
         this.nextId = 1;
         saveCore(data, true, finish);
         return data;

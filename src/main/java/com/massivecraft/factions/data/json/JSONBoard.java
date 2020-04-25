@@ -8,6 +8,8 @@ import com.massivecraft.factions.data.MemoryBoard;
 import com.massivecraft.factions.data.json.adapters.MapFLocToStringSetTypeAdapter;
 import com.massivecraft.factions.util.DiscUtil;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import org.bukkit.Bukkit;
 
 import java.nio.file.Files;
@@ -36,10 +38,10 @@ public class JSONBoard extends MemoryBoard {
     }
 
     //world, //
-    public void loadFromSaveFormat(Map<String, Map<String, Integer>> worldCoordIds) {
+    public void loadFromSaveFormat(Map<String, Object2IntMap<String>> worldCoordIds) {
         flocationIds.clear();
 
-        for (Entry<String, Map<String, Integer>> entry : worldCoordIds.entrySet()) {
+        for (Entry<String, Object2IntMap<String>> entry : worldCoordIds.entrySet()) {
             for (Entry<String, Integer> entry2 : entry.getValue().entrySet()) {
                 String[] coords = MapFLocToStringSetTypeAdapter.COORDINATE_PATTERN.split(entry2.getKey().trim());
                 flocationIds.put(FLocation.wrap(entry.getKey(), Integer.parseInt(coords[0]), Integer.parseInt(coords[1])), entry2.getValue());
@@ -64,7 +66,7 @@ public class JSONBoard extends MemoryBoard {
         }
         Bukkit.getScheduler().runTaskAsynchronously(FactionsPlugin.getInstance(), () -> {
             try {
-                Map<String, Map<String, Integer>> worldCoordIds = DiscUtil.read(BOARD_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Map<String, Map<String, Integer>>>(){}.getType());
+                Object2ObjectMap<String, Object2IntMap<String>> worldCoordIds = DiscUtil.read(BOARD_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Object2ObjectMap<String, Object2IntMap<String>>>(){}.getType());
 
                 Bukkit.getScheduler().runTask(FactionsPlugin.getInstance(), () -> {
                     if (worldCoordIds != null) {

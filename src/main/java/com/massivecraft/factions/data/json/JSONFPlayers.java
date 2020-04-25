@@ -10,6 +10,8 @@ import com.massivecraft.factions.data.MemoryFPlayer;
 import com.massivecraft.factions.data.MemoryFPlayers;
 import com.massivecraft.factions.util.DiscUtil;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.bukkit.Bukkit;
 
 import java.nio.file.Files;
@@ -64,11 +66,11 @@ public class JSONFPlayers extends MemoryFPlayers {
         });
     }
 
-    private Map<UUID, JSONFPlayer> loadCore(BooleanConsumer finish) {
+    private Object2ObjectMap<UUID, JSONFPlayer> loadCore(BooleanConsumer finish) {
         if (Files.notExists(PLAYERS_PATH)) {
-            return new HashMap<>(0);
+            return new Object2ObjectOpenHashMap<>(0);
         }
-        return DiscUtil.read(PLAYERS_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Map<UUID, JSONFPlayer>>(){}.getType());
+        return DiscUtil.read(PLAYERS_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Object2ObjectMap<UUID, JSONFPlayer>>(){}.getType());
     }
 
     @Override

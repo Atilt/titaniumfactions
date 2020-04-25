@@ -1,5 +1,6 @@
 package com.massivecraft.factions;
 
+import com.google.common.collect.Multimap;
 import com.massivecraft.factions.iface.EconomyParticipator;
 import com.massivecraft.factions.perms.Permissible;
 import com.massivecraft.factions.perms.PermissibleAction;
@@ -10,13 +11,14 @@ import com.massivecraft.factions.util.LazyLocation;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 public interface Faction extends EconomyParticipator {
-    Map<UUID, List<String>> getAnnouncements();
+    Multimap<UUID, String> getAnnouncements();
 
     Map<String, LazyLocation> getWarps();
 
@@ -260,7 +262,7 @@ public interface Faction extends EconomyParticipator {
     // Ownership of specific claims
     // ----------------------------------------------//
 
-    Map<FLocation, Set<UUID>> getClaimOwnership();
+    Multimap<FLocation, UUID> getClaimOwnership();
 
     void clearAllClaimOwnership();
 
@@ -278,7 +280,7 @@ public interface Faction extends EconomyParticipator {
 
     void removePlayerAsOwner(FPlayer player, FLocation loc);
 
-    Set<UUID> getOwnerList(FLocation loc);
+    Collection<UUID> getOwnerList(FLocation loc);
 
     String getOwnerListString(FLocation loc);
 

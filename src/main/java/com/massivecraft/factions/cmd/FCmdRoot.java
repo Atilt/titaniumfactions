@@ -21,7 +21,6 @@ import com.massivecraft.factions.landraidcontrol.DTRControl;
 import com.massivecraft.factions.landraidcontrol.PowerControl;
 import com.massivecraft.factions.util.TL;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectLists;
 import me.lucko.commodore.CommodoreProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -132,8 +131,12 @@ public class FCmdRoot extends FCommand implements CommandExecutor {
             brigadierManager = new BrigadierManager();
         }
 
-        this.aliases.addAll(FactionsPlugin.getInstance().conf().getCommandBase());
-        this.aliases.removeAll(ObjectLists.<String>singleton(null));  // remove any nulls from extra commas
+        for (String s : FactionsPlugin.getInstance().conf().getCommandBase()) {
+            if (s == null) {
+                continue;
+            }
+            this.aliases.add(s);
+        }
 
         this.setHelpShort("The faction base command");
         this.helpLong.add(FactionsPlugin.getInstance().txt().parseTags("<i>This command contains all faction stuff."));

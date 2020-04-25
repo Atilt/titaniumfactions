@@ -27,6 +27,7 @@ import com.massivecraft.factions.tag.Tag;
 import com.massivecraft.factions.util.FastUUID;
 import com.massivecraft.factions.util.RelationUtil;
 import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.TextUtil;
 import com.massivecraft.factions.util.TitleAPI;
 import com.massivecraft.factions.util.WarmUpUtil;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -383,12 +384,7 @@ public abstract class MemoryFPlayer implements FPlayer {
     }
 
     public void setTitle(CommandSender sender, String title) {
-        // Check if the setter has it.
-        if (sender.hasPermission(Permission.TITLE_COLOR.node)) {
-            title = ChatColor.translateAlternateColorCodes('&', title);
-        }
-
-        this.title = title;
+        this.title = sender.hasPermission(Permission.TITLE_COLOR.node) ? TextUtil.parseColorBukkit(title) : title;
     }
 
     public String getName() {
