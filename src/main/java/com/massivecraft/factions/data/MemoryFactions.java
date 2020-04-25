@@ -9,15 +9,14 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.bukkit.ChatColor;
+import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class MemoryFactions extends Factions {
 
-    public final Map<Integer, Faction> factions = new ConcurrentHashMap<>();
+    public final Int2ObjectOpenHashMap<Faction> factions = new Int2ObjectOpenHashMap<>();
     public int nextId = 1;
 
     public int load() {

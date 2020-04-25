@@ -7,11 +7,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.util.TL;
+import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 public class PermissionsMapTypeAdapter implements JsonDeserializer<Map<Permissible, Map<PermissibleAction, Boolean>>> {
@@ -25,7 +26,7 @@ public class PermissionsMapTypeAdapter implements JsonDeserializer<Map<Permissib
                 return null;
             }
 
-            Map<Permissible, Map<PermissibleAction, Boolean>> permissionsMap = new ConcurrentHashMap<>();
+            Map<Permissible, Map<PermissibleAction, Boolean>> permissionsMap = new Object2ObjectOpenHashMap<>();
 
             // Top level is Relation
             for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
@@ -36,7 +37,7 @@ public class PermissionsMapTypeAdapter implements JsonDeserializer<Map<Permissib
                 }
 
                 // Second level is the map between action -> access
-                Map<PermissibleAction, Boolean> accessMap = new HashMap<>();
+                Object2BooleanMap<PermissibleAction> accessMap = new Object2BooleanOpenHashMap<>();
                 for (Map.Entry<String, JsonElement> entry2 : entry.getValue().getAsJsonObject().entrySet()) {
                     PermissibleAction permissibleAction = PermissibleAction.fromString(entry2.getKey());
                     boolean bool;

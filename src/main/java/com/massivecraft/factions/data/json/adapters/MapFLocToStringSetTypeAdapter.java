@@ -10,13 +10,13 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.massivecraft.factions.FLocation;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 import java.lang.reflect.Type;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 
@@ -30,7 +30,7 @@ public class MapFLocToStringSetTypeAdapter implements JsonDeserializer<Map<FLoca
         if (obj == null) {
             return null;
         }
-        Map<FLocation, Set<String>> locationMap = new ConcurrentHashMap<>();
+        Map<FLocation, Set<String>> locationMap = new Object2ObjectOpenHashMap<>();
 
         for (Entry<String, JsonElement> entry : obj.entrySet()) {
             String worldName = entry.getKey();
@@ -41,7 +41,7 @@ public class MapFLocToStringSetTypeAdapter implements JsonDeserializer<Map<FLoca
                 int z = Integer.parseInt(coords[1]);
 
                 JsonArray array = entry2.getValue().getAsJsonArray();
-                Set<String> nameSet = new HashSet<>(array.size());
+                Set<String> nameSet = new ObjectOpenHashSet<>(array.size());
 
                 for (JsonElement jsonElement : array) {
                     nameSet.add(jsonElement.getAsString());

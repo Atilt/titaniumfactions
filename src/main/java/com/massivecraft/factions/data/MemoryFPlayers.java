@@ -5,6 +5,8 @@ import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.Factions;
 import com.massivecraft.factions.FactionsPlugin;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
@@ -13,13 +15,12 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 public abstract class MemoryFPlayers extends FPlayers {
-    protected final Map<UUID, FPlayer> fPlayers = new HashMap<>();
+    protected final Object2ObjectMap<UUID, FPlayer> fPlayers = new Object2ObjectOpenHashMap<>();
 
     public Map<UUID, FPlayer> getFPlayers() {
         return fPlayers;
