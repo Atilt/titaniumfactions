@@ -44,7 +44,7 @@ public abstract class MemoryFPlayers extends FPlayers {
     }
 
     public Collection<FPlayer> getOnlinePlayers() {
-        return this.online;
+        return new ObjectOpenHashSet<>(this.online);
     }
 
     @Override
