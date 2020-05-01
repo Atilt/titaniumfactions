@@ -27,8 +27,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-import java.util.Arrays;
-
 public class FCmdRoot extends FCommand implements CommandExecutor {
 
     private static FCmdRoot cmdBase;
@@ -257,7 +255,7 @@ public class FCmdRoot extends FCommand implements CommandExecutor {
             return false;
         }
 
-        this.execute(new CommandContext(sender, new ObjectArrayList<>(Arrays.asList(args)), label));
+        this.execute(new CommandContext(sender, new ObjectArrayList<>(args), label));
         return true;
     }
 

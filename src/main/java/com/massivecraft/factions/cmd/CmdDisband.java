@@ -60,7 +60,7 @@ public class CmdDisband extends FCommand {
             return;
         }
 
-        FactionDisbandEvent disbandEvent = new FactionDisbandEvent(context.player, faction.getId());
+        FactionDisbandEvent disbandEvent = new FactionDisbandEvent(context.player, faction.getIdRaw());
         Bukkit.getPluginManager().callEvent(disbandEvent);
         if (disbandEvent.isCancelled()) {
             return;
@@ -82,7 +82,7 @@ public class CmdDisband extends FCommand {
         }
         if (FactionsPlugin.getInstance().conf().logging().isFactionDisband()) {
             //TODO: Format this correctly and translate.
-            FactionsPlugin.getInstance().log("The faction " + faction.getTag() + " (" + faction.getId() + ") was disbanded by " + (context.player == null ? "console command" : context.fPlayer.getName()) + ".");
+            FactionsPlugin.getInstance().log("The faction " + faction.getTag() + " (" + faction.getIdRaw() + ") was disbanded by " + (context.player == null ? "console command" : context.fPlayer.getName()) + ".");
         }
 
         if (Econ.shouldBeUsed() && context.player != null) {
@@ -98,7 +98,7 @@ public class CmdDisband extends FCommand {
             }
         }
 
-        Factions.getInstance().removeFaction(faction.getId());
+        Factions.getInstance().removeFaction(faction.getIdRaw());
         FTeamWrapper.applyUpdates(faction);
     }
 
