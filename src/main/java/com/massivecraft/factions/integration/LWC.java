@@ -21,7 +21,7 @@ public class LWC {
     private static com.griefcraft.lwc.LWC lwc;
 
     public static void setup() {
-        Plugin test = Bukkit.getServer().getPluginManager().getPlugin("LWC");
+        Plugin test = Bukkit.getPluginManager().getPlugin("LWC");
         if (!(test instanceof LWCPlugin) || !test.isEnabled()) return;
 
         lwc = ((LWCPlugin) test).getLWC();
@@ -40,7 +40,7 @@ public class LWC {
         Protection protection;
         for (Block block : findBlocks(flocation)) {
             if ((protection = lwc.findProtection(block)) != null) {
-                if (!faction.getFPlayers().contains(FPlayers.getInstance().getByOfflinePlayer(Bukkit.getServer().getOfflinePlayer(protection.getOwner())))) {
+                if (!faction.getFPlayers().contains(FPlayers.getInstance().getByOfflinePlayer(Bukkit.getOfflinePlayer(protection.getOwner())))) {
                     protection.remove();
                 }
             }

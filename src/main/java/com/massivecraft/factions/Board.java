@@ -45,7 +45,7 @@ public abstract class Board {
     public abstract Set<FLocation> getAllClaims(Faction faction);
 
     // not to be confused with claims, ownership referring to further member-specific ownership of a claim
-    public abstract void clearOwnershipAt(FLocation flocation);
+    public abstract Faction clearOwnershipAt(FLocation flocation);
 
     @Deprecated
     public abstract void unclaimAll(String factionId);

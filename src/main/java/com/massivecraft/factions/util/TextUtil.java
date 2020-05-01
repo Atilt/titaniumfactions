@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import mkremins.fanciful.FancyMessage;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
@@ -114,6 +115,10 @@ public class TextUtil {
     public static String parseColorTags(String string) {
         return string.replace("<empty>", "").replace("<black>", "\u00A70").replace("<navy>", "\u00A71").replace("<green>", "\u00A72").replace("<teal>", "\u00A73").replace("<red>", "\u00A74").replace("<purple>", "\u00A75").replace("<gold>", "\u00A76").replace("<silver>", "\u00A77").replace("<gray>", "\u00A78").replace("<blue>", "\u00A79").replace("<lime>", "\u00A7a").replace("<aqua>", "\u00A7b").replace("<rose>", "\u00A7c").replace("<pink>", "\u00A7d").replace("<yellow>", "\u00A7e").replace("<white>", "\u00A7f");
     }
+    
+    public static String replace(String string, String search, String replacement) {
+        return StringUtils.replace(string, search, replacement);
+    }
 
     // -------------------------------------------- //
     // Standard utils like UCFirst, implode and repeat.
@@ -172,10 +177,11 @@ public class TextUtil {
     }
 
     public List<String> getPage(List<String> lines, int pageHumanBased, String title) {
-        ObjectList<String> ret = new ObjectArrayList<>();
         int pageZeroBased = pageHumanBased - 1;
         int pageheight = 9;
         int pagecount = (lines.size() / pageheight) + 1;
+
+        ObjectList<String> ret = new ObjectArrayList<>(pagecount);
 
         ret.add(this.titleize(title + " " + pageHumanBased + "/" + pagecount));
 

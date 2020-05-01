@@ -10,7 +10,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -21,6 +20,7 @@ import java.util.UUID;
 
 public abstract class MemoryFPlayers extends FPlayers {
     protected final Object2ObjectMap<UUID, FPlayer> fPlayers = new Object2ObjectOpenHashMap<>();
+    private final transient ObjectSet<FPlayer> online = new ObjectOpenHashSet<>();
 
     public Map<UUID, FPlayer> getFPlayers() {
         return fPlayers;
@@ -35,13 +35,16 @@ public abstract class MemoryFPlayers extends FPlayers {
         }
     }
 
+    public boolean addOnline(FPlayer fPlayer) {
+        return this.online.add(fPlayer);
+    }
+
+    public boolean removeOnline(FPlayer fPlayer) {
+        return this.online.remove(fPlayer);
+    }
+
     public Collection<FPlayer> getOnlinePlayers() {
-        Collection<? extends Player> players = Bukkit.getOnlinePlayers();
-        ObjectSet<FPlayer> entities = new ObjectOpenHashSet<>(players.size());
-        for (Player player : players) {
-            entities.add(this.getByPlayer(player));
-        }
-        return entities;
+        return this.online;
     }
 
     @Override

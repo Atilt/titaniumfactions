@@ -52,7 +52,7 @@ public class CmdWarp extends FCommand {
                     return;
                 }
                 FPlayerTeleportEvent tpEvent = new FPlayerTeleportEvent(context.fPlayer, context.fPlayer.getFaction().getWarp(warpName).getLocation(), FPlayerTeleportEvent.PlayerTeleportReason.WARP);
-                Bukkit.getServer().getPluginManager().callEvent(tpEvent);
+                Bukkit.getPluginManager().callEvent(tpEvent);
                 if (tpEvent.isCancelled()) {
                     return;
                 }

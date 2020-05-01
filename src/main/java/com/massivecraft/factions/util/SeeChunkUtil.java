@@ -10,7 +10,6 @@ import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -65,14 +64,7 @@ public class SeeChunkUtil extends BukkitRunnable {
     }
 
     public static void showPillars(Player me, FPlayer fme, Object effect, boolean useColor) {
-        ParticleColor color = null;
-        if (useColor) {
-            ChatColor chatColor = Board.getInstance().getFactionAt(fme.getLastStoodAt()).getRelationTo(fme).getColor();
-            color = ParticleColor.fromChatColor(chatColor);
-        }
-
         boolean hasEffect = effect != null;
-        boolean hasColor = color != null;
         
         int x = fme.getLastStoodAt().getX();
         int y = me.getLocation().getBlockY();
@@ -93,11 +85,11 @@ public class SeeChunkUtil extends BukkitRunnable {
                 VisualizeUtil.addLocations(me, mat, corner1, corner2, corner3, corner4);
                 continue;
             }
-            if (!hasColor) {
+            if (!useColor) {
                 FactionsPlugin.getInstance().getParticleProvider().playerSpawn(me, effect, 1, corner1, corner2, corner3, corner4);
                 continue;
             }
-            FactionsPlugin.getInstance().getParticleProvider().playerSpawn(me, effect, color, corner1, corner2, corner3, corner4);
+            FactionsPlugin.getInstance().getParticleProvider().playerSpawn(me, effect, ParticleColor.fromChatColor(Board.getInstance().getFactionAt(fme.getLastStoodAt()).getRelationTo(fme).getColor()), corner1, corner2, corner3, corner4);
         }
     }
 }

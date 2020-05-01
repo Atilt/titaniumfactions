@@ -2,10 +2,10 @@ package com.massivecraft.factions.util;
 
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FactionsPlugin;
+import it.unimi.dsi.fastutil.chars.CharOpenHashSet;
+import it.unimi.dsi.fastutil.chars.CharSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.Entity;
@@ -47,14 +47,13 @@ public class MiscUtil {
     }
 
     /// TODO create tag whitelist!!
-    public static ObjectSet<String> substanceChars = new ObjectOpenHashSet<>(Arrays.asList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"));
+    private static final CharSet SUBSTANCE_CHARS = new CharOpenHashSet(Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'));
 
     public static String getComparisonString(String str) {
         StringBuilder ret = new StringBuilder();
-        str = ChatColor.stripColor(str);
 
-        for (char c : str.toCharArray()) {
-            if (substanceChars.contains(String.valueOf(c))) {
+        for (char c : ChatColor.stripColor(str).toCharArray()) {
+            if (SUBSTANCE_CHARS.contains(c)) {
                 ret.append(c);
             }
         }
@@ -80,7 +79,7 @@ public class MiscUtil {
         }
 
         for (char c : str.toCharArray()) {
-            if (!substanceChars.contains(String.valueOf(c))) {
+            if (!SUBSTANCE_CHARS.contains(String.valueOf(c))) {
                 errors.add(FactionsPlugin.getInstance().txt().parse(TL.GENERIC_FACTIONTAG_ALPHANUMERIC.toString(), c));
             }
         }

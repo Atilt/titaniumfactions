@@ -60,7 +60,7 @@ public class CmdBan extends FCommand {
         if (target.getFaction() == context.faction) {
 
             FPlayerLeaveEvent event = new FPlayerLeaveEvent(target, context.faction, FPlayerLeaveEvent.PlayerLeaveReason.BANNED);
-            Bukkit.getServer().getPluginManager().callEvent(event);
+            Bukkit.getPluginManager().callEvent(event);
 
             if (event.isCancelled()) {
                 // if someone cancels a ban, we'll get people complaining here. So lets log it.

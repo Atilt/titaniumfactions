@@ -51,7 +51,6 @@ import com.massivecraft.factions.util.TextUtil;
 import com.massivecraft.factions.util.WorldUtil;
 import com.massivecraft.factions.util.material.FactionMaterial;
 import com.massivecraft.factions.util.material.MaterialDb;
-import com.massivecraft.factions.util.particle.BukkitParticleProvider;
 import com.massivecraft.factions.util.particle.PacketParticleProvider;
 import com.massivecraft.factions.util.particle.ParticleProvider;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
@@ -251,7 +250,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             // Register recurring tasks
             if (saveTask == null && this.conf().factions().other().getSaveToFileEveryXMinutes() > 0.0) {
                 long saveTicks = (long) (20 * 60 * this.conf().factions().other().getSaveToFileEveryXMinutes()); // Approximately every 30 min by default
-                saveTask = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new SaveTask(this), saveTicks, saveTicks);
+                saveTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new SaveTask(this), saveTicks, saveTicks);
             }
 
             // Check for Essentials
@@ -310,12 +309,14 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             setupPermissions();
             loadWorldguard();
 
-            // Run before initializing listeners to handle reloads properly.
+            particleProvider = new PacketParticleProvider();
+
+/*            // Run before initializing listeners to handle reloads properly.
             if (mcVersion < 1300) { // Before 1.13
                 particleProvider = new PacketParticleProvider();
             } else {
                 particleProvider = new BukkitParticleProvider();
-            }
+            }*/
 
             if (conf().commands().seeChunk().isParticles()) {
                 double delay = Math.floor(conf().commands().seeChunk().getParticleUpdateTime() * 20);
@@ -333,9 +334,9 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
             // Version specific portal listener check.
             if (mcVersion >= 1400) { // Starting with 1.14
-                getServer().getPluginManager().registerEvents(new PortalListener_114(this), this);
+                Bukkit.getPluginManager().registerEvents(new PortalListener_114(this), this);
             } else {
-                getServer().getPluginManager().registerEvents(new PortalListenerLegacy(new PortalHandler()), this);
+                Bukkit.getPluginManager().registerEvents(new PortalListenerLegacy(new PortalHandler()), this);
             }
 
             // since some other plugins execute commands directly through this command interface, provide it
@@ -401,7 +402,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         }
 
         // Vault
-        Plugin vault = Bukkit.getServer().getPluginManager().getPlugin("Vault");
+        Plugin vault = Bukkit.getPluginManager().getPlugin("Vault");
         this.metricsDrillPie("vault", () -> this.metricsPluginInfo(vault));
         if (vault != null) {
             this.metricsDrillPie("vault_perms", () -> this.metricsInfo(perms, perms::getName));

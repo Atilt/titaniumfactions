@@ -671,7 +671,7 @@ public abstract class MemoryFPlayer implements FPlayer {
         }
 
         FPlayerLeaveEvent leaveEvent = new FPlayerLeaveEvent(this, myFaction, FPlayerLeaveEvent.PlayerLeaveReason.LEAVE);
-        Bukkit.getServer().getPluginManager().callEvent(leaveEvent);
+        Bukkit.getPluginManager().callEvent(leaveEvent);
         if (leaveEvent.isCancelled()) {
             return;
         }
@@ -857,7 +857,7 @@ public abstract class MemoryFPlayer implements FPlayer {
         }
 
         LandClaimEvent claimEvent = new LandClaimEvent(flocation, forFaction, this);
-        Bukkit.getServer().getPluginManager().callEvent(claimEvent);
+        Bukkit.getPluginManager().callEvent(claimEvent);
         if (claimEvent.isCancelled()) {
             return false;
         }

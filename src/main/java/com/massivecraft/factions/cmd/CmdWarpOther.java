@@ -61,7 +61,7 @@ public class CmdWarpOther extends FCommand {
                     return;
                 }
                 FPlayerTeleportEvent tpEvent = new FPlayerTeleportEvent(context.fPlayer, faction.getWarp(warpName).getLocation(), FPlayerTeleportEvent.PlayerTeleportReason.WARP);
-                Bukkit.getServer().getPluginManager().callEvent(tpEvent);
+                Bukkit.getPluginManager().callEvent(tpEvent);
                 if (tpEvent.isCancelled()) {
                     return;
                 }

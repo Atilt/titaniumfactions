@@ -131,7 +131,7 @@ public class CmdHome extends FCommand {
 
         Location destination = targetFaction.getHome();
         FPlayerTeleportEvent tpEvent = new FPlayerTeleportEvent(context.fPlayer, destination, FPlayerTeleportEvent.PlayerTeleportReason.HOME);
-        Bukkit.getServer().getPluginManager().callEvent(tpEvent);
+        Bukkit.getPluginManager().callEvent(tpEvent);
         if (tpEvent.isCancelled()) {
             return;
         }

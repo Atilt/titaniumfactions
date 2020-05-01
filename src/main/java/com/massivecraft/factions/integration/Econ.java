@@ -35,12 +35,12 @@ public class Econ {
 
         String integrationFail = "Economy integration is " + (FactionsPlugin.getInstance().conf().economy().isEnabled() ? "enabled, but" : "disabled, and") + " the plugin \"Vault\" ";
 
-        if (Bukkit.getServer().getPluginManager().getPlugin("Vault") == null) {
+        if (Bukkit.getPluginManager().getPlugin("Vault") == null) {
             FactionsPlugin.getInstance().getLogger().info(integrationFail + "is not installed.");
             return;
         }
 
-        RegisteredServiceProvider<Economy> rsp = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
+        RegisteredServiceProvider<Economy> rsp = Bukkit.getServicesManager().getRegistration(Economy.class);
         if (rsp == null) {
             FactionsPlugin.getInstance().getLogger().info(integrationFail + "is not hooked into an economy plugin.");
             return;

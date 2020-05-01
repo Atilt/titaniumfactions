@@ -11,6 +11,7 @@ import com.massivecraft.factions.data.MemoryBoard;
 import com.massivecraft.factions.integration.Econ;
 import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.util.FastUUID;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -81,7 +82,7 @@ public class EngineDynmap {
     }
 
     public void init() {
-        Plugin dynmap = Bukkit.getServer().getPluginManager().getPlugin("dynmap");
+        Plugin dynmap = Bukkit.getPluginManager().getPlugin("dynmap");
 
         if (dynmap == null || !dynmap.isEnabled()) {
             return;
@@ -254,9 +255,9 @@ public class EngineDynmap {
         // Note: The board is the world. The board id is the world name.
         MemoryBoard board = (MemoryBoard) Board.getInstance();
 
-        for (Entry<FLocation, Integer> entry : board.flocationIds.entrySet()) {
+        for (Object2IntMap.Entry<FLocation> entry : board.flocationIds.object2IntEntrySet()) {
             String world = entry.getKey().getWorldName();
-            Faction chunkOwner = Factions.getInstance().getFactionById(entry.getValue());
+            Faction chunkOwner = Factions.getInstance().getFactionById(entry.getIntValue());
             worldFactionChunks.computeIfAbsent(world, k -> new HashMap<>()).computeIfAbsent(chunkOwner, k -> new HashSet<>()).add(entry.getKey());
         }
         return worldFactionChunks;

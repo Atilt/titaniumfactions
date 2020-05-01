@@ -36,7 +36,7 @@ public class CmdDebug extends FCommand {
     @Override
     public void perform(CommandContext context) {
         StringBuilder mainInfo = new StringBuilder();
-        mainInfo.append(Bukkit.getName()).append(" version: ").append(Bukkit.getServer().getVersion()).append('\n');
+        mainInfo.append(Bukkit.getName()).append(" version: ").append(Bukkit.getVersion()).append('\n');
         mainInfo.append("Plugin version: ").append(FactionsPlugin.getInstance().getDescription().getVersion()).append('\n');
         mainInfo.append("Java version: ").append(System.getProperty("java.version")).append('\n');
         if (!context.args.isEmpty() && context.argAsString(0).equalsIgnoreCase("mini")) {

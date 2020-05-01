@@ -16,7 +16,6 @@ import org.bukkit.Bukkit;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.IntConsumer;
@@ -42,10 +41,10 @@ public class JSONFPlayers extends MemoryFPlayers {
     }
 
     public void forceSave(boolean sync, BooleanConsumer finish) {
-        Map<UUID, JSONFPlayer> entitiesThatShouldBeSaved = new HashMap<>(this.fPlayers.size());
+        Object2ObjectMap<UUID, FPlayer> entitiesThatShouldBeSaved = new Object2ObjectOpenHashMap<>(this.fPlayers.size());
         for (FPlayer entity : this.fPlayers.values()) {
             if (((MemoryFPlayer) entity).shouldBeSaved()) {
-                entitiesThatShouldBeSaved.put(entity.getId(), (JSONFPlayer) entity);
+                entitiesThatShouldBeSaved.put(entity.getId(), entity);
             }
         }
         DiscUtil.write(PLAYERS_PATH, FactionsPlugin.getInstance().getGson(), entitiesThatShouldBeSaved, sync, finish);
@@ -54,7 +53,7 @@ public class JSONFPlayers extends MemoryFPlayers {
     @Override
     public void load(IntConsumer loaded) {
         Bukkit.getScheduler().runTaskAsynchronously(FactionsPlugin.getInstance(), () -> {
-            Map<UUID, JSONFPlayer> fplayers = this.loadCore(null);
+            Map<UUID, JSONFPlayer> fplayers = this.loadCore();
             int amount = fplayers == null ? 0 : fplayers.size();
             Bukkit.getScheduler().runTask(FactionsPlugin.getInstance(), () -> {
                 this.fPlayers.clear();
@@ -66,7 +65,7 @@ public class JSONFPlayers extends MemoryFPlayers {
         });
     }
 
-    private Object2ObjectMap<UUID, JSONFPlayer> loadCore(BooleanConsumer finish) {
+    private Object2ObjectMap<UUID, JSONFPlayer> loadCore() {
         if (Files.notExists(PLAYERS_PATH)) {
             return new Object2ObjectOpenHashMap<>(0);
         }

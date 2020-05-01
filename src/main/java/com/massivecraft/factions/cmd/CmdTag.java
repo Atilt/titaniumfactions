@@ -54,7 +54,7 @@ public class CmdTag extends FCommand {
 
         // trigger the faction rename event (cancellable)
         FactionRenameEvent renameEvent = new FactionRenameEvent(context.fPlayer, tag);
-        Bukkit.getServer().getPluginManager().callEvent(renameEvent);
+        Bukkit.getPluginManager().callEvent(renameEvent);
         if (renameEvent.isCancelled()) {
             return;
         }
