@@ -7,7 +7,7 @@ High performance Factions fork that prioritizes efficiency, speed, and low memor
 - Dropped name-to-UUID conversion for legacy Minecraft versions
 - Dropped string based UUID implementation for actual UUIDs
 - Dropped string based integer faction ids for actual integers
-- Faster query times for local and in-memory data
+- Faster query/fetching times for local and in-memory data
 - Faster math implementations for particles, chunk claiming, and block scanning
 - Faction, claim, and player data are loaded async
 - Faster, less intensive land fetching and claiming
