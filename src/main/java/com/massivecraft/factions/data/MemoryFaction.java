@@ -834,13 +834,19 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
             return ObjectSets.emptySet();
         }
         ObjectSet<FPlayer> ret = new ObjectOpenHashSet<>();
-
+        if (online) {
+            for (FPlayer onlinePlayer : FPlayers.getInstance().getOnlinePlayers()) {
+                if (onlinePlayer.getFaction() == this) {
+                    ret.add(onlinePlayer);
+                }
+            }
+            return ret;
+        }
         for (FPlayer fplayer : fplayers) {
-            if (fplayer.isOnline() == online) {
+            if (!fplayer.isOnline()) {
                 ret.add(fplayer);
             }
         }
-
         return ret;
     }
 
@@ -849,24 +855,19 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
             return ObjectSets.emptySet();
         }
         ObjectSet<FPlayer> ret = new ObjectOpenHashSet<>();
-        for (FPlayer viewed : fplayers) {
-            // Add if their online status is what we want
-            if (viewed.isOnline() == online) {
-                // If we want online, check to see if we are able to see this player
-                // This checks if they are in vanish.
-                if (online
-                        && viewed.getPlayer() != null
-                        && viewer.getPlayer() != null
-                        && viewer.getPlayer().canSee(viewed.getPlayer())) {
-                    ret.add(viewed);
-                    // If we want offline, just add them.
-                    // Prob a better way to do this but idk.
-                } else if (!online) {
+        for (FPlayer viewed : FPlayers.getInstance().getOnlinePlayers()) {
+            if (viewed.getFaction() != this) {
+                continue;
+            }
+            if (!online) {
+                ret.add(viewed);
+            } else {
+                Player viewerPlayer = viewer.getPlayer();
+                if (viewerPlayer != null && viewerPlayer.canSee(viewed.getPlayer())) {
                     ret.add(viewed);
                 }
             }
         }
-
         return ret;
     }
 
@@ -904,13 +905,12 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         }
         ObjectList<Player> ret = new ObjectArrayList<>();
 
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            FPlayer fplayer = FPlayers.getInstance().getByPlayer(player);
-            if (fplayer.getFaction() == this) {
-                ret.add(player);
+        for (FPlayer onlinePlayer : FPlayers.getInstance().getOnlinePlayers()) {
+            if (onlinePlayer.getFaction() != this) {
+                continue;
             }
+            ret.add(onlinePlayer.getPlayer());
         }
-
         return ret;
     }
 
@@ -921,10 +921,8 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         if (this.isPlayerFreeType()) {
             return false;
         }
-
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            FPlayer fplayer = FPlayers.getInstance().getByPlayer(player);
-            if (fplayer != null && fplayer.getFaction() == this) {
+        for (FPlayer onlinePlayer : FPlayers.getInstance().getOnlinePlayers()) {
+            if (onlinePlayer.getFaction() == this) {
                 return true;
             }
         }
@@ -954,15 +952,15 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
 
         // get list of coleaders, or mods, or list of normal members if there are no moderators
         List<FPlayer> replacements = this.getFPlayersWhereRole(Role.COLEADER);
-        if (replacements == null || replacements.isEmpty()) {
+        if (replacements.isEmpty()) {
             replacements = this.getFPlayersWhereRole(Role.MODERATOR);
         }
 
-        if (replacements == null || replacements.isEmpty()) {
+        if (replacements.isEmpty()) {
             replacements = this.getFPlayersWhereRole(Role.NORMAL);
         }
 
-        if (replacements == null || replacements.isEmpty()) { // faction admin  is the only  member; one-man  faction
+        if (replacements.isEmpty()) { // faction admin  is the only  member; one-man  faction
             if (this.isPermanent()) {
                 if (oldLeader != null) {
                     oldLeader.setRole(Role.NORMAL);
@@ -1146,7 +1144,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         }
 
         // Clean the board
-        ((MemoryBoard) Board.getInstance()).cleanRaw(id);
+        ((MemoryBoard) Board.getInstance()).clean(id);
 
         for (FPlayer fPlayer : fplayers) {
             fPlayer.resetFactionData(false);

@@ -154,7 +154,7 @@ public class CommandContext {
         Player ret = def;
 
         if (name != null) {
-            Player player = Bukkit.getServer().getPlayer(name);
+            Player player = Bukkit.getPlayer(name);
             if (player != null) {
                 ret = player;
             }

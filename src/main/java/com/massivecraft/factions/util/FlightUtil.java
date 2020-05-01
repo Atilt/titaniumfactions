@@ -48,7 +48,7 @@ public class FlightUtil {
         }
     }
 
-    public class EnemiesTask extends BukkitRunnable {
+    public static class EnemiesTask extends BukkitRunnable {
 
         @Override
         public void run() {

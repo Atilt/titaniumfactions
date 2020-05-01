@@ -9,15 +9,14 @@ import com.massivecraft.factions.data.json.adapters.MapFLocToStringSetTypeAdapte
 import com.massivecraft.factions.util.DiscUtil;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntRBTreeMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.bukkit.Bukkit;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.TreeMap;
 import java.util.function.IntConsumer;
 import java.util.logging.Level;
 
@@ -27,26 +26,14 @@ public class JSONBoard extends MemoryBoard {
     private static final transient Path BOARD_PATH = FactionsPlugin.getInstance().getDataFolder().toPath().resolve("data").resolve("board.json");
 
     //Map<World, Map<CompactCoord, FactionId>>
-    public Map<String, Map<String, Integer>> dumpAsSaveFormat() {
-        Map<String, Map<String, Integer>> worldCoordIds = new HashMap<>(flocationIds.size());
+    public Map<String, Object2IntMap<String>> dumpAsSaveFormat() {
+        Object2ObjectMap<String, Object2IntMap<String>> worldCoordIds = new Object2ObjectOpenHashMap<>(flocationIds.size());
 
-        for (Entry<FLocation, Integer> entry : flocationIds.entrySet()) {
-            worldCoordIds.computeIfAbsent(entry.getKey().getWorldName(), s -> new TreeMap<>()).put(entry.getKey().getCoordString(), entry.getValue());
+        for (Object2IntMap.Entry<FLocation> entry : flocationIds.object2IntEntrySet()) {
+            worldCoordIds.computeIfAbsent(entry.getKey().getWorldName(), s -> new Object2IntRBTreeMap<>()).put(entry.getKey().getCoordString(), entry.getIntValue());
         }
 
         return worldCoordIds;
-    }
-
-    //world, //
-    public void loadFromSaveFormat(Map<String, Object2IntMap<String>> worldCoordIds) {
-        flocationIds.clear();
-
-        for (Entry<String, Object2IntMap<String>> entry : worldCoordIds.entrySet()) {
-            for (Entry<String, Integer> entry2 : entry.getValue().entrySet()) {
-                String[] coords = MapFLocToStringSetTypeAdapter.COORDINATE_PATTERN.split(entry2.getKey().trim());
-                flocationIds.put(FLocation.wrap(entry.getKey(), Integer.parseInt(coords[0]), Integer.parseInt(coords[1])), entry2.getValue());
-            }
-        }
     }
 
     public void forceSave(BooleanConsumer finish) {
@@ -70,7 +57,13 @@ public class JSONBoard extends MemoryBoard {
 
                 Bukkit.getScheduler().runTask(FactionsPlugin.getInstance(), () -> {
                     if (worldCoordIds != null) {
-                        loadFromSaveFormat(worldCoordIds);
+                        flocationIds.clear();
+                        for (Object2ObjectMap.Entry<String, Object2IntMap<String>> world : worldCoordIds.object2ObjectEntrySet()) {
+                            for (Object2IntMap.Entry<String> coordinates : world.getValue().object2IntEntrySet()) {
+                                String[] coords = MapFLocToStringSetTypeAdapter.COORDINATE_PATTERN.split(coordinates.getKey().trim());
+                                flocationIds.put(FLocation.wrap(world.getKey(), Integer.parseInt(coords[0]), Integer.parseInt(coords[1])), coordinates.getIntValue());
+                            }
+                        }
                     }
                     loaded.accept(this.flocationIds.size());
                 });

@@ -8,6 +8,7 @@ import com.massivecraft.factions.landraidcontrol.DTRControl;
 import com.massivecraft.factions.landraidcontrol.PowerControl;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.TextUtil;
 import org.apache.commons.lang.time.DurationFormatUtils;
 
 import java.util.function.BiFunction;
@@ -133,11 +134,7 @@ public enum FactionTag implements Tag {
     }
 
     FactionTag(String tag, Function<Faction, String> function, BiFunction<Faction, FPlayer, String> biFunction) {
-        if (tag.equalsIgnoreCase("permanent")) {
-            this.tag = tag;
-        } else {
-            this.tag = '{' + tag + '}';
-        }
+        this.tag = tag.equalsIgnoreCase("permanent") ? tag : '{' + tag + '}';
         this.biFunction = biFunction;
         this.function = function;
     }
@@ -156,8 +153,10 @@ public enum FactionTag implements Tag {
         if (!this.foundInString(text)) {
             return text;
         }
-        String result = this.function == null ? this.biFunction.apply(faction, player) : this.function.apply(faction);
-        return result == null ? null : text.replace(this.tag, result);
+        if (this.function == null) {
+            return this.biFunction.apply(faction, player);
+        }
+        return TextUtil.replace(text, this.tag, this.function.apply(faction));
     }
 
     public String replace(String text, Faction faction) {

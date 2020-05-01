@@ -52,7 +52,7 @@ public class CmdAdmin extends FCommand {
         // only perform a FPlayerJoinEvent when newLeader isn't actually in the faction
         if (fyou.getFaction() != targetFaction) {
             FPlayerJoinEvent event = new FPlayerJoinEvent(FPlayers.getInstance().getByPlayer(context.player), targetFaction, FPlayerJoinEvent.PlayerJoinReason.LEADER);
-            Bukkit.getServer().getPluginManager().callEvent(event);
+            Bukkit.getPluginManager().callEvent(event);
             if (event.isCancelled()) {
                 return;
             }

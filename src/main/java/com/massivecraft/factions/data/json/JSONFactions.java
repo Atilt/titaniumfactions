@@ -16,7 +16,6 @@ import org.bukkit.Bukkit;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.IntConsumer;
 
@@ -40,7 +39,7 @@ public class JSONFactions extends MemoryFactions {
     }
 
     public void forceSave(boolean sync, BooleanConsumer finish) {
-        Map<Integer, JSONFaction> entitiesThatShouldBeSaved = new HashMap<>(this.factions.size());
+        Int2ObjectMap<JSONFaction> entitiesThatShouldBeSaved = new Int2ObjectOpenHashMap<>(this.factions.size());
         for (Faction entity : this.factions.values()) {
             entitiesThatShouldBeSaved.put(entity.getIdRaw(), (JSONFaction) entity);
         }
@@ -57,7 +56,7 @@ public class JSONFactions extends MemoryFactions {
     @Override
     public void load(IntConsumer loaded) {
         Bukkit.getScheduler().runTaskAsynchronously(FactionsPlugin.getInstance(), () -> {
-            Map<Integer, JSONFaction> factions = this.loadCore(null);
+            Int2ObjectMap<JSONFaction> factions = this.loadCore(null);
             int amount = factions == null ? 0 : factions.size();
             Bukkit.getScheduler().runTask(FactionsPlugin.getInstance(), () -> {
                 this.factions.clear();

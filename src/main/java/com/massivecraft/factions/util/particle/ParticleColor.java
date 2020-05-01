@@ -3,73 +3,55 @@ package com.massivecraft.factions.util.particle;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 
-public class ParticleColor {
+public final class ParticleColor {
 
-    private Color color;
-
-    private float red;
-    private float green;
-    private float blue;
-
-    ParticleColor(Color color) {
-        this.color = color;
-        this.red = color.getRed();
-        this.green = color.getGreen();
-        this.blue = color.getBlue();
+    private ParticleColor() {
+        throw new UnsupportedOperationException("this class cannot be instantiated");
+    }
+    
+    public static float getOffsetX(Color color) {
+        return color.getRed() == 0 ? Float.MIN_VALUE : color.getRed() / 255.0F;
     }
 
-    public float getOffsetX() {
-        if (red == 0) {
-            return Float.MIN_VALUE;
-        }
-        return red / 255;
+    public static float getOffsetY(Color color) {
+        return color.getGreen() / 255.0F;
     }
 
-    public float getOffsetY() {
-        return green / 255;
+    public static float getOffsetZ(Color color) {
+        return color.getBlue() / 255.0F;
     }
-
-    public float getOffsetZ() {
-        return blue / 255;
-    }
-
-    // Why Spigot?
-    public static ParticleColor fromChatColor(ChatColor chatColor) {
+    
+    public static Color fromChatColor(ChatColor chatColor) {
         switch (chatColor) {
             case AQUA:
-                return new ParticleColor(Color.AQUA);
+                return Color.AQUA;
             case BLACK:
-                return new ParticleColor(Color.BLACK);
+                return Color.BLACK;
             case BLUE:
             case DARK_AQUA:
             case DARK_BLUE:
-                return new ParticleColor(Color.BLUE);
+                return Color.BLUE;
             case DARK_GRAY:
             case GRAY:
-                return new ParticleColor(Color.GRAY);
+                return Color.GRAY;
             case DARK_GREEN:
-                return new ParticleColor(Color.GREEN);
+                return Color.GREEN;
             case DARK_PURPLE:
             case LIGHT_PURPLE:
-                return new ParticleColor(Color.PURPLE);
+                return Color.PURPLE;
             case DARK_RED:
             case RED:
-                return new ParticleColor(Color.RED);
+                return Color.RED;
             case GOLD:
             case YELLOW:
-                return new ParticleColor(Color.YELLOW);
+                return Color.YELLOW;
             case GREEN:
-                return new ParticleColor(Color.LIME);
+                return Color.LIME;
             case WHITE:
-                return new ParticleColor(Color.WHITE);
+                return Color.WHITE;
             default:
                 break;
         }
-
         return null;
-    }
-
-    public Color getColor() {
-        return color;
     }
 }

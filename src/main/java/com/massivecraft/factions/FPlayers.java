@@ -23,6 +23,10 @@ public abstract class FPlayers {
         return new JSONFPlayers();
     }
 
+    public abstract boolean addOnline(FPlayer fPlayer);
+
+    public abstract boolean removeOnline(FPlayer fPlayer);
+
     public abstract Collection<FPlayer> getOnlinePlayers();
 
     public abstract FPlayer getByPlayer(Player player);

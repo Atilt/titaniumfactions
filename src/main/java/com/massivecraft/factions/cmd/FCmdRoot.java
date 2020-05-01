@@ -223,7 +223,7 @@ public class FCmdRoot extends FCommand implements CommandExecutor {
         if (FactionsPlugin.getInstance().conf().commands().tnt().isEnable()) {
             this.addSubCommand(this.cmdTNT);
         }
-        if (Bukkit.getServer().getPluginManager().isPluginEnabled("FactionsTop")) {
+        if (Bukkit.getPluginManager().isPluginEnabled("FactionsTop")) {
             FactionsPlugin.getInstance().getLogger().info("Found FactionsTop plugin. Disabling our own /f top command.");
         } else {
             this.addSubCommand(this.cmdTop);

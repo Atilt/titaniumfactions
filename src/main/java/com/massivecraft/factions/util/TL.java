@@ -16,7 +16,6 @@
  */
 package com.massivecraft.factions.util;
 
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.text.SimpleDateFormat;
@@ -1024,7 +1023,7 @@ public enum TL {
 
     @Override
     public String toString() {
-        return this == TITLE ? ChatColor.translateAlternateColorCodes('&', LANG.getString(this.path, def)) + " " : ChatColor.translateAlternateColorCodes('&', LANG.getString(this.path, def));
+        return this == TITLE ? TextUtil.parseColorBukkit(LANG.getString(this.path, def)) + " " : TextUtil.parseColorBukkit(LANG.getString(this.path, def));
     }
 
     public String format(Object... args) {

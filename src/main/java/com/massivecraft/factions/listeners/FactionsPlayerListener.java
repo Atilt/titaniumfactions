@@ -128,11 +128,12 @@ public class FactionsPlayerListener extends AbstractListener {
         }
 
         if (plugin.worldUtil().isEnabled(player.getWorld())) {
-            this.initFactionWorld(me);
+            this.initFactionWorld(me, player);
         }
+        FPlayers.getInstance().addOnline(me);
     }
 
-    private void initFactionWorld(FPlayer me) {
+    private void initFactionWorld(FPlayer me, Player player) {
         // Check for Faction announcements. Let's delay this so they actually see it.
         new BukkitRunnable() {
             @Override
@@ -159,14 +160,14 @@ public class FactionsPlayerListener extends AbstractListener {
         }
 
         // If they have the permission, don't let them autoleave. Bad inverted setter :\
-        me.setAutoLeave(!me.getPlayer().hasPermission(Permission.AUTO_LEAVE_BYPASS.node));
+        me.setAutoLeave(!player.hasPermission(Permission.AUTO_LEAVE_BYPASS.node));
         me.setTakeFallDamage(true);
         if (plugin.conf().commands().fly().isEnable() && me.isFlying()) { // TODO allow flight to continue
             me.setFlying(false);
         }
 
         if (FactionsPlugin.getInstance().getSeeChunkUtil() != null) {
-            FactionsPlugin.getInstance().getSeeChunkUtil().updatePlayerInfo(me.getId(), me.isSeeingChunk());
+            FactionsPlugin.getInstance().getSeeChunkUtil().updatePlayerInfo(player, me.isSeeingChunk());
         }
     }
 
@@ -190,6 +191,8 @@ public class FactionsPlayerListener extends AbstractListener {
         if (!myFaction.isWilderness()) {
             myFaction.memberLoggedOff();
         }
+
+        FPlayers.getInstance().removeOnline(me);
 
         if (!myFaction.isWilderness()) {
             for (FPlayer player : myFaction.getFPlayersWhereOnline(true)) {
@@ -419,13 +422,13 @@ public class FactionsPlayerListener extends AbstractListener {
 
         // returns the current attempt count
         public int increment() {
-            long Now = System.currentTimeMillis();
-            if (Now > lastAttempt + 2000) {
+            long now = System.currentTimeMillis();
+            if (now > lastAttempt + 2000) {
                 attempts = 1;
             } else {
                 attempts++;
             }
-            lastAttempt = Now;
+            lastAttempt = now;
             return attempts;
         }
     }
@@ -541,7 +544,7 @@ public class FactionsPlayerListener extends AbstractListener {
         }
         if (!event.getFrom().getWorld().equals(event.getTo().getWorld()) && !plugin.worldUtil().isEnabled(event.getPlayer().getWorld())) {
             FactionsPlugin.getInstance().getLandRaidControl().update(me);
-            this.initFactionWorld(me);
+            this.initFactionWorld(me, event.getPlayer());
         }
 
         FLocation to = FLocation.wrap(event.getTo());
@@ -663,7 +666,7 @@ public class FactionsPlayerListener extends AbstractListener {
         return false;
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPlayerInteractGUI(InventoryClickEvent event) {
         if (!plugin.worldUtil().isEnabled(event.getWhoClicked().getWorld())) {
             return;
@@ -679,7 +682,7 @@ public class FactionsPlayerListener extends AbstractListener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPlayerMoveGUI(InventoryDragEvent event) {
         if (!plugin.worldUtil().isEnabled(event.getWhoClicked().getWorld())) {
             return;

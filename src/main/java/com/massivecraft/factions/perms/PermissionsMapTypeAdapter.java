@@ -60,29 +60,26 @@ public class PermissionsMapTypeAdapter implements JsonDeserializer<Map<Permissib
     }
 
     private Permissible getPermissible(String name) {
-        // If name is uppercase then it is (probably, no way to completely know) valid if not begin conversion
-        if (name.equals(name.toUpperCase())) {
-            if (Role.fromString(name.toUpperCase()) != null) {
-                return Role.fromString(name.toUpperCase());
-            } else if (Relation.fromString(name.toUpperCase()) != null) {
-                return Relation.fromString(name.toUpperCase());
-            } else {
-                return null;
+        String upper = name.toUpperCase();
+        if (name.equals(upper)) {
+            Role possibleRole = Role.fromString(upper);
+            if (possibleRole == null) {
+                return Relation.fromString(upper);
             }
-        } else {
-            if (name.equals(TL.ROLE_RECRUIT.toString())) {
-                return Role.RECRUIT;
-            } else if (name.equals(TL.ROLE_NORMAL.toString())) {
-                return Role.NORMAL;
-            } else if (name.equals(TL.ROLE_MODERATOR.toString())) {
-                return Role.MODERATOR;
-            } else {
-                // If it is explicitly member and its old data then it refers to relation member not role, skip it
-                if (name.equals("member")) {
-                    return null;
-                }
-                return Relation.fromString(name);
-            }
+            return possibleRole;
         }
+        if (name.equals(TL.ROLE_RECRUIT.toString())) {
+            return Role.RECRUIT;
+        }
+        if (name.equals(TL.ROLE_NORMAL.toString())) {
+            return Role.NORMAL;
+        }
+        if (name.equals(TL.ROLE_MODERATOR.toString())) {
+            return Role.MODERATOR;
+        }
+        if (name.equals("member")) {
+            return null;
+        }
+        return Relation.fromString(name);
     }
 }

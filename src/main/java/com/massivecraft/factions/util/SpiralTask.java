@@ -56,7 +56,7 @@ public abstract class SpiralTask implements Runnable {
         this.readyToGo = true;
 
         // get this party started
-        this.setTaskID(Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(FactionsPlugin.getInstance(), this, 2, 2));
+        this.setTaskID(Bukkit.getScheduler().scheduleSyncRepeatingTask(FactionsPlugin.getInstance(), this, 2, 2));
     }
 
     /*
@@ -194,7 +194,7 @@ public abstract class SpiralTask implements Runnable {
         }
 
         readyToGo = false;
-        Bukkit.getServer().getScheduler().cancelTask(taskID);
+        Bukkit.getScheduler().cancelTask(taskID);
         taskID = -1;
     }
 

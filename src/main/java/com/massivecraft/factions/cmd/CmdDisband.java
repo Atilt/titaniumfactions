@@ -61,14 +61,14 @@ public class CmdDisband extends FCommand {
         }
 
         FactionDisbandEvent disbandEvent = new FactionDisbandEvent(context.player, faction.getId());
-        Bukkit.getServer().getPluginManager().callEvent(disbandEvent);
+        Bukkit.getPluginManager().callEvent(disbandEvent);
         if (disbandEvent.isCancelled()) {
             return;
         }
 
         // Send FPlayerLeaveEvent for each player in the faction
         for (FPlayer fplayer : faction.getFPlayers()) {
-            Bukkit.getServer().getPluginManager().callEvent(new FPlayerLeaveEvent(fplayer, faction, FPlayerLeaveEvent.PlayerLeaveReason.DISBAND));
+            Bukkit.getPluginManager().callEvent(new FPlayerLeaveEvent(fplayer, faction, FPlayerLeaveEvent.PlayerLeaveReason.DISBAND));
         }
 
         // Inform all players

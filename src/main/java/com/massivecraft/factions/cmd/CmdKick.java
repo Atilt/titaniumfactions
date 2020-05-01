@@ -93,7 +93,7 @@ public class CmdKick extends FCommand {
 
         // trigger the leave event (cancellable) [reason:kicked]
         FPlayerLeaveEvent event = new FPlayerLeaveEvent(toKick, toKick.getFaction(), FPlayerLeaveEvent.PlayerLeaveReason.KICKED);
-        Bukkit.getServer().getPluginManager().callEvent(event);
+        Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) {
             return;
         }
