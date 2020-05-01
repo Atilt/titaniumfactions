@@ -14,9 +14,14 @@ public class FactionDisbandEvent extends FactionEvent implements Cancellable {
     private boolean cancelled = false;
     private Player sender;
 
-    public FactionDisbandEvent(Player sender, String factionId) {
+    public FactionDisbandEvent(Player sender, int factionId) {
         super(Factions.getInstance().getFactionById(factionId));
         this.sender = sender;
+    }
+
+    @Deprecated
+    public FactionDisbandEvent(Player sender, String factionId) {
+        this(sender, Integer.parseInt(factionId));
     }
 
     public FPlayer getFPlayer() {
