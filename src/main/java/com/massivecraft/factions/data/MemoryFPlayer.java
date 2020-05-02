@@ -45,6 +45,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 
 /**
@@ -1035,6 +1036,8 @@ public abstract class MemoryFPlayer implements FPlayer {
         msg(TL.COMMAND_FLYTRAILS_PARTICLE_CHANGE, effect);
     }
 
+    private static final Pattern MESSAGE_LINES = Pattern.compile("/n/");
+
     public void sendMessage(String msg) {
         if (msg.contains("{null}")) {
             return; // user wants this message to not send
@@ -1043,7 +1046,7 @@ public abstract class MemoryFPlayer implements FPlayer {
         if (player == null) {
             return;
         }
-        for (String s : msg.split("/n/")) {
+        for (String s : MESSAGE_LINES.split(msg)) {
             player.sendMessage(s);
         }
     }

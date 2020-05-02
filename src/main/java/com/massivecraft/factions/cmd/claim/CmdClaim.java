@@ -9,9 +9,15 @@ import com.massivecraft.factions.cmd.FCommand;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.SpiralTask;
 import com.massivecraft.factions.util.TL;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
+
+import java.util.UUID;
 
 
 public class CmdClaim extends FCommand {
+
+    private final ObjectSet<UUID> claiming = new ObjectOpenHashSet<>();
 
     public CmdClaim() {
         super();
@@ -45,24 +51,27 @@ public class CmdClaim extends FCommand {
                 context.msg(TL.COMMAND_CLAIM_DENIED);
                 return;
             }
+            if (this.claiming.add(context.player.getUniqueId())) {
+                new SpiralTask(FLocation.wrap(context.player), radius, () -> this.claiming.remove(context.player.getUniqueId())) {
+                    private int failCount = 0;
+                    private final int limit = FactionsPlugin.getInstance().conf().factions().claims().getRadiusClaimFailureLimit() - 1;
 
-            new SpiralTask(FLocation.wrap(context.player), radius) {
-                private int failCount = 0;
-                private final int limit = FactionsPlugin.getInstance().conf().factions().claims().getRadiusClaimFailureLimit() - 1;
+                    @Override
+                    public boolean work() {
+                        boolean success = context.fPlayer.attemptClaim(forFaction, this.currentFLocation(), true);
+                        if (success) {
+                            failCount = 0;
+                        } else if (failCount++ >= limit) {
+                            this.stop();
+                            return false;
+                        }
 
-                @Override
-                public boolean work() {
-                    boolean success = context.fPlayer.attemptClaim(forFaction, this.currentLocation(), true);
-                    if (success) {
-                        failCount = 0;
-                    } else if (failCount++ >= limit) {
-                        this.stop();
-                        return false;
+                        return true;
                     }
-
-                    return true;
-                }
-            };
+                };
+                return;
+            }
+            context.msg(TL.COMMAND_CLAIM_ALREADY_OCCURING);
         }
     }
 

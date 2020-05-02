@@ -38,15 +38,19 @@ public abstract class SpiralTask implements Runnable {
     private transient int length = -1;
     private transient int current = 0;
 
+    private final Runnable finish;
+
     @SuppressWarnings("LeakingThisInConstructor")
-    public SpiralTask(FLocation fLocation, int radius) {
+    public SpiralTask(FLocation fLocation, int radius, Runnable finish) {
         // limit is determined based on spiral leg length for given radius; see insideRadius()
         this.limit = (radius - 1) * 2;
 
         this.world = Bukkit.getWorld(fLocation.getWorldName());
+        this.finish = finish;
         if (this.world == null) {
             FactionsPlugin.getInstance().log(Level.WARNING, "[SpiralTask] A valid world must be specified!");
             this.stop();
+            finish.run();
             return;
         }
 
@@ -185,6 +189,7 @@ public abstract class SpiralTask implements Runnable {
     public void finish() {
 //		P.getInstance().log("SpiralTask successfully completed!");
         this.stop();
+        this.finish.run();
     }
 
     // we're done, whether finished or cancelled
@@ -192,7 +197,6 @@ public abstract class SpiralTask implements Runnable {
         if (!this.valid()) {
             return;
         }
-
         readyToGo = false;
         Bukkit.getScheduler().cancelTask(taskID);
         taskID = -1;
