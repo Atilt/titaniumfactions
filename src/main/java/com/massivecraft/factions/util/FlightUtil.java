@@ -32,11 +32,14 @@ public class FlightUtil {
         }
     }
 
-    public static void start() {
-        instance = new FlightUtil();
-    }
-
-    public static FlightUtil instance() {
+    public static FlightUtil getInstance() {
+        if (instance == null) {
+            synchronized (FlightUtil.class) {
+                if (instance == null) {
+                    instance = new FlightUtil();
+                }
+            }
+        }
         return instance;
     }
 
@@ -52,8 +55,7 @@ public class FlightUtil {
 
         @Override
         public void run() {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                FPlayer pilot = FPlayers.getInstance().getByPlayer(player);
+            for (FPlayer pilot : FPlayers.getInstance()) {
                 if (pilot.isFlying() && !pilot.isAdminBypassing()) {
                     if (enemiesNearby(pilot, FactionsPlugin.getInstance().conf().commands().fly().getEnemyRadius())) {
                         pilot.msg(TL.COMMAND_FLY_ENEMY_DISABLE);
@@ -89,8 +91,8 @@ public class FlightUtil {
 
     public static class ParticleTrailsTask extends BukkitRunnable {
 
-        private int amount;
-        private float speed;
+        private final int amount;
+        private final float speed;
 
         private ParticleTrailsTask() {
             this.amount = FactionsPlugin.getInstance().conf().commands().fly().particles().getAmount();
@@ -99,12 +101,13 @@ public class FlightUtil {
 
         @Override
         public void run() {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                FPlayer pilot = FPlayers.getInstance().getByPlayer(player);
-                if (pilot.isFlying()) {
-                    if (pilot.getFlyTrailsEffect() != null && Permission.FLY_TRAILS.has(player) && pilot.getFlyTrailsState()) {
-                        FactionsPlugin.getInstance().getParticleProvider().spawn(FactionsPlugin.getInstance().getParticleProvider().effectFromString(pilot.getFlyTrailsEffect()), player.getLocation(), amount, speed, 0, 0, 0);
-                    }
+            for (FPlayer pilot : FPlayers.getInstance()) {
+                if (!pilot.isFlying()) {
+                    continue;
+                }
+                Player player = Bukkit.getPlayer(pilot.getId());
+                if (pilot.getFlyTrailsEffect() != null && Permission.FLY_TRAILS.has(player) && pilot.getFlyTrailsState()) {
+                    FactionsPlugin.getInstance().getParticleProvider().spawn(FactionsPlugin.getInstance().getParticleProvider().effectFromString(pilot.getFlyTrailsEffect()), player.getLocation(), amount, speed, 0, 0, 0);
                 }
             }
         }

@@ -78,11 +78,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
@@ -149,7 +146,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     // Persistence related
     private boolean locked = false;
 
-    private Integer AutoLeaveTask = null;
+    private AutoLeaveTask autoLeaveTask;
 
     private boolean hookedPlayervaults;
     private ClipPlaceholderAPIManager clipPlaceholderAPIManager;
@@ -343,7 +340,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             this.getCommand(refCommand).setExecutor(new FCmdRoot());
 
             if (conf().commands().fly().isEnable()) {
-                FlightUtil.start();
+                FlightUtil.getInstance();
             }
 
             setupPlaceholderAPI();
@@ -564,48 +561,8 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     public void loadLang(BooleanConsumer result) {
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-            File lang = new File(getDataFolder(), "lang.yml");
-            OutputStream out = null;
-            InputStream defLangStream = this.getResource("lang.yml");
-            if (!lang.exists()) {
-                try {
-                    getDataFolder().mkdir();
-                    lang.createNewFile();
-                    if (defLangStream != null) {
-                        out = new FileOutputStream(lang);
-                        int read;
-                        byte[] bytes = new byte[1024];
-
-                        while ((read = defLangStream.read(bytes)) != -1) {
-                            out.write(bytes, 0, read);
-                        }
-                        YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(new BufferedReader(new InputStreamReader(defLangStream)));
-                        TL.setFile(defConfig);
-                    }
-                } catch (IOException e) {
-                    getLogger().log(Level.SEVERE, "[Factions] Couldn't create language file.", e);
-                    getLogger().severe("[Factions] This is a fatal error. Now disabling");
-                    this.setEnabled(false); // Without it loaded, we can't send them messages
-                } finally {
-                    if (defLangStream != null) {
-                        try {
-                            defLangStream.close();
-                        } catch (IOException e) {
-                            FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to close resource", e);
-                            Bukkit.getScheduler().runTask(this, () -> result.accept(false));
-                        }
-                    }
-                    if (out != null) {
-                        try {
-                            out.close();
-                        } catch (IOException e) {
-                            FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to close output", e);
-                            Bukkit.getScheduler().runTask(this, () -> result.accept(false));
-                        }
-                    }
-                }
-            }
-
+            this.saveResource("lang.yml", false);
+            File lang = new File(this.getDataFolder(), "lang.yml");
             YamlConfiguration conf = YamlConfiguration.loadConfiguration(lang);
             for (TL item : TL.VALUES) {
                 if (conf.getString(item.getPath()) == null) {
@@ -852,11 +809,10 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     @Override
     public void onDisable() {
-        if (AutoLeaveTask != null) {
-            this.getServer().getScheduler().cancelTask(AutoLeaveTask);
-            AutoLeaveTask = null;
+        if (this.autoLeaveTask != null) {
+            this.autoLeaveTask.close();
+            this.autoLeaveTask = null;
         }
-
         if (saveTask != null) {
             this.getServer().getScheduler().cancelTask(saveTask);
             saveTask = null;
@@ -871,16 +827,15 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     }
 
     public void startAutoLeaveTask(boolean restartIfRunning) {
-        if (AutoLeaveTask != null) {
+        if (this.autoLeaveTask != null) {
             if (!restartIfRunning) {
                 return;
             }
-            this.getServer().getScheduler().cancelTask(AutoLeaveTask);
+            this.autoLeaveTask.close();
         }
-
         if (this.conf().factions().other().getAutoLeaveRoutineRunsEveryXMinutes() > 0.0) {
-            long ticks = (long) (20 * 60 * this.conf().factions().other().getAutoLeaveRoutineRunsEveryXMinutes());
-            AutoLeaveTask = getServer().getScheduler().scheduleSyncRepeatingTask(this, new AutoLeaveTask(), ticks, ticks);
+            this.autoLeaveTask = new AutoLeaveTask();
+            this.autoLeaveTask.start();
         }
     }
 

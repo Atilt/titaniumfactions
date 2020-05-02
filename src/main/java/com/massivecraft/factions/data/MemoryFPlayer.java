@@ -914,8 +914,7 @@ public abstract class MemoryFPlayer implements FPlayer {
     }
 
     public boolean isOnline() {
-        Player player = this.getPlayer();
-        return player != null && FactionsPlugin.getInstance().worldUtil().isEnabled(player.getWorld());
+        return FPlayers.getInstance().isOnline(this) && FactionsPlugin.getInstance().worldUtil().isEnabled(this.getLastStoodAt().getWorld());
     }
 
     // make sure target player should be able to detect that this player is online

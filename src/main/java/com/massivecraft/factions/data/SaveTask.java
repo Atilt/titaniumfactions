@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SaveTask implements Runnable {
 
-    private static AtomicBoolean running = new AtomicBoolean(false);
+    private static final AtomicBoolean RUNNING = new AtomicBoolean(false);
 
     private FactionsPlugin plugin;
 
@@ -18,12 +18,12 @@ public class SaveTask implements Runnable {
     }
 
     public void run() {
-        if (!plugin.getAutoSave() || running.get()) {
+        if (!plugin.getAutoSave() || RUNNING.get()) {
             return;
         }
-        running.set(true);
+        RUNNING.set(true);
         Factions.getInstance().forceSave(false, null);
         FPlayers.getInstance().forceSave(false, null);
-        Board.getInstance().forceSave(false, result -> running.set(false));
+        Board.getInstance().forceSave(false, result -> RUNNING.set(false));
     }
 }

@@ -17,7 +17,7 @@ import java.util.UUID;
 
 public class VisualizeUtil {
 
-    protected static Object2ObjectMap<UUID, ObjectSet<Location>> playerLocations = new Object2ObjectOpenHashMap<>();
+    protected static final Object2ObjectMap<UUID, ObjectSet<Location>> playerLocations = new Object2ObjectOpenHashMap<>();
 
     public static Set<Location> getPlayerLocations(Player player) {
         return getPlayerLocations(player.getUniqueId());

@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.function.IntConsumer;
 
-public abstract class FPlayers {
+public abstract class FPlayers implements Iterable<FPlayer> {
     protected static FPlayers instance = getFPlayersImpl();
 
     public abstract void clean();
@@ -26,6 +26,8 @@ public abstract class FPlayers {
     public abstract boolean addOnline(FPlayer fPlayer);
 
     public abstract boolean removeOnline(FPlayer fPlayer);
+
+    public abstract boolean isOnline(FPlayer fPlayer);
 
     public abstract Collection<FPlayer> getOnlinePlayers();
 

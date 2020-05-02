@@ -14,6 +14,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -43,6 +44,11 @@ public abstract class MemoryFPlayers extends FPlayers {
         return this.online.remove(fPlayer);
     }
 
+    @Override
+    public boolean isOnline(FPlayer fPlayer) {
+        return this.online.contains(fPlayer);
+    }
+
     public Collection<FPlayer> getOnlinePlayers() {
         return new ObjectOpenHashSet<>(this.online);
     }
@@ -70,4 +76,9 @@ public abstract class MemoryFPlayers extends FPlayers {
     protected abstract FPlayer generateFPlayer(UUID id);
 
     public abstract void convertFrom(MemoryFPlayers old, BooleanConsumer finish);
+
+    @Override
+    public Iterator<FPlayer> iterator() {
+        return this.online.iterator();
+    }
 }
