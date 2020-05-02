@@ -47,7 +47,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -92,8 +91,8 @@ public class FactionsPlayerListener extends AbstractListener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onAsyncPlayerPreLogin(AsyncPlayerPreLoginEvent event) {
         if (!this.plugin.isFinishedLoading()) {
-            event.setResult(PlayerPreLoginEvent.Result.KICK_OTHER);
-            event.setKickMessage("implement customizable message here");
+            event.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
+            event.setKickMessage(TL.FACTIONS_DATA_LOADING.toString());
         }
     }
 

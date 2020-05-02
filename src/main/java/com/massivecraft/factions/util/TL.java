@@ -977,6 +977,9 @@ public enum TL {
     DTR_FROZEN_STATUS_FALSE("Not frozen"),
     DTR_FROZEN_TIME_MESSAGE("%s"),
     DTR_FROZEN_TIME_NOTFROZEN(""),
+
+    FACTIONS_DATA_LOADING("Server data loading... try again later."),
+
     ;
 
     private String path;
