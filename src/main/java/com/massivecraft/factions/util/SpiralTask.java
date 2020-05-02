@@ -50,7 +50,9 @@ public abstract class SpiralTask implements Runnable {
         if (this.world == null) {
             FactionsPlugin.getInstance().log(Level.WARNING, "[SpiralTask] A valid world must be specified!");
             this.stop();
-            finish.run();
+            if (finish != null) {
+                finish.run();
+            }
             return;
         }
 
@@ -189,7 +191,9 @@ public abstract class SpiralTask implements Runnable {
     public void finish() {
 //		P.getInstance().log("SpiralTask successfully completed!");
         this.stop();
-        this.finish.run();
+        if (this.finish != null) {
+            this.finish.run();
+        }
     }
 
     // we're done, whether finished or cancelled

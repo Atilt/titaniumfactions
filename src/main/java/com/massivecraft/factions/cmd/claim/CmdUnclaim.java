@@ -52,7 +52,7 @@ public class CmdUnclaim extends FCommand {
                 return;
             }
 
-            new SpiralTask(FLocation.wrap(context.player), radius) {
+            new SpiralTask(FLocation.wrap(context.player), radius, null) {
                 private int failCount = 0;
                 private final int limit = FactionsPlugin.getInstance().conf().factions().claims().getRadiusClaimFailureLimit() - 1;
 

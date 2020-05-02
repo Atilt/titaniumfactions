@@ -72,7 +72,7 @@ public class CmdStuck extends FCommand {
 
                     final Board board = Board.getInstance();
                     // spiral task to find nearest wilderness chunk
-                    new SpiralTask(FLocation.wrap(context.player), radius * 2) {
+                    new SpiralTask(FLocation.wrap(context.player), radius * 2, null) {
 
                         final int buffer = FactionsPlugin.getInstance().conf().worldBorder().getBuffer();
 
