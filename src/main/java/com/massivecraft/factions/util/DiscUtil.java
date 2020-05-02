@@ -26,10 +26,14 @@ public class DiscUtil {
     }
 
     public static <T> T read(Path path, Gson gson, Type type) {
+        Lock lock = LOCKS.computeIfAbsent(path.getFileName().toString(), s -> new ReentrantReadWriteLock().readLock());
+        lock.lock();
         try (Reader reader = Files.newBufferedReader(path, Charsets.UTF_8)) {
             return gson.fromJson(reader, type);
         } catch (IOException exception) {
             exception.printStackTrace();
+        } finally {
+            lock.unlock();
         }
         return null;
     }

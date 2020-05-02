@@ -65,7 +65,6 @@ public class CmdClaim extends FCommand {
                             this.stop();
                             return false;
                         }
-
                         return true;
                     }
                 };
