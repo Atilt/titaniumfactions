@@ -127,6 +127,7 @@ public final class AutoLeaveTask implements Runnable, AutoCloseable {
                 this.ready = false;
                 this.closed = true;
                 Bukkit.getScheduler().cancelTask(this.id);
+                this.runs = 0;
             }
         }
     }
