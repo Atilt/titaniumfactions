@@ -49,6 +49,11 @@ public abstract class MemoryFPlayers extends FPlayers {
         return this.online.contains(fPlayer);
     }
 
+    @Override
+    public int size() {
+        return this.online.size();
+    }
+
     public Collection<FPlayer> getOnlinePlayers() {
         return new ObjectOpenHashSet<>(this.online);
     }

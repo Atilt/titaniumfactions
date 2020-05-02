@@ -7,6 +7,7 @@ import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.util.MiscUtil;
 import com.massivecraft.factions.util.QuadFunction;
+import com.massivecraft.factions.util.TextUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
@@ -180,7 +181,7 @@ public enum FancyTag implements Tag {
         if (!this.foundInString(text)) {
             return ObjectLists.emptyList(); // We really, really shouldn't be here.
         }
-        return this.function.apply(faction, player, text.replace(this.getTag(), ""), groupMap);
+        return this.function.apply(faction, player, TextUtil.replace(text, this.getTag(), ""), groupMap);
     }
     
     public static final FancyTag[] VALUES = FancyTag.values();

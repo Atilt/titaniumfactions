@@ -29,6 +29,8 @@ public abstract class FPlayers implements Iterable<FPlayer> {
 
     public abstract boolean isOnline(FPlayer fPlayer);
 
+    public abstract int size();
+
     public abstract Collection<FPlayer> getOnlinePlayers();
 
     public abstract FPlayer getByPlayer(Player player);

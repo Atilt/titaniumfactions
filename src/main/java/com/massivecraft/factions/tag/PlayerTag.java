@@ -1,9 +1,11 @@
 package com.massivecraft.factions.tag;
 
 import com.massivecraft.factions.FPlayer;
+import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.integration.Econ;
 import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.TextUtil;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -24,14 +26,14 @@ public enum PlayerTag implements Tag {
         return fp.isOnline() ? ChatColor.GREEN + TL.COMMAND_STATUS_ONLINE.toString() : (System.currentTimeMillis() - fp.getLastLoginTime() < 432000000 ? ChatColor.YELLOW + humanized : ChatColor.RED + humanized);
     }),
     PLAYER_BALANCE("balance", (fp) -> Econ.isSetup() ? Econ.getFriendlyBalance(fp) : (Tag.isMinimalShow() ? null : TL.ECON_OFF.format("balance"))),
-    PLAYER_POWER("player-power", (fp) -> String.valueOf(fp.getPowerRounded())),
-    PLAYER_MAXPOWER("player-maxpower", (fp) -> String.valueOf(fp.getPowerMaxRounded())),
-    PLAYER_KILLS("player-kills", (fp) -> String.valueOf(fp.getKills())),
-    PLAYER_DEATHS("player-deaths", (fp) -> String.valueOf(fp.getDeaths())),
+    PLAYER_POWER("player-power", (fp) -> Integer.toString(fp.getPowerRounded())),
+    PLAYER_MAXPOWER("player-maxpower", (fp) -> Integer.toString(fp.getPowerMaxRounded())),
+    PLAYER_KILLS("player-kills", (fp) -> Integer.toString(fp.getKills())),
+    PLAYER_DEATHS("player-deaths", (fp) -> Integer.toString(fp.getDeaths())),
     PLAYER_NAME("name", FPlayer::getName),
     TOTAL_ONLINE_VISIBLE("total-online-visible", (fp) -> {
         if (fp == null) {
-            return String.valueOf(Bukkit.getOnlinePlayers().size());
+            return Integer.toString(FPlayers.getInstance().size());
         }
         int count = 0;
         Player me = fp.getPlayer();
@@ -74,7 +76,10 @@ public enum PlayerTag implements Tag {
             return text;
         }
         String result = this.function.apply(player);
-        return result == null ? null : text.replace(this.tag, result);
+        if (result == null) {
+            return null;
+        }
+        return TextUtil.replace(text, this.tag, result);
     }
 
     public static final PlayerTag[] VALUES = PlayerTag.values();
