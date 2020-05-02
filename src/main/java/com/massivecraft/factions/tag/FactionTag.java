@@ -18,11 +18,11 @@ public enum FactionTag implements Tag {
     HOME_X("x", (fac) -> fac.hasHome() ? String.valueOf(fac.getHome().getBlockX()) : Tag.isMinimalShow() ? null : "{ig}"),
     HOME_Y("y", (fac) -> fac.hasHome() ? String.valueOf(fac.getHome().getBlockY()) : Tag.isMinimalShow() ? null : "{ig}"),
     HOME_Z("z", (fac) -> fac.hasHome() ? String.valueOf(fac.getHome().getBlockZ()) : Tag.isMinimalShow() ? null : "{ig}"),
-    CHUNKS("chunks", (fac) -> String.valueOf(fac.getLandRounded())),
-    WARPS("warps", (fac) -> String.valueOf(fac.getWarps().size())),
+    CHUNKS("chunks", (fac) -> Integer.toString(fac.getLandRounded())),
+    WARPS("warps", (fac) -> Integer.toString(fac.getWarps().size())),
     HEADER("header", (fac, fp) -> FactionsPlugin.getInstance().txt().titleize(fac.getTag(fp))),
-    POWER("power", (fac) -> String.valueOf(fac.getPowerRounded())),
-    MAX_POWER("maxPower", (fac) -> String.valueOf(fac.getPowerMaxRounded())),
+    POWER("power", (fac) -> Integer.toString(fac.getPowerRounded())),
+    MAX_POWER("maxPower", (fac) -> Integer.toString(fac.getPowerMaxRounded())),
     POWER_BOOST("power-boost", (fac) -> {
         double powerBoost = fac.getPowerBoost();
         return (powerBoost == 0.0) ? "" : (powerBoost > 0.0 ? TL.COMMAND_SHOW_BONUS.toString() : TL.COMMAND_SHOW_PENALTY.toString() + powerBoost + ")");
@@ -57,7 +57,7 @@ public enum FactionTag implements Tag {
     DTR_FROZEN_TIME("dtr-frozen-time", (fac -> TL.DTR_FROZEN_TIME_MESSAGE.format(fac.isFrozenDTR() ?
             DurationFormatUtils.formatDuration(fac.getFrozenDTRUntilTime() - System.currentTimeMillis(), FactionsPlugin.getInstance().conf().factions().landRaidControl().dtr().getFreezeTimeFormat()) :
             TL.DTR_FROZEN_TIME_NOTFROZEN.toString()))),
-    MAX_CHUNKS("max-chunks", (fac -> String.valueOf(FactionsPlugin.getInstance().getLandRaidControl().getLandLimit(fac)))),
+    MAX_CHUNKS("max-chunks", (fac -> Integer.toString(FactionsPlugin.getInstance().getLandRaidControl().getLandLimit(fac)))),
     PEACEFUL("peaceful", (fac) -> fac.isPeaceful() ? FactionsPlugin.getInstance().conf().colors().relations().getPeaceful() + TL.COMMAND_SHOW_PEACEFUL.toString() : ""),
     PERMANENT("permanent", (fac) -> fac.isPermanent() ? "permanent" : "{notPermanent}"), // no braces needed
     LAND_VALUE("land-value", (fac) -> Econ.shouldBeUsed() ? Econ.moneyString(Econ.calculateTotalLandValue(fac.getLandRounded())) : Tag.isMinimalShow() ? null : TL.ECON_OFF.format("value")),
@@ -72,13 +72,13 @@ public enum FactionTag implements Tag {
     }),
     TNT_BALANCE("tnt-balance", (fac) -> {
         if (FactionsPlugin.getInstance().conf().commands().tnt().isEnable()) {
-            return String.valueOf(fac.getTNTBank());
+            return Integer.toString(fac.getTNTBank());
         }
         return Tag.isMinimalShow() ? null : "";
     }),
     TNT_MAX("tnt-max-balance", (fac) -> {
         if (FactionsPlugin.getInstance().conf().commands().tnt().isEnable()) {
-            return String.valueOf(FactionsPlugin.getInstance().conf().commands().tnt().getMaxStorage());
+            return Integer.toString(FactionsPlugin.getInstance().conf().commands().tnt().getMaxStorage());
         }
         return Tag.isMinimalShow() ? null : "";
     }),
@@ -87,18 +87,18 @@ public enum FactionTag implements Tag {
     TRUCES_COUNT("truces", (fac) -> String.valueOf(fac.getRelationCount(Relation.TRUCE))),
     ONLINE_COUNT("online", (fac, fp) -> {
         if (fp != null && fp.isOnline()) {
-            return String.valueOf(fac.getFPlayersWhereOnline(true, fp).size());
+            return Integer.toString(fac.getFPlayersWhereOnline(true, fp).size());
         } else {
             // Only console should ever get here.
-            return String.valueOf(fac.getFPlayersWhereOnline(true).size());
+            return Integer.toString(fac.getFPlayersWhereOnline(true).size());
         }
     }),
     OFFLINE_COUNT("offline", (fac, fp) -> {
         if (fp != null && fp.isOnline()) {
-            return String.valueOf(fac.getFPlayers().size() - fac.getFPlayersWhereOnline(true, fp).size());
+            return Integer.toString(fac.getFPlayers().size() - fac.getFPlayersWhereOnline(true, fp).size());
         } else {
             // Only console should ever get here.
-            return String.valueOf(fac.getFPlayersWhereOnline(false).size());
+            return Integer.toString(fac.getFPlayersWhereOnline(false).size());
         }
     }),
     FACTION_SIZE("members", (fac) -> String.valueOf(fac.getFPlayers().size())),
