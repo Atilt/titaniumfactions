@@ -145,8 +145,9 @@ public class FactionsPlayerListener extends AbstractListener {
 
         if (FactionsPlugin.getInstance().conf().scoreboard().constant().isEnabled()) {
             FScoreboard.init(me);
-            FScoreboard.get(me).setDefaultSidebar(new FDefaultSidebar());
-            FScoreboard.get(me).setSidebarVisibility(me.showScoreboard());
+            FScoreboard fScoreboard = FScoreboard.get(me);
+            fScoreboard.setDefaultSidebar(new FDefaultSidebar());
+            fScoreboard.setSidebarVisibility(me.showScoreboard());
         }
 
         Faction myFaction = me.getFaction();
