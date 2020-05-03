@@ -210,7 +210,7 @@ public class FactionsPlayerListener extends AbstractListener {
     }
 
     // Holds the next time a player can have a map shown.
-    private Object2LongMap<UUID> showTimes = new Object2LongOpenHashMap<>();
+    private final Object2LongMap<UUID> showTimes = new Object2LongOpenHashMap<>();
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerMove(PlayerMoveEvent event) {

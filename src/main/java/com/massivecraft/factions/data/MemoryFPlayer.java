@@ -1035,7 +1035,7 @@ public abstract class MemoryFPlayer implements FPlayer {
         msg(TL.COMMAND_FLYTRAILS_PARTICLE_CHANGE, effect);
     }
 
-    private static final Pattern MESSAGE_LINES = Pattern.compile("/n/");
+    private static final transient Pattern MESSAGE_LINES = Pattern.compile("/n/");
 
     public void sendMessage(String msg) {
         if (msg.contains("{null}")) {

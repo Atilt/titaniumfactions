@@ -26,8 +26,6 @@ public class JSONFPlayers extends MemoryFPlayers {
         return FactionsPlugin.getInstance().getGson();
     }
 
-    public void setGson(Gson gson) {}
-
     private static final Path PLAYERS_PATH = FactionsPlugin.getInstance().getDataFolder().toPath().resolve("data").resolve("players.json");
 
     public void convertFrom(MemoryFPlayers old, BooleanConsumer finish) {
@@ -69,7 +67,8 @@ public class JSONFPlayers extends MemoryFPlayers {
         if (Files.notExists(PLAYERS_PATH)) {
             return new Object2ObjectOpenHashMap<>(0);
         }
-        return DiscUtil.read(PLAYERS_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Object2ObjectMap<UUID, JSONFPlayer>>(){}.getType());
+        Object2ObjectMap<UUID, JSONFPlayer> read = DiscUtil.read(PLAYERS_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Object2ObjectOpenHashMap<UUID, JSONFPlayer>>(){}.getType());
+        return read;
     }
 
     @Override

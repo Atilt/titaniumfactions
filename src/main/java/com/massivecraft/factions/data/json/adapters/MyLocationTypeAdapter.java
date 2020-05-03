@@ -1,64 +1,54 @@
 package com.massivecraft.factions.data.json.adapters;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-import com.massivecraft.factions.FactionsPlugin;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import com.massivecraft.factions.util.LazyLocation;
 
-import java.lang.reflect.Type;
-import java.util.logging.Level;
+import java.io.IOException;
 
 
-public class MyLocationTypeAdapter implements JsonDeserializer<LazyLocation>, JsonSerializer<LazyLocation> {
-
-    private static final String WORLD = "world";
-    private static final String X = "x";
-    private static final String Y = "y";
-    private static final String Z = "z";
-    private static final String YAW = "yaw";
-    private static final String PITCH = "pitch";
+public class MyLocationTypeAdapter extends TypeAdapter<LazyLocation> {
 
     @Override
-    public LazyLocation deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-        try {
-            JsonObject obj = json.getAsJsonObject();
-
-            String worldName = obj.get(WORLD).getAsString();
-            double x = obj.get(X).getAsDouble();
-            double y = obj.get(Y).getAsDouble();
-            double z = obj.get(Z).getAsDouble();
-            float yaw = obj.get(YAW).getAsFloat();
-            float pitch = obj.get(PITCH).getAsFloat();
-
-            return new LazyLocation(worldName, x, y, z, yaw, pitch);
-
-        } catch (Exception ex) {
-            FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Error encountered while deserializing a LazyLocation.", ex);
-            return null;
+    public LazyLocation read(JsonReader jsonReader) throws IOException {
+        LazyLocation.Builder builder = new LazyLocation.Builder();
+        jsonReader.beginObject();
+        while (jsonReader.hasNext()) {
+            String key = jsonReader.nextName();
+            switch (key) {
+                case "world":
+                    builder.worldName(jsonReader.nextString());
+                    break;
+                case "x":
+                    builder.withX(jsonReader.nextDouble());
+                    break;
+                case "y":
+                    builder.withY(jsonReader.nextDouble());
+                    break;
+                case "z":
+                    builder.withZ(jsonReader.nextDouble());
+                    break;
+                case "yaw":
+                    builder.yaw((float) jsonReader.nextDouble());
+                    break;
+                case "pitch":
+                    builder.pitch((float) jsonReader.nextDouble());
+            }
         }
+        jsonReader.endObject();
+        return builder.build();
     }
 
     @Override
-    public JsonElement serialize(LazyLocation src, Type typeOfSrc, JsonSerializationContext context) {
-        JsonObject obj = new JsonObject();
-
-        try {
-            obj.addProperty(WORLD, src.getWorldName());
-            obj.addProperty(X, src.getX());
-            obj.addProperty(Y, src.getY());
-            obj.addProperty(Z, src.getZ());
-            obj.addProperty(YAW, src.getYaw());
-            obj.addProperty(PITCH, src.getPitch());
-
-            return obj;
-        } catch (Exception ex) {
-            FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Error encountered while serializing a LazyLocation.", ex);
-            return obj;
-        }
+    public void write(JsonWriter jsonWriter, LazyLocation lazyLocation) throws IOException {
+        jsonWriter.beginObject()
+            .name("world").value(lazyLocation.getWorldName())
+            .name("x").value(lazyLocation.getX())
+            .name("y").value(lazyLocation.getY())
+            .name("z").value(lazyLocation.getZ())
+            .name("yaw").value(lazyLocation.getYaw())
+            .name("pitch").value(lazyLocation.getPitch())
+        .endObject();
     }
 }

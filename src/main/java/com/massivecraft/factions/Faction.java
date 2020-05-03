@@ -1,6 +1,5 @@
 package com.massivecraft.factions;
 
-import com.google.common.collect.Multimap;
 import com.massivecraft.factions.iface.EconomyParticipator;
 import com.massivecraft.factions.perms.Permissible;
 import com.massivecraft.factions.perms.PermissibleAction;
@@ -18,7 +17,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public interface Faction extends EconomyParticipator {
-    Multimap<UUID, String> getAnnouncements();
+    Map<UUID, List<String>> getAnnouncements();
 
     Map<String, LazyLocation> getWarps();
 
@@ -262,7 +261,7 @@ public interface Faction extends EconomyParticipator {
     // Ownership of specific claims
     // ----------------------------------------------//
 
-    Multimap<FLocation, UUID> getClaimOwnership();
+    Map<FLocation, Set<UUID>> getClaimOwnership();
 
     void clearAllClaimOwnership();
 

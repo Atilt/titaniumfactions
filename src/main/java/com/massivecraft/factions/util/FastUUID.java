@@ -41,7 +41,7 @@ import java.util.UUID;
  *
  * @author <a href="https://github.com/jchambers/">Jon Chambers</a>
  */
-public class FastUUID {
+public final class FastUUID {
 
     private static final boolean USE_JDK_UUID_TO_STRING;
 

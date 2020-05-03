@@ -14,10 +14,10 @@ import com.massivecraft.factions.util.TL;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2CharMap;
+import it.unimi.dsi.fastutil.objects.Object2CharOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -54,7 +54,10 @@ public abstract class MemoryBoard extends Board {
             }
             int previousValue = super.put(fLocation, factionId);
             if (previousValue != NONE) { //if there was a previous value, then remove it from the multimap.
-                factionToLandMap.remove(previousValue).remove(fLocation);
+                ObjectSet<FLocation> fLocations = factionToLandMap.remove(previousValue);
+                if (fLocations != null) {
+                    fLocations.remove(fLocation);
+                }
             }
             factionToLandMap.computeIfAbsent(factionId, id -> new ObjectOpenHashSet<>()).add(fLocation);
             return previousValue;
@@ -116,7 +119,7 @@ public abstract class MemoryBoard extends Board {
         }
     }
 
-    private static final char[] mapKeyChrs = "\\/#$%=&^ABCDEFGHJKLMNOPQRSTUVWXYZ1234567890abcdeghjmnopqrsuvwxyz?".toCharArray();
+    private static final transient char[] MAP_CHARS = "\\/#$%=&^ABCDEFGHJKLMNOPQRSTUVWXYZ1234567890abcdeghjmnopqrsuvwxyz?".toCharArray();
 
     public MemoryBoardMap flocationIds = new MemoryBoardMap();
     public static final int NO_ID = 0;
@@ -362,7 +365,7 @@ public abstract class MemoryBoard extends Board {
         ret.add(new FancyMessage(FactionsPlugin.getInstance().txt().titleize("(" + flocation.getCoordString() + ") " + factionLoc.getTag(fplayer))));
 
         // Get the compass
-        List<String> asciiCompass = AsciiCompass.getAsciiCompass(inDegrees, ChatColor.RED, FactionsPlugin.getInstance().txt().parse("<a>"));
+        List<String> asciiCompass = AsciiCompass.getAsciiCompass((float) inDegrees, ChatColor.RED, FactionsPlugin.getInstance().txt().parse("<a>"));
 
         int halfWidth = FactionsPlugin.getInstance().conf().map().getWidth() / 2;
         // Use player's value for height
@@ -375,7 +378,7 @@ public abstract class MemoryBoard extends Board {
             height--;
         }
 
-        Object2ObjectMap<String, Character> fList = new Object2ObjectOpenHashMap<>();
+        Object2CharMap<String> fList = new Object2CharOpenHashMap<>();
         int chrIdx = 0;
 
         // For each row
@@ -403,16 +406,16 @@ public abstract class MemoryBoard extends Board {
                     } else if (factionHere.isWarZone()) {
                         row.then("+").color(FactionsPlugin.getInstance().conf().colors().factions().getWarzone());
                     } else if (factionHere == faction || factionHere == factionLoc || relation.isAtLeast(Relation.ALLY) ||
-                            (FactionsPlugin.getInstance().conf().map().isShowNeutralFactionsOnMap() && relation.equals(Relation.NEUTRAL)) ||
-                            (FactionsPlugin.getInstance().conf().map().isShowEnemyFactions() && relation.equals(Relation.ENEMY)) ||
-                            FactionsPlugin.getInstance().conf().map().isShowTruceFactions() && relation.equals(Relation.TRUCE)) {
+                            (FactionsPlugin.getInstance().conf().map().isShowNeutralFactionsOnMap() && relation == Relation.NEUTRAL) ||
+                            (FactionsPlugin.getInstance().conf().map().isShowEnemyFactions() && relation == Relation.ENEMY) ||
+                            FactionsPlugin.getInstance().conf().map().isShowTruceFactions() && relation == Relation.TRUCE) {
                         if (!fList.containsKey(factionHere.getTag())) {
-                            fList.put(factionHere.getTag(), mapKeyChrs[Math.min(chrIdx++, mapKeyChrs.length - 1)]);
+                            fList.put(factionHere.getTag(), MAP_CHARS[Math.min(chrIdx++, MAP_CHARS.length - 1)]);
                         }
-                        char tag = fList.get(factionHere.getTag());
-                        row.then(String.valueOf(tag)).color(factionHere.getColorTo(faction));
+                        ChatColor color = factionHere.getColorTo(faction);
+                        row.then(String.valueOf(fList.getChar(factionHere.getTag()))).color(color).tooltip(color + factionHere.getTag());
                     } else {
-                        row.then("-").color(ChatColor.GRAY);
+                        row.then("-").color(ChatColor.GRAY).tooltip(ChatColor.GRAY + factionHere.getTag());
                     }
                 }
             }
@@ -423,8 +426,7 @@ public abstract class MemoryBoard extends Board {
         if (FactionsPlugin.getInstance().conf().map().isShowFactionKey()) {
             FancyMessage fRow = new FancyMessage("");
             for (String key : fList.keySet()) {
-                Relation relation = fplayer.getRelationTo(Factions.getInstance().getByTag(key));
-                fRow.then(String.format("%s: %s ", fList.get(key), key)).color(relation.getColor());
+                fRow.then(String.format("%s: %s ", fList.getChar(key), key)).color(fplayer.getRelationTo(Factions.getInstance().getByTag(key)).getColor());
             }
             ret.add(fRow);
         }

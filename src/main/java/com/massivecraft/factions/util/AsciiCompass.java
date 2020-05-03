@@ -10,19 +10,48 @@ public class AsciiCompass {
 
     public enum Point {
 
-        N('N'),
-        NE('/'),
-        E('E'),
-        SE('\\'),
-        S('S'),
-        SW('/'),
-        W('W'),
-        NW('\\');
+        N('N', Point.S),
+        NE('/', Point.SW),
+        E('E', Point.W),
+        SE('\\', Point.NW),
+        S('S', Point.N),
+        SW('/', Point.NE),
+        W('W', Point.E),
+        NW('\\', Point.SE);
 
-        public final char asciiChar;
+        private final char asciiChar;
+        private final Point oppositePoint;
 
-        Point(final char asciiChar) {
+        public static final Point[] VALUES = values();
+
+        Point(char asciiChar, Point oppositePoint) {
             this.asciiChar = asciiChar;
+            this.oppositePoint = oppositePoint;
+        }
+
+        public char getAsciiChar() {
+            return this.asciiChar;
+        }
+
+        public Point getOppositePoint() {
+            switch (ordinal()) {
+                case 0:
+                    return Point.S;
+                case 1:
+                    return Point.SW;
+                case 2:
+                    return Point.W;
+                case 3:
+                    return Point.NW;
+                case 5:
+                    return Point.NE;
+                case 6:
+                    return Point.E;
+                case 7:
+                    return Point.SE;
+                default:
+                    return Point.N;
+            }
         }
 
         @Override
@@ -51,33 +80,8 @@ public class AsciiCompass {
         }
     }
 
-    public static AsciiCompass.Point getCompassPointForDirection(double inDegrees) {
-        double degrees = (inDegrees - 180) % 360;
-        if (degrees < 0) {
-            degrees += 360;
-        }
-
-        if (0 <= degrees && degrees < 22.5) {
-            return AsciiCompass.Point.N;
-        } else if (22.5 <= degrees && degrees < 67.5) {
-            return AsciiCompass.Point.NE;
-        } else if (67.5 <= degrees && degrees < 112.5) {
-            return AsciiCompass.Point.E;
-        } else if (112.5 <= degrees && degrees < 157.5) {
-            return AsciiCompass.Point.SE;
-        } else if (157.5 <= degrees && degrees < 202.5) {
-            return AsciiCompass.Point.S;
-        } else if (202.5 <= degrees && degrees < 247.5) {
-            return AsciiCompass.Point.SW;
-        } else if (247.5 <= degrees && degrees < 292.5) {
-            return AsciiCompass.Point.W;
-        } else if (292.5 <= degrees && degrees < 337.5) {
-            return AsciiCompass.Point.NW;
-        } else if (337.5 <= degrees && degrees < 360.0) {
-            return AsciiCompass.Point.N;
-        } else {
-            return null;
-        }
+    public static Point getDirection(float degrees) {
+        return Point.VALUES[Math.round(degrees / 45.0f) & 0x7].getOppositePoint();
     }
 
     public static List<String> getAsciiCompass(Point point, ChatColor colorActive, String colorDefault) {
@@ -105,7 +109,7 @@ public class AsciiCompass {
         return ret;
     }
 
-    public static List<String> getAsciiCompass(double inDegrees, ChatColor colorActive, String colorDefault) {
-        return getAsciiCompass(getCompassPointForDirection(inDegrees), colorActive, colorDefault);
+    public static List<String> getAsciiCompass(float degrees, ChatColor colorActive, String colorDefault) {
+        return getAsciiCompass(getDirection(degrees), colorActive, colorDefault);
     }
 }

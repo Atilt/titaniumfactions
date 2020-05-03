@@ -17,7 +17,7 @@ import java.nio.file.Path;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class DiscUtil {
+public final class DiscUtil {
 
     private static final Object2ObjectMap<String, Lock> LOCKS = new Object2ObjectOpenHashMap<>();
 

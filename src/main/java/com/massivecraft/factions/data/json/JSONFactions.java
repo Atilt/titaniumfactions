@@ -50,7 +50,6 @@ public class JSONFactions extends MemoryFactions {
     private boolean saveCore(Map<Integer, JSONFaction> entities, boolean sync, BooleanConsumer finish) {
         DiscUtil.write(FACTIONS_PATH, FactionsPlugin.getInstance().getGson(), entities, sync, finish);
         return true;
-        //return DiscUtil.writeCatch(target, FactionsPlugin.getInstance().getGson().toJson(entities), sync, finish);
     }
 
     @Override
@@ -73,7 +72,7 @@ public class JSONFactions extends MemoryFactions {
         if (Files.notExists(FACTIONS_PATH)) {
             return new Int2ObjectOpenHashMap<>(0);
         }
-        Int2ObjectMap<JSONFaction> data = DiscUtil.read(FACTIONS_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Int2ObjectMap<JSONFaction>>(){}.getType());
+        Int2ObjectMap<JSONFaction> data = DiscUtil.read(FACTIONS_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Int2ObjectOpenHashMap<JSONFaction>>(){}.getType());
         this.nextId = 1;
         saveCore(data, true, finish);
         return data;

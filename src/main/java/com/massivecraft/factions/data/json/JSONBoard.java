@@ -9,6 +9,7 @@ import com.massivecraft.factions.data.json.adapters.MapFLocToStringSetTypeAdapte
 import com.massivecraft.factions.util.DiscUtil;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntRBTreeMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -53,7 +54,7 @@ public class JSONBoard extends MemoryBoard {
         }
         Bukkit.getScheduler().runTaskAsynchronously(FactionsPlugin.getInstance(), () -> {
             try {
-                Object2ObjectMap<String, Object2IntMap<String>> worldCoordIds = DiscUtil.read(BOARD_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Object2ObjectMap<String, Object2IntMap<String>>>(){}.getType());
+                Object2ObjectMap<String, Object2IntMap<String>> worldCoordIds = DiscUtil.read(BOARD_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Object2ObjectOpenHashMap<String, Object2IntOpenHashMap<String>>>(){}.getType());
 
                 Bukkit.getScheduler().runTask(FactionsPlugin.getInstance(), () -> {
                     if (worldCoordIds != null) {

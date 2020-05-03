@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 
 public class MapFLocToStringSetTypeAdapter implements JsonDeserializer<Map<FLocation, Set<String>>>, JsonSerializer<Map<FLocation, Set<String>>> {
 
-    public static final Pattern COORDINATE_PATTERN = Pattern.compile("[,\\s]+");
+    public static final transient Pattern COORDINATE_PATTERN = Pattern.compile("[,\\s]+");
 
     @Override
     public Map<FLocation, Set<String>> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {

@@ -561,8 +561,10 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     public void loadLang(BooleanConsumer result) {
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-            this.saveResource("lang.yml", false);
             File lang = new File(this.getDataFolder(), "lang.yml");
+            if (!lang.exists()) {
+                this.saveResource("lang.yml", false);
+            }
             YamlConfiguration conf = YamlConfiguration.loadConfiguration(lang);
             for (TL item : TL.VALUES) {
                 if (conf.getString(item.getPath()) == null) {

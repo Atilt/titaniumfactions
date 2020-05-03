@@ -21,6 +21,49 @@ public class LazyLocation implements Serializable {
     private float pitch;
     private float yaw;
 
+    public static class Builder {
+        private String worldName;
+        private double x;
+        private double y;
+        private double z;
+        private float pitch;
+        private float yaw;
+
+        public Builder worldName(String worldName) {
+            this.worldName = worldName;
+            return this;
+        }
+
+        public Builder withX(double x) {
+            this.x = x;
+            return this;
+        }
+
+        public Builder withY(double y) {
+            this.y = y;
+            return this;
+        }
+
+        public Builder withZ(double z) {
+            this.z = z;
+            return this;
+        }
+
+        public Builder pitch(float pitch) {
+            this.pitch = pitch;
+            return this;
+        }
+
+        public Builder yaw(float yaw) {
+            this.yaw = yaw;
+            return this;
+        }
+
+        public LazyLocation build() {
+            return new LazyLocation(this.worldName, this.x, this.y, this.z, this.yaw, this.pitch);
+        }
+    }
+
     public LazyLocation(Location loc) {
         setLocation(loc);
     }
