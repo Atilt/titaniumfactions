@@ -16,13 +16,13 @@
     <build>
         <defaultGoal>clean package install</defaultGoal>
         <finalName>${project.name}</finalName>
-        <sourceDirectory>../../src/main/java</sourceDirectory>
-        <testSourceDirectory>../../src/test/java</testSourceDirectory>
-        <directory>../../target</directory>
+        <sourceDirectory>${project.basedir}/../../src/main/java</sourceDirectory>
+        <testSourceDirectory>${project.basedir}/../../src/test/java</testSourceDirectory>
+        <directory>${project.basedir}/../../target</directory>
         <resources>
             <resource>
                 <filtering>true</filtering>
-                <directory>../../src/main/resources/</directory>
+                <directory>${project.basedir}/../../src/main/resources/</directory>
             </resource>
         </resources>
         <plugins>
@@ -51,8 +51,8 @@
                     </artifactSet>
                     <relocations>
                         <relocation>
-                            <pattern>mkremins.fanciful</pattern>
-                            <shadedPattern>moss.factions.shade.mkremins.fanciful</shadedPattern>
+                            <pattern>net.kyori</pattern>
+                            <shadedPattern>moss.factions.shade.net.kyori</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>com.google</pattern>
@@ -322,14 +322,51 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>mkremins</groupId>
-            <artifactId>fanciful</artifactId>
-            <version>0.4.0-SNAPSHOT</version>
+            <groupId>net.kyori</groupId>
+            <artifactId>text-api</artifactId>
+            <version>3.0.3</version>
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
-                    <artifactId>gson</artifactId>
                     <groupId>com.google.code.gson</groupId>
+                    <artifactId>gson</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>net.kyori</groupId>
+            <artifactId>text-serializer-gson</artifactId>
+            <version>3.0.3</version>
+            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.code.gson</groupId>
+                    <artifactId>gson</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>net.kyori</groupId>
+            <artifactId>text-adapter-bukkit</artifactId>
+            <version>1.0.2</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.code.gson</groupId>
+                    <artifactId>gson</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -372,7 +409,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>29.0-jre</version>
+            <version>21.0</version>
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
@@ -429,8 +466,16 @@
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
+                    <artifactId>net.kyori:text:1.11-1.6.5</artifactId>
+                    <groupId>net.kyori</groupId>
+                </exclusion>
+                <exclusion>
                     <artifactId>checker-qual</artifactId>
                     <groupId>org.checkerframework</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>com.google.guava:guava:29.0-jre</artifactId>
+                    <groupId>com.google.guava</groupId>
                 </exclusion>
             </exclusions>
         </dependency>

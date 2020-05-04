@@ -2,7 +2,7 @@ package com.massivecraft.factions;
 
 import com.massivecraft.factions.data.json.JSONBoard;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
-import mkremins.fanciful.FancyMessage;
+import net.kyori.text.TextComponent;
 import org.bukkit.World;
 
 import java.util.List;
@@ -85,7 +85,7 @@ public abstract class Board {
      * The map is relative to a coord and a faction north is in the direction of decreasing x east is in the direction
      * of decreasing z
      */
-    public abstract List<FancyMessage> getMap(FPlayer fPlayer, FLocation flocation, double inDegrees);
+    public abstract List<TextComponent> getMap(FPlayer fPlayer, FLocation flocation, double inDegrees);
 
     public abstract void forceSave(BooleanConsumer finish);
 

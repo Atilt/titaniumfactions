@@ -11,7 +11,8 @@ import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.WarmUpUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mkremins.fanciful.FancyMessage;
+import net.kyori.text.TextComponent;
+import net.kyori.text.adapter.bukkit.TextAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -65,12 +66,12 @@ public class CommandContext {
         }
     }
 
-    public void sendFancyMessage(FancyMessage message) {
-        message.send(sender);
+    public void sendFancyMessage(TextComponent message) {
+        TextAdapter.sendComponent(this.sender, message);
     }
 
-    public void sendFancyMessage(List<FancyMessage> messages) {
-        for (FancyMessage m : messages) {
+    public void sendFancyMessage(List<TextComponent> messages) {
+        for (TextComponent m : messages) {
             sendFancyMessage(m);
         }
     }

@@ -16,7 +16,8 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import mkremins.fanciful.FancyMessage;
+import net.kyori.text.TextComponent;
+import net.kyori.text.adapter.bukkit.TextAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -131,10 +132,10 @@ public class CmdShow extends FCommand {
         for (String parsed : messageList) {
             if ((tag = FancyTag.getMatch(parsed)) != null) {
                 if (player != null) {
-                    List<FancyMessage> fancy = FancyTag.parse(parsed, faction, player, groupMap);
+                    List<TextComponent> fancy = FancyTag.parse(parsed, faction, player, groupMap);
                     if (fancy != null) {
-                        for (FancyMessage fancyMessage : fancy) {
-                            fancyMessage.send(recipient);
+                        for (TextComponent fancyMessage : fancy) {
+                            TextAdapter.sendComponent(recipient, fancyMessage);
                         }
                     }
                 } else {

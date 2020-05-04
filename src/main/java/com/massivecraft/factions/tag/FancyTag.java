@@ -11,8 +11,9 @@ import com.massivecraft.factions.util.TextUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
-import mkremins.fanciful.FancyMessage;
-import org.bukkit.ChatColor;
+import net.kyori.text.TextComponent;
+import net.kyori.text.event.HoverEvent;
+import net.kyori.text.serializer.gson.GsonComponentSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,39 +25,39 @@ public enum FancyTag implements Tag {
     ENEMIES_LIST("enemies-list", (target, fme, prefix, gm) -> processRelation(prefix, target, fme, Relation.ENEMY)),
     TRUCES_LIST("truces-list", (target, fme, prefix, gm) -> processRelation(prefix, target, fme, Relation.TRUCE)),
     ONLINE_LIST("online-list", (target, fme, prefix, gm) -> {
-        List<FancyMessage> fancyMessages = new ArrayList<>();
-        FancyMessage currentOnline = FactionsPlugin.getInstance().txt().parseFancy(prefix);
+        List<TextComponent> fancyMessages = new ArrayList<>();
+        TextComponent currentOnline = FactionsPlugin.getInstance().txt().parseFancy(prefix);
         boolean firstOnline = true;
         for (FPlayer p : MiscUtil.rankOrder(target.getFPlayersWhereOnline(true, fme))) {
             if (fme.getPlayer() != null && !fme.getPlayer().canSee(p.getPlayer())) {
                 continue; // skip
             }
             String name = p.getNameAndTitle();
-            currentOnline.then(firstOnline ? name : ", " + name);
-            currentOnline.tooltip(tipPlayer(p, gm)).color(fme.getColorTo(p));
+            currentOnline.append(TextComponent.of(firstOnline ? name : ", " + name));
+            currentOnline.hoverEvent(HoverEvent.showText(TextComponent.of(tipPlayer(p, gm)))).color(TextUtil.kyoriColor(fme.getColorTo(p)));
             firstOnline = false;
-            if (currentOnline.toJSONString().length() > ARBITRARY_LIMIT) {
+            if (GsonComponentSerializer.INSTANCE.serialize(currentOnline).length() > ARBITRARY_LIMIT) {
                 fancyMessages.add(currentOnline);
-                currentOnline = new FancyMessage("");
+                currentOnline = TextComponent.of("");
             }
         }
         fancyMessages.add(currentOnline);
         return firstOnline && Tag.isMinimalShow() ? null : fancyMessages;
     }),
     OFFLINE_LIST("offline-list", (target, fme, prefix, gm) -> {
-        List<FancyMessage> fancyMessages = new ArrayList<>();
-        FancyMessage currentOffline = FactionsPlugin.getInstance().txt().parseFancy(prefix);
+        List<TextComponent> fancyMessages = new ArrayList<>();
+        TextComponent currentOffline = FactionsPlugin.getInstance().txt().parseFancy(prefix);
         boolean firstOffline = true;
         for (FPlayer p : MiscUtil.rankOrder(target.getFPlayers())) {
             String name = p.getNameAndTitle();
             // Also make sure to add players that are online BUT can't be seen.
             if (!p.isOnline() || (fme.getPlayer() != null && p.isOnline() && !fme.getPlayer().canSee(p.getPlayer()))) {
-                currentOffline.then(firstOffline ? name : ", " + name);
-                currentOffline.tooltip(tipPlayer(p, gm)).color(fme.getColorTo(p));
+                currentOffline.append(TextComponent.of(firstOffline ? name : ", " + name))
+                              .hoverEvent(HoverEvent.showText(TextComponent.of(tipPlayer(p, gm)))).color(TextUtil.kyoriColor(fme.getColorTo(p)));
                 firstOffline = false;
-                if (currentOffline.toJSONString().length() > ARBITRARY_LIMIT) {
+                if (GsonComponentSerializer.INSTANCE.serialize(currentOffline).length() > ARBITRARY_LIMIT) {
                     fancyMessages.add(currentOffline);
-                    currentOffline = new FancyMessage("");
+                    currentOffline = TextComponent.of("");
                 }
             }
         }
@@ -66,11 +67,11 @@ public enum FancyTag implements Tag {
     ;
 
     private final String tag;
-    private final QuadFunction<Faction, FPlayer, String, Map<UUID, String>, List<FancyMessage>> function;
+    private final QuadFunction<Faction, FPlayer, String, Map<UUID, String>, List<TextComponent>> function;
 
-    private static List<FancyMessage> processRelation(String prefix, Faction faction, FPlayer fPlayer, Relation relation) {
-        ObjectList<FancyMessage> fancyMessages = new ObjectArrayList<>();
-        FancyMessage message = FactionsPlugin.getInstance().txt().parseFancy(prefix);
+    private static List<TextComponent> processRelation(String prefix, Faction faction, FPlayer fPlayer, Relation relation) {
+        ObjectList<TextComponent> fancyMessages = new ObjectArrayList<>();
+        TextComponent message = FactionsPlugin.getInstance().txt().parseFancy(prefix);
         boolean first = true;
         for (Faction otherFaction : Factions.getInstance().getAllFactions()) {
             if (otherFaction == faction) {
@@ -78,13 +79,13 @@ public enum FancyTag implements Tag {
             }
             String s = otherFaction.getTag(fPlayer);
             if (otherFaction.getRelationTo(faction) == relation) {
-                message.then(first ? s : ", " + s)
-                        .tooltip(tipFaction(otherFaction, fPlayer))
-                        .color(fPlayer.getColorTo(otherFaction));
+                message.append(TextComponent.of(first ? s : ", " + s))
+                        .hoverEvent(HoverEvent.showText(TextComponent.of(tipFaction(otherFaction, fPlayer))))
+                        .color(TextUtil.kyoriColor(fPlayer.getColorTo(otherFaction)));
                 first = false;
-                if (message.toJSONString().length() > ARBITRARY_LIMIT) {
+                if (GsonComponentSerializer.INSTANCE.serialize(message).length() > ARBITRARY_LIMIT) {
                     fancyMessages.add(message);
-                    message = new FancyMessage("");
+                    message = TextComponent.of("");
                 }
             }
         }
@@ -92,7 +93,7 @@ public enum FancyTag implements Tag {
         return first && Tag.isMinimalShow() ? null : fancyMessages;
     }
 
-    public static List<FancyMessage> parse(String text, Faction faction, FPlayer player, Map<UUID, String> groupMap) {
+    public static List<TextComponent> parse(String text, Faction faction, FPlayer player, Map<UUID, String> groupMap) {
         for (FancyTag tag : VALUES) {
             if (tag.foundInString(text)) {
                 return tag.getMessage(text, faction, player, groupMap);
@@ -114,33 +115,27 @@ public enum FancyTag implements Tag {
         return null;
     }
 
-    /**
-     * Parses tooltip variables from config <br> Supports variables for factions only (type 2)
-     *
-     * @param faction faction to tooltip for
-     * @return list of tooltips for a fancy message
-     */
-    private static List<String> tipFaction(Faction faction, FPlayer player) {
-        ObjectList<String> lines = new ObjectArrayList<>();
-        for (String line : FactionsPlugin.getInstance().conf().commands().toolTips().getFaction()) {
-            String string = Tag.parsePlain(faction, player, line);
+    private static String tipFaction(Faction faction, FPlayer player) {
+        StringBuilder builder = new StringBuilder();
+        List<String> tips = FactionsPlugin.getInstance().conf().commands().toolTips().getFaction();
+        for (int i = 0; i < tips.size(); i++) {
+            String string = Tag.parsePlain(faction, player, tips.get(i));
             if (string == null) {
                 continue;
             }
-            lines.add(ChatColor.translateAlternateColorCodes('&', string));
+            builder.append(TextUtil.parseColorBukkit(string));
+            if (i != tips.size() - 1) {
+                builder.append('\n');
+            }
         }
-        return lines;
+        return builder.toString();
     }
 
-    /**
-     * Parses tooltip variables from config <br> Supports variables for players and factions (types 1 and 2)
-     *
-     * @param fplayer player to tooltip for
-     * @return list of tooltips for a fancy message
-     */
-    private static List<String> tipPlayer(FPlayer fplayer, Map<UUID, String> groupMap) {
-        ObjectList<String> lines = new ObjectArrayList<>();
-        for (String line : FactionsPlugin.getInstance().conf().commands().toolTips().getPlayer()) {
+    private static String tipPlayer(FPlayer fplayer, Map<UUID, String> groupMap) {
+        StringBuilder builder = new StringBuilder();
+        List<String> tips = FactionsPlugin.getInstance().conf().commands().toolTips().getPlayer();
+        for (int i = 0; i < tips.size(); i++) {
+            String line = tips.get(i);
             String newLine = line;
             everythingOnYourWayOut:
             if (line.contains("{group}")) {
@@ -157,12 +152,15 @@ public enum FancyTag implements Tag {
             if (string == null) {
                 continue;
             }
-            lines.add(ChatColor.translateAlternateColorCodes('&', string));
+            builder.append(TextUtil.parseColorBukkit(string));
+            if (i != tips.size() - 1) {
+                builder.append('\n');
+            }
         }
-        return lines;
+        return builder.toString();
     }
 
-    FancyTag(String tag, QuadFunction<Faction, FPlayer, String, Map<UUID, String>, List<FancyMessage>> function) {
+    FancyTag(String tag, QuadFunction<Faction, FPlayer, String, Map<UUID, String>, List<TextComponent>> function) {
         this.tag = '{' + tag + '}';
         this.function = function;
     }
@@ -177,7 +175,7 @@ public enum FancyTag implements Tag {
         return test != null && test.contains(this.tag);
     }
 
-    public List<FancyMessage> getMessage(String text, Faction faction, FPlayer player, Map<UUID, String> groupMap) {
+    public List<TextComponent> getMessage(String text, Faction faction, FPlayer player, Map<UUID, String> groupMap) {
         if (!this.foundInString(text)) {
             return ObjectLists.emptyList(); // We really, really shouldn't be here.
         }

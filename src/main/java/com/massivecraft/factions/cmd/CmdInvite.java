@@ -5,8 +5,11 @@ import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
-import mkremins.fanciful.FancyMessage;
-import org.bukkit.ChatColor;
+import net.kyori.text.TextComponent;
+import net.kyori.text.adapter.bukkit.TextAdapter;
+import net.kyori.text.event.ClickEvent;
+import net.kyori.text.event.HoverEvent;
+import net.kyori.text.format.TextColor;
 
 public class CmdInvite extends FCommand {
 
@@ -53,17 +56,13 @@ public class CmdInvite extends FCommand {
         }
 
         // Tooltips, colors, and commands only apply to the string immediately before it.
-        FancyMessage message = new FancyMessage(context.fPlayer.describeTo(target, true))
-                .tooltip(TL.COMMAND_INVITE_CLICKTOJOIN.toString())
-                .command("/" + FactionsPlugin.getInstance().conf().getCommandBase().get(0) + " join " + context.faction.getTag())
-                .then(TL.COMMAND_INVITE_INVITEDYOU.toString())
-                .color(ChatColor.YELLOW)
-                .tooltip(TL.COMMAND_INVITE_CLICKTOJOIN.toString())
-                .command("/" + FactionsPlugin.getInstance().conf().getCommandBase().get(0) + " join " + context.faction.getTag())
-                .then(context.faction.describeTo(target)).tooltip(TL.COMMAND_INVITE_CLICKTOJOIN.toString())
-                .command("/" + FactionsPlugin.getInstance().conf().getCommandBase().get(0) + " join " + context.faction.getTag());
+        TextComponent message = TextComponent.of(context.fPlayer.describeTo(target, true))
+                .hoverEvent(HoverEvent.showText(TextComponent.of(TL.COMMAND_INVITE_CLICKTOJOIN.toString())))
+                .clickEvent(ClickEvent.runCommand("/" + FactionsPlugin.getInstance().conf().getCommandBase().get(0) + " join " + context.faction.getTag()))
+                .append(TextComponent.of(TL.COMMAND_INVITE_INVITEDYOU.toString()))
+                .color(TextColor.YELLOW);
 
-        message.send(target.getPlayer());
+        TextAdapter.sendComponent(target.getPlayer(), message);
 
         //you.msg("%s<i> invited you to %s",context.fPlayer.describeTo(you, true), context.faction.describeTo(you));
         context.faction.msg(TL.COMMAND_INVITE_INVITED, context.fPlayer.describeTo(context.faction, true), target.describeTo(context.faction));

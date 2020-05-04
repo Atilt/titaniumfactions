@@ -5,7 +5,7 @@ import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.struct.ChatMode;
 import com.massivecraft.factions.util.WarmUpUtil;
-import mkremins.fanciful.FancyMessage;
+import net.kyori.text.TextComponent;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -230,9 +230,9 @@ public interface FPlayer extends EconomyParticipator, Comparable<FPlayer> {
 
     void sendMessage(List<String> messages);
 
-    void sendFancyMessage(FancyMessage message);
+    void sendFancyMessage(TextComponent message);
 
-    void sendFancyMessage(List<FancyMessage> message);
+    void sendFancyMessage(List<TextComponent> message);
 
     int getMapHeight();
 

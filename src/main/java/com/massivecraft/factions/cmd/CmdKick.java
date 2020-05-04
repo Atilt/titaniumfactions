@@ -8,9 +8,11 @@ import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
-import mkremins.fanciful.FancyMessage;
+import net.kyori.text.TextComponent;
+import net.kyori.text.event.ClickEvent;
+import net.kyori.text.event.HoverEvent;
+import net.kyori.text.format.TextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 
 public class CmdKick extends FCommand {
 
@@ -32,26 +34,34 @@ public class CmdKick extends FCommand {
     public void perform(CommandContext context) {
         FPlayer toKick = context.argIsSet(0) ? context.argAsBestFPlayerMatch(0) : null;
         if (toKick == null) {
-            FancyMessage msg = new FancyMessage(TL.COMMAND_KICK_CANDIDATES.toString()).color(ChatColor.GOLD);
+            TextComponent msg = TextComponent.of(TL.COMMAND_KICK_CANDIDATES.toString()).color(TextColor.GOLD);
             for (FPlayer player : context.faction.getFPlayersWhereRole(Role.NORMAL)) {
                 String s = player.getName();
-                msg.then(s + " ").color(ChatColor.WHITE).tooltip(TL.COMMAND_KICK_CLICKTOKICK.toString() + s).command("/" + FactionsPlugin.getInstance().conf().getCommandBase().get(0) + " kick " + s);
+                msg.append(TextComponent.of(s + " "))
+                   .color(TextColor.WHITE)
+                   .hoverEvent(HoverEvent.showText(TextComponent.of(TL.COMMAND_KICK_CLICKTOKICK.toString() + s)))
+                   .clickEvent(ClickEvent.runCommand("/" + FactionsPlugin.getInstance().conf().getCommandBase().get(0) + " kick " + s));
             }
             if (context.fPlayer.getRole().isAtLeast(Role.COLEADER)) {
                 // For both coleader and admin, add mods.
                 for (FPlayer player : context.faction.getFPlayersWhereRole(Role.MODERATOR)) {
                     String s = player.getName();
-                    msg.then(s + " ").color(ChatColor.GRAY).tooltip(TL.COMMAND_KICK_CLICKTOKICK.toString() + s).command("/" + FactionsPlugin.getInstance().conf().getCommandBase().get(0) + " kick " + s);
+                    msg.append(TextComponent.of(s + " "))
+                       .color(TextColor.GRAY)
+                       .hoverEvent(HoverEvent.showText(TextComponent.of(TL.COMMAND_KICK_CLICKTOKICK.toString() + s)))
+                       .clickEvent(ClickEvent.runCommand("/" + FactionsPlugin.getInstance().conf().getCommandBase().get(0) + " kick " + s));
                 }
                 if (context.fPlayer.getRole() == Role.ADMIN) {
                     // Only add coleader to this for the leader.
                     for (FPlayer player : context.faction.getFPlayersWhereRole(Role.COLEADER)) {
                         String s = player.getName();
-                        msg.then(s + " ").color(ChatColor.RED).tooltip(TL.COMMAND_KICK_CLICKTOKICK.toString() + s).command("/" + FactionsPlugin.getInstance().conf().getCommandBase().get(0) + " kick " + s);
+                        msg.append(TextComponent.of(s + " "))
+                           .color(TextColor.RED)
+                           .hoverEvent(HoverEvent.showText(TextComponent.of(TL.COMMAND_KICK_CLICKTOKICK.toString() + s)))
+                           .clickEvent(ClickEvent.runCommand("/" + FactionsPlugin.getInstance().conf().getCommandBase().get(0) + " kick " + s));
                     }
                 }
             }
-
             context.sendFancyMessage(msg);
             return;
         }

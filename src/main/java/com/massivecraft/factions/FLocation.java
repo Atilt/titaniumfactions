@@ -1,6 +1,11 @@
 package com.massivecraft.factions;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.massivecraft.factions.util.MiscUtil;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
@@ -12,12 +17,18 @@ import org.bukkit.WorldBorder;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 public final class FLocation implements Serializable {
+
+    private static final Object2ObjectMap<String, LoadingCache<Long, FLocation>> LOCATIONS = new Object2ObjectOpenHashMap<>();
+
     private static final long serialVersionUID = -8292915234027387983L;
     private static boolean worldBorderSupport = false;
 
@@ -41,7 +52,24 @@ public final class FLocation implements Serializable {
     }
 
     public static FLocation wrap(String world, int x, int z) {
-        return new FLocation(world, x, z);
+        try {
+            return LOCATIONS.computeIfAbsent(world, key ->
+                    CacheBuilder.newBuilder()
+                        .maximumSize(1000)
+                        .weakValues()
+                        .expireAfterAccess(5, TimeUnit.MINUTES)
+                        .build(new CacheLoader<Long, FLocation>() {
+                            @ParametersAreNonnullByDefault
+                            @Override
+                            public FLocation load(Long key) {
+                                return new FLocation(world, (int) key.longValue(), (int) (key >> 32));
+                            }
+                        })
+
+            ).get((long) x & 0xffffffffL | ((long) z & 0xffffffffL) << 32);
+        } catch (ExecutionException e) {
+            return new FLocation(world, x, z);
+        }
     }
 
     public static FLocation wrap(Chunk chunk) {
@@ -49,7 +77,7 @@ public final class FLocation implements Serializable {
     }
 
     public static FLocation wrap(Location location) {
-        return new FLocation(location);
+        return wrap(location.getWorld().getName(), blockToChunk(location.getBlockX()), blockToChunk(location.getBlockZ()));
     }
 
     public static FLocation wrap(Block block) {

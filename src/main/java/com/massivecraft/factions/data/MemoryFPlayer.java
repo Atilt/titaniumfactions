@@ -32,7 +32,8 @@ import com.massivecraft.factions.util.TitleAPI;
 import com.massivecraft.factions.util.WarmUpUtil;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
-import mkremins.fanciful.FancyMessage;
+import net.kyori.text.TextComponent;
+import net.kyori.text.adapter.bukkit.TextAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -1059,18 +1060,18 @@ public abstract class MemoryFPlayer implements FPlayer {
         }
     }
 
-    public void sendFancyMessage(FancyMessage message) {
+    public void sendFancyMessage(TextComponent message) {
         Player player = getPlayer();
         if (player != null) {
-            message.send(player);
+            TextAdapter.sendComponent(player, message);
         }
     }
 
-    public void sendFancyMessage(List<FancyMessage> messages) {
+    public void sendFancyMessage(List<TextComponent> messages) {
         Player player = getPlayer();
         if (player != null) {
-            for (FancyMessage msg : messages) {
-                msg.send(player);
+            for (TextComponent msg : messages) {
+                TextAdapter.sendComponent(player, msg);
             }
         }
     }

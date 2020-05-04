@@ -4,11 +4,14 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import mkremins.fanciful.FancyMessage;
+import net.kyori.text.TextComponent;
+import net.kyori.text.format.Style;
+import net.kyori.text.format.TextColor;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -51,23 +54,37 @@ public class TextUtil {
     // Fancy parsing
     // -------------------------------------------- //
 
-    public FancyMessage parseFancy(String prefix) {
+    public TextComponent parseFancy(String prefix) {
         return toFancy(parse(prefix));
     }
 
-    public static FancyMessage toFancy(String first) {
+    private static final Map<ChatColor, TextColor> BUKKIT_TO_KYORI = new EnumMap<>(ChatColor.class);
+
+    static {
+        for (ChatColor chatColor : ChatColor.values()) {
+            BUKKIT_TO_KYORI.put(chatColor, TextColor.valueOf(chatColor.name()));
+        }
+    }
+
+    public static TextColor kyoriColor(ChatColor chatColor) {
+        return BUKKIT_TO_KYORI.get(chatColor);
+    }
+
+    private static TextComponent toFancy(String first) {
         String text = "";
-        FancyMessage message = new FancyMessage(text);
+        TextComponent message = TextComponent.of(text);
         ChatColor color = null;
         char[] chars = first.toCharArray();
 
         for (int i = 0; i < chars.length; i++) {
+            TextComponent textComponent = TextComponent.of(text);
             if (chars[i] == '§') {
                 if (color != null) {
+                    TextColor textColor = kyoriColor(color);
                     if (color.isColor()) {
-                        message.then(text).color(color);
+                        message.append(textComponent).color(textColor);
                     } else {
-                        message.then(text).style(color);
+                        message.append(textComponent).style(Style.of(textColor));
                     }
                     text = "";
                 }
@@ -77,15 +94,17 @@ public class TextUtil {
                 text += chars[i];
             }
         }
+        TextColor textColor = kyoriColor(color);
         if (text.length() > 0) {
+            TextComponent textComponent = TextComponent.of(text);
             if (color != null) {
                 if (color.isColor()) {
-                    message.then(text).color(color);
+                    message.append(textComponent).color(textColor);
                 } else {
-                    message.then(text).style(color);
+                    message.append(textComponent).style(Style.of(textColor));
                 }
             } else {
-                message.text(text);
+                message.content(text);
             }
         }
         return message;
