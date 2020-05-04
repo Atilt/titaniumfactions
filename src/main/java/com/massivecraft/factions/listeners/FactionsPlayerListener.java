@@ -27,6 +27,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -36,7 +37,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
@@ -83,26 +83,16 @@ public class FactionsPlayerListener extends AbstractListener {
         }
     }
 
-    /**
-     * Denies the player from joining the server if faction data has not yet been loaded.
-     * This will ensure that players do not grief areas (or similar) whose data has not yet loaded.
-     * @param event
-     */
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onAsyncPlayerPreLogin(AsyncPlayerPreLoginEvent event) {
-        if (!this.plugin.isFinishedLoading()) {
-            event.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
-            event.setKickMessage(TL.FACTIONS_DATA_LOADING.toString());
-        }
-    }
-
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         initPlayer(event.getPlayer());
-        this.plugin.updatesOnJoin(event.getPlayer());
     }
 
     private void initPlayer(Player player) {
+        if (!this.plugin.isFinishedLoading()) {
+            Bukkit.getScheduler().runTaskLater(this.plugin, () -> player.kickPlayer(TL.FACTIONS_DATA_LOADING.toString()), 2L);
+            return;
+        }
         // Make sure that all online players do have a fplayer.
         final FPlayer me = FPlayers.getInstance().getByPlayer(player);
         ((MemoryFPlayer) me).setName(player.getName());
@@ -130,6 +120,7 @@ public class FactionsPlayerListener extends AbstractListener {
             this.initFactionWorld(me, player);
         }
         FPlayers.getInstance().addOnline(me);
+        this.plugin.updatesOnJoin(player);
     }
 
     private void initFactionWorld(FPlayer me, Player player) {

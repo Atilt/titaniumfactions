@@ -2,8 +2,8 @@ package com.massivecraft.factions.cmd;
 
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.util.TL;
-
-import java.util.ArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class CmdAutoHelp extends FCommand {
 
@@ -26,7 +26,7 @@ public class CmdAutoHelp extends FCommand {
         }
         FCommand pcmd = context.commandChain.get(context.commandChain.size() - 1);
 
-        ArrayList<String> lines = new ArrayList<>(pcmd.helpLong);
+        ObjectList<String> lines = new ObjectArrayList<>(pcmd.helpLong);
 
         for (FCommand scmd : pcmd.subCommands) {
             if (scmd.visibility == CommandVisibility.VISIBLE) {

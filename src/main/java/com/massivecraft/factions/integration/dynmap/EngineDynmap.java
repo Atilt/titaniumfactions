@@ -12,6 +12,7 @@ import com.massivecraft.factions.integration.Econ;
 import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.util.FastUUID;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -185,7 +186,7 @@ public class EngineDynmap {
 
             DynmapStyle style = getStyle(faction);
 
-            String markerId = FACTIONS_HOME_ + faction.getId();
+            String markerId = FACTIONS_HOME_ + faction.getIdRaw();
 
             TempMarker temp = new TempMarker();
             temp.label = ChatColor.stripColor(faction.getTag());
@@ -510,11 +511,7 @@ public class EngineDynmap {
         if (faction.isWilderness()) {
             return null;
         }
-        String factionId = faction.getId();
-        if (factionId == null) {
-            return null;
-        }
-        return FACTIONS_PLAYERSET_ + factionId;
+        return FACTIONS_PLAYERSET_ + faction.getIdRaw();
     }
 
     // Thread Safe / Asynchronous: Yes
@@ -525,7 +522,7 @@ public class EngineDynmap {
         if (faction.isWilderness()) {
             return null;
         }
-        Set<String> ret = new HashSet<>(faction.getSize());
+        Set<String> ret = new ObjectOpenHashSet<>(faction.getSize());
         for (FPlayer fplayer : faction.getFPlayers()) {
             // NOTE: We add both UUID and name. This might be a good idea for future proofing.
             ret.add(FastUUID.toString(fplayer.getId()));
@@ -707,14 +704,11 @@ public class EngineDynmap {
         if (faction == null) {
             return false;
         }
-        final String factionId = faction.getId();
-        if (factionId == null) {
-            return false;
-        }
-        final String factionName = faction.getTag();
+        String factionName = faction.getTag();
         if (factionName == null) {
             return false;
         }
+        String factionId = faction.getId();
 
         Set<String> visible = dynmapConf.dynmap().getVisibleFactions();
         Set<String> hidden = dynmapConf.dynmap().getHiddenFactions();

@@ -6,12 +6,12 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.tree.CommandNode;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import me.lucko.commodore.Commodore;
 import me.lucko.commodore.CommodoreProvider;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -63,7 +63,7 @@ public class BrigadierManager {
                 RequiredArgumentBuilder<Object, ?> previous = null;
                 if (subCommand.subCommands.isEmpty()) {
                     // We create an orderly stack of all args, required and optional, format them differently
-                    List<RequiredArgumentBuilder<Object, ?>> stack = new ArrayList<>();
+                    ObjectList<RequiredArgumentBuilder<Object, ?>> stack = new ObjectArrayList<>();
                     for (String required : subCommand.requiredArgs) {
                         // Simply add the arg name as required
                         stack.add(RequiredArgumentBuilder.argument(required, StringArgumentType.word()));

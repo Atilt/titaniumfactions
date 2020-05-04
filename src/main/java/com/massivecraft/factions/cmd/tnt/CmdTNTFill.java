@@ -60,7 +60,7 @@ public class CmdTNTFill extends FCommand {
             return;
         }
 
-        List<DistancedDispenser> dispensers = getDispensers(context.player.getLocation(), radius, context.faction.getId());
+        List<DistancedDispenser> dispensers = getDispensers(context.player.getLocation(), radius, context.faction.getIdRaw());
 
         int remaining = amount;
         int dispenserCount = 0;
@@ -123,13 +123,13 @@ public class CmdTNTFill extends FCommand {
         }
     }
 
-    static List<DistancedDispenser> getDispensers(Location location, int radius, String id) {
+    static List<DistancedDispenser> getDispensers(Location location, int radius, int id) {
         ObjectList<DistancedDispenser> dispensers = new ObjectArrayList<>();
         for (int x = -radius; x < radius; x++) {
             for (int y = -radius; y < radius; y++) {
                 for (int z = -radius; z < radius; z++) {
                     Block block = location.getBlock().getRelative(x, y, z);
-                    if (block.getType() != Material.DISPENSER || !Board.getInstance().getIdAt(FLocation.wrap(block)).equals(id)) {
+                    if (block.getType() != Material.DISPENSER || Board.getInstance().getIdRawAt(FLocation.wrap(block)) != id) {
                         continue;
                     }
                     dispensers.add(new DistancedDispenser(location.distanceSquared(block.getLocation()), ((Dispenser) block.getState()).getInventory()));

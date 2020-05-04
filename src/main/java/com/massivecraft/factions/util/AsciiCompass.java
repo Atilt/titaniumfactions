@@ -10,23 +10,21 @@ public class AsciiCompass {
 
     public enum Point {
 
-        N('N', Point.S),
-        NE('/', Point.SW),
-        E('E', Point.W),
-        SE('\\', Point.NW),
-        S('S', Point.N),
-        SW('/', Point.NE),
-        W('W', Point.E),
-        NW('\\', Point.SE);
+        N('N'),
+        NE('/'),
+        E('E'),
+        SE('\\'),
+        S('S'),
+        SW('/'),
+        W('W'),
+        NW('\\');
 
         private final char asciiChar;
-        private final Point oppositePoint;
 
         public static final Point[] VALUES = values();
 
-        Point(char asciiChar, Point oppositePoint) {
+        Point(char asciiChar) {
             this.asciiChar = asciiChar;
-            this.oppositePoint = oppositePoint;
         }
 
         public char getAsciiChar() {

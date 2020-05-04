@@ -306,6 +306,12 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             setupPermissions();
             loadWorldguard();
 
+            getServer().getPluginManager().registerEvents(new FactionsPlayerListener(this), this);
+            getServer().getPluginManager().registerEvents(new FactionsChatListener(this), this);
+            getServer().getPluginManager().registerEvents(new FactionsEntityListener(this), this);
+            getServer().getPluginManager().registerEvents(new FactionsExploitListener(this), this);
+            getServer().getPluginManager().registerEvents(new FactionsBlockListener(this), this);
+
             particleProvider = new PacketParticleProvider();
 
 /*            // Run before initializing listeners to handle reloads properly.
@@ -323,11 +329,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             // End run before registering event handlers.
 
             // Register Event Handlers
-            getServer().getPluginManager().registerEvents(new FactionsPlayerListener(this), this);
-            getServer().getPluginManager().registerEvents(new FactionsChatListener(this), this);
-            getServer().getPluginManager().registerEvents(new FactionsEntityListener(this), this);
-            getServer().getPluginManager().registerEvents(new FactionsExploitListener(this), this);
-            getServer().getPluginManager().registerEvents(new FactionsBlockListener(this), this);
 
             // Version specific portal listener check.
             if (mcVersion >= 1400) { // Starting with 1.14

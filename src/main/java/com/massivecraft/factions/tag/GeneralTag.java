@@ -4,7 +4,6 @@ import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.util.TL;
-import com.massivecraft.factions.util.TextUtil;
 import org.bukkit.Bukkit;
 
 import java.util.function.Supplier;
@@ -56,9 +55,6 @@ public enum GeneralTag implements Tag {
             return text;
         }
         String result = this.supplier.get();
-        if (result == null) {
-            return null;
-        }
-        return TextUtil.replace(text, this.tag, result);
+        return result == null ? null : text.replace(this.tag, result);
     }
 }

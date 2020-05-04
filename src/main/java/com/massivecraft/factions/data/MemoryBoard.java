@@ -14,10 +14,10 @@ import com.massivecraft.factions.util.TL;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2CharMap;
-import it.unimi.dsi.fastutil.objects.Object2CharOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -126,16 +126,18 @@ public abstract class MemoryBoard extends Board {
 
     @Deprecated
     public String getIdAt(FLocation flocation) {
-        return Integer.toString(getIdAtRaw(flocation));
+        return Integer.toString(getIdRawAt(flocation));
     }
 
-    public int getIdAtRaw(FLocation flocation) {
+
+    @Override
+    public int getIdRawAt(FLocation flocation) {
         return flocationIds.getOrDefault(flocation, NO_ID);
     }
 
     @Override
     public Faction getFactionAt(FLocation flocation) {
-        return Factions.getInstance().getFactionById(getIdAtRaw(flocation));
+        return Factions.getInstance().getFactionById(getIdRawAt(flocation));
     }
 
     @Deprecated
@@ -211,6 +213,7 @@ public abstract class MemoryBoard extends Board {
         return locs;
     }
 
+    @Override
     public Set<FLocation> getAllClaims(Faction faction) {
         return getAllClaims(faction.getIdRaw());
     }
@@ -229,6 +232,7 @@ public abstract class MemoryBoard extends Board {
         return clearOwnershipAt(getFactionAt(flocation), flocation);
     }
 
+    @Override
     public void unclaimAll(String factionId) {
         unclaimAll(Integer.parseInt(factionId));
     }
@@ -378,7 +382,7 @@ public abstract class MemoryBoard extends Board {
             height--;
         }
 
-        Object2CharMap<String> fList = new Object2CharOpenHashMap<>();
+        Object2ObjectMap<String, String> fList = new Object2ObjectOpenHashMap<>();
         int chrIdx = 0;
 
         // For each row
@@ -391,10 +395,7 @@ public abstract class MemoryBoard extends Board {
             }
             for (int dx = (dz < 3 ? 6 : 3); dx < width; dx++) {
                 if (dx == halfWidth && dz == halfHeight) {
-                    row.then("+").color(ChatColor.AQUA);
-                    if (false) {
-                        row.tooltip(TL.CLAIM_YOUAREHERE.toString());
-                    }
+                    row.then("+").color(ChatColor.AQUA).tooltip(TL.CLAIM_YOUAREHERE.toString());
                 } else {
                     FLocation flocationHere = topLeft.getRelative(dx, dz);
                     Faction factionHere = getFactionAt(flocationHere);
@@ -409,11 +410,10 @@ public abstract class MemoryBoard extends Board {
                             (FactionsPlugin.getInstance().conf().map().isShowNeutralFactionsOnMap() && relation == Relation.NEUTRAL) ||
                             (FactionsPlugin.getInstance().conf().map().isShowEnemyFactions() && relation == Relation.ENEMY) ||
                             FactionsPlugin.getInstance().conf().map().isShowTruceFactions() && relation == Relation.TRUCE) {
-                        if (!fList.containsKey(factionHere.getTag())) {
-                            fList.put(factionHere.getTag(), MAP_CHARS[Math.min(chrIdx++, MAP_CHARS.length - 1)]);
-                        }
+                        final int incremented = chrIdx++;
+                        String tag = fList.computeIfAbsent(factionHere.getTag(), c -> String.valueOf(MAP_CHARS[(incremented) % MAP_CHARS.length]));
                         ChatColor color = factionHere.getColorTo(faction);
-                        row.then(String.valueOf(fList.getChar(factionHere.getTag()))).color(color).tooltip(color + factionHere.getTag());
+                        row.then(tag).color(color).tooltip(color + factionHere.getTag());
                     } else {
                         row.then("-").color(ChatColor.GRAY).tooltip(ChatColor.GRAY + factionHere.getTag());
                     }
@@ -425,12 +425,11 @@ public abstract class MemoryBoard extends Board {
         // Add the faction key
         if (FactionsPlugin.getInstance().conf().map().isShowFactionKey()) {
             FancyMessage fRow = new FancyMessage("");
-            for (String key : fList.keySet()) {
-                fRow.then(String.format("%s: %s ", fList.getChar(key), key)).color(fplayer.getRelationTo(Factions.getInstance().getByTag(key)).getColor());
+            for (Object2ObjectMap.Entry<String, String> entry : fList.object2ObjectEntrySet()) {
+                fRow.then(String.format("%s: %s ", entry.getValue(), entry.getKey())).color(fplayer.getRelationTo(Factions.getInstance().getByTag(entry.getKey())).getColor());
             }
             ret.add(fRow);
         }
-
         return ret;
     }
 

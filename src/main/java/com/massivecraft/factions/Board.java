@@ -13,10 +13,10 @@ import java.util.function.IntConsumer;
 public abstract class Board {
     protected static Board instance = getBoardImpl();
 
-    //----------------------------------------------//
-    // Get and Set
-    //----------------------------------------------//
+    @Deprecated
     public abstract String getIdAt(FLocation flocation);
+
+    public abstract int getIdRawAt(FLocation fLocation);
 
     private static Board getBoardImpl() {
         return new JSONBoard(); // TODO switch on configuration backend

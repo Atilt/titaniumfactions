@@ -33,7 +33,7 @@ public class CmdWarunclaimall extends FCommand {
             world = Bukkit.getWorld(worldName);
         }
 
-        String id = Factions.getInstance().getWarZone().getId();
+        int id = Factions.getInstance().getWarZone().getIdRaw();
 
         if (world == null) {
             Board.getInstance().unclaimAll(id);

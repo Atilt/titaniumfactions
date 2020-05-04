@@ -32,15 +32,7 @@ public class FTeamWrapper {
     private final ObjectSet<OfflinePlayer> members = new ObjectOpenHashSet<>();
 
     public static void applyUpdatesLater(final Faction faction) {
-        if (!FScoreboard.isSupportedByServer()) {
-            return;
-        }
-
-        if (faction.isWilderness()) {
-            return;
-        }
-
-        if (!FactionsPlugin.getInstance().conf().scoreboard().constant().isPrefixes()) {
+        if (!FScoreboard.isSupportedByServer() || faction.isWilderness() || !FactionsPlugin.getInstance().conf().scoreboard().constant().isPrefixes()) {
             return;
         }
 
@@ -77,7 +69,7 @@ public class FTeamWrapper {
         FTeamWrapper wrapper = wrappers.get(faction);
         Set<FPlayer> factionMembers = faction.getFPlayers();
 
-        if (wrapper != null && Factions.getInstance().getFactionById(faction.getId()) == null) {
+        if (wrapper != null && Factions.getInstance().getFactionById(faction.getIdRaw()) == null) {
             // Faction was disbanded
             wrapper.unregister();
             wrappers.remove(faction);

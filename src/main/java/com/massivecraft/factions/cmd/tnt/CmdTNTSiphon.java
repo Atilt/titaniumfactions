@@ -50,7 +50,7 @@ public class CmdTNTSiphon extends FCommand {
             return;
         }
 
-        List<CmdTNTFill.DistancedDispenser> dispensers = CmdTNTFill.getDispensers(context.player.getLocation(), radius, context.faction.getId());
+        List<CmdTNTFill.DistancedDispenser> dispensers = CmdTNTFill.getDispensers(context.player.getLocation(), radius, context.faction.getIdRaw());
 
         int canTake;
         if (FactionsPlugin.getInstance().conf().commands().tnt().getMaxStorage() < 0) {

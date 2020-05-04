@@ -2,6 +2,7 @@ package com.massivecraft.factions.data.json.adapters;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.massivecraft.factions.util.LazyLocation;
 
@@ -12,6 +13,9 @@ public class MyLocationTypeAdapter extends TypeAdapter<LazyLocation> {
 
     @Override
     public LazyLocation read(JsonReader jsonReader) throws IOException {
+        if (jsonReader.peek() == JsonToken.NULL) {
+            return null;
+        }
         LazyLocation.Builder builder = new LazyLocation.Builder();
         jsonReader.beginObject();
         while (jsonReader.hasNext()) {
@@ -42,6 +46,10 @@ public class MyLocationTypeAdapter extends TypeAdapter<LazyLocation> {
 
     @Override
     public void write(JsonWriter jsonWriter, LazyLocation lazyLocation) throws IOException {
+        if (lazyLocation == null) {
+            jsonWriter.nullValue();
+            return;
+        }
         jsonWriter.beginObject()
             .name("world").value(lazyLocation.getWorldName())
             .name("x").value(lazyLocation.getX())

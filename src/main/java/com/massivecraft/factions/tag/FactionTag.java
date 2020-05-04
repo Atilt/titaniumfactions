@@ -8,7 +8,6 @@ import com.massivecraft.factions.landraidcontrol.DTRControl;
 import com.massivecraft.factions.landraidcontrol.PowerControl;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.util.TL;
-import com.massivecraft.factions.util.TextUtil;
 import org.apache.commons.lang.time.DurationFormatUtils;
 
 import java.util.function.BiFunction;
@@ -153,10 +152,8 @@ public enum FactionTag implements Tag {
         if (!this.foundInString(text)) {
             return text;
         }
-        if (this.function == null) {
-            return this.biFunction.apply(faction, player);
-        }
-        return TextUtil.replace(text, this.tag, this.function.apply(faction));
+        String result = this.function == null ? this.biFunction.apply(faction, player) : this.function.apply(faction);
+        return result == null ? null : text.replace(this.tag, result);
     }
 
     public String replace(String text, Faction faction) {

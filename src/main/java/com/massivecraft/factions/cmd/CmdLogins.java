@@ -19,9 +19,9 @@ public class CmdLogins extends FCommand {
 
     @Override
     public void perform(CommandContext context) {
-        boolean monitor = context.fPlayer.isMonitoringJoins();
-        context.msg(TL.COMMAND_LOGINS_TOGGLE, Boolean.toString(!monitor));
-        context.fPlayer.setMonitorJoins(!monitor);
+        boolean toggle = !context.fPlayer.isMonitoringJoins();
+        context.msg(TL.COMMAND_LOGINS_TOGGLE, Boolean.toString(toggle));
+        context.fPlayer.setMonitorJoins(toggle);
     }
 
     @Override

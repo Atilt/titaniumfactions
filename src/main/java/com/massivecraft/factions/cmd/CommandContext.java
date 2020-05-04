@@ -96,7 +96,7 @@ public class CommandContext {
         }
         try {
             return Integer.parseInt(str);
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             return def;
         }
     }
@@ -116,7 +116,7 @@ public class CommandContext {
         }
         try {
             return Double.parseDouble(str);
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             return def;
         }
     }

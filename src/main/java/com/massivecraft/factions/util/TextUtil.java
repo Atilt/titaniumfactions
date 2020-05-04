@@ -129,14 +129,7 @@ public class TextUtil {
     }
 
     public static String implode(List<String> list, String glue) {
-        StringBuilder ret = new StringBuilder();
-        for (int i = 0; i < list.size(); i++) {
-            if (i != 0) {
-                ret.append(glue);
-            }
-            ret.append(list.get(i));
-        }
-        return ret.toString();
+        return String.join(glue, list);
     }
 
     public static String repeat(String s, int times) {
