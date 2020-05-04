@@ -1,7 +1,7 @@
 # titaniumfactions
 High performance Factions fork that prioritizes efficiency, speed, and low memory footprints.
 
-## Optimizations
+## Optimizations [Improvements]
 - Reduced debug information
 - Reduced memory usage
 - Faction, claim, and player data are loaded async
@@ -15,6 +15,8 @@ High performance Factions fork that prioritizes efficiency, speed, and low memor
 - Optimized faction [player] inactivity checks
 - Proper async implementations for local data saving
 - Implements fast and low memory collections and maps
+- Implements cache for faction locations
+- Replaces fanciful api with kyori-text api
 
 ## Features
 - N/A
