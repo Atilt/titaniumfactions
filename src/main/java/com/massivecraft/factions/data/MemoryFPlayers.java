@@ -18,7 +18,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.IntConsumer;
 
 public abstract class MemoryFPlayers extends FPlayers {
     protected final Object2ObjectMap<UUID, FPlayer> fPlayers = new Object2ObjectOpenHashMap<>();
@@ -55,21 +54,6 @@ public abstract class MemoryFPlayers extends FPlayers {
     @Override
     public void wipeOnline() {
         this.online.clear();
-    }
-
-    @Override
-    public void forceSave(BooleanConsumer finish) {
-
-    }
-
-    @Override
-    public void forceSave(boolean sync, BooleanConsumer finish) {
-
-    }
-
-    @Override
-    public void load(IntConsumer loaded) {
-
     }
 
     @Override

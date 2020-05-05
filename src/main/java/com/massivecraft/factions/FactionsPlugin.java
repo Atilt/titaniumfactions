@@ -78,13 +78,9 @@ import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.Modifier;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.file.Files;
 import java.text.DecimalFormat;
 import java.util.EnumSet;
@@ -97,8 +93,6 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 import java.util.logging.Level;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
@@ -147,9 +141,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     private LandRaidControl landRaidControl;
 
     private Metrics metrics;
-    private static final Pattern FACTIONS_VERSION_PATTERN = Pattern.compile("b(\\d{1,4})");
-    private String updateMessage;
-    private int buildNumber = -1;
 
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat();
 
@@ -190,11 +181,16 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             getLogger().info("1.8 is the minimum required version for Factions to run.");
             return;
         }
-        this.getDataFolder().mkdirs();
+
+        try {
+            Files.createDirectories(getDataFolder().toPath().resolve("data"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         long settingsStart = System.nanoTime();
 
         getLogger().info("");
-        this.buildNumber = this.getBuildNumber(this.getDescription().getVersion());
 
         loadLang(result -> {
             if (!result) {
@@ -208,12 +204,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             this.configManager.startup();
 
             this.landRaidControl = LandRaidControl.getByName(this.conf().factions().landRaidControl().getSystem());
-
-            try {
-                Files.createDirectory(getDataFolder().toPath().resolve("data"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
 
             // Load Material database
             MaterialDb.load();
@@ -333,7 +323,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             this.getCommand(refCommand).setExecutor(new FCmdRoot());
 
             if (conf().commands().fly().isEnable()) {
-                FlightUtil.getInstance();
+                FlightUtil.getInstance().start();
             }
 
             setupPlaceholderAPI();
@@ -354,24 +344,11 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     private void setupMetrics() {
         this.metrics = new Metrics(this);
 
-        // Version
-        String verString = this.getDescription().getVersion().replace("${build.number}", "selfbuilt");
-        Pattern verPattern = Pattern.compile("U([\\d.]+)-b(.*)");
-        Matcher matcher = verPattern.matcher(verString);
-        String fuuidVersion;
-        String fuuidBuild;
-        if (matcher.find()) {
-            fuuidVersion = matcher.group(1);
-            fuuidBuild = matcher.group(2);
-        } else {
-            fuuidVersion = "Unknown";
-            fuuidBuild = verString;
-        }
         this.metricsDrillPie("fuuid_version", () -> {
             Map<String, Map<String, Integer>> map = new HashMap<>();
             Map<String, Integer> entry = new HashMap<>();
-            entry.put(fuuidBuild, 1);
-            map.put(fuuidVersion, entry);
+            entry.put(this.getDescription().getVersion(), 1);
+            map.put(this.getDescription().getVersion(), entry);
             return map;
         });
 
@@ -593,50 +570,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                 Bukkit.getScheduler().runTask(this, () -> result.accept(false));
             }
         });
-    }
-
-    private int getBuildNumber(String version) {
-        Matcher factionsVersionMatcher = FACTIONS_VERSION_PATTERN.matcher(version);
-        if (factionsVersionMatcher.find()) {
-            try {
-                return Integer.parseInt(factionsVersionMatcher.group(1));
-            } catch (NumberFormatException ignored) {}
-        }
-        return -1;
-    }
-
-    private boolean checkForUpdates() {
-        try {
-            URL url = new URL("https://api.spigotmc.org/legacy/update.php?resource=1035");
-            HttpURLConnection con = ((HttpURLConnection) url.openConnection());
-            int status = con.getResponseCode();
-            if (status == 200) {
-                try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
-                    String line;
-                    while ((line = in.readLine()) != null) {
-                        if (line.startsWith("1.6.9.5-U") && !this.getDescription().getVersion().equals(line)) {
-                            if (this.buildNumber > 0) {
-                                int build = this.getBuildNumber(line);
-                                if (build > 0 && build <= this.buildNumber) {
-                                    return false;
-                                }
-                            }
-                            this.updateMessage = ChatColor.GREEN + "New version of " + ChatColor.DARK_AQUA + "Factions" + ChatColor.GREEN + " available: " + ChatColor.DARK_AQUA + line;
-                            return true;
-                        }
-                    }
-                }
-            }
-        } catch (Exception ignored) {
-        }
-        return false;
-    }
-
-    public void updatesOnJoin(Player player) {
-        if (this.updateMessage != null && player.hasPermission(com.massivecraft.factions.struct.Permission.UPDATES.toString())) {
-            player.sendMessage(this.updateMessage);
-            player.sendMessage(ChatColor.GREEN + "Get it at " + ChatColor.DARK_AQUA + "https://www.spigotmc.org/resources/factionsuuid.1035/");
-        }
     }
 
     public PermUtil getPermUtil() {

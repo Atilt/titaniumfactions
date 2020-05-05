@@ -30,6 +30,10 @@ public final class FlightUtil {
     }
 
     private FlightUtil() {
+        throw new UnsupportedOperationException("This class cannot be instantiated");
+    }
+
+    public void start() {
         double enemyCheck = FactionsPlugin.getInstance().conf().commands().fly().getRadiusCheck() * 20;
         if (enemyCheck > 0) {
             EnemiesTask.get().start();

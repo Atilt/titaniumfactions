@@ -2949,7 +2949,7 @@
     "WATER": {
         "material": "WATER"
     },
-    "STATIONARY": {
+    "STATIONARY_WATER": {
         "legacy": "STATIONARY_WATER",
         "material": "WATER"
     },
