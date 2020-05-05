@@ -37,7 +37,7 @@ public class MaterialDb {
         return provider.resolve(name);
     }
 
-    public static void load() {
+    public static int load() {
         instance = new MaterialDb();
         if (instance.legacy = FactionsPlugin.getInstance().getMCVersion().isBefore(MinecraftVersions.v1_13)) { // Before 1.13
             FactionsPlugin.getInstance().getLogger().info("Using legacy support for materials");
@@ -45,9 +45,9 @@ public class MaterialDb {
 
         InputStreamReader reader = new InputStreamReader(FactionsPlugin.getInstance().getResource("materials.json"));
         Type typeToken = new TypeToken<Map<String, MaterialProvider.MaterialData>>(){}.getType();
-        Map<String, MaterialProvider.MaterialData> materialData = FactionsPlugin.getInstance().getGson().fromJson(reader, typeToken);
-        FactionsPlugin.getInstance().getLogger().info("Loaded " + materialData.keySet().size() + " material mappings.");
+        Map<String, MaterialProvider.MaterialData> materialData = FactionsPlugin.getInstance().getGson().fromJson(reader, typeToken);;
         instance.provider = new MaterialProvider(materialData);
+        return materialData.size();
     }
 
     public static MaterialDb getInstance() {
