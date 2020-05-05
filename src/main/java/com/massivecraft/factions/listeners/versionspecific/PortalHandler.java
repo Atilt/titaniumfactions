@@ -6,13 +6,14 @@ import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.perms.Relation;
+import com.massivecraft.factions.util.WorldUtil;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 public class PortalHandler implements PortalListenerBase {
     @Override
     public boolean shouldCancel(Location location, Player player) {
-        if (!FactionsPlugin.getInstance().worldUtil().isEnabled(player.getWorld())) {
+        if (!WorldUtil.isEnabled(player.getWorld())) {
             return true;
         }
 

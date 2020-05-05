@@ -48,7 +48,6 @@ import com.massivecraft.factions.util.Persist;
 import com.massivecraft.factions.util.SeeChunkUtil;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
-import com.massivecraft.factions.util.WorldUtil;
 import com.massivecraft.factions.util.material.FactionMaterial;
 import com.massivecraft.factions.util.material.MaterialDb;
 import com.massivecraft.factions.util.particle.PacketParticleProvider;
@@ -111,9 +110,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     // Some utils
     private Persist persist;
-    private WorldUtil worldUtil;
-
-    private PermUtil permUtil;
 
     // Persist related
     private Gson gson;
@@ -210,17 +206,10 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                 this.configManager.startup();
 
                 this.landRaidControl = LandRaidControl.getByName(this.conf().factions().landRaidControl().getSystem());
-
-                // Load Material database
-
-                // Create Utility Instances
-                this.permUtil = new PermUtil();
-                this.permUtil.setup();
-
                 this.persist = new Persist();
-                this.worldUtil = new WorldUtil();
-                
+
                 TextUtil.init();
+                PermUtil.init();
 
                 // attempt to get first command defined in plugin.yml as reference command, if any commands are defined in there
                 // reference command will be used to prevent "unknown command" console messages
@@ -482,10 +471,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         return map;
     }
 
-    public WorldUtil worldUtil() {
-        return worldUtil;
-    }
-
     private void setNerfedEntities() {
         safeZoneNerfedCreatureTypes.add(EntityType.BLAZE);
         safeZoneNerfedCreatureTypes.add(EntityType.CAVE_SPIDER);
@@ -583,10 +568,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         return persist;
     }
 
-    public PermUtil getPermUtil() {
-        return permUtil;
-    }
-
     public Gson getGson() {
         return gson;
     }
@@ -595,7 +576,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         return seeChunkUtil;
     }
 
-    public ParticleProvider<?> getParticleProvider() {
+    public ParticleProvider getParticleProvider() {
         return particleProvider;
     }
 

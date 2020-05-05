@@ -7,6 +7,7 @@ import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.cmd.CommandContext;
 import com.massivecraft.factions.config.file.MainConfig;
 import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.WorldUtil;
 import org.bukkit.entity.Player;
 
 import java.math.BigDecimal;
@@ -124,7 +125,7 @@ public class DTRControl implements LandRaidControl {
 
         int onlineInEnabledWorlds = 0;
         for (Player onlinePlayer : faction.getOnlinePlayers()) {
-            if (!FactionsPlugin.getInstance().worldUtil().isEnabled(onlinePlayer.getWorld())) {
+            if (!WorldUtil.isEnabled(onlinePlayer.getWorld())) {
                 continue;
             }
             onlineInEnabledWorlds++;

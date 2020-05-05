@@ -124,7 +124,7 @@ public final class FlightUtil {
         }
 
         public boolean enemiesNearby(FPlayer target, int radius) {
-            if (!FactionsPlugin.getInstance().worldUtil().isEnabled(target.getPlayer().getWorld())) {
+            if (!WorldUtil.isEnabled(target.getPlayer().getWorld())) {
                 return false;
             }
             for (Entity entity : target.getPlayer().getNearbyEntities(radius, radius, radius)) {

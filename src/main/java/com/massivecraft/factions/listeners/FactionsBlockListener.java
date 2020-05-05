@@ -10,6 +10,7 @@ import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.WorldUtil;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.bukkit.Location;
@@ -35,7 +36,7 @@ public class FactionsBlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
-        if (!FactionsPlugin.getInstance().worldUtil().isEnabled(event.getBlock().getWorld())) {
+        if (!WorldUtil.isEnabled(event.getBlock().getWorld())) {
             return;
         }
 
@@ -60,7 +61,7 @@ public class FactionsBlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onBlockFromTo(BlockFromToEvent event) {
-        if (!FactionsPlugin.getInstance().worldUtil().isEnabled(event.getBlock().getWorld())) {
+        if (!WorldUtil.isEnabled(event.getBlock().getWorld())) {
             return;
         }
 
@@ -88,7 +89,7 @@ public class FactionsBlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
-        if (!FactionsPlugin.getInstance().worldUtil().isEnabled(event.getBlock().getWorld())) {
+        if (!WorldUtil.isEnabled(event.getBlock().getWorld())) {
             return;
         }
 
@@ -99,7 +100,7 @@ public class FactionsBlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onBlockDamage(BlockDamageEvent event) {
-        if (!FactionsPlugin.getInstance().worldUtil().isEnabled(event.getBlock().getWorld())) {
+        if (!WorldUtil.isEnabled(event.getBlock().getWorld())) {
             return;
         }
 
@@ -110,7 +111,7 @@ public class FactionsBlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onBlockPistonExtend(BlockPistonExtendEvent event) {
-        if (!FactionsPlugin.getInstance().worldUtil().isEnabled(event.getBlock().getWorld())) {
+        if (!WorldUtil.isEnabled(event.getBlock().getWorld())) {
             return;
         }
 
@@ -132,7 +133,7 @@ public class FactionsBlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onBlockPistonRetract(BlockPistonRetractEvent event) {
-        if (!FactionsPlugin.getInstance().worldUtil().isEnabled(event.getBlock().getWorld())) {
+        if (!WorldUtil.isEnabled(event.getBlock().getWorld())) {
             return;
         }
 
@@ -189,7 +190,7 @@ public class FactionsBlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onFrostWalker(EntityBlockFormEvent event) {
-        if (!FactionsPlugin.getInstance().worldUtil().isEnabled(event.getBlock().getWorld())) {
+        if (!WorldUtil.isEnabled(event.getBlock().getWorld())) {
             return;
         }
 

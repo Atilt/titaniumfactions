@@ -9,34 +9,37 @@ import org.bukkit.permissions.Permission;
 
 public final class PermUtil {
 
-    private final Object2ObjectMap<String, String> permissionDescriptions = new Object2ObjectOpenHashMap<>();
+    private static final Object2ObjectMap<String, String> PERMISSION_DESCRIPTIONS = new Object2ObjectOpenHashMap<>();
 
-    public String getForbiddenMessage(String perm) {
+    private PermUtil() {
+        throw new UnsupportedOperationException("This class cannot be instantiated");
+    }
+
+    public static String getForbiddenMessage(String perm) {
         return TextUtil.parse(TL.GENERIC_NOPERMISSION.toString(), getPermissionDescription(perm));
     }
 
     /**
      * This method hooks into all permission plugins we are supporting
      */
-    public final void setup() {
+    public static void init() {
         for (Permission permission : FactionsPlugin.getInstance().getDescription().getPermissions()) {
-            //p.log("\""+permission.getName()+"\" = \""+permission.getDescription()+"\"");
-            this.permissionDescriptions.put(permission.getName(), permission.getDescription());
+            PERMISSION_DESCRIPTIONS.put(permission.getName(), permission.getDescription());
         }
     }
 
-    public String getPermissionDescription(String perm) {
-        return permissionDescriptions.getOrDefault(perm, TL.GENERIC_DOTHAT.toString());
+    public static String getPermissionDescription(String perm) {
+        return PERMISSION_DESCRIPTIONS.getOrDefault(perm, TL.GENERIC_DOTHAT.toString());
     }
 
-    public boolean has(CommandSender me, String perm, boolean informSenderIfNot) {
+    public static boolean has(CommandSender me, String perm, boolean informSenderIfNot) {
         if (me == null) {
             return false; // What? How?
         }
         if (me.hasPermission(perm)) {
             return true;
         } else if (informSenderIfNot) {
-            me.sendMessage(this.getForbiddenMessage(perm));
+            me.sendMessage(getForbiddenMessage(perm));
         }
         return false;
     }

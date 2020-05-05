@@ -8,6 +8,7 @@ import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.WorldUtil;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -29,7 +30,7 @@ public class PortalListener_114 implements Listener {
             return; // Don't do anything if they don't want us to.
         }
 
-        if (!(entity instanceof Player) || !FactionsPlugin.getInstance().worldUtil().isEnabled(event.getEntity().getWorld())) {
+        if (!(entity instanceof Player) || !WorldUtil.isEnabled(event.getEntity().getWorld())) {
             return;
         }
 

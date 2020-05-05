@@ -1,38 +1,28 @@
 package com.massivecraft.factions.util;
 
 import com.massivecraft.factions.FactionsPlugin;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public final class WorldUtil {
-    private ObjectSet<String> worlds;
-    private boolean check;
-    private boolean whitelist;
 
-    public WorldUtil() {
-        check = FactionsPlugin.getInstance().conf().restrictWorlds().isRestrictWorlds();
-        if (!check) {
-            return;
-        }
-        worlds = new ObjectOpenHashSet<>(FactionsPlugin.getInstance().conf().restrictWorlds().getWorldList());
-        whitelist = FactionsPlugin.getInstance().conf().restrictWorlds().isWhitelist();
+    private WorldUtil() {
+        throw new UnsupportedOperationException("This class cannot be instantiated");
     }
 
-    private boolean isEnabled(String name) {
-        if (!check) {
+    private static boolean isEnabled(String name) {
+        if (!FactionsPlugin.getInstance().conf().restrictWorlds().isRestrictWorlds()) {
             return true;
         }
-        return whitelist == worlds.contains(name);
+        return FactionsPlugin.getInstance().conf().restrictWorlds().isWhitelist() == FactionsPlugin.getInstance().conf().restrictWorlds().getWorldList().contains(name);
     }
 
-    public boolean isEnabled(World world) {
+    public static boolean isEnabled(World world) {
         return isEnabled(world.getName());
     }
 
-    public boolean isEnabled(CommandSender sender) {
+    public static boolean isEnabled(CommandSender sender) {
         if (sender instanceof Player) {
             return isEnabled(((Player) sender).getWorld().getName());
         }

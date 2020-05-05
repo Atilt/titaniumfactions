@@ -30,6 +30,7 @@ import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
 import com.massivecraft.factions.util.TitleAPI;
 import com.massivecraft.factions.util.WarmUpUtil;
+import com.massivecraft.factions.util.WorldUtil;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import net.kyori.text.TextComponent;
@@ -922,13 +923,13 @@ public abstract class MemoryFPlayer implements FPlayer {
     }
 
     public boolean isOnline() {
-        return FPlayers.getInstance().isOnline(this) && FactionsPlugin.getInstance().worldUtil().isEnabled(this.getLastStoodAt().getWorld());
+        return FPlayers.getInstance().isOnline(this) && WorldUtil.isEnabled(this.getLastStoodAt().getWorld());
     }
 
     // make sure target player should be able to detect that this player is online
     public boolean isOnlineAndVisibleTo(Player player) {
         Player target = this.getPlayer();
-        return target != null && player.canSee(target) && FactionsPlugin.getInstance().worldUtil().isEnabled(player.getWorld());
+        return target != null && player.canSee(target) && WorldUtil.isEnabled(player.getWorld());
     }
 
     public boolean isOffline() {

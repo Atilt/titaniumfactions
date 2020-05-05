@@ -21,6 +21,7 @@ import com.massivecraft.factions.landraidcontrol.DTRControl;
 import com.massivecraft.factions.landraidcontrol.PowerControl;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
+import com.massivecraft.factions.util.WorldUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import me.lucko.commodore.CommodoreProvider;
 import org.bukkit.Bukkit;
@@ -251,7 +252,7 @@ public class FCmdRoot extends FCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!plugin.worldUtil().isEnabled(sender)) {
+        if (!WorldUtil.isEnabled(sender)) {
             sender.sendMessage(TL.GENERIC_DISABLEDWORLD.toString());
             return false;
         }
