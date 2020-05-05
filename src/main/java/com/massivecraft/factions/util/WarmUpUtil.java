@@ -4,7 +4,7 @@ import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FactionsPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class WarmUpUtil {
+public final class WarmUpUtil {
 
     /**
      * @param player         The player to notify.

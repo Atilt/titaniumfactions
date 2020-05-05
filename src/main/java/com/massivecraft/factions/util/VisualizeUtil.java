@@ -15,7 +15,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
-public class VisualizeUtil {
+public final class VisualizeUtil {
 
     protected static final Object2ObjectMap<UUID, ObjectSet<Location>> playerLocations = new Object2ObjectOpenHashMap<>();
 

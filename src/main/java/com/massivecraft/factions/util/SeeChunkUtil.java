@@ -18,7 +18,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.UUID;
 
 @SuppressWarnings("unchecked")
-public class SeeChunkUtil extends BukkitRunnable {
+public final class SeeChunkUtil extends BukkitRunnable {
 
     private ObjectSet<UUID> playersSeeingChunks = new ObjectOpenHashSet<>();
     private boolean useColor;

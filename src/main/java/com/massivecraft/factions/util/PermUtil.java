@@ -7,7 +7,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.Permission;
 
 
-public class PermUtil {
+public final class PermUtil {
 
     private final Object2ObjectMap<String, String> permissionDescriptions = new Object2ObjectOpenHashMap<>();
 

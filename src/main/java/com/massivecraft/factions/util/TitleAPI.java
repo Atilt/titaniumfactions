@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
 /**
  * With help from https://www.spigotmc.org/threads/send-titles-to-players-using-spigot-1-8-1-11-2.48819/
  */
-public class TitleAPI {
+public final class TitleAPI {
 
     private static TitleAPI instance;
 

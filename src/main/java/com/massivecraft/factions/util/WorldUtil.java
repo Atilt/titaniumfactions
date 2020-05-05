@@ -7,7 +7,7 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class WorldUtil {
+public final class WorldUtil {
     private ObjectSet<String> worlds;
     private boolean check;
     private boolean whitelist;

@@ -7,7 +7,7 @@ import com.massivecraft.factions.iface.RelationParticipator;
 import com.massivecraft.factions.perms.Relation;
 import org.bukkit.ChatColor;
 
-public class RelationUtil {
+public final class RelationUtil {
 
     public static String describeThatToMe(RelationParticipator that, RelationParticipator me, boolean ucfirst) {
         Faction thatFaction = getFaction(that);

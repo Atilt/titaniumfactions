@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class MiscUtil {
+public final class MiscUtil {
 
     public static EntityType creatureTypeFromEntity(Entity entity) {
         if (!(entity instanceof Creature)) {

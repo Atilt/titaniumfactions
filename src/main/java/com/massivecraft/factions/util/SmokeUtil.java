@@ -22,7 +22,7 @@ import java.util.concurrent.ThreadLocalRandom;
 //            8    North - West
 //-----------------------------
 
-public class SmokeUtil {
+public final class SmokeUtil {
 
     // -------------------------------------------- //
     // Spawn once

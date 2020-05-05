@@ -61,7 +61,7 @@ public final class FLocation implements Serializable {
         try {
             return LOCATIONS.computeIfAbsent(world, key ->
                     CacheBuilder.newBuilder()
-                        .maximumSize(1000)
+                        .maximumSize(1000) //needs experimenting
                         .weakValues()
                         .expireAfterAccess(5, TimeUnit.MINUTES)
                         .build(new CacheLoader<Long, FLocation>() {

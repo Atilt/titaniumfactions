@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TextUtil {
+public final class TextUtil {
 
     private final Object2ObjectMap<String, String> tags = new Object2ObjectOpenHashMap<>();
 
