@@ -171,6 +171,9 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     @Override
     public void onEnable() {
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            onlinePlayer.kickPlayer("Server data reloading...");
+        }
         getLogger().info("=== Starting up! ===");
         long timeEnableStart = System.currentTimeMillis();
 

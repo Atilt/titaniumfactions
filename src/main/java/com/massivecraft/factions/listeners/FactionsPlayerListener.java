@@ -79,9 +79,6 @@ public class FactionsPlayerListener extends AbstractListener {
 
     public FactionsPlayerListener(FactionsPlugin plugin) {
         this.plugin = plugin;
-        for (Player player : plugin.getServer().getOnlinePlayers()) {
-            initPlayer(player);
-        }
     }
 
     @EventHandler
