@@ -18,6 +18,7 @@ import com.massivecraft.factions.scoreboards.FScoreboard;
 import com.massivecraft.factions.scoreboards.FTeamWrapper;
 import com.massivecraft.factions.scoreboards.sidebar.FDefaultSidebar;
 import com.massivecraft.factions.struct.Permission;
+import com.massivecraft.factions.util.FlightUtil;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
 import com.massivecraft.factions.util.VisualizeUtil;
@@ -120,6 +121,7 @@ public class FactionsPlayerListener extends AbstractListener {
             this.initFactionWorld(me, player);
         }
         FPlayers.getInstance().addOnline(me);
+        FlightUtil.getInstance().track(me);
         this.plugin.updatesOnJoin(player);
     }
 
@@ -184,6 +186,7 @@ public class FactionsPlayerListener extends AbstractListener {
         }
 
         FPlayers.getInstance().removeOnline(me);
+        FlightUtil.getInstance().untrack(me);
 
         if (!myFaction.isWilderness()) {
             for (FPlayer player : myFaction.getFPlayersWhereOnline(true)) {

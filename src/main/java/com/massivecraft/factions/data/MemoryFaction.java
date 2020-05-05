@@ -822,9 +822,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     }
 
     public Set<FPlayer> getFPlayers() {
-        // return a shallow copy of the FPlayer list, to prevent tampering and
-        // concurrency issues
-        return new ObjectOpenHashSet<>(fplayers);
+        return ObjectSets.unmodifiable(this.fplayers);
     }
 
     public Set<FPlayer> getFPlayersWhereOnline(boolean online) {

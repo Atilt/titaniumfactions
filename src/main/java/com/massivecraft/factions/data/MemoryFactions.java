@@ -48,11 +48,12 @@ public abstract class MemoryFactions extends Factions {
         return factions.get(id);
     }
 
+    public abstract Faction generateFactionObject(int id);
+
     @Deprecated
     public abstract Faction generateFactionObject(String string);
 
-    public abstract Faction generateFactionObject(int id);
-
+    @Override
     public Faction getByTag(String str) {
         String compStr = MiscUtil.getComparisonString(str);
         for (Faction faction : factions.values()) {
@@ -63,6 +64,7 @@ public abstract class MemoryFactions extends Factions {
         return null;
     }
 
+    @Override
     public Faction getBestTagMatch(String start) {
         int best = 0;
         start = start.toLowerCase();
@@ -106,12 +108,14 @@ public abstract class MemoryFactions extends Factions {
         return this.factions.containsKey(id);
     }
 
+    @Override
     public Faction createFaction() {
         Faction faction = generateFactionObject();
         factions.put(faction.getIdRaw(), faction);
         return faction;
     }
 
+    @Override
     public Set<String> getFactionTags() {
         ObjectSet<String> tags = new ObjectOpenHashSet<>(factions.size());
         for (Faction faction : factions.values()) {

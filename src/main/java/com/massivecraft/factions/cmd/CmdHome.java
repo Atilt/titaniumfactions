@@ -124,7 +124,7 @@ public class CmdHome extends FCommand {
                     continue;
                 }
 
-                context.fPlayer.msg(TL.COMMAND_HOME_ENEMYNEAR, String.valueOf(FactionsPlugin.getInstance().conf().factions().homes().getTeleportAllowedEnemyDistance()));
+                context.fPlayer.msg(TL.COMMAND_HOME_ENEMYNEAR, FactionsPlugin.getInstance().conf().factions().homes().getTeleportAllowedEnemyDistance());
                 return;
             }
         }
@@ -153,8 +153,9 @@ public class CmdHome extends FCommand {
                 smokeLocations.add(loc);
                 smokeLocations.add(loc.add(0, 1, 0));
                 smokeLocations.add(destination);
-                smokeLocations.add(destination.clone().add(0, 1, 0));
+                smokeLocations.add(destination.add(0, 1, 0));
                 SmokeUtil.spawnCloudRandom(smokeLocations, FactionsPlugin.getInstance().conf().factions().homes().getTeleportCommandSmokeEffectThickness());
+                destination.subtract(0, 1, 0);
             }
 
             context.player.teleport(destination);

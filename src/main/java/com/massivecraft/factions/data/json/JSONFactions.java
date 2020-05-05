@@ -104,15 +104,15 @@ public class JSONFactions extends MemoryFactions {
         return faction;
     }
 
+    @Override
+    public Faction generateFactionObject(int id) {
+        return new JSONFaction(id);
+    }
+
     @Deprecated
     @Override
     public Faction generateFactionObject(String id) {
         return generateFactionObject(Integer.parseInt(id));
-    }
-
-    @Override
-    public Faction generateFactionObject(int id) {
-        return new JSONFaction(id);
     }
 
     @Override

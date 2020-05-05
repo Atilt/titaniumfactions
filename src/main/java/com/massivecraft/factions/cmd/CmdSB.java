@@ -24,7 +24,7 @@ public class CmdSB extends FCommand {
         if (board == null) {
             context.player.sendMessage(TL.COMMAND_TOGGLESB_DISABLED.toString());
         } else {
-            context.player.sendMessage(TL.TOGGLE_SB.toString().replace("{value}", String.valueOf(toggleTo)));
+            context.player.sendMessage(TL.TOGGLE_SB.toString().replace("{value}", Boolean.toString(toggleTo)));
             board.setSidebarVisibility(toggleTo);
         }
         context.fPlayer.setShowScoreboard(toggleTo);

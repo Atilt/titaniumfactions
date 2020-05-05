@@ -152,11 +152,7 @@ public class TextUtil {
     }
 
     public static String repeat(String s, int times) {
-        if (times <= 0) {
-            return "";
-        } else {
-            return s + repeat(s, times - 1);
-        }
+        return times > 0 ? s + repeat(s, times - 1) : "";
     }
 
     // -------------------------------------------- //
@@ -190,8 +186,7 @@ public class TextUtil {
 
     public List<String> getPage(List<String> lines, int pageHumanBased, String title) {
         int pageZeroBased = pageHumanBased - 1;
-        int pageheight = 9;
-        int pagecount = (lines.size() / pageheight) + 1;
+        int pagecount = (lines.size() / 9) + 1;
 
         ObjectList<String> ret = new ObjectArrayList<>(pagecount);
 
@@ -202,8 +197,8 @@ public class TextUtil {
             return ret;
         }
 
-        int from = pageZeroBased * pageheight;
-        ret.addAll(lines.subList(from, Math.min(from + pageheight, lines.size())));
+        int from = pageZeroBased * 9;
+        ret.addAll(lines.subList(from, Math.min(from + 9, lines.size())));
         return ret;
     }
 }

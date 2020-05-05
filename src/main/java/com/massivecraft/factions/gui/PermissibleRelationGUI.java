@@ -7,6 +7,7 @@ import com.massivecraft.factions.perms.Permissible;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.TextUtil;
 import com.massivecraft.factions.util.material.FactionMaterial;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -84,8 +85,7 @@ public class PermissibleRelationGUI extends GUI<Permissible> {
     @Override
     protected String parse(String toParse, Permissible permissible) {
         // Uppercase the first letter
-        String name = permissible.toString().substring(0, 1).toUpperCase() + permissible.toString().substring(1);
-        return toParse.replace("{relation-color}", permissible.getColor().toString()).replace("{relation}", name);
+        return toParse.replace("{relation-color}", permissible.getColor().toString()).replace("{relation}", TextUtil.upperCaseFirst(permissible.toString()));
     }
 
     @Override

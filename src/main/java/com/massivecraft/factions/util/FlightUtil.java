@@ -5,32 +5,18 @@ import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.struct.Permission;
+import me.lucko.helper.bucket.Bucket;
+import me.lucko.helper.bucket.factory.BucketFactory;
+import me.lucko.helper.bucket.partitioning.PartitioningStrategies;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.List;
-
-public class FlightUtil {
+public final class FlightUtil {
 
     private static FlightUtil instance;
-
-    private EnemiesTask enemiesTask;
-
-    private FlightUtil() {
-        double enemyCheck = FactionsPlugin.getInstance().conf().commands().fly().getRadiusCheck() * 20;
-        if (enemyCheck > 0) {
-            enemiesTask = new EnemiesTask();
-            enemiesTask.runTaskTimer(FactionsPlugin.getInstance(), 0, (long) enemyCheck);
-        }
-
-        double spawnRate = FactionsPlugin.getInstance().conf().commands().fly().particles().getSpawnRate() * 20;
-        if (spawnRate > 0) {
-            new ParticleTrailsTask().runTaskTimer(FactionsPlugin.getInstance(), 0, (long) spawnRate);
-        }
-    }
 
     public static FlightUtil getInstance() {
         if (instance == null) {
@@ -43,26 +29,84 @@ public class FlightUtil {
         return instance;
     }
 
-    public boolean enemiesNearby(FPlayer target, int radius) {
-        if (this.enemiesTask == null) {
-            return false;
-        } else {
-            return this.enemiesTask.enemiesNearby(target, radius);
+    private FlightUtil() {
+        double enemyCheck = FactionsPlugin.getInstance().conf().commands().fly().getRadiusCheck() * 20;
+        if (enemyCheck > 0) {
+            EnemiesTask.get().start();
+        }
+
+        double spawnRate = FactionsPlugin.getInstance().conf().commands().fly().particles().getSpawnRate() * 20;
+        if (spawnRate > 0) {
+            ParticleTrailsTask.get().start();
         }
     }
 
-    public static class EnemiesTask extends BukkitRunnable {
+    public boolean track(FPlayer fPlayer) {
+        return EnemiesTask.get().track(fPlayer) && ParticleTrailsTask.get().track(fPlayer);
+    }
+
+    public boolean untrack(FPlayer fPlayer) {
+        return EnemiesTask.get().untrack(fPlayer) && ParticleTrailsTask.get().untrack(fPlayer);
+    }
+
+    public boolean enemiesNearby(FPlayer target, int radius) {
+        return !EnemiesTask.get().isClosed() && EnemiesTask.get().enemiesNearby(target, radius);
+    }
+
+    private static class EnemiesTask extends BukkitRunnable implements AutoCloseable {
+
+        private static EnemiesTask instance;
+
+        private int task = -1;
+
+        private final Bucket<FPlayer> players = BucketFactory.newHashSetBucket(20, PartitioningStrategies.lowestSize());
+
+        public static EnemiesTask get() {
+            if (instance == null) {
+                synchronized (EnemiesTask.class) {
+                    if (instance == null) {
+                        instance = new EnemiesTask();
+                    }
+                }
+            }
+            return instance;
+        }
+
+        public boolean track(FPlayer fPlayer) {
+            return this.players.add(fPlayer);
+        }
+
+        public boolean untrack(FPlayer fPlayer) {
+            return this.players.remove(fPlayer);
+        }
+
+        public void start() {
+            this.task = this.runTaskTimer(FactionsPlugin.getInstance(), 1L, 1L).getTaskId();
+        }
+
+        @Override
+        public void close() {
+            if (this.task != -1) {
+                Bukkit.getScheduler().cancelTask(this.task);
+                this.task = -1;
+            }
+        }
+
+        public boolean isClosed() {
+            return this.task == -1;
+        }
 
         @Override
         public void run() {
-            for (FPlayer pilot : FPlayers.getInstance()) {
-                if (pilot.isFlying() && !pilot.isAdminBypassing()) {
-                    if (enemiesNearby(pilot, FactionsPlugin.getInstance().conf().commands().fly().getEnemyRadius())) {
-                        pilot.msg(TL.COMMAND_FLY_ENEMY_DISABLE);
-                        pilot.setFlying(false);
-                        if (pilot.isAutoFlying()) {
-                            pilot.setAutoFlying(false);
-                        }
+            for (FPlayer pilot : this.players.asCycle().next()) {
+                if (!pilot.isFlying() || pilot.isAdminBypassing()) {
+                    continue;
+                }
+                if (enemiesNearby(pilot, FactionsPlugin.getInstance().conf().commands().fly().getEnemyRadius())) {
+                    pilot.msg(TL.COMMAND_FLY_ENEMY_DISABLE);
+                    pilot.setFlying(false);
+                    if (pilot.isAutoFlying()) {
+                        pilot.setAutoFlying(false);
                     }
                 }
             }
@@ -72,8 +116,7 @@ public class FlightUtil {
             if (!FactionsPlugin.getInstance().worldUtil().isEnabled(target.getPlayer().getWorld())) {
                 return false;
             }
-            List<Entity> nearbyEntities = target.getPlayer().getNearbyEntities(radius, radius, radius);
-            for (Entity entity : nearbyEntities) {
+            for (Entity entity : target.getPlayer().getNearbyEntities(radius, radius, radius)) {
                 if (entity.getType() != EntityType.PLAYER) {
                     continue;
                 }
@@ -89,25 +132,66 @@ public class FlightUtil {
         }
     }
 
-    public static class ParticleTrailsTask extends BukkitRunnable {
+    private static class ParticleTrailsTask extends BukkitRunnable implements AutoCloseable {
+
+        private static ParticleTrailsTask instance;
 
         private final int amount;
         private final float speed;
+
+        private int task = -1;
+
+        private final Bucket<FPlayer> players = BucketFactory.newHashSetBucket(20, PartitioningStrategies.lowestSize());
+
+        public static ParticleTrailsTask get() {
+            if (instance == null) {
+                synchronized (ParticleTrailsTask.class) {
+                    if (instance == null) {
+                        instance = new ParticleTrailsTask();
+                    }
+                }
+            }
+            return instance;
+        }
 
         private ParticleTrailsTask() {
             this.amount = FactionsPlugin.getInstance().conf().commands().fly().particles().getAmount();
             this.speed = (float) FactionsPlugin.getInstance().conf().commands().fly().particles().getSpeed();
         }
 
+        public boolean track(FPlayer fPlayer) {
+            return this.players.add(fPlayer);
+        }
+
+        public boolean untrack(FPlayer fPlayer) {
+            return this.players.remove(fPlayer);
+        }
+
+        public void start() {
+            this.task = this.runTaskTimer(FactionsPlugin.getInstance(), 1L, 1L).getTaskId();
+        }
+
+        @Override
+        public void close() {
+            if (this.task != -1) {
+                Bukkit.getScheduler().cancelTask(this.task);
+                this.task = -1;
+            }
+        }
+
+        public boolean isClosed() {
+            return this.task == -1;
+        }
+
         @Override
         public void run() {
-            for (FPlayer pilot : FPlayers.getInstance()) {
+            for (FPlayer pilot : this.players.asCycle().next()) {
                 if (!pilot.isFlying()) {
                     continue;
                 }
                 Player player = Bukkit.getPlayer(pilot.getId());
                 if (pilot.getFlyTrailsEffect() != null && Permission.FLY_TRAILS.has(player) && pilot.getFlyTrailsState()) {
-                    FactionsPlugin.getInstance().getParticleProvider().spawn(FactionsPlugin.getInstance().getParticleProvider().effectFromString(pilot.getFlyTrailsEffect()), player.getLocation(), amount, speed, 0, 0, 0);
+                    FactionsPlugin.getInstance().getParticleProvider().spawn(FactionsPlugin.getInstance().getParticleProvider().effectFromString(pilot.getFlyTrailsEffect()), player.getLocation(), this.amount, this.speed, 0, 0, 0);
                 }
             }
         }

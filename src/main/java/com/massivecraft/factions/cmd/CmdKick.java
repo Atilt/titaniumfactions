@@ -34,7 +34,7 @@ public class CmdKick extends FCommand {
     public void perform(CommandContext context) {
         FPlayer toKick = context.argIsSet(0) ? context.argAsBestFPlayerMatch(0) : null;
         if (toKick == null) {
-            TextComponent msg = TextComponent.of(TL.COMMAND_KICK_CANDIDATES.toString()).color(TextColor.GOLD);
+            TextComponent msg = TL.COMMAND_KICK_CANDIDATES.toComponent().color(TextColor.GOLD);
             for (FPlayer player : context.faction.getFPlayersWhereRole(Role.NORMAL)) {
                 String s = player.getName();
                 msg.append(TextComponent.of(s + " "))

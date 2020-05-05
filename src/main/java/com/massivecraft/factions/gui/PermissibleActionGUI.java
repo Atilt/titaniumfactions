@@ -8,6 +8,7 @@ import com.massivecraft.factions.perms.Permissible;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.TextUtil;
 import com.massivecraft.factions.util.material.FactionMaterial;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -99,12 +100,12 @@ public class PermissibleActionGUI extends GUI<PermissibleAction> implements GUI.
     @Override
     protected Int2ObjectMap<PermissibleAction> createSlotMap() {
         Int2ObjectMap<PermissibleAction> map = new Int2ObjectOpenHashMap<>();
-        int i = 0;
-        for (PermissibleAction action : PermissibleAction.VALUES) {
+        for (int i = 0; i < PermissibleAction.VALUES.length; i++) {
+            PermissibleAction action = PermissibleAction.VALUES[i];
             if (this.permissible instanceof Relation && action.isFactionOnly()) {
                 continue;
             }
-            map.put(i++, action);
+            map.put(i, action);
         }
         return map;
     }
@@ -129,9 +130,9 @@ public class PermissibleActionGUI extends GUI<PermissibleAction> implements GUI.
     // For dummy items only parseDefault is called, but we want to provide the relation placeholders, so: Override
     @Override
     protected String parseDefault(String string) {
-        String permissibleName = permissible.toString().substring(0, 1).toUpperCase() + permissible.toString().substring(1);
-        String parsed = string.replace("{relation-color}", permissible.getColor().toString());
-        parsed = parsed.replace("{relation}", permissibleName);
+        String permissibleName = TextUtil.upperCaseFirst(permissible.toString());
+        String parsed = TextUtil.replace(string, "{relation-color}", permissible.getColor().toString());
+        parsed = TextUtil.replace(parsed, "{relation}", permissibleName);
         return super.parseDefault(parsed);
     }
 

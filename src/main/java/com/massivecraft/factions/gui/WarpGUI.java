@@ -7,13 +7,15 @@ import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.integration.Econ;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.TextUtil;
 import com.massivecraft.factions.util.WarmUpUtil;
 import com.massivecraft.factions.util.material.FactionMaterial;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import org.bukkit.Bukkit;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.bukkit.DyeColor;
 import org.bukkit.conversations.ConversationAbandonedEvent;
 import org.bukkit.conversations.ConversationAbandonedListener;
@@ -28,7 +30,6 @@ import org.bukkit.event.inventory.ClickType;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -91,10 +92,7 @@ public class WarpGUI extends GUI<Integer> {
         if (index < 0) {
             return toParse;
         }
-        if (warps.size() > index) {
-            toParse = toParse.replace("{warp}", warps.get(index));
-        }
-        return toParse;
+        return warps.size() > index ? TextUtil.replace(toParse, "{warp}", warps.get(index)) : toParse;
     }
 
     @Override
@@ -122,7 +120,7 @@ public class WarpGUI extends GUI<Integer> {
                     doWarmup(warp);
                 }
             } else {
-                HashMap<Object, Object> sessionData = new HashMap<>();
+                Object2ObjectMap<Object, Object> sessionData = new Object2ObjectOpenHashMap<>();
                 sessionData.put("warp", warp);
                 PasswordPrompt passwordPrompt = new PasswordPrompt();
                 ConversationFactory inputFactory = new ConversationFactory(FactionsPlugin.getInstance())
@@ -231,7 +229,7 @@ public class WarpGUI extends GUI<Integer> {
 
     private void doWarmup(final String warp) {
         WarmUpUtil.process(user, WarmUpUtil.Warmup.WARP, TL.WARMUPS_NOTIFY_TELEPORT, warp, () -> {
-            Player player = Bukkit.getPlayer(user.getPlayer().getUniqueId());
+            Player player = user.getPlayer();
             if (player != null) {
                 if (!faction.hasAccess(this.user, PermissibleAction.WARP)) {
                     user.msg(TL.COMMAND_FWARP_NOACCESS, faction.getTag(user));

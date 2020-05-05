@@ -27,13 +27,13 @@ public class CmdShowInvites extends FCommand {
 
     @Override
     public void perform(CommandContext context) {
-        TextComponent msg = TextComponent.of(TL.COMMAND_SHOWINVITES_PENDING.toString()).color(TextColor.GOLD);
+        TextComponent msg = TL.COMMAND_SHOWINVITES_PENDING.toComponent().color(TextColor.GOLD);
         for (UUID id : context.faction.getInvites()) {
             FPlayer fp = FPlayers.getInstance().getById(id);
             String name = fp != null ? fp.getName() : Bukkit.getOfflinePlayer(id).getName();
             msg.append(TextComponent.of(name + " "))
                .color(TextColor.WHITE)
-               .hoverEvent(HoverEvent.showText(TextComponent.of(TL.COMMAND_SHOWINVITES_CLICKTOREVOKE.format(name))))
+               .hoverEvent(HoverEvent.showText(TL.COMMAND_SHOWINVITES_CLICKTOREVOKE.toFormattedComponent(name)))
                .clickEvent(ClickEvent.runCommand("/" + FactionsPlugin.getInstance().conf().getCommandBase().get(0) + " deinvite " + name));
         }
         context.sendFancyMessage(msg);

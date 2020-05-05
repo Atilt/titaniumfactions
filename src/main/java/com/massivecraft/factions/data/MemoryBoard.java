@@ -398,7 +398,7 @@ public abstract class MemoryBoard extends Board {
             }
             for (int dx = (dz < 3 ? 6 : 3); dx < width; dx++) {
                 if (dx == halfWidth && dz == halfHeight) {
-                    row.append(TextComponent.of("+")).color(TextColor.AQUA).hoverEvent(HoverEvent.showText(TextComponent.of(TL.CLAIM_YOUAREHERE.toString())));
+                    row.append(TextComponent.of("+")).color(TextColor.AQUA).hoverEvent(HoverEvent.showText(TL.CLAIM_YOUAREHERE.toComponent()));
                 } else {
                     FLocation flocationHere = topLeft.getRelative(dx, dz);
                     Faction factionHere = getFactionAt(flocationHere);

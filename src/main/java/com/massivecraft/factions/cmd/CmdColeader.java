@@ -33,7 +33,7 @@ public class CmdColeader extends FCommand {
     public void perform(CommandContext context) {
         FPlayer target = context.argAsBestFPlayerMatch(0);
         if (target == null) {
-            TextComponent msg = TextComponent.of(TL.COMMAND_COLEADER_CANDIDATES.toString()).color(TextColor.GOLD);
+            TextComponent msg = TL.COMMAND_COLEADER_CANDIDATES.toComponent().color(TextColor.GOLD);
             for (FPlayer player : context.faction.getFPlayersWhereRole(Role.MODERATOR)) {
                 String s = player.getName();
 

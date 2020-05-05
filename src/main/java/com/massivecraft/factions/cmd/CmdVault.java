@@ -7,6 +7,7 @@ import com.drtshock.playervaults.vaultmanagement.VaultOperations;
 import com.drtshock.playervaults.vaultmanagement.VaultViewInfo;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.struct.Permission;
+import com.massivecraft.factions.util.FastUUID;
 import com.massivecraft.factions.util.TL;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
@@ -36,14 +37,14 @@ public class CmdVault extends FCommand {
              /f vault <number>
          */
 
-        int number = context.argAsInt(0, 0); // Default to 0 or show on 0
-
         Player player = context.player;
+        String uuid = FastUUID.toString(player.getUniqueId());
 
-        if (PlayerVaults.getInstance().getInVault().containsKey(player.getUniqueId().toString())) {
+        if (PlayerVaults.getInstance().getInVault().containsKey(uuid)) {
             return; // Already in a vault so they must be trying to dupe.
         }
 
+        int number = context.argAsInt(0, 0); // Default to 0 or show on 0
         int max = context.faction.getMaxVaults();
         if (number > max) {
             player.sendMessage(TL.COMMAND_VAULT_TOOHIGH.format(number, max));
@@ -73,7 +74,7 @@ public class CmdVault extends FCommand {
         // Attempt to open vault.
         if (VaultOperations.openOtherVault(player, vaultName, Integer.toString(number))) {
             // Success
-            PlayerVaults.getInstance().getInVault().put(player.getUniqueId().toString(), new VaultViewInfo(vaultName, number));
+            PlayerVaults.getInstance().getInVault().put(uuid, new VaultViewInfo(vaultName, number));
         }
     }
 

@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
+import org.apache.http.annotation.Experimental;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -51,6 +52,7 @@ public final class FLocation implements Serializable {
         return new FLocation();
     }
 
+    @Experimental
     public static FLocation wrap(String world, int x, int z) {
         try {
             return LOCATIONS.computeIfAbsent(world, key ->

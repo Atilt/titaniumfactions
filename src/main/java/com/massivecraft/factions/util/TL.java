@@ -16,6 +16,7 @@
  */
 package com.massivecraft.factions.util;
 
+import net.kyori.text.TextComponent;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.text.SimpleDateFormat;
@@ -1023,6 +1024,14 @@ public enum TL {
             LANG = config;
             sdf = new SimpleDateFormat(DATE_FORMAT.toString());
         }
+    }
+
+    public TextComponent toComponent() {
+        return TextComponent.of(this.toString());
+    }
+
+    public TextComponent toFormattedComponent(Object... args) {
+        return TextComponent.of(format(args));
     }
 
     @Override

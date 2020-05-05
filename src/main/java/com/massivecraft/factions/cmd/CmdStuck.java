@@ -29,12 +29,12 @@ public class CmdStuck extends FCommand {
 
     @Override
     public void perform(final CommandContext context) {
-        final Player player = context.fPlayer.getPlayer();
-        final Location sentAt = player.getLocation();
-        final FLocation chunk = context.fPlayer.getLastStoodAt();
+        Player player = context.fPlayer.getPlayer();
+        Location sentAt = player.getLocation();
+        FLocation chunk = context.fPlayer.getLastStoodAt();
         // TODO handle delay 0
-        final long delay = FactionsPlugin.getInstance().conf().commands().stuck().getDelay();
-        final int radius = FactionsPlugin.getInstance().conf().commands().stuck().getRadius();
+        long delay = FactionsPlugin.getInstance().conf().commands().stuck().getDelay();
+        int radius = FactionsPlugin.getInstance().conf().commands().stuck().getRadius();
 
         if (FactionsPlugin.getInstance().getStuckMap().containsKey(player.getUniqueId())) {
             long wait = FactionsPlugin.getInstance().getTimers().get(player.getUniqueId()) - System.currentTimeMillis();

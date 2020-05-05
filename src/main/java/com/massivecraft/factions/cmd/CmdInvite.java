@@ -57,9 +57,9 @@ public class CmdInvite extends FCommand {
 
         // Tooltips, colors, and commands only apply to the string immediately before it.
         TextComponent message = TextComponent.of(context.fPlayer.describeTo(target, true))
-                .hoverEvent(HoverEvent.showText(TextComponent.of(TL.COMMAND_INVITE_CLICKTOJOIN.toString())))
+                .hoverEvent(HoverEvent.showText(TL.COMMAND_INVITE_CLICKTOJOIN.toComponent()))
                 .clickEvent(ClickEvent.runCommand("/" + FactionsPlugin.getInstance().conf().getCommandBase().get(0) + " join " + context.faction.getTag()))
-                .append(TextComponent.of(TL.COMMAND_INVITE_INVITEDYOU.toString()))
+                .append(TL.COMMAND_INVITE_INVITEDYOU.toComponent())
                 .color(TextColor.YELLOW);
 
         TextAdapter.sendComponent(target.getPlayer(), message);

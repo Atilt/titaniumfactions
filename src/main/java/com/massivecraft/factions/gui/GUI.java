@@ -61,15 +61,15 @@ public abstract class GUI<Type> implements InventoryHolder {
     protected abstract SimpleItem getItem(Type type);
 
     protected void buildItems() {
-        for (Map.Entry<Integer, Type> entry : slotMap.entrySet()) {
-            setItemAtSlot(entry.getKey(), entry.getValue());
+        for (Int2ObjectMap.Entry<Type> entry : slotMap.int2ObjectEntrySet()) {
+            setItemAtSlot(entry.getIntKey(), entry.getValue());
         }
     }
 
     protected void buildItem(Type type) {
-        for (Map.Entry<Integer, Type> entry : slotMap.entrySet()) {
+        for (Int2ObjectMap.Entry<Type> entry : slotMap.int2ObjectEntrySet()) {
             if (entry.getValue().equals(type)) {
-                setItemAtSlot(entry.getKey(), entry.getValue());
+                setItemAtSlot(entry.getIntKey(), entry.getValue());
             }
         }
     }

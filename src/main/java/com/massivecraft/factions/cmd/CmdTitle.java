@@ -31,9 +31,6 @@ public class CmdTitle extends FCommand {
         }
 
         context.args.remove(0);
-        String title = TextUtil.implode(context.args, " ");
-
-        title = title.replaceAll(",", "");
 
         if (!context.canIAdministerYou(context.fPlayer, you)) {
             return;
@@ -43,8 +40,7 @@ public class CmdTitle extends FCommand {
         if (!context.payForCommand(FactionsPlugin.getInstance().conf().economy().getCostTitle(), TL.COMMAND_TITLE_TOCHANGE, TL.COMMAND_TITLE_FORCHANGE)) {
             return;
         }
-
-        you.setTitle(context.sender, title);
+        you.setTitle(context.sender, TextUtil.implode(context.args, " ").replace(",", ""));
 
         // Inform
         context.faction.msg(TL.COMMAND_TITLE_CHANGED, context.fPlayer.describeTo(context.faction, true), you.describeTo(context.faction, true));

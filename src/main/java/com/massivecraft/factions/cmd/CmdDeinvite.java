@@ -35,11 +35,11 @@ public class CmdDeinvite extends FCommand {
     public void perform(CommandContext context) {
         FPlayer you = context.argAsBestFPlayerMatch(0);
         if (you == null) {
-            TextComponent msg = TextComponent.of(TL.COMMAND_DEINVITE_CANDEINVITE.toString()).color(TextColor.GOLD);
+            TextComponent msg = TL.COMMAND_DEINVITE_CANDEINVITE.toComponent().color(TextColor.GOLD);
             for (UUID id : context.faction.getInvites()) {
                 FPlayer fp = FPlayers.getInstance().getById(id);
                 String name = fp != null ? fp.getName() : Bukkit.getOfflinePlayer(id).getName();
-                msg.append(TextComponent.of(name + " ").color(TextColor.WHITE).hoverEvent(HoverEvent.showText(TextComponent.of(TL.COMMAND_DEINVITE_CLICKTODEINVITE.format(name)))).clickEvent(ClickEvent.runCommand("/" + FactionsPlugin.getInstance().conf().getCommandBase().get(0) + " deinvite " + name)));
+                msg.append(TextComponent.of(name + " ").color(TextColor.WHITE).hoverEvent(HoverEvent.showText(TL.COMMAND_DEINVITE_CLICKTODEINVITE.toFormattedComponent(name)))).clickEvent(ClickEvent.runCommand("/" + FactionsPlugin.getInstance().conf().getCommandBase().get(0) + " deinvite " + name));
             }
             context.sendFancyMessage(msg);
             return;

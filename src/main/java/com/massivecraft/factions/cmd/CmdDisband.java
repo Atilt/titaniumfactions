@@ -34,10 +34,7 @@ public class CmdDisband extends FCommand {
         if (faction == null) {
             return;
         }
-
-        boolean isfaction = context.fPlayer != null && faction == context.faction;
-
-        if (isfaction) {
+        if (context.fPlayer != null && faction == context.faction) {
             if (!faction.hasAccess(context.fPlayer, PermissibleAction.DISBAND)) {
                 context.msg(TL.GENERIC_NOPERMISSION.format(PermissibleAction.DISBAND));
                 return;
