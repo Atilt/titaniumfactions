@@ -11,6 +11,9 @@ import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.util.MiscUtil;
 import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.material.MaterialDb;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -47,7 +50,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
 
 import java.util.Arrays;
-import java.util.LinkedHashSet;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -170,6 +173,29 @@ public class FactionsEntityListener extends AbstractListener {
             BlockFace.DOWN
     };
 
+    private static final Set<Material> EXPLOSIVE_RESISTANT_MATERIALS = EnumSet.noneOf(Material.class);
+
+    static {
+        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("WATER"));
+        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("STATIONARY_WATER"));
+        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("AIR"));
+        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("CAVE_AIR"));
+        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("VOID_AIR"));
+        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("BEDROCK"));
+        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("LAVA"));
+        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("STATIONARY_LAVA"));
+        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("OBSIDIAN"));
+        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("WATER"));
+        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("END_PORTAL"));
+        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("END_PORTAL_FRAME"));
+        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("NETHER_PORTAL"));
+        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("ENCHANTING_TABLE"));
+        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("ANVIL"));
+        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("CHIPPED_ANVIL"));
+        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("DAMAGED_ANVIL"));
+        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("ENDER_CHEST"));
+    }
+
     private void handleExplosion(Location loc, Entity boomer, Cancellable event, List<Block> blockList) {
         if (!plugin.worldUtil().isEnabled(loc.getWorld())) {
             return;
@@ -191,30 +217,10 @@ public class FactionsEntityListener extends AbstractListener {
                 // a single surrounding block in all 6 directions is broken if the material is weak enough
                 for (BlockFace target : FACES) {
                     Block relative = center.getRelative(target);
-                    if (explosionDisallowed(boomer, relative.getLocation())) {
+                    if (explosionDisallowed(boomer, relative.getLocation()) || EXPLOSIVE_RESISTANT_MATERIALS.contains(relative.getType())) {
                         continue;
                     }
-                    boolean go = true;
-                    // TODO get resistance value via NMS for future-proofing
-                    switch (relative.getType().name()) {
-                        case "AIR":
-                        case "BEDROCK":
-                        case "WATER":
-                        case "LAVA":
-                        case "OBSIDIAN":
-                        case "NETHER_PORTAL":
-                        case "ENCHANTING_TABLE":
-                        case "ANVIL":
-                        case "CHIPPED_ANVIL":
-                        case "DAMAGED_ANVIL":
-                        case "END_PORTAL":
-                        case "END_PORTAL_FRAME":
-                        case "ENDER_CHEST":
-                            go = false;
-                    }
-                    if (go) {
-                        relative.breakNaturally();
-                    }
+                    relative.breakNaturally();
                 }
             }
         }
@@ -264,7 +270,7 @@ public class FactionsEntityListener extends AbstractListener {
         }
     }
 
-    private static final Set<PotionEffectType> badPotionEffects = new LinkedHashSet<>(Arrays.asList(PotionEffectType.BLINDNESS, PotionEffectType.CONFUSION, PotionEffectType.HARM, PotionEffectType.HUNGER, PotionEffectType.POISON, PotionEffectType.SLOW, PotionEffectType.SLOW_DIGGING, PotionEffectType.WEAKNESS, PotionEffectType.WITHER));
+    private static final ObjectSet<PotionEffectType> NEGATIVE_POTION_EFFECTS = new ObjectOpenHashSet<>(Arrays.asList(PotionEffectType.BLINDNESS, PotionEffectType.CONFUSION, PotionEffectType.HARM, PotionEffectType.HUNGER, PotionEffectType.POISON, PotionEffectType.SLOW, PotionEffectType.SLOW_DIGGING, PotionEffectType.WEAKNESS, PotionEffectType.WITHER));
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPotionSplashEvent(PotionSplashEvent event) {
@@ -275,7 +281,7 @@ public class FactionsEntityListener extends AbstractListener {
         // see if the potion has a harmful effect
         boolean badjuju = false;
         for (PotionEffect effect : event.getPotion().getEffects()) {
-            if (badPotionEffects.contains(effect.getType())) {
+            if (NEGATIVE_POTION_EFFECTS.contains(effect.getType())) {
                 badjuju = true;
                 break;
             }
@@ -289,9 +295,8 @@ public class FactionsEntityListener extends AbstractListener {
             return;
         }
 
-        if (thrower instanceof Player) {
-            Player player = (Player) thrower;
-            FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
+        if (((Entity) thrower).getType() == EntityType.PLAYER) {
+            FPlayer fPlayer = FPlayers.getInstance().getByPlayer((Player) thrower);
             if (fPlayer.getFaction().isPeaceful()) {
                 event.setCancelled(true);
                 return;
@@ -308,10 +313,7 @@ public class FactionsEntityListener extends AbstractListener {
     }
 
     public boolean isPlayerInSafeZone(Entity damagee) {
-        if (!(damagee instanceof Player)) {
-            return false;
-        }
-        return Board.getInstance().getFactionAt(FLocation.wrap(damagee.getLocation())).isSafeZone();
+        return damagee.getType() == EntityType.PLAYER && Board.getInstance().getFactionAt(FLocation.wrap(damagee.getLocation())).isSafeZone();
     }
 
     public boolean canDamagerHurtDamagee(EntityDamageByEntityEvent sub) {
@@ -336,11 +338,11 @@ public class FactionsEntityListener extends AbstractListener {
         if (damager.getType() == EntityType.PLAYER) {
             Player player = (Player) damager;
             Material material = null;
-            switch (sub.getEntity().getType().name()) {
-                case "ITEM_FRAME":
+            switch (sub.getEntity().getType()) {
+                case ITEM_FRAME:
                     material = Material.ITEM_FRAME;
                     break;
-                case "ARMOR_STAND":
+                case ARMOR_STAND:
                     material = Material.ARMOR_STAND;
                     break;
             }
@@ -349,7 +351,7 @@ public class FactionsEntityListener extends AbstractListener {
             }
         }
 
-        if (!(damagee instanceof Player)) {
+        if (damagee.getType() != EntityType.PLAYER) {
             return true;
         }
 
@@ -359,12 +361,12 @@ public class FactionsEntityListener extends AbstractListener {
             return true;
         }
 
-        FLocation defenderLoc = FLocation.wrap(defender.getPlayer().getLocation());
-        Faction defLocFaction = Board.getInstance().getFactionAt(defenderLoc);
-
         if (damager == damagee) {  // ender pearl usage and other self-inflicted damage
             return true;
         }
+
+        FLocation defenderLoc = FLocation.wrap(defender.getPlayer().getLocation());
+        Faction defLocFaction = Board.getInstance().getFactionAt(defenderLoc);
 
         // Players can not take attack damage in a SafeZone, or possibly peaceful territory
         if (defLocFaction.noPvPInTerritory()) {

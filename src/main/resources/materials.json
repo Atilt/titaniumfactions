@@ -1497,6 +1497,10 @@
     "LAVA": {
         "material": "LAVA"
     },
+    "STATIONARY_LAVA": {
+        "legacy": "STATIONARY_LAVA",
+        "material": "LAVA"
+    },
     "LAVA_BUCKET": {
         "material": "LAVA_BUCKET"
     },
@@ -2943,6 +2947,10 @@
         "material": "WALL_TORCH"
     },
     "WATER": {
+        "material": "WATER"
+    },
+    "STATIONARY": {
+        "legacy": "STATIONARY_WATER",
         "material": "WATER"
     },
     "WATER_BUCKET": {

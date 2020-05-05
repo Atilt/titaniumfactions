@@ -2,7 +2,6 @@ package com.massivecraft.factions.listeners.versionspecific;
 
 import com.massivecraft.factions.Board;
 import com.massivecraft.factions.FLocation;
-import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.FactionsPlugin;
@@ -29,8 +28,7 @@ public class PortalHandler implements PortalListenerBase {
             return true;
         }
 
-        FPlayer fp = FPlayers.getInstance().getByPlayer(player);
         String mininumRelation = FactionsPlugin.getInstance().conf().factions().portals().getMinimumRelation(); // Defaults to Neutral if typed wrong.
-        return !fp.getFaction().getRelationTo(faction).isAtLeast(Relation.fromString(mininumRelation));
+        return !FPlayers.getInstance().getByPlayer(player).getFaction().getRelationTo(faction).isAtLeast(Relation.fromString(mininumRelation));
     }
 }

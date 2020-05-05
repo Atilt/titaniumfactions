@@ -2,6 +2,7 @@ package com.massivecraft.factions.util.material;
 
 import com.google.gson.reflect.TypeToken;
 import com.massivecraft.factions.FactionsPlugin;
+import me.lucko.helper.reflect.MinecraftVersions;
 import org.bukkit.Material;
 
 import java.io.InputStreamReader;
@@ -38,14 +39,14 @@ public class MaterialDb {
 
     public static void load() {
         instance = new MaterialDb();
-        if (instance.legacy = FactionsPlugin.getMCVersion() < 1300) { // Before 1.13
+        if (instance.legacy = FactionsPlugin.getInstance().getMCVersion().isBefore(MinecraftVersions.v1_13)) { // Before 1.13
             FactionsPlugin.getInstance().getLogger().info("Using legacy support for materials");
         }
 
         InputStreamReader reader = new InputStreamReader(FactionsPlugin.getInstance().getResource("materials.json"));
         Type typeToken = new TypeToken<Map<String, MaterialProvider.MaterialData>>(){}.getType();
         Map<String, MaterialProvider.MaterialData> materialData = FactionsPlugin.getInstance().getGson().fromJson(reader, typeToken);
-        FactionsPlugin.getInstance().getLogger().info(String.format("Loaded %s material mappings.", materialData.keySet().size()));
+        FactionsPlugin.getInstance().getLogger().info("Loaded " + materialData.keySet().size() + " material mappings.");
         instance.provider = new MaterialProvider(materialData);
     }
 

@@ -31,11 +31,11 @@ public final class FLocation implements Serializable {
     private static final Object2ObjectMap<String, LoadingCache<Long, FLocation>> LOCATIONS = new Object2ObjectOpenHashMap<>();
 
     private static final long serialVersionUID = -8292915234027387983L;
-    private static boolean worldBorderSupport = false;
+    private static boolean worldBorderSupport;
 
-    private String worldName = "world";
-    private int x = 0;
-    private int z = 0;
+    private final String worldName;
+    private final int x;
+    private final int z;
 
     static {
         try {
@@ -46,7 +46,11 @@ public final class FLocation implements Serializable {
         }
     }
 
-    public FLocation() {}
+    public FLocation() {
+        this.worldName = Bukkit.getWorlds().get(0).getName();
+        this.x = 0;
+        this.z = 0;
+    }
 
     public static FLocation empty() {
         return new FLocation();
@@ -133,24 +137,12 @@ public final class FLocation implements Serializable {
         return Bukkit.getWorld(worldName);
     }
 
-    public void setWorldName(String worldName) {
-        this.worldName = worldName;
-    }
-
     public int getX() {
         return x;
     }
 
-    public void setX(int x) {
-        this.x = x;
-    }
-
     public int getZ() {
         return z;
-    }
-
-    public void setZ(int z) {
-        this.z = z;
     }
 
     public String getCoordString() {

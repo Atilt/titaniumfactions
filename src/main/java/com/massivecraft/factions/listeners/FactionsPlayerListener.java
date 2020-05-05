@@ -26,8 +26,6 @@ import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -55,6 +53,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.NumberConversions;
 
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -64,17 +63,17 @@ public class FactionsPlayerListener extends AbstractListener {
 
     private FactionsPlugin plugin;
 
-    private static final ObjectSet<String> ITEMS = new ObjectOpenHashSet<>(8);
+    private static final Set<Material> ITEMS = EnumSet.noneOf(Material.class);
 
     static {
-        ITEMS.add("ARMOR_STAND");
-        ITEMS.add("END_CRYSTAL");
-        ITEMS.add("MINECART");
-        ITEMS.add("CHEST_MINECART");
-        ITEMS.add("COMMAND_BLOCK_MINECART");
-        ITEMS.add("FURNACE_MINECART");
-        ITEMS.add("HOPPER_MINECART");
-        ITEMS.add("TNT_MINECART");
+        ITEMS.add(Material.ARMOR_STAND);
+        ITEMS.add(Material.END_CRYSTAL);
+        ITEMS.add(Material.MINECART);
+        ITEMS.add(Material.CHEST_MINECART);
+        ITEMS.add(Material.COMMAND_BLOCK_MINECART);
+        ITEMS.add(Material.FURNACE_MINECART);
+        ITEMS.add(Material.HOPPER_MINECART);
+        ITEMS.add(Material.TNT_MINECART);
     }
 
     public FactionsPlayerListener(FactionsPlugin plugin) {

@@ -61,6 +61,8 @@ import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import it.unimi.dsi.fastutil.objects.ObjectSets;
+import me.lucko.helper.reflect.MinecraftVersion;
+import me.lucko.helper.reflect.MinecraftVersions;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -81,9 +83,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Files;
+import java.text.DecimalFormat;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -100,16 +103,8 @@ import java.util.regex.Pattern;
 public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     private static FactionsPlugin instance;
+
     private Permission perms = null;
-    private static int mcVersion;
-
-    public static FactionsPlugin getInstance() {
-        return instance;
-    }
-
-    public static int getMCVersion() {
-        return mcVersion;
-    }
 
     private ConfigManager configManager = new ConfigManager(this);
 
@@ -123,14 +118,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     private Persist persist;
     private TextUtil txt;
     private WorldUtil worldUtil;
-
-    public TextUtil txt() {
-        return txt;
-    }
-
-    public WorldUtil worldUtil() {
-        return worldUtil;
-    }
 
     private PermUtil permUtil;
 
@@ -161,50 +148,51 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     private Metrics metrics;
     private static final Pattern FACTIONS_VERSION_PATTERN = Pattern.compile("b(\\d{1,4})");
-    private static final Pattern VERSION_PATTERN = Pattern.compile("1\\.(\\d{1,2})(?:\\.(\\d{1,2}))?");
     private String updateMessage;
     private int buildNumber = -1;
 
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat();
+
     public FactionsPlugin() {
-        instance = this;
+        if (instance != null) {
+            return;
+        }
+        synchronized (FactionsPlugin.class) {
+            if (instance == null) {
+                instance = this;
+            }
+        }
+    }
+
+    public static FactionsPlugin getInstance() {
+        return instance;
     }
 
     @Override
     public void onEnable() {
+        if (this.isFinishedLoading()) {
+            this.loadSettingsSuccessful = false;
+            this.loadDataSuccessful = false;
+            FPlayers.getInstance().wipeOnline();
+            FlightUtil.getInstance().wipe();
+        }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             onlinePlayer.kickPlayer("Server data reloading...");
         }
         getLogger().info("=== Starting up! ===");
-        long timeEnableStart = System.currentTimeMillis();
 
         // Ensure basefolder exists!
-        this.getDataFolder().mkdirs();
 
-        // Version party
-        Matcher versionMatcher = VERSION_PATTERN.matcher(this.getServer().getVersion());
-        Integer versionInteger = null;
-        if (versionMatcher.find()) {
-            try {
-                int minor = Integer.parseInt(versionMatcher.group(1));
-                String patchS = versionMatcher.group(2);
-                int patch = (patchS == null || patchS.isEmpty()) ? 0 : Integer.parseInt(patchS);
-                versionInteger = (minor * 100) + patch;
-                getLogger().info("Detected Minecraft " + versionMatcher.group());
-            } catch (NumberFormatException ignored) {
-            }
+        getLogger().info("Running Minecraft version: " + getMCVersion().getVersion());
+
+        if (MinecraftVersion.getRuntimeVersion().isBefore(MinecraftVersions.v1_8)) {
+            Bukkit.getPluginManager().disablePlugin(this);
+            getLogger().info("1.8 is the minimum required version for Factions to run.");
+            return;
         }
-        if (versionInteger == null) {
-            getLogger().warning("");
-            getLogger().warning("Could not identify version. Going with least supported version, 1.8.8.");
-            getLogger().warning("Please visit our support live chat for help - https://factions.support/help/");
-            getLogger().warning("");
-            versionInteger = 808;
-        }
-        mcVersion = versionInteger;
-        if (mcVersion < 808) {
-            getLogger().info("");
-            getLogger().warning("FactionsUUID works best with at least Minecraft 1.8.8");
-        }
+        this.getDataFolder().mkdirs();
+        long settingsStart = System.nanoTime();
+
         getLogger().info("");
         this.buildNumber = this.getBuildNumber(this.getDescription().getVersion());
 
@@ -221,9 +209,10 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
             this.landRaidControl = LandRaidControl.getByName(this.conf().factions().landRaidControl().getSystem());
 
-            File dataFolder = new File(this.getDataFolder(), "data");
-            if (!dataFolder.exists()) {
-                dataFolder.mkdir();
+            try {
+                Files.createDirectory(getDataFolder().toPath().resolve("data"));
+            } catch (IOException e) {
+                e.printStackTrace();
             }
 
             // Load Material database
@@ -264,7 +253,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
             hookedPlayervaults = setupPlayervaults();
 
-            long start = System.currentTimeMillis();
+            long dataStart = System.nanoTime();
             getLogger().info("Loading player data...");
             FPlayers.getInstance().load(loadedPlayers -> {
                 getLogger().info("Loaded data for " + loadedPlayers + " players.");
@@ -290,7 +279,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                         //dynmap data needs to be loaded after board in order for display to work correctly.
                         EngineDynmap.getInstance().init();
 
-                        // start up task which runs the autoLeaveAfterDaysOfInactivity routine
+                        // dataStart up task which runs the autoLeaveAfterDaysOfInactivity routine
                         //task needs to be instantiated after players in order for purging to work correctly
                         startAutoLeaveTask(false);
 
@@ -298,7 +287,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                         //metrics needs to be instantiated after all the data in order for proper data collection
                         this.setupMetrics();
 
-                        getLogger().info("Loaded all faction related data in " + (System.currentTimeMillis() - start) + "ms.");
+                        getLogger().info("Loaded all faction related data in " + DECIMAL_FORMAT.format((System.nanoTime() - dataStart) / 1000000.0D) + "ms.");
                         loadDataSuccessful = true; //1st checkpoint for proper saving when plugin disables
                     });
                 });
@@ -307,7 +296,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             Econ.setup();
             LWC.setup();
             setupPermissions();
-            loadWorldguard();
+            loadWorldGuard();
 
             getServer().getPluginManager().registerEvents(new FactionsPlayerListener(this), this);
             getServer().getPluginManager().registerEvents(new FactionsChatListener(this), this);
@@ -334,7 +323,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             // Register Event Handlers
 
             // Version specific portal listener check.
-            if (mcVersion >= 1400) { // Starting with 1.14
+            if (getMCVersion().isAfterOrEq(MinecraftVersions.v1_14)) { // Starting with 1.14
                 Bukkit.getPluginManager().registerEvents(new PortalListener_114(this), this);
             } else {
                 Bukkit.getPluginManager().registerEvents(new PortalListenerLegacy(new PortalHandler()), this);
@@ -353,9 +342,13 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                 getLogger().warning("Looks like you have an old, mistaken 'nofactions-prefix' in your lang.yml. It currently displays [4-] which is... strange.");
             }
 
-            getLogger().info("=== Loaded factions settings in " + (System.currentTimeMillis() - timeEnableStart) + "ms! ===");
+            getLogger().info("=== Loaded factions settings in " + DECIMAL_FORMAT.format((System.nanoTime() - settingsStart) / 1000000.0D) + "ms! ===");
             this.loadSettingsSuccessful = true; //2nd checkpoint for proper saving when plugin disables
         });
+    }
+
+    public MinecraftVersion getMCVersion() {
+        return MinecraftVersion.getRuntimeVersion();
     }
 
     private void setupMetrics() {
@@ -469,8 +462,9 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     }
 
     private Set<Plugin> getPlugins(HandlerList handlerList) {
-        Set<Plugin> plugins = new HashSet<>();
-        for (RegisteredListener registeredListener : handlerList.getRegisteredListeners()) {
+        RegisteredListener[] listeners = handlerList.getRegisteredListeners();
+        Set<Plugin> plugins = new HashSet<>(listeners.length);
+        for (RegisteredListener registeredListener : listeners) {
             plugins.add(registeredListener.getPlugin());
         }
         return plugins;
@@ -500,6 +494,14 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         return map;
     }
 
+    public TextUtil txt() {
+        return txt;
+    }
+
+    public WorldUtil worldUtil() {
+        return worldUtil;
+    }
+
     private void setNerfedEntities() {
         safeZoneNerfedCreatureTypes.add(EntityType.BLAZE);
         safeZoneNerfedCreatureTypes.add(EntityType.CAVE_SPIDER);
@@ -518,38 +520,38 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         safeZoneNerfedCreatureTypes.add(EntityType.WITCH);
         safeZoneNerfedCreatureTypes.add(EntityType.WITHER);
         safeZoneNerfedCreatureTypes.add(EntityType.ZOMBIE);
-        if (FactionsPlugin.getMCVersion() >= 900) {
+        if (getMCVersion().isAfterOrEq(MinecraftVersions.v1_9)) {
             safeZoneNerfedCreatureTypes.add(EntityType.SHULKER);
         }
-        if (FactionsPlugin.getMCVersion() >= 1000) {
+        if (getMCVersion().isAfterOrEq(MinecraftVersions.v1_10)) {
             safeZoneNerfedCreatureTypes.add(EntityType.HUSK);
             safeZoneNerfedCreatureTypes.add(EntityType.STRAY);
         }
-        if (FactionsPlugin.getMCVersion() >= 1100) {
+        if (getMCVersion().isAfterOrEq(MinecraftVersions.v1_11)) {
             safeZoneNerfedCreatureTypes.add(EntityType.ELDER_GUARDIAN);
             safeZoneNerfedCreatureTypes.add(EntityType.EVOKER);
             safeZoneNerfedCreatureTypes.add(EntityType.VEX);
             safeZoneNerfedCreatureTypes.add(EntityType.VINDICATOR);
             safeZoneNerfedCreatureTypes.add(EntityType.ZOMBIE_VILLAGER);
         }
-        if (FactionsPlugin.getMCVersion() >= 1300) {
+        if (getMCVersion().isAfterOrEq(MinecraftVersions.v1_13)) {
             safeZoneNerfedCreatureTypes.add(EntityType.DROWNED);
             safeZoneNerfedCreatureTypes.add(EntityType.PHANTOM);
         }
-        if (FactionsPlugin.getMCVersion() >= 1400) {
+        if (getMCVersion().isAfterOrEq(MinecraftVersions.v1_14)) {
             safeZoneNerfedCreatureTypes.add(EntityType.PILLAGER);
             safeZoneNerfedCreatureTypes.add(EntityType.RAVAGER);
         }
-        if (FactionsPlugin.getMCVersion() >= 1500) {
+        if (getMCVersion().isAfterOrEq(MinecraftVersions.v1_15)) {
             safeZoneNerfedCreatureTypes.add(EntityType.BEE);
         }
     }
 
-    private void loadWorldguard() {
+    private void loadWorldGuard() {
         if (!this.conf().worldGuard().isChecking() && !this.conf().worldGuard().isBuildPriority()) {
             return;
         }
-        Plugin plugin = getServer().getPluginManager().getPlugin("WorldGuard");
+        Plugin plugin = Bukkit.getPluginManager().getPlugin("WorldGuard");
         if (plugin != null) {
             String version = plugin.getDescription().getVersion();
             if (version.startsWith("6")) {
@@ -598,8 +600,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         if (factionsVersionMatcher.find()) {
             try {
                 return Integer.parseInt(factionsVersionMatcher.group(1));
-            } catch (NumberFormatException ignored) { // HOW
-            }
+            } catch (NumberFormatException ignored) {}
         }
         return -1;
     }
@@ -677,10 +678,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     private void initTXT() {
         this.addRawTags();
 
-        Type type = new TypeToken<Map<String, String>>() {
-        }.getType();
-
-        Map<String, String> tagsFromFile = this.persist.load(type, "tags");
+        Map<String, String> tagsFromFile = this.persist.load(new TypeToken<Map<String, String>>(){}.getType(), "tags");
         if (tagsFromFile != null) {
             this.rawTags.putAll(tagsFromFile);
         }
@@ -820,7 +818,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             this.autoLeaveTask = null;
         }
         if (saveTask != null) {
-            this.getServer().getScheduler().cancelTask(saveTask);
+            Bukkit.getScheduler().cancelTask(saveTask);
             saveTask = null;
         }
         // only save data if plugin actually loaded successfully

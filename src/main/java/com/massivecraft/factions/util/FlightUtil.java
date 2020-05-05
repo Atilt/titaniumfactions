@@ -49,6 +49,11 @@ public final class FlightUtil {
         return EnemiesTask.get().untrack(fPlayer) && ParticleTrailsTask.get().untrack(fPlayer);
     }
 
+    public void wipe() {
+        EnemiesTask.get().wipe();
+        ParticleTrailsTask.get().wipe();
+    }
+
     public boolean enemiesNearby(FPlayer target, int radius) {
         return !EnemiesTask.get().isClosed() && EnemiesTask.get().enemiesNearby(target, radius);
     }
@@ -78,6 +83,10 @@ public final class FlightUtil {
 
         public boolean untrack(FPlayer fPlayer) {
             return this.players.remove(fPlayer);
+        }
+
+        public void wipe() {
+            this.players.clear();
         }
 
         public void start() {
@@ -165,6 +174,10 @@ public final class FlightUtil {
 
         public boolean untrack(FPlayer fPlayer) {
             return this.players.remove(fPlayer);
+        }
+
+        public void wipe() {
+            this.players.clear();
         }
 
         public void start() {

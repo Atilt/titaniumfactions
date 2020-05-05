@@ -70,15 +70,7 @@ public class MaterialProvider {
         }
 
         public Material get() {
-            if (!MaterialDb.getInstance().legacy) {
-                return Material.matchMaterial(name);
-            } else {
-                if (legacy == null) {
-                    // Fallback to the 1.13 name
-                    return Material.matchMaterial(name);
-                }
-                return Material.matchMaterial(legacy);
-            }
+            return Material.matchMaterial(MaterialDb.getInstance().legacy ? this.legacy == null ? this.name : this.legacy : this.name);
         }
 
         @Override
