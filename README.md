@@ -13,6 +13,7 @@ High performance Factions fork that prioritizes efficiency, speed, and low memor
 - Faster faction data serialization & deserialization
 - Faster, less intensive land fetching and claiming
 - Optimized faction [player] inactivity checks
+- Optimized faction flight checks
 - Proper async implementations for local data saving
 - Implements fast and low memory collections and maps
 - Implements cache for faction locations
