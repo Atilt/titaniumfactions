@@ -11,22 +11,15 @@ public final class PermUtil {
 
     private final Object2ObjectMap<String, String> permissionDescriptions = new Object2ObjectOpenHashMap<>();
 
-    protected FactionsPlugin plugin;
-
-    public PermUtil(FactionsPlugin plugin) {
-        this.plugin = plugin;
-        this.setup();
-    }
-
     public String getForbiddenMessage(String perm) {
-        return plugin.txt().parse(TL.GENERIC_NOPERMISSION.toString(), getPermissionDescription(perm));
+        return TextUtil.parse(TL.GENERIC_NOPERMISSION.toString(), getPermissionDescription(perm));
     }
 
     /**
      * This method hooks into all permission plugins we are supporting
      */
     public final void setup() {
-        for (Permission permission : plugin.getDescription().getPermissions()) {
+        for (Permission permission : FactionsPlugin.getInstance().getDescription().getPermissions()) {
             //p.log("\""+permission.getName()+"\" = \""+permission.getDescription()+"\"");
             this.permissionDescriptions.put(permission.getName(), permission.getDescription());
         }

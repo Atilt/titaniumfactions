@@ -20,11 +20,6 @@ import org.bukkit.event.world.PortalCreateEvent;
   to create at the target destination.
  */
 public class PortalListener_114 implements Listener {
-    public FactionsPlugin plugin;
-
-    public PortalListener_114(FactionsPlugin plugin) {
-        this.plugin = plugin;
-    }
 
     @EventHandler
     public void onPortalCreate(PortalCreateEvent event) {
@@ -34,7 +29,7 @@ public class PortalListener_114 implements Listener {
             return; // Don't do anything if they don't want us to.
         }
 
-        if (!(entity instanceof Player) || !plugin.worldUtil().isEnabled(event.getEntity().getWorld())) {
+        if (!(entity instanceof Player) || !FactionsPlugin.getInstance().worldUtil().isEnabled(event.getEntity().getWorld())) {
             return;
         }
 

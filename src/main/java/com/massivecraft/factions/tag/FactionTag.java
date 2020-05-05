@@ -8,6 +8,7 @@ import com.massivecraft.factions.landraidcontrol.DTRControl;
 import com.massivecraft.factions.landraidcontrol.PowerControl;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.TextUtil;
 import org.apache.commons.lang.time.DurationFormatUtils;
 
 import java.util.function.BiFunction;
@@ -19,7 +20,7 @@ public enum FactionTag implements Tag {
     HOME_Z("z", (fac) -> fac.hasHome() ? String.valueOf(fac.getHome().getBlockZ()) : Tag.isMinimalShow() ? null : "{ig}"),
     CHUNKS("chunks", (fac) -> Integer.toString(fac.getLandRounded())),
     WARPS("warps", (fac) -> Integer.toString(fac.getWarps().size())),
-    HEADER("header", (fac, fp) -> FactionsPlugin.getInstance().txt().titleize(fac.getTag(fp))),
+    HEADER("header", (fac, fp) -> TextUtil.titleize(fac.getTag(fp))),
     POWER("power", (fac) -> Integer.toString(fac.getPowerRounded())),
     MAX_POWER("maxPower", (fac) -> Integer.toString(fac.getPowerMaxRounded())),
     POWER_BOOST("power-boost", (fac) -> {

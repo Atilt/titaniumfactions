@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
+import com.massivecraft.factions.FactionsPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -75,25 +76,12 @@ public class Metrics {
     // Should the response text be logged?
     private static boolean logResponseStatusText;
 
-    // The plugin
-    private final Plugin plugin;
-
     // A list with all custom charts
     private final List<CustomChart> charts = new ArrayList<>();
 
-    /**
-     * Class constructor.
-     *
-     * @param plugin The plugin which stats should be submitted.
-     */
-    public Metrics(Plugin plugin) {
-        if (plugin == null) {
-            throw new IllegalArgumentException("Plugin cannot be null!");
-        }
-        this.plugin = plugin;
-
+    public Metrics() {
         // Get the config file
-        File bStatsFolder = new File(plugin.getDataFolder().getParentFile(), "bStats");
+        File bStatsFolder = new File(FactionsPlugin.getInstance().getDataFolder().getParentFile(), "bStats");
         File configFile = new File(bStatsFolder, "config.yml");
         YamlConfiguration config = YamlConfiguration.loadConfiguration(configFile);
 
@@ -139,7 +127,7 @@ public class Metrics {
             }
         }
         // Register our service
-        Bukkit.getServicesManager().register(Metrics.class, this, plugin, ServicePriority.Normal);
+        Bukkit.getServicesManager().register(Metrics.class, this, FactionsPlugin.getInstance(), ServicePriority.Normal);
         if (!found) {
             // We are the first!
             startSubmitting();
@@ -175,13 +163,13 @@ public class Metrics {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                if (!plugin.isEnabled()) { // Plugin was disabled
+                if (!FactionsPlugin.getInstance().isEnabled()) { // Plugin was disabled
                     timer.cancel();
                     return;
                 }
                 // Nevertheless we want our code to run in the Bukkit main thread, so we have to use the Bukkit scheduler
                 // Don't be afraid! The connection to the bStats server is still async, only the stats collection is sync ;)
-                Bukkit.getScheduler().runTask(plugin, () -> submitData());
+                Bukkit.getScheduler().runTask(FactionsPlugin.getInstance(), () -> submitData());
             }
         }, 1000 * 60 * 5, 1000 * 60 * 30);
         // Submit the data every 30 minutes, first time after 5 minutes to give other plugins enough time to start
@@ -200,7 +188,7 @@ public class Metrics {
 
         // FactionsUUID doesn't play by your rules.
         String pluginName = "FactionsUUID";
-        String pluginVersion = plugin.getDescription().getVersion().replace("${build.number}", "selfbuilt");
+        String pluginVersion = FactionsPlugin.getInstance().getDescription().getVersion().replace("${build.number}", "selfbuilt");
         // FactionsUUID was here
 
         data.addProperty("pluginName", pluginName); // Append the name of the plugin
@@ -284,7 +272,7 @@ public class Metrics {
                         } else { // old bstats version compatibility
                             try {
                                 Class<?> jsonObjectJsonSimple = Class.forName("org.json.simple.JSONObject");
-                                if (plugin.getClass().isAssignableFrom(jsonObjectJsonSimple)) {
+                                if (FactionsPlugin.getInstance().getClass().isAssignableFrom(jsonObjectJsonSimple)) {
                                     Method jsonStringGetter = jsonObjectJsonSimple.getDeclaredMethod("toJSONString");
                                     jsonStringGetter.setAccessible(true);
                                     String jsonString = (String) jsonStringGetter.invoke(plugin);
@@ -294,7 +282,7 @@ public class Metrics {
                             } catch (ClassNotFoundException e) {
                                 // minecraft version 1.14+
                                 if (logFailedRequests) {
-                                    this.plugin.getLogger().log(Level.SEVERE, "Encountered unexpected exception", e);
+                                    FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Encountered unexpected exception", e);
                                 }
                                 // continue looping since we cannot do any other thing.
                             }
@@ -312,11 +300,11 @@ public class Metrics {
         new Thread(() -> {
             try {
                 // Send the data
-                sendData(plugin, data);
+                sendData(FactionsPlugin.getInstance(), data);
             } catch (Exception e) {
                 // Something went wrong! :(
                 if (logFailedRequests) {
-                    plugin.getLogger().log(Level.WARNING, "Could not submit plugin stats of " + plugin.getName(), e);
+                    FactionsPlugin.getInstance().getLogger().log(Level.WARNING, "Could not submit plugin stats of " + FactionsPlugin.getInstance().getName(), e);
                 }
             }
         }).start();
@@ -325,7 +313,7 @@ public class Metrics {
     /**
      * Sends the data to the bStats server.
      *
-     * @param plugin Any plugin. It's just used to get a logger instance.
+     * @param plugin Any FactionsPlugin.getInstance(). It's just used to get a logger instance.
      * @param data   The data to send.
      * @throws Exception If the request failed.
      */
@@ -337,7 +325,7 @@ public class Metrics {
             throw new IllegalAccessException("This method must not be called from the main thread!");
         }
         if (logSentData) {
-            plugin.getLogger().info("Sending data to bStats: " + data.toString());
+            FactionsPlugin.getInstance().getLogger().info("Sending data to bStats: " + data.toString());
         }
         HttpsURLConnection connection = (HttpsURLConnection) new URL(URL).openConnection();
 
@@ -370,7 +358,7 @@ public class Metrics {
         }
         bufferedReader.close();
         if (logResponseStatusText) {
-            plugin.getLogger().info("Sent data to bStats and received response: " + builder.toString());
+            FactionsPlugin.getInstance().getLogger().info("Sent data to bStats and received response: " + builder.toString());
         }
     }
 

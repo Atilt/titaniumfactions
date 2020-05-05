@@ -1,5 +1,7 @@
 package com.massivecraft.factions.util;
 
+import com.google.gson.reflect.TypeToken;
+import com.massivecraft.factions.FactionsPlugin;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -12,6 +14,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
 import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -19,21 +22,46 @@ import java.util.regex.Pattern;
 
 public final class TextUtil {
 
-    private final Object2ObjectMap<String, String> tags = new Object2ObjectOpenHashMap<>();
+    private static final Object2ObjectMap<String, String> TAGS = new Object2ObjectOpenHashMap<>();
+    private static final Map<String, String> RAW_TAGS = new LinkedHashMap<>();
+    
+    static {
+        RAW_TAGS.put("l", "<green>"); // logo
+        RAW_TAGS.put("a", "<gold>"); // art
+        RAW_TAGS.put("n", "<silver>"); // notice
+        RAW_TAGS.put("i", "<yellow>"); // info
+        RAW_TAGS.put("g", "<lime>"); // good
+        RAW_TAGS.put("b", "<rose>"); // bad
+        RAW_TAGS.put("h", "<pink>"); // highligh
+        RAW_TAGS.put("c", "<aqua>"); // command
+        RAW_TAGS.put("p", "<teal>"); // parameter
+    }
+    
+    public static void init() {
+        Map<String, String> tagsFromFile = FactionsPlugin.getInstance().getPersist().load(new TypeToken<Map<String, String>>(){}.getType(), "tags");
+        if (tagsFromFile != null) {
+            RAW_TAGS.putAll(tagsFromFile);
+        }
+        FactionsPlugin.getInstance().getPersist().save(RAW_TAGS, "tags");
+
+        for (Map.Entry<String, String> rawTag : RAW_TAGS.entrySet()) {
+            TAGS.put(rawTag.getKey(), TextUtil.parseColor(rawTag.getValue()));
+        }
+    }
 
     public String put(String key, String value) {
-        return this.tags.put(key, value);
+        return TAGS.put(key, value);
     }
 
-    public String parse(String str, Object... args) {
-        return String.format(this.parse(str), args);
+    public static String parse(String str, Object... args) {
+        return String.format(parse(str), args);
     }
 
-    public String parse(String str) {
-        return this.parseTags(parseColor(str));
+    public static String parse(String str) {
+        return parseTags(parseColor(str));
     }
-    public String parseTags(String str) {
-        return replaceTags(str, this.tags);
+    public static String parseTags(String str) {
+        return replaceTags(str, TAGS);
     }
 
     public static final transient Pattern PATTERN_TAG = Pattern.compile("<([a-zA-Z0-9_]*)>");
@@ -54,7 +82,7 @@ public final class TextUtil {
     // Fancy parsing
     // -------------------------------------------- //
 
-    public TextComponent parseFancy(String prefix) {
+    public static TextComponent parseFancy(String prefix) {
         return toFancy(parse(prefix));
     }
 
@@ -62,7 +90,9 @@ public final class TextUtil {
 
     static {
         for (ChatColor chatColor : ChatColor.values()) {
-            BUKKIT_TO_KYORI.put(chatColor, TextColor.valueOf(chatColor.name()));
+            if (chatColor.isColor()) {
+                BUKKIT_TO_KYORI.put(chatColor, TextColor.valueOf(chatColor.name()));
+            }
         }
     }
 
@@ -170,7 +200,7 @@ public final class TextUtil {
     private final static String titleizeLine = repeat("_", 52);
     private final static int titleizeBalance = -1;
 
-    public String titleize(String str) {
+    public static String titleize(String str) {
         String center = ".[ " + parseTags("<l>") + str + parseTags("<a>") + " ].";
         int centerlen = ChatColor.stripColor(center).length();
         int pivot = titleizeLine.length() / 2;
@@ -184,16 +214,16 @@ public final class TextUtil {
         }
     }
 
-    public List<String> getPage(List<String> lines, int pageHumanBased, String title) {
+    public static List<String> getPage(List<String> lines, int pageHumanBased, String title) {
         int pageZeroBased = pageHumanBased - 1;
         int pagecount = (lines.size() / 9) + 1;
 
         ObjectList<String> ret = new ObjectArrayList<>(pagecount);
 
-        ret.add(this.titleize(title + " " + pageHumanBased + "/" + pagecount));
+        ret.add(titleize(title + " " + pageHumanBased + "/" + pagecount));
 
         if (pageZeroBased < 0 || pageHumanBased > pagecount) {
-            ret.add(this.parseTags(TL.INVALIDPAGE.format(pagecount)));
+            ret.add(parseTags(TL.INVALIDPAGE.format(pagecount)));
             return ret;
         }
 

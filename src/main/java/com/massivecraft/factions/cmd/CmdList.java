@@ -6,6 +6,7 @@ import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.tag.Tag;
 import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.TextUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.bukkit.Bukkit;
@@ -84,26 +85,26 @@ public class CmdList extends FCommand {
 
         if (!header.isEmpty()) {
             header = header.replace("{pagenumber}", pageNumberReadable).replace("{pagecount}", pageCountReadable);
-            lines.add(plugin.txt().parse(header));
+            lines.add(TextUtil.parse(header));
         }
 
         for (Faction faction : factionList.subList(start, end)) {
             System.out.println(faction.getTag());
             if (faction.isWilderness()) {
                 System.out.println("is wild");
-                lines.add(plugin.txt().parse(Tag.parsePlain(faction, plugin.conf().commands().list().getFactionlessEntry())));
+                lines.add(TextUtil.parse(Tag.parsePlain(faction, plugin.conf().commands().list().getFactionlessEntry())));
                 continue;
             }
             System.out.println("reg?");
-            lines.add(plugin.txt().parse(Tag.parsePlain(faction, context.fPlayer, plugin.conf().commands().list().getEntry())));
-            System.out.println(plugin.txt().parse(Tag.parsePlain(faction, context.fPlayer, plugin.conf().commands().list().getEntry())));
+            lines.add(TextUtil.parse(Tag.parsePlain(faction, context.fPlayer, plugin.conf().commands().list().getEntry())));
+            System.out.println(TextUtil.parse(Tag.parsePlain(faction, context.fPlayer, plugin.conf().commands().list().getEntry())));
             System.out.println(Tag.parsePlain(faction, context.fPlayer, plugin.conf().commands().list().getEntry()));
             System.out.println(plugin.conf().commands().list().getEntry());
         }
 
         if (!footer.isEmpty()) {
             footer = footer.replace("{pagenumber}", pageNumberReadable).replace("{pagecount}", pageCountReadable);
-            lines.add(plugin.txt().parse(footer));
+            lines.add(TextUtil.parse(footer));
         }
 
         context.sendMessage(lines);

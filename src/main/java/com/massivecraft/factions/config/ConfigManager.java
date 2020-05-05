@@ -11,18 +11,14 @@ import java.io.IOException;
 import java.util.logging.Level;
 
 public class ConfigManager {
-    private final FactionsPlugin plugin;
+
     private final DefaultPermissionsConfig permissionsConfig = new DefaultPermissionsConfig();
     private final DefaultOfflinePermissionsConfig offlinePermissionsConfig = new DefaultOfflinePermissionsConfig();
     private final MainConfig mainConfig = new MainConfig();
     private final DynmapConfig dynmapConfig = new DynmapConfig();
 
-    public ConfigManager(FactionsPlugin plugin) {
-        this.plugin = plugin;
-    }
-
     public void startup() {
-        Transitioner.transition(this.plugin);
+        Transitioner.transition();
         this.loadConfigs();
     }
 

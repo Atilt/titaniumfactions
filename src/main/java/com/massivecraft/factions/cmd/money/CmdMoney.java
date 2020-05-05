@@ -3,6 +3,7 @@ package com.massivecraft.factions.cmd.money;
 import com.massivecraft.factions.cmd.CommandContext;
 import com.massivecraft.factions.cmd.FCmdRoot;
 import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.TextUtil;
 
 public class CmdMoney extends MoneyCommand {
 
@@ -11,7 +12,7 @@ public class CmdMoney extends MoneyCommand {
 
         this.aliases.add("money");
 
-        this.helpLong.add(plugin.txt().parseTags(TL.COMMAND_MONEY_LONG.toString()));
+        this.helpLong.add(TextUtil.parseTags(TL.COMMAND_MONEY_LONG.toString()));
 
         this.addSubCommand(new CmdMoneyBalance());
         this.addSubCommand(new CmdMoneyDeposit());

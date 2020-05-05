@@ -369,10 +369,10 @@ public abstract class MemoryBoard extends Board {
         Faction faction = fplayer.getFaction();
         ObjectList<TextComponent> ret = new ObjectArrayList<>(3);
         Faction factionLoc = getFactionAt(flocation);
-        ret.add(TextComponent.of(FactionsPlugin.getInstance().txt().titleize("(" + flocation.getCoordString() + ") " + factionLoc.getTag(fplayer))));
+        ret.add(TextComponent.of(TextUtil.titleize("(" + flocation.getCoordString() + ") " + factionLoc.getTag(fplayer))));
 
         // Get the compass
-        List<String> asciiCompass = AsciiCompass.getAsciiCompass((float) inDegrees, ChatColor.RED, FactionsPlugin.getInstance().txt().parse("<a>"));
+        List<String> asciiCompass = AsciiCompass.getAsciiCompass((float) inDegrees, ChatColor.RED, TextUtil.parse("<a>"));
 
         int halfWidth = FactionsPlugin.getInstance().conf().map().getWidth() / 2;
         // Use player's value for height

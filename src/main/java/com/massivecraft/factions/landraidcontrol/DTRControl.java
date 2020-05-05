@@ -13,18 +13,13 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public class DTRControl implements LandRaidControl {
-    private static FactionsPlugin plugin;
 
     public static String round(double dtr) {
         return BigDecimal.valueOf(dtr).setScale(conf().getDecimalDigits(), RoundingMode.UP).toPlainString();
     }
 
     private static MainConfig.Factions.LandRaidControl.DTR conf() {
-        return plugin.conf().factions().landRaidControl().dtr();
-    }
-
-    public DTRControl() {
-        plugin = FactionsPlugin.getInstance();
+        return FactionsPlugin.getInstance().conf().factions().landRaidControl().dtr();
     }
 
     @Override
@@ -129,7 +124,7 @@ public class DTRControl implements LandRaidControl {
 
         int onlineInEnabledWorlds = 0;
         for (Player onlinePlayer : faction.getOnlinePlayers()) {
-            if (!plugin.worldUtil().isEnabled(onlinePlayer.getWorld())) {
+            if (!FactionsPlugin.getInstance().worldUtil().isEnabled(onlinePlayer.getWorld())) {
                 continue;
             }
             onlineInEnabledWorlds++;

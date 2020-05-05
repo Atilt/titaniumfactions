@@ -20,6 +20,7 @@ import com.massivecraft.factions.cmd.role.CmdPromote;
 import com.massivecraft.factions.landraidcontrol.DTRControl;
 import com.massivecraft.factions.landraidcontrol.PowerControl;
 import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.TextUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import me.lucko.commodore.CommodoreProvider;
 import org.bukkit.Bukkit;
@@ -137,7 +138,7 @@ public class FCmdRoot extends FCommand implements CommandExecutor {
         }
 
         this.setHelpShort("The faction base command");
-        this.helpLong.add(FactionsPlugin.getInstance().txt().parseTags("<i>This command contains all faction stuff."));
+        this.helpLong.add(TextUtil.parseTags("<i>This command contains all faction stuff."));
 
         this.addSubCommand(this.cmdAdmin);
         this.addSubCommand(this.cmdAutoClaim);

@@ -82,11 +82,9 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
-import java.text.DecimalFormat;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -103,7 +101,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     private Permission perms = null;
 
-    private ConfigManager configManager = new ConfigManager(this);
+    private ConfigManager configManager = new ConfigManager();
 
     private Integer saveTask = null;
     private boolean autoSave = true;
@@ -113,7 +111,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     // Some utils
     private Persist persist;
-    private TextUtil txt;
     private WorldUtil worldUtil;
 
     private PermUtil permUtil;
@@ -144,8 +141,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     private LandRaidControl landRaidControl;
 
     private Metrics metrics;
-
-    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat();
 
     public FactionsPlugin() {
         if (instance != null) {
@@ -195,6 +190,8 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
         getLogger().info("");
 
+        this.gson = this.getGsonBuilder().create();
+
         this.loadMaterials(amount -> {
             getLogger().info("Loaded " + amount + " material mappings.");
             loadLang(result -> {
@@ -208,8 +205,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                 setupPermissions();
                 loadWorldGuard();
 
-                this.gson = this.getGsonBuilder().create();
-
                 // Load Conf from disk
                 this.setNerfedEntities();
                 this.configManager.startup();
@@ -219,12 +214,13 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                 // Load Material database
 
                 // Create Utility Instances
-                this.permUtil = new PermUtil(this);
-                this.persist = new Persist(this);
-                this.worldUtil = new  WorldUtil(this);
+                this.permUtil = new PermUtil();
+                this.permUtil.setup();
 
-                this.txt = new TextUtil();
-                initTXT();
+                this.persist = new Persist();
+                this.worldUtil = new WorldUtil();
+                
+                TextUtil.init();
 
                 // attempt to get first command defined in plugin.yml as reference command, if any commands are defined in there
                 // reference command will be used to prevent "unknown command" console messages
@@ -237,11 +233,9 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                 } catch (ClassCastException ignored) {}
 
                 // Register recurring tasks
-                if (saveTask == null && this.conf().factions().other().getSaveToFileEveryXMinutes() > 0.0) {
-                    long saveTicks = (long) (20 * 60 * this.conf().factions().other().getSaveToFileEveryXMinutes()); // Approximately every 30 min by default
-                    saveTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new SaveTask(this), saveTicks, saveTicks);
+                if (this.conf().factions().other().getSaveToFileEveryXMinutes() > 0.0) {
+                    SaveTask.get().start();
                 }
-
                 // Check for Essentials
                 IEssentials ess = Essentials.setup();
 
@@ -287,18 +281,18 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                             //metrics needs to be instantiated after all the data in order for proper data collection
                             this.setupMetrics();
 
-                            getLogger().info("Loaded all faction related data in " + DECIMAL_FORMAT.format((System.nanoTime() - dataStart) / 1000000.0D) + "ms.");
+                            getLogger().info("Loaded all faction related data in " + ((System.nanoTime() - dataStart) / 1000000.0D) + "ms.");
                             loadDataSuccessful = true; //1st checkpoint for proper saving when plugin disables
                         });
                     });
                 });
                 // Add Base Commands
 
-                Bukkit.getPluginManager().registerEvents(new FactionsPlayerListener(this), this);
-                Bukkit.getPluginManager().registerEvents(new FactionsChatListener(this), this);
-                Bukkit.getPluginManager().registerEvents(new FactionsEntityListener(this), this);
-                Bukkit.getPluginManager().registerEvents(new FactionsExploitListener(this), this);
-                Bukkit.getPluginManager().registerEvents(new FactionsBlockListener(this), this);
+                Bukkit.getPluginManager().registerEvents(new FactionsPlayerListener(), this);
+                Bukkit.getPluginManager().registerEvents(new FactionsChatListener(), this);
+                Bukkit.getPluginManager().registerEvents(new FactionsEntityListener(), this);
+                Bukkit.getPluginManager().registerEvents(new FactionsExploitListener(), this);
+                Bukkit.getPluginManager().registerEvents(new FactionsBlockListener(), this);
 
                 particleProvider = new PacketParticleProvider();
 
@@ -311,6 +305,9 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
                 if (conf().commands().seeChunk().isParticles()) {
                     double delay = Math.floor(conf().commands().seeChunk().getParticleUpdateTime() * 20);
+                    if (delay <= 0) {
+                        delay = 40;
+                    }
                     seeChunkUtil = new SeeChunkUtil();
                     seeChunkUtil.runTaskTimer(this, 0, (long) delay);
                 }
@@ -320,7 +317,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
                 // Version specific portal listener check.
                 if (getMCVersion().isAfterOrEq(MinecraftVersions.v1_14)) { // Starting with 1.14
-                    Bukkit.getPluginManager().registerEvents(new PortalListener_114(this), this);
+                    Bukkit.getPluginManager().registerEvents(new PortalListener_114(), this);
                 } else {
                     Bukkit.getPluginManager().registerEvents(new PortalListenerLegacy(new PortalHandler()), this);
                 }
@@ -338,7 +335,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                     getLogger().warning("Looks like you have an old, mistaken 'nofactions-prefix' in your lang.yml. It currently displays [4-] which is... strange.");
                 }
 
-                getLogger().info("=== Loaded factions settings in " + DECIMAL_FORMAT.format((System.nanoTime() - settingsStart) / 1000000.0D) + "ms! ===");
+                getLogger().info("=== Loaded factions settings in " + ((System.nanoTime() - settingsStart) / 1000000.0D) + "ms! ===");
                 this.loadSettingsSuccessful = true; //2nd checkpoint for proper saving when plugin disables
             });
         });
@@ -356,7 +353,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     }
 
     private void setupMetrics() {
-        this.metrics = new Metrics(this);
+        this.metrics = new Metrics();
 
         this.metricsDrillPie("fuuid_version", () -> {
             Map<String, Map<String, Integer>> map = new HashMap<>();
@@ -485,10 +482,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         return map;
     }
 
-    public TextUtil txt() {
-        return txt;
-    }
-
     public WorldUtil worldUtil() {
         return worldUtil;
     }
@@ -586,6 +579,10 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         });
     }
 
+    public Persist getPersist() {
+        return persist;
+    }
+
     public PermUtil getPermUtil() {
         return permUtil;
     }
@@ -598,42 +595,8 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         return seeChunkUtil;
     }
 
-    public ParticleProvider getParticleProvider() {
+    public ParticleProvider<?> getParticleProvider() {
         return particleProvider;
-    }
-
-    // -------------------------------------------- //
-    // LANG AND TAGS
-    // -------------------------------------------- //
-
-    // These are not supposed to be used directly.
-    // They are loaded and used through the TextUtil instance for the plugin.
-    private Map<String, String> rawTags = new LinkedHashMap<>();
-
-    private void addRawTags() {
-        this.rawTags.put("l", "<green>"); // logo
-        this.rawTags.put("a", "<gold>"); // art
-        this.rawTags.put("n", "<silver>"); // notice
-        this.rawTags.put("i", "<yellow>"); // info
-        this.rawTags.put("g", "<lime>"); // good
-        this.rawTags.put("b", "<rose>"); // bad
-        this.rawTags.put("h", "<pink>"); // highligh
-        this.rawTags.put("c", "<aqua>"); // command
-        this.rawTags.put("p", "<teal>"); // parameter
-    }
-
-    private void initTXT() {
-        this.addRawTags();
-
-        Map<String, String> tagsFromFile = this.persist.load(new TypeToken<Map<String, String>>(){}.getType(), "tags");
-        if (tagsFromFile != null) {
-            this.rawTags.putAll(tagsFromFile);
-        }
-        this.persist.save(this.rawTags, "tags");
-
-        for (Map.Entry<String, String> rawTag : this.rawTags.entrySet()) {
-            this.txt.put(rawTag.getKey(), TextUtil.parseColor(rawTag.getValue()));
-        }
     }
 
     public Map<UUID, Integer> getStuckMap() {
@@ -652,11 +615,11 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     }
 
     public void log(String str, Object... args) {
-        log(Level.INFO, this.txt.parse(str, args));
+        log(Level.INFO, TextUtil.parse(str, args));
     }
 
     public void log(Level level, String str, Object... args) {
-        log(level, this.txt.parse(str, args));
+        log(level, TextUtil.parse(str, args));
     }
 
     public void log(Level level, String msg) {
@@ -764,10 +727,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             this.autoLeaveTask.close();
             this.autoLeaveTask = null;
         }
-        if (saveTask != null) {
-            Bukkit.getScheduler().cancelTask(saveTask);
-            saveTask = null;
-        }
+        SaveTask.get().close();
         // only save data if plugin actually loaded successfully
         log("Saving data...");
         if (this.isFinishedLoading()) {

@@ -24,6 +24,7 @@ import com.massivecraft.factions.util.LazyLocation;
 import com.massivecraft.factions.util.MiscUtil;
 import com.massivecraft.factions.util.RelationUtil;
 import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.TextUtil;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -989,7 +990,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     // Messages
     // ----------------------------------------------//
     public void msg(String message, Object... args) {
-        message = FactionsPlugin.getInstance().txt().parse(message, args);
+        message = TextUtil.parse(message, args);
 
         for (FPlayer fplayer : this.getFPlayersWhereOnline(true)) {
             fplayer.sendMessage(message);

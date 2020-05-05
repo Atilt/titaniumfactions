@@ -45,7 +45,7 @@ public class MaterialDb {
 
         InputStreamReader reader = new InputStreamReader(FactionsPlugin.getInstance().getResource("materials.json"));
         Type typeToken = new TypeToken<Map<String, MaterialProvider.MaterialData>>(){}.getType();
-        Map<String, MaterialProvider.MaterialData> materialData = FactionsPlugin.getInstance().getGson().fromJson(reader, typeToken);;
+        Map<String, MaterialProvider.MaterialData> materialData = FactionsPlugin.getInstance().getGson().fromJson(reader, typeToken);
         instance.provider = new MaterialProvider(materialData);
         return materialData.size();
     }

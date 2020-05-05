@@ -1,8 +1,6 @@
 package com.massivecraft.factions.cmd;
 
-import com.massivecraft.factions.Board;
-import com.massivecraft.factions.FPlayers;
-import com.massivecraft.factions.Factions;
+import com.massivecraft.factions.data.SaveTask;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
 
@@ -19,16 +17,14 @@ public class CmdSaveAll extends FCommand {
 
     @Override
     public void perform(CommandContext context) {
-        FPlayers.getInstance().forceSave(null);
-        Factions.getInstance().forceSave(null);
-        Board.getInstance().forceSave(result -> {
-            context.msg(TL.COMMAND_SAVEALL_SUCCESS);
-        });
+        if (SaveTask.get().isSaving()) {
+            context.msg(TL.FACTIONS_DATA_ALREADY_SAVING);
+        }
+        SaveTask.get().save(result -> context.msg(TL.COMMAND_SAVEALL_SUCCESS));
     }
 
     @Override
     public TL getUsageTranslation() {
         return TL.COMMAND_SAVEALL_DESCRIPTION;
     }
-
 }

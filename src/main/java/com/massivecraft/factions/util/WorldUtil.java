@@ -12,13 +12,13 @@ public final class WorldUtil {
     private boolean check;
     private boolean whitelist;
 
-    public WorldUtil(FactionsPlugin plugin) {
-        check = plugin.conf().restrictWorlds().isRestrictWorlds();
+    public WorldUtil() {
+        check = FactionsPlugin.getInstance().conf().restrictWorlds().isRestrictWorlds();
         if (!check) {
             return;
         }
-        worlds = new ObjectOpenHashSet<>(plugin.conf().restrictWorlds().getWorldList());
-        whitelist = plugin.conf().restrictWorlds().isWhitelist();
+        worlds = new ObjectOpenHashSet<>(FactionsPlugin.getInstance().conf().restrictWorlds().getWorldList());
+        whitelist = FactionsPlugin.getInstance().conf().restrictWorlds().isWhitelist();
     }
 
     private boolean isEnabled(String name) {

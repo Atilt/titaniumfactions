@@ -13,12 +13,6 @@ import java.util.logging.Level;
 
 public class Persist {
 
-    private FactionsPlugin plugin;
-
-    public Persist(FactionsPlugin plugin) {
-        this.plugin = plugin;
-    }
-
     // ------------------------------------------------------------ //
     // GET NAME - What should we call this type of object?
     // ------------------------------------------------------------ //
@@ -40,7 +34,7 @@ public class Persist {
     // ------------------------------------------------------------ //
 
     public Path getPath(String name) {
-        return plugin.getDataFolder().toPath().resolve(name + ".json");
+        return FactionsPlugin.getInstance().getDataFolder().toPath().resolve(name + ".json");
     }
 
     public Path getPath(Class<?> clazz) {
@@ -66,7 +60,7 @@ public class Persist {
     public <T> T loadOrSaveDefault(T def, Class<T> clazz, Path path) {
         String name = path.getFileName().toString();
         if (Files.notExists(path)) {
-            plugin.getLogger().info("Creating default: " + name);
+            FactionsPlugin.getInstance().getLogger().info("Creating default: " + name);
             this.save(def, path);
             return def;
         }
@@ -74,7 +68,7 @@ public class Persist {
         T loaded = this.load(clazz, path);
 
         if (loaded == null) {
-            plugin.log(Level.WARNING, "Using default as I failed to load: " + name);
+            FactionsPlugin.getInstance().log(Level.WARNING, "Using default as I failed to load: " + name);
 
             // backup bad Path, so user can attempt to recover their changes from it
             Path backup = path.resolve(name + "_bad");
@@ -83,7 +77,7 @@ public class Persist {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            plugin.log(Level.WARNING, "Backing up copy of bad Path to: " + backup.getFileName().toString());
+            FactionsPlugin.getInstance().log(Level.WARNING, "Backing up copy of bad Path to: " + backup.getFileName().toString());
             try {
                 Files.move(path, backup);
             } catch (IOException e) {
@@ -102,7 +96,7 @@ public class Persist {
     }
 
     public boolean save(Object instance, Path path, BooleanConsumer finish) {
-        DiscUtil.write(path, plugin.getGson(), instance, true, finish);
+        DiscUtil.write(path, FactionsPlugin.getInstance().getGson(), instance, true, finish);
         return true;
     }
 

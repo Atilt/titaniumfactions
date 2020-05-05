@@ -980,6 +980,7 @@ public enum TL {
     DTR_FROZEN_TIME_NOTFROZEN(""),
 
     FACTIONS_DATA_LOADING("Server data loading... try again later."),
+    FACTIONS_DATA_ALREADY_SAVING("Factions data is already saving... try again later.")
 
     ;
 

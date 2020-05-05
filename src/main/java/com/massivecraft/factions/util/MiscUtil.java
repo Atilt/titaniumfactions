@@ -60,22 +60,22 @@ public final class MiscUtil {
 
         for (String blacklistItem : FactionsPlugin.getInstance().conf().factions().other().getNameBlacklist()) {
             if (str.toLowerCase().contains(blacklistItem.toLowerCase())) {
-                errors.add(FactionsPlugin.getInstance().txt().parse(TL.GENERIC_FACTIONTAG_BLACKLIST.toString()));
+                errors.add(TextUtil.parse(TL.GENERIC_FACTIONTAG_BLACKLIST.toString()));
                 break;
             }
         }
 
         if (getComparisonString(str).length() < FactionsPlugin.getInstance().conf().factions().other().getTagLengthMin()) {
-            errors.add(FactionsPlugin.getInstance().txt().parse(TL.GENERIC_FACTIONTAG_TOOSHORT.toString(), FactionsPlugin.getInstance().conf().factions().other().getTagLengthMin()));
+            errors.add(TextUtil.parse(TL.GENERIC_FACTIONTAG_TOOSHORT.toString(), FactionsPlugin.getInstance().conf().factions().other().getTagLengthMin()));
         }
 
         if (str.length() > FactionsPlugin.getInstance().conf().factions().other().getTagLengthMax()) {
-            errors.add(FactionsPlugin.getInstance().txt().parse(TL.GENERIC_FACTIONTAG_TOOLONG.toString(), FactionsPlugin.getInstance().conf().factions().other().getTagLengthMax()));
+            errors.add(TextUtil.parse(TL.GENERIC_FACTIONTAG_TOOLONG.toString(), FactionsPlugin.getInstance().conf().factions().other().getTagLengthMax()));
         }
 
         for (char c : str.toCharArray()) {
             if (!SUBSTANCE_CHARS.contains(c)) {
-                errors.add(FactionsPlugin.getInstance().txt().parse(TL.GENERIC_FACTIONTAG_ALPHANUMERIC.toString(), c));
+                errors.add(TextUtil.parse(TL.GENERIC_FACTIONTAG_ALPHANUMERIC.toString(), c));
             }
         }
 

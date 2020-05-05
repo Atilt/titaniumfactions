@@ -42,14 +42,14 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 public class Transitioner {
-    private FactionsPlugin plugin;
+    
     private Gson gsonV0;
 
-    public static void transition(FactionsPlugin plugin) {
-        Transitioner transitioner = new Transitioner(plugin);
+    public static void transition() {
+        Transitioner transitioner = new Transitioner();
         transitioner.migrateV0();
 
-        Path confPath = plugin.getDataFolder().toPath().resolve("config").resolve("main.conf");
+        Path confPath = FactionsPlugin.getInstance().getDataFolder().toPath().resolve("config").resolve("main.conf");
         if (!confPath.toFile().exists()) {
             return;
         }
@@ -75,16 +75,12 @@ public class Transitioner {
 
             loader.save(rootNode);
         } catch (IOException e) {
-            plugin.getLogger().log(Level.SEVERE, "Failed to save configuration migration! Data may be lost, requiring restoration from backups.", e);
+            FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to save configuration migration! Data may be lost, requiring restoration from backups.", e);
         }
     }
 
-    private Transitioner(FactionsPlugin plugin) {
-        this.plugin = plugin;
-    }
-
     private void migrateV0() {
-        Path pluginFolder = this.plugin.getDataFolder().toPath();
+        Path pluginFolder = FactionsPlugin.getInstance().getDataFolder().toPath();
         Path configFolder = pluginFolder.resolve("config");
         if (configFolder.toFile().exists()) {
             // Found existing config, so nothing to do here.
@@ -99,10 +95,10 @@ public class Transitioner {
         File oldConfigFolderFile = oldConfigFolder.toFile();
         if (oldConfigFolderFile.exists()) {
             // Found existing oldConfig, implying it was already upgraded once
-            this.plugin.getLogger().warning("Found no 'config' folder, but an 'oldConfig' exists. Not attempting conversion.");
+            FactionsPlugin.getInstance().getLogger().warning("Found no 'config' folder, but an 'oldConfig' exists. Not attempting conversion.");
             return;
         }
-        this.plugin.getLogger().info("Found no 'config' folder. Starting configuration transition...");
+        FactionsPlugin.getInstance().getLogger().info("Found no 'config' folder. Starting configuration transition...");
         this.buildV0Gson();
         try {
             OldConfV0 conf = this.gsonV0.fromJson(new String(Files.readAllBytes(oldConf), StandardCharsets.UTF_8), OldConfV0.class);
@@ -119,13 +115,13 @@ public class Transitioner {
             }.getType());
             Map<String, NewMemoryFaction> newData = new HashMap<>();
             data.forEach((id, fac) -> newData.put(id, new NewMemoryFaction(fac)));
-            Files.write(dataFolder.resolve("factions.json"), this.plugin.getGson().toJson(newData).getBytes(StandardCharsets.UTF_8));
+            Files.write(dataFolder.resolve("factions.json"), FactionsPlugin.getInstance().getGson().toJson(newData).getBytes(StandardCharsets.UTF_8));
 
             Files.move(oldFactions, oldConfigFolder.resolve("factions.json"));
             Files.move(oldConf, oldConfigFolder.resolve("conf.json"));
-            this.plugin.getLogger().info("Transition complete!");
+            FactionsPlugin.getInstance().getLogger().info("Transition complete!");
         } catch (Exception e) {
-            this.plugin.getLogger().log(Level.SEVERE, "Could not convert old conf.json", e);
+            FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Could not convert old conf.json", e);
         }
     }
 
@@ -157,11 +153,11 @@ public class Transitioner {
     }
 
     private void migrateV1(HoconConfigurationLoader loader) {
-        Path pluginFolder = this.plugin.getDataFolder().toPath();
+        Path pluginFolder = FactionsPlugin.getInstance().getDataFolder().toPath();
         Path configPath = pluginFolder.resolve("config.yml");
         Path oldConfigFolder = pluginFolder.resolve("oldConfig");
         if (!configPath.toFile().exists()) {
-            this.plugin.getLogger().warning("Found a main.conf from before 0.5.4 but no config.yml was found! Might lose some config information!");
+            FactionsPlugin.getInstance().getLogger().warning("Found a main.conf from before 0.5.4 but no config.yml was found! Might lose some config information!");
             return;
         }
         try {
@@ -169,14 +165,14 @@ public class Transitioner {
             Loader.load(loader, oldConf);
             TransitionConfigV1 newConf = new TransitionConfigV1();
             Loader.load(loader, newConf);
-            newConf.update(oldConf, this.plugin.getConfig());
+            newConf.update(oldConf, FactionsPlugin.getInstance().getConfig());
             Loader.loadAndSave(loader, newConf);
             if (!oldConfigFolder.toFile().exists()) {
                 oldConfigFolder.toFile().mkdir();
             }
             Files.move(configPath, oldConfigFolder.resolve("config.yml"));
         } catch (Exception e) {
-            this.plugin.getLogger().log(Level.SEVERE, "Could not migrate configuration", e);
+            FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Could not migrate configuration", e);
         }
     }
 
@@ -186,8 +182,8 @@ public class Transitioner {
         node.getNode("aVeryFriendlyFactionsConfig").getNode("version").setValue(3);
         node.getNode("scoreboard").getNode("constant").getNode("factionlessTitle").setValue(node.getNode("scoreboard").getNode("constant").getNode("title").getString());
 
-        this.plugin.getLogger().info("Detected a config from before 0.5.7");
-        this.plugin.getLogger().info("  Setting default enterTitles settings based on old style. Visit main.conf to edit.");
-        this.plugin.getLogger().info("  Setting default constant scoreboard factionlessTitle settings based on normal title. Visit main.conf to edit.");
+        FactionsPlugin.getInstance().getLogger().info("Detected a config from before 0.5.7");
+        FactionsPlugin.getInstance().getLogger().info("  Setting default enterTitles settings based on old style. Visit main.conf to edit.");
+        FactionsPlugin.getInstance().getLogger().info("  Setting default constant scoreboard factionlessTitle settings based on normal title. Visit main.conf to edit.");
     }
 }

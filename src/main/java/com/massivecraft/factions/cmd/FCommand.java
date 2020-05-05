@@ -22,6 +22,7 @@ public abstract class FCommand {
         INVISIBLE // Invisible commands are invisible to everyone, even those who can use the command.
     }
 
+    //leaving for compat. purposes
     public FactionsPlugin plugin;
 
     // Command Aliases
@@ -166,7 +167,7 @@ public abstract class FCommand {
  */
     public String getUsageTemplate(CommandContext context, boolean addShortHelp) {
         StringBuilder ret = new StringBuilder();
-        ret.append(FactionsPlugin.getInstance().txt().parseTags("<c>"));
+        ret.append(TextUtil.parseTags("<c>"));
         ret.append('/');
 
         for (FCommand fc : context.commandChain) {
@@ -193,12 +194,12 @@ public abstract class FCommand {
         }
 
         if (args.size() > 0) {
-            ret.append(FactionsPlugin.getInstance().txt().parseTags("<p> "));
+            ret.append(TextUtil.parseTags("<p> "));
             ret.append(TextUtil.implode(args, " "));
         }
 
         if (addShortHelp) {
-            ret.append(FactionsPlugin.getInstance().txt().parseTags(" <i>"));
+            ret.append(TextUtil.parseTags(" <i>"));
             ret.append(this.getHelpShort());
         }
 
