@@ -28,7 +28,7 @@ public class FScoreboard {
         return Bukkit.getScoreboardManager() != null;
     }
 
-    public static void init(FPlayer fplayer) {
+    public static FScoreboard init(FPlayer fplayer) {
         FScoreboard fboard = new FScoreboard(fplayer);
         fscoreboards.put(fplayer, fboard);
 
@@ -36,6 +36,7 @@ public class FScoreboard {
             FTeamWrapper.applyUpdates(fplayer.getFaction());
         }
         FTeamWrapper.track(fboard);
+        return fboard;
     }
 
     public static void remove(FPlayer fplayer, Player player) {

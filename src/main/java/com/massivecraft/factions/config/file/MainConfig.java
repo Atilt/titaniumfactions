@@ -8,6 +8,7 @@ import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.util.material.FactionMaterial;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSets;
+import me.lucko.helper.reflect.MinecraftVersions;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -2174,7 +2175,7 @@ public class MainConfig {
             }
 
             public int getPrefixLength() {
-                return prefixLength < 1 ? (FactionsPlugin.getMCVersion() < 1300 ? 16 : 32) : prefixLength;
+                return prefixLength < 1 ? (FactionsPlugin.getInstance().getMCVersion().isBefore(MinecraftVersions.v1_13) ? 16 : 32) : prefixLength;
             }
 
             public List<String> getContent() {

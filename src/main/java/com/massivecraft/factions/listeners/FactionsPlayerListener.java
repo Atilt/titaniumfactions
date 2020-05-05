@@ -118,7 +118,6 @@ public class FactionsPlayerListener extends AbstractListener {
         }
         FPlayers.getInstance().addOnline(me);
         FlightUtil.getInstance().track(me);
-        this.plugin.updatesOnJoin(player);
     }
 
     private void initFactionWorld(FPlayer me, Player player) {
@@ -133,8 +132,7 @@ public class FactionsPlayerListener extends AbstractListener {
         }.runTaskLater(FactionsPlugin.getInstance(), 33L); // Don't ask me why.
 
         if (FactionsPlugin.getInstance().conf().scoreboard().constant().isEnabled()) {
-            FScoreboard.init(me);
-            FScoreboard fScoreboard = FScoreboard.get(me);
+            FScoreboard fScoreboard = FScoreboard.init(me);
             fScoreboard.setDefaultSidebar(new FDefaultSidebar());
             fScoreboard.setSidebarVisibility(me.showScoreboard());
         }
