@@ -154,7 +154,7 @@ public enum FactionTag implements Tag {
             return text;
         }
         String result = this.function == null ? this.biFunction.apply(faction, player) : this.function.apply(faction);
-        return result == null ? null : text.replace(this.tag, result);
+        return result == null ? null : TextUtil.replace(text, this.tag, result);
     }
 
     public String replace(String text, Faction faction) {

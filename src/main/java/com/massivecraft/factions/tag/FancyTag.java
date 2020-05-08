@@ -26,27 +26,27 @@ public enum FancyTag implements Tag {
     TRUCES_LIST("truces-list", (target, fme, prefix, gm) -> processRelation(prefix, target, fme, Relation.TRUCE)),
     ONLINE_LIST("online-list", (target, fme, prefix, gm) -> {
         List<TextComponent> fancyMessages = new ArrayList<>();
-        TextComponent currentOnline = TextUtil.parseFancy(prefix);
+        TextComponent.Builder currentOnline = TextUtil.parseFancy(prefix);
         boolean firstOnline = true;
         for (FPlayer p : MiscUtil.rankOrder(target.getFPlayersWhereOnline(true, fme))) {
             if (fme.getPlayer() != null && !fme.getPlayer().canSee(p.getPlayer())) {
                 continue; // skip
             }
             String name = p.getNameAndTitle();
-            currentOnline.append(TextComponent.of(firstOnline ? name : ", " + name));
-            currentOnline.hoverEvent(HoverEvent.showText(TextComponent.of(tipPlayer(p, gm)))).color(TextUtil.kyoriColor(fme.getColorTo(p)));
+            currentOnline.append(TextComponent.of(firstOnline ? name : ", " + name))
+                         .hoverEvent(HoverEvent.showText(TextComponent.of(tipPlayer(p, gm)))).color(TextUtil.kyoriColor(fme.getColorTo(p)));
             firstOnline = false;
-            if (GsonComponentSerializer.INSTANCE.serialize(currentOnline).length() > ARBITRARY_LIMIT) {
-                fancyMessages.add(currentOnline);
-                currentOnline = TextComponent.of("");
+            if (GsonComponentSerializer.INSTANCE.serialize(currentOnline.build()).length() > ARBITRARY_LIMIT) {
+                fancyMessages.add(currentOnline.build());
+                currentOnline = TextComponent.builder();
             }
         }
-        fancyMessages.add(currentOnline);
+        fancyMessages.add(currentOnline.build());
         return firstOnline && Tag.isMinimalShow() ? null : fancyMessages;
     }),
     OFFLINE_LIST("offline-list", (target, fme, prefix, gm) -> {
         List<TextComponent> fancyMessages = new ArrayList<>();
-        TextComponent currentOffline = TextUtil.parseFancy(prefix);
+        TextComponent.Builder currentOffline = TextUtil.parseFancy(prefix);
         boolean firstOffline = true;
         for (FPlayer p : MiscUtil.rankOrder(target.getFPlayers())) {
             String name = p.getNameAndTitle();
@@ -55,13 +55,13 @@ public enum FancyTag implements Tag {
                 currentOffline.append(TextComponent.of(firstOffline ? name : ", " + name))
                               .hoverEvent(HoverEvent.showText(TextComponent.of(tipPlayer(p, gm)))).color(TextUtil.kyoriColor(fme.getColorTo(p)));
                 firstOffline = false;
-                if (GsonComponentSerializer.INSTANCE.serialize(currentOffline).length() > ARBITRARY_LIMIT) {
-                    fancyMessages.add(currentOffline);
-                    currentOffline = TextComponent.of("");
+                if (GsonComponentSerializer.INSTANCE.serialize(currentOffline.build()).length() > ARBITRARY_LIMIT) {
+                    fancyMessages.add(currentOffline.build());
+                    currentOffline = TextComponent.builder();
                 }
             }
         }
-        fancyMessages.add(currentOffline);
+        fancyMessages.add(currentOffline.build());
         return firstOffline && Tag.isMinimalShow() ? null : fancyMessages;
     }),
     ;
@@ -71,7 +71,7 @@ public enum FancyTag implements Tag {
 
     private static List<TextComponent> processRelation(String prefix, Faction faction, FPlayer fPlayer, Relation relation) {
         ObjectList<TextComponent> fancyMessages = new ObjectArrayList<>();
-        TextComponent message = TextUtil.parseFancy(prefix);
+        TextComponent.Builder message = TextUtil.parseFancy(prefix);
         boolean first = true;
         for (Faction otherFaction : Factions.getInstance().getAllFactions()) {
             if (otherFaction == faction) {
@@ -83,13 +83,13 @@ public enum FancyTag implements Tag {
                         .hoverEvent(HoverEvent.showText(TextComponent.of(tipFaction(otherFaction, fPlayer))))
                         .color(TextUtil.kyoriColor(fPlayer.getColorTo(otherFaction)));
                 first = false;
-                if (GsonComponentSerializer.INSTANCE.serialize(message).length() > ARBITRARY_LIMIT) {
-                    fancyMessages.add(message);
-                    message = TextComponent.of("");
+                if (GsonComponentSerializer.INSTANCE.serialize(message.build()).length() > ARBITRARY_LIMIT) {
+                    fancyMessages.add(message.build());
+                    message = TextComponent.builder();
                 }
             }
         }
-        fancyMessages.add(message);
+        fancyMessages.add(message.build());
         return first && Tag.isMinimalShow() ? null : fancyMessages;
     }
 

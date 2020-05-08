@@ -333,12 +333,14 @@ public abstract class MemoryFPlayer implements FPlayer {
     public void resetFactionData(boolean doSpoutUpdate) {
         // clean up any territory ownership in old faction, if there is one
         if (factionId != -10 && Factions.getInstance().isValidFactionId(this.getFactionIdRaw())) {
+            System.out.println("OOOOO");
             Faction currentFaction = this.getFaction();
             currentFaction.removeFPlayer(this);
             if (currentFaction.isNormal()) {
                 currentFaction.clearClaimOwnership(this);
             }
         }
+        System.out.println("da faq");
 
         this.factionId = 0; // The default neutral faction
         this.chatMode = ChatMode.PUBLIC;
@@ -666,9 +668,11 @@ public abstract class MemoryFPlayer implements FPlayer {
 
         boolean perm = myFaction.isPermanent();
 
-        if (!perm && this.getRole() == Role.ADMIN && myFaction.getFPlayers().size() > 1) {
-            msg(TL.LEAVE_PASSADMIN);
-            return;
+        if (!perm && this.getRole() == Role.ADMIN) {
+            if (myFaction.getFPlayers().size() > 1 && myFaction.getTotalWhereRole(Role.ADMIN) == 1) {
+                msg(TL.LEAVE_PASSADMIN);
+                return;
+            }
         }
 
         if (makePay && !FactionsPlugin.getInstance().getLandRaidControl().canLeaveFaction(this)) {
@@ -713,12 +717,15 @@ public abstract class MemoryFPlayer implements FPlayer {
         this.resetFactionData();
         setFlying(false, false);
 
+        System.out.println("HERE IGGA");
+
         if (myFaction.isNormal() && !perm && myFaction.getFPlayers().isEmpty()) {
             // Remove this faction
             for (FPlayer fplayer : FPlayers.getInstance().getOnlinePlayers()) {
                 fplayer.msg(TL.LEAVE_DISBANDED, myFaction.describeTo(fplayer, true));
             }
 
+            System.out.println("GOT DISBANDED WTF!?!??!");
             Factions.getInstance().removeFaction(myFaction.getIdRaw());
             if (FactionsPlugin.getInstance().conf().logging().isFactionDisband()) {
                 FactionsPlugin.getInstance().log(TL.LEAVE_DISBANDEDLOG.format(myFaction.getTag(), myFaction.getIdRaw(), this.getName()));

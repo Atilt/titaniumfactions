@@ -1,6 +1,6 @@
 package com.massivecraft.factions.struct;
 
-import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.util.PermUtil;
 import org.bukkit.command.CommandSender;
 
 public enum Permission {
@@ -123,7 +123,7 @@ public enum Permission {
     }
 
     public boolean has(CommandSender sender, boolean informSenderIfNot) {
-        return FactionsPlugin.getInstance().getPermUtil().has(sender, this.node, informSenderIfNot);
+        return PermUtil.has(sender, this.node, informSenderIfNot);
     }
 
     public boolean has(CommandSender sender) {

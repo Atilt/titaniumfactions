@@ -26,9 +26,9 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import it.unimi.dsi.fastutil.objects.ObjectSets;
 import net.kyori.text.TextComponent;
+import net.kyori.text.event.ClickEvent;
 import net.kyori.text.event.HoverEvent;
 import net.kyori.text.format.TextColor;
-import org.bukkit.ChatColor;
 import org.bukkit.World;
 
 import java.util.List;
@@ -75,7 +75,8 @@ public abstract class MemoryBoard extends Board {
         public int removeInt(Object key) {
             int result = super.removeInt(key);
             if (result != NONE) {
-                factionToLandMap.remove(result).remove(key);
+                ObjectSet<FLocation> locations = this.factionToLandMap.get(result);
+                locations.remove(key);
             }
             return result;
         }
@@ -207,13 +208,15 @@ public abstract class MemoryBoard extends Board {
 
     @Override
     public Set<FLocation> getAllClaims(int factionId) {
-        ObjectSet<FLocation> locs = new ObjectOpenHashSet<>();
+        return this.flocationIds.factionToLandMap.getOrDefault(factionId, ObjectSets.emptySet());
+/*        ObjectSet<FLocation> locs = new ObjectOpenHashSet<>();
+        return this.flocationIds.factionToLandMap.get(factionId);
         for (Object2IntMap.Entry<FLocation> entry : flocationIds.object2IntEntrySet()) {
             if (entry.getIntValue() == factionId) {
                 locs.add(entry.getKey());
             }
         }
-        return locs;
+        return locs;*/
     }
 
     @Override
@@ -270,10 +273,8 @@ public abstract class MemoryBoard extends Board {
 
     public void clean(int factionId) {
         if (LWC.getEnabled() && FactionsPlugin.getInstance().conf().lwc().isResetLocksOnUnclaim()) {
-            for (Object2IntMap.Entry<FLocation> entry : flocationIds.object2IntEntrySet()) {
-                if (entry.getIntValue() == factionId) {
-                    LWC.clearAllLocks(entry.getKey());
-                }
+            for (FLocation fLocation : flocationIds.factionToLandMap.getOrDefault(factionId, ObjectSets.emptySet())) {
+                LWC.clearAllLocks(fLocation);
             }
         }
 
@@ -347,10 +348,9 @@ public abstract class MemoryBoard extends Board {
     }
 
     public int getFactionCoordCountInWorld(Faction faction, String worldName) {
-        int factionId = faction.getIdRaw();
         int ret = 0;
         for (Object2IntMap.Entry<FLocation> entry : flocationIds.object2IntEntrySet()) {
-            if (entry.getIntValue() == factionId && entry.getKey().getWorldName().equals(worldName)) {
+            if (entry.getIntValue() == faction.getIdRaw() && entry.getKey().getWorldName().equals(worldName)) {
                 ret++;
             }
         }
@@ -365,74 +365,74 @@ public abstract class MemoryBoard extends Board {
      * The map is relative to a coord and a faction north is in the direction of decreasing x east is in the direction
      * of decreasing z
      */
+    // H x W
+    //17 and 49
+    //or 17 and 46
     public List<TextComponent> getMap(FPlayer fplayer, FLocation flocation, double inDegrees) {
-        Faction faction = fplayer.getFaction();
-        ObjectList<TextComponent> ret = new ObjectArrayList<>(3);
-        Faction factionLoc = getFactionAt(flocation);
-        ret.add(TextComponent.of(TextUtil.titleize("(" + flocation.getCoordString() + ") " + factionLoc.getTag(fplayer))));
+        ObjectList<TextComponent> lines = new ObjectArrayList<>(3);
 
-        // Get the compass
-        List<String> asciiCompass = AsciiCompass.getAsciiCompass((float) inDegrees, ChatColor.RED, TextUtil.parse("<a>"));
+        lines.add(TextComponent.of(TextUtil.titleize("(" + flocation.getCoordString() + ") " + this.getFactionAt(flocation).getTag(fplayer))));
 
-        int halfWidth = FactionsPlugin.getInstance().conf().map().getWidth() / 2;
-        // Use player's value for height
-        int halfHeight = fplayer.getMapHeight() / 2;
-        FLocation topLeft = flocation.getRelative(-halfWidth, -halfHeight);
-        int width = halfWidth * 2 + 1;
-        int height = halfHeight * 2 + 1;
+        List<TextComponent> compass = AsciiCompass.get((float) inDegrees);
+
+        int height = fplayer.getMapHeight();
+        int width = FactionsPlugin.getInstance().conf().map().getWidth();
+
+        int fixedWidth = width - 2;
+
+        FLocation start = flocation.getRelative(-width / 2, -height / 2);
 
         if (FactionsPlugin.getInstance().conf().map().isShowFactionKey()) {
             height--;
         }
-
         Object2ObjectMap<String, String> fList = new Object2ObjectOpenHashMap<>();
-        int chrIdx = 0;
-
-        // For each row
-        for (int dz = 0; dz < height; dz++) {
-            // Draw and add that row
-            TextComponent row = TextComponent.of("");
-
-            if (dz < 3) {
-                row.append(TextComponent.of(asciiCompass.get(dz)));
-            }
-            for (int dx = (dz < 3 ? 6 : 3); dx < width; dx++) {
-                if (dx == halfWidth && dz == halfHeight) {
-                    row.append(TextComponent.of("+")).color(TextColor.AQUA).hoverEvent(HoverEvent.showText(TL.CLAIM_YOUAREHERE.toComponent()));
-                } else {
-                    FLocation flocationHere = topLeft.getRelative(dx, dz);
-                    Faction factionHere = getFactionAt(flocationHere);
-                    Relation relation = fplayer.getRelationTo(factionHere);
-                    if (factionHere.isWilderness()) {
-                        row.append(TextComponent.of("-")).color(TextUtil.kyoriColor(FactionsPlugin.getInstance().conf().colors().factions().getWilderness()));
-                    } else if (factionHere.isSafeZone()) {
-                        row.append(TextComponent.of("+")).color(TextUtil.kyoriColor(FactionsPlugin.getInstance().conf().colors().factions().getSafezone()));
-                    } else if (factionHere.isWarZone()) {
-                        row.append(TextComponent.of("+")).color(TextUtil.kyoriColor(FactionsPlugin.getInstance().conf().colors().factions().getWarzone()));
-                    } else if (factionHere == faction || factionHere == factionLoc || relation.isAtLeast(Relation.ALLY) ||
-                            (FactionsPlugin.getInstance().conf().map().isShowNeutralFactionsOnMap() && relation == Relation.NEUTRAL) ||
-                            (FactionsPlugin.getInstance().conf().map().isShowEnemyFactions() && relation == Relation.ENEMY) ||
-                            FactionsPlugin.getInstance().conf().map().isShowTruceFactions() && relation == Relation.TRUCE) {
-                        final int incremented = chrIdx++;
-                        ChatColor color = factionHere.getColorTo(faction);
-                        row.append(TextComponent.of(fList.computeIfAbsent(factionHere.getTag(), c -> String.valueOf(MAP_CHARS[(incremented) % MAP_CHARS.length])))).color(TextUtil.kyoriColor(color)).hoverEvent(HoverEvent.showText(TextComponent.of(color + factionHere.getTag())));
-                    } else {
-                        row.append(TextComponent.of("-")).color(TextColor.GRAY).hoverEvent(HoverEvent.showText(TextComponent.of(ChatColor.GRAY + factionHere.getTag())));
-                    }
+        int charIdx = 0;
+        for (int y = 0; y < height; y++) {
+            TextComponent.Builder row = TextComponent.builder();
+            for (int x = 0; x < (y < 3 ? fixedWidth : width); x++) {
+                if (y < 3 && x == 0) {
+                    row.append(compass.get(y));
+                    continue;
                 }
+                //append the line like "-" or whatever
+                FLocation relative = start.getRelative(x, y);
+                if (relative.equals(flocation)) {
+                    row.append(TextComponent.of("+").color(TextColor.AQUA).hoverEvent(HoverEvent.showText(TL.CLAIM_YOUAREHERE.toComponent())));
+                    continue;
+                }
+                Faction found = this.getFactionAt(relative);
+                if (found.isWilderness()) {
+                    row.append(TextComponent.of("-").color(TextUtil.kyoriColor(FactionsPlugin.getInstance().conf().colors().factions().getWilderness())).hoverEvent(HoverEvent.showText(TL.WILDERNESS.toComponent())));
+                    continue;
+                }
+                if (found.isSafeZone()) {
+                    row.append(TextComponent.of("+").color(TextUtil.kyoriColor(FactionsPlugin.getInstance().conf().colors().factions().getSafezone())).hoverEvent(HoverEvent.showText(TL.SAFEZONE.toComponent())));
+                    continue;
+                }
+                if (found.isWarZone()) {
+                    row.append(TextComponent.of("+").color(TextUtil.kyoriColor(FactionsPlugin.getInstance().conf().colors().factions().getWarzone())).hoverEvent(HoverEvent.showText(TL.WARZONE.toComponent())));
+                    continue;
+                }
+                Relation relation = fplayer.getRelationTo(found);
+                if (fplayer.getFactionIdRaw() == found.getIdRaw() || relation.isAtLeast(Relation.ALLY) || (FactionsPlugin.getInstance().conf().map().isShowNeutralFactionsOnMap() && relation == Relation.NEUTRAL) || (FactionsPlugin.getInstance().conf().map().isShowEnemyFactions() && relation == Relation.ENEMY) || (FactionsPlugin.getInstance().conf().map().isShowTruceFactions() && relation == Relation.TRUCE)) {
+                    int incremented = charIdx++;
+                    TextColor relationColor = TextUtil.kyoriColor(relation.getColor());
+                    row.append(TextComponent.of(fList.computeIfAbsent(found.getTag(), c -> String.valueOf(MAP_CHARS[(incremented) % MAP_CHARS.length]))).color(relationColor).hoverEvent(HoverEvent.showText(TextComponent.of(found.getTag()).color(relationColor))).clickEvent(ClickEvent.runCommand("/f show " + found.getTag())));
+                    continue;
+                }
+                row.append(TextComponent.of("-").color(TextColor.GRAY).hoverEvent(HoverEvent.showText(TextComponent.of(found.getTag()).color(TextColor.GRAY))).clickEvent(ClickEvent.runCommand("/f show " + found.getTag())));
             }
-            ret.add(row);
-        }
+            lines.add(row.build());
 
-        // Add the faction key
-        if (FactionsPlugin.getInstance().conf().map().isShowFactionKey()) {
-            TextComponent fRow = TextComponent.of("");
-            for (Object2ObjectMap.Entry<String, String> entry : fList.object2ObjectEntrySet()) {
-                fRow.append(TextComponent.of(String.format("%s: %s ", entry.getValue(), entry.getKey()))).color(TextUtil.kyoriColor(fplayer.getRelationTo(Factions.getInstance().getByTag(entry.getKey())).getColor()));
+            if (FactionsPlugin.getInstance().conf().map().isShowFactionKey() && y == height - 1) {
+                TextComponent.Builder fRow = TextComponent.builder();
+                for (Object2ObjectMap.Entry<String, String> entry : fList.object2ObjectEntrySet()) {
+                    fRow.append(TextComponent.builder().content(entry.getValue() + ": " + entry.getKey() + " ").color(TextUtil.kyoriColor(fplayer.getRelationTo(Factions.getInstance().getByTag(entry.getKey())).getColor())).build());
+                }
+                lines.add(fRow.build());
             }
-            ret.add(fRow);
         }
-        return ret;
+        return lines;
     }
 
     public abstract void convertFrom(MemoryBoard old, BooleanConsumer finish);

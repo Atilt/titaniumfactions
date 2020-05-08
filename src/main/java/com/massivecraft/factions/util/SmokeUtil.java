@@ -24,11 +24,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public final class SmokeUtil {
 
-    // -------------------------------------------- //
-    // Spawn once
-    // -------------------------------------------- //
-
-    // Single ========
     public static void spawnSingle(Location location, int direction) {
         if (location == null) {
             return;
@@ -44,7 +39,6 @@ public final class SmokeUtil {
         spawnSingle(location, ThreadLocalRandom.current().nextInt(9));
     }
 
-    // Simple Cloud ========
     public static void spawnCloudSimple(Location location) {
         for (int i = 0; i <= 8; i++) {
             spawnSingle(location, i);

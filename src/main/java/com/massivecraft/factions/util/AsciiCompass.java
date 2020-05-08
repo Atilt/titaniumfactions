@@ -2,9 +2,12 @@ package com.massivecraft.factions.util;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import net.kyori.text.TextComponent;
 import org.bukkit.ChatColor;
 
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 public class AsciiCompass {
 
@@ -73,8 +76,8 @@ public class AsciiCompass {
             return toString();
         }
 
-        public String toString(boolean isActive, ChatColor colorActive, String colorDefault) {
-            return (isActive ? colorActive : colorDefault) + getTranslation();
+        public String toString(boolean isActive, ChatColor ACTIVE_COLOR, String colorDefault) {
+            return (isActive ? ACTIVE_COLOR : colorDefault) + getTranslation();
         }
     }
 
@@ -82,32 +85,55 @@ public class AsciiCompass {
         return Point.VALUES[Math.round(degrees / 45.0f) & 0x7].getOppositePoint();
     }
 
-    public static List<String> getAsciiCompass(Point point, ChatColor colorActive, String colorDefault) {
-        if (point == null) {
-            return new ObjectArrayList<>(0);
+    /**
+     *  \ N /
+     *  W + E
+     *  / S \
+     *
+     *
+     * @param point
+     * @param ACTIVE_COLOR
+     * @param colorDefault
+     * @return
+     */
+    
+    private static final ChatColor ACTIVE_COLOR = ChatColor.RED;
+    private static final String DEFAULT_COLOR = TextUtil.parse("<a>");
+    
+    private static final Map<Point, List<TextComponent>> COMPASSES = new EnumMap<>(Point.class);
+    
+    static {
+        for (Point point : Point.VALUES) {
+            ObjectList<TextComponent> ret = new ObjectArrayList<>(3);
+
+            StringBuilder builder = new StringBuilder();
+
+            builder.append(Point.NW.toString(Point.NW == point, ACTIVE_COLOR, DEFAULT_COLOR))
+                    .append(Point.N.toString(Point.N == point, ACTIVE_COLOR, DEFAULT_COLOR))
+                    .append(Point.NE.toString(Point.NE == point, ACTIVE_COLOR, DEFAULT_COLOR));
+            ret.add(TextUtil.parseFancy(builder.toString()).build());
+
+            builder.setLength(0);
+            builder.append(Point.W.toString(Point.W == point, ACTIVE_COLOR, DEFAULT_COLOR))
+                    .append(DEFAULT_COLOR).append("+")
+                    .append(Point.E.toString(Point.E == point, ACTIVE_COLOR, DEFAULT_COLOR));
+            ret.add(TextUtil.parseFancy(builder.toString()).build());
+
+            builder.setLength(0);
+            builder.append(Point.SW.toString(Point.SW == point, ACTIVE_COLOR, DEFAULT_COLOR))
+                    .append(Point.S.toString(Point.S == point, ACTIVE_COLOR, DEFAULT_COLOR))
+                    .append(Point.SE.toString(Point.SE == point, ACTIVE_COLOR, DEFAULT_COLOR));
+            ret.add(TextUtil.parseFancy(builder.toString()).build());
+
+            COMPASSES.put(point, ret);
         }
-        ObjectList<String> ret = new ObjectArrayList<>(3);
-
-        StringBuilder builder = new StringBuilder();
-
-        builder.append(Point.NW.toString(Point.NW == point, colorActive, colorDefault))
-                .append(Point.N.toString(Point.N == point, colorActive, colorDefault))
-                .append(Point.NE.toString(Point.NE == point, colorActive, colorDefault));
-        ret.add(builder.toString());
-
-        builder.append(Point.W.toString(Point.W == point, colorActive, colorDefault))
-                .append(colorDefault).append("+")
-                .append(Point.E.toString(Point.E == point, colorActive, colorDefault));
-        ret.add(builder.toString());
-        
-        builder.append(Point.SW.toString(Point.SW == point, colorActive, colorDefault))
-                .append(Point.S.toString(Point.S == point, colorActive, colorDefault))
-                .append(Point.SE.toString(Point.SE == point, colorActive, colorDefault));
-        ret.add(builder.toString());
-        return ret;
     }
 
-    public static List<String> getAsciiCompass(float degrees, ChatColor colorActive, String colorDefault) {
-        return getAsciiCompass(getDirection(degrees), colorActive, colorDefault);
+    private static List<TextComponent> get(Point point) {
+        return point == null ? new ObjectArrayList<>(0) : COMPASSES.get(point);
+    }
+
+    public static List<TextComponent> get(float degrees) {
+        return get(getDirection(degrees));
     }
 }

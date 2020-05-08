@@ -1028,7 +1028,7 @@ public enum TL {
     }
 
     public TextComponent toComponent() {
-        return TextComponent.of(this.toString());
+        return TextUtil.parseFancy(toString()).build();
     }
 
     public TextComponent toFormattedComponent(Object... args) {

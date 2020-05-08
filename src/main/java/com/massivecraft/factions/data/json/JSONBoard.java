@@ -15,8 +15,10 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.bukkit.Bukkit;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Map;
 import java.util.function.IntConsumer;
 import java.util.logging.Level;
@@ -48,9 +50,17 @@ public class JSONBoard extends MemoryBoard {
     @Override
     public void load(IntConsumer loaded) {
         if (Files.notExists(BOARD_PATH)) {
-            FactionsPlugin.getInstance().getLogger().info("No board to load from disk. Creating new file.");
-            forceSave(result -> loaded.accept(0));
-            return;
+            //move into folder if outside of folder
+            Path possibleData = FactionsPlugin.getInstance().getDataFolder().toPath().resolve("board.json");
+            if (Files.notExists(possibleData)) {
+                forceSave(result -> loaded.accept(0));
+                return;
+            }
+            try {
+                Files.move(possibleData, BOARD_PATH, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         Bukkit.getScheduler().runTaskAsynchronously(FactionsPlugin.getInstance(), () -> {
             try {

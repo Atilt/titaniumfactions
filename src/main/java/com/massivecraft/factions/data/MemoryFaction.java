@@ -319,7 +319,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
 
     public UUID getAccountId() {
         String attempt = "faction-" + this.getId();
-        UUID aid = UUID.fromString(attempt.substring(0, Math.min(32, attempt.length()))); //cant use FastUUID because it only accepts real ids
+        UUID aid = UUID.nameUUIDFromBytes(attempt.substring(0, Math.min(32, attempt.length())).getBytes()); //cant use FastUUID because it only accepts real ids
 
         // We need to override the default money given to players.
         if (!Econ.hasAccount(aid)) {
@@ -881,19 +881,34 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         return null;
     }
 
+    @Override
     public List<FPlayer> getFPlayersWhereRole(Role role) {
         if (!this.isNormal()) {
             return ObjectLists.emptyList();
         }
         ObjectList<FPlayer> ret = new ObjectArrayList<>();
 
-        for (FPlayer fplayer : fplayers) {
+        for (FPlayer fplayer : this.fplayers) {
             if (fplayer.getRole() == role) {
                 ret.add(fplayer);
             }
         }
 
         return ret;
+    }
+
+    @Override
+    public int getTotalWhereRole(Role role) {
+        if (!this.isNormal()) {
+            return 0;
+        }
+        int amount = 0;
+        for (FPlayer fplayer : this.fplayers) {
+            if (fplayer.getRole() == role) {
+                amount++;
+            }
+        }
+        return amount;
     }
 
     public List<Player> getOnlinePlayers() {

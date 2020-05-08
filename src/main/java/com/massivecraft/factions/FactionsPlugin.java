@@ -29,6 +29,7 @@ import com.massivecraft.factions.landraidcontrol.LandRaidControl;
 import com.massivecraft.factions.listeners.EssentialsListener;
 import com.massivecraft.factions.listeners.FactionsBlockListener;
 import com.massivecraft.factions.listeners.FactionsChatListener;
+import com.massivecraft.factions.listeners.FactionsDataListener;
 import com.massivecraft.factions.listeners.FactionsEntityListener;
 import com.massivecraft.factions.listeners.FactionsExploitListener;
 import com.massivecraft.factions.listeners.FactionsPlayerListener;
@@ -45,7 +46,7 @@ import com.massivecraft.factions.util.FlightUtil;
 import com.massivecraft.factions.util.LazyLocation;
 import com.massivecraft.factions.util.PermUtil;
 import com.massivecraft.factions.util.Persist;
-import com.massivecraft.factions.util.SeeChunkUtil;
+import com.massivecraft.factions.util.SeeChunkTask;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
 import com.massivecraft.factions.util.material.FactionMaterial;
@@ -130,7 +131,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     private boolean mvdwPlaceholderAPIManager = false;
     private ObjectSet<String> pluginsHandlingChat = new ObjectOpenHashSet<>();
 
-    private SeeChunkUtil seeChunkUtil;
+    private SeeChunkTask seeChunkUtil;
     private ParticleProvider<?> particleProvider;
     private IWorldguard worldguard;
     private Set<EntityType> safeZoneNerfedCreatureTypes = EnumSet.noneOf(EntityType.class);
@@ -175,6 +176,8 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             getLogger().info("1.8 is the minimum required version for Factions to run.");
             return;
         }
+
+        Bukkit.getPluginManager().registerEvents(new FactionsDataListener(), this);
 
         try {
             Files.createDirectories(getDataFolder().toPath().resolve("data"));
@@ -297,7 +300,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                     if (delay <= 0) {
                         delay = 40;
                     }
-                    seeChunkUtil = new SeeChunkUtil();
+                    seeChunkUtil = new SeeChunkTask();
                     seeChunkUtil.runTaskTimer(this, 0, (long) delay);
                 }
                 // End run before registering event handlers.
@@ -572,7 +575,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         return gson;
     }
 
-    public SeeChunkUtil getSeeChunkUtil() {
+    public SeeChunkTask getSeeChunkUtil() {
         return seeChunkUtil;
     }
 

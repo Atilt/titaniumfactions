@@ -115,6 +115,11 @@ public class Loader {
                     }
                 } else {
                     try {
+                        if (String.class.isAssignableFrom(curNode.getValue().getClass()) && int.class.isAssignableFrom(field.getType())) {
+                            int parsed = Integer.parseInt((String) curNode.getValue());
+                            field.set(object, parsed);
+                            curNode.setValue(parsed);
+                        }
                         if (Set.class.isAssignableFrom(field.getType()) && List.class.isAssignableFrom(curNode.getValue().getClass())) {
                             field.set(object, new HashSet<>((List<?>) curNode.getValue()));
                         } else {
@@ -127,12 +132,11 @@ public class Loader {
                     }
                 }
             } else {
-                Object o = defaultValue;
-                if (o == null) {
+                if (defaultValue == null) {
                     curNode.setValue(null);
                     newNewNode.setValue(null);
                 } else {
-                    loadNode(curNode, newNewNode, o);
+                    loadNode(curNode, newNewNode, defaultValue);
                 }
             }
         }

@@ -43,7 +43,7 @@ public class CmdShow extends FCommand {
         defaults.add("<a>Description: <i>{description}");
         defaults.add("<a>Joining: <i>{joining}    {peaceful}");
         defaults.add("<a>Land / Power / Maxpower: <i> {chunks} / {power} / {maxPower}");
-        defaults.add("<a>Raidable: {raidable}");
+        defaults.add("<a>Raidable: <i>{raidable}");
         defaults.add("<a>Founded: <i>{create-date}");
         defaults.add("<a>This faction is permanent, remaining even with no members.");
         defaults.add("<a>Land value: <i>{land-value} {land-refund}");
@@ -91,7 +91,7 @@ public class CmdShow extends FCommand {
             if (FactionTag.HEADER.foundInString(header)) {
                 context.msg(TextUtil.titleize(tag));
             } else {
-                String message = header.replace(FactionTag.FACTION.getTag(), tag);
+                String message = TextUtil.replace(header, FactionTag.FACTION.getTag(), tag);
                 message = Tag.parsePlain(faction, context.fPlayer, message);
                 context.msg(TextUtil.parse(message));
             }
@@ -136,7 +136,7 @@ public class CmdShow extends FCommand {
                     List<TextComponent> fancy = FancyTag.parse(parsed, faction, player, groupMap);
                     if (fancy != null) {
                         for (TextComponent fancyMessage : fancy) {
-                            TextAdapter.sendComponent(recipient, fancyMessage);
+                            TextAdapter.sendMessage(recipient, fancyMessage);
                         }
                     }
                 } else {

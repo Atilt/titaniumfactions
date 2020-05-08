@@ -14,8 +14,10 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.bukkit.Bukkit;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Map;
 import java.util.function.IntConsumer;
 
@@ -70,7 +72,16 @@ public class JSONFactions extends MemoryFactions {
 
     private Int2ObjectMap<JSONFaction> loadCore(BooleanConsumer finish) {
         if (Files.notExists(FACTIONS_PATH)) {
-            return new Int2ObjectOpenHashMap<>(0);
+            //move into folder if outside of folder
+            Path possibleData = FactionsPlugin.getInstance().getDataFolder().toPath().resolve("factions.json");
+            if (Files.notExists(possibleData)) {
+                return new Int2ObjectOpenHashMap<>(0);
+            }
+            try {
+                Files.move(possibleData, FACTIONS_PATH, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         Int2ObjectMap<JSONFaction> data = DiscUtil.read(FACTIONS_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Int2ObjectOpenHashMap<JSONFaction>>(){}.getType());
         this.nextId = 1;
@@ -79,13 +90,10 @@ public class JSONFactions extends MemoryFactions {
     }
 
     public int getNextId() {
-        while (!isIdFree(this.nextId)) {
+        while (this.factions.containsKey(this.nextId)) {
             this.nextId++;
         }
         return this.nextId;
-    }
-    public boolean isIdFree(int id) {
-        return this.factions.containsKey(id);
     }
 
     protected void updateNextIdForId(int id) {

@@ -7,8 +7,8 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.kyori.text.TextComponent;
-import net.kyori.text.format.Style;
 import net.kyori.text.format.TextColor;
+import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -82,7 +82,7 @@ public final class TextUtil {
     // Fancy parsing
     // -------------------------------------------- //
 
-    public static TextComponent parseFancy(String prefix) {
+    public static TextComponent.Builder parseFancy(String prefix) {
         return toFancy(parse(prefix));
     }
 
@@ -100,44 +100,8 @@ public final class TextUtil {
         return BUKKIT_TO_KYORI.get(chatColor);
     }
 
-    private static TextComponent toFancy(String first) {
-        String text = "";
-        TextComponent message = TextComponent.of(text);
-        ChatColor color = null;
-        char[] chars = first.toCharArray();
-
-        for (int i = 0; i < chars.length; i++) {
-            TextComponent textComponent = TextComponent.of(text);
-            if (chars[i] == '§') {
-                if (color != null) {
-                    TextColor textColor = kyoriColor(color);
-                    if (color.isColor()) {
-                        message.append(textComponent).color(textColor);
-                    } else {
-                        message.append(textComponent).style(Style.of(textColor));
-                    }
-                    text = "";
-                }
-                color = ChatColor.getByChar(chars[i + 1]);
-                i++; // skip color char
-            } else {
-                text += chars[i];
-            }
-        }
-        TextColor textColor = kyoriColor(color);
-        if (text.length() > 0) {
-            TextComponent textComponent = TextComponent.of(text);
-            if (color != null) {
-                if (color.isColor()) {
-                    message.append(textComponent).color(textColor);
-                } else {
-                    message.append(textComponent).style(Style.of(textColor));
-                }
-            } else {
-                message.content(text);
-            }
-        }
-        return message;
+    private static TextComponent.Builder toFancy(String first) {
+        return LegacyComponentSerializer.INSTANCE.deserialize(first).toBuilder();
     }
 
     // -------------------------------------------- //
@@ -190,7 +154,7 @@ public final class TextUtil {
     // -------------------------------------------- //
 
     public static String getMaterialName(Material material) {
-        return material.toString().replace('_', ' ').toLowerCase();
+        return replace(material.toString(), "_", " ").toLowerCase();
     }
 
     // -------------------------------------------- //

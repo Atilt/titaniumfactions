@@ -9,7 +9,6 @@ import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import org.bukkit.Bukkit;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -41,10 +40,6 @@ public class CmdList extends FCommand {
         factionList.remove(Factions.getInstance().getWilderness());
         factionList.remove(Factions.getInstance().getSafeZone());
         factionList.remove(Factions.getInstance().getWarZone());
-
-        for (Faction faction : factionList) {
-            Bukkit.broadcastMessage("Faction: " + faction.getTag() + " (" + faction.getFPlayersWhereOnline(true).size() + " online)");
-        }
 
         // remove exempt factions
         if (!context.sender.hasPermission(Permission.SHOW_BYPASS_EXEMPT.toString())) {
@@ -84,22 +79,16 @@ public class CmdList extends FCommand {
         String pageCountReadable = Integer.toString(pagecount);
 
         if (!header.isEmpty()) {
-            header = header.replace("{pagenumber}", pageNumberReadable).replace("{pagecount}", pageCountReadable);
+            header = TextUtil.replace(TextUtil.replace(header,"{pagenumber}", pageNumberReadable), "{pagecount}", pageCountReadable);
             lines.add(TextUtil.parse(header));
         }
 
         for (Faction faction : factionList.subList(start, end)) {
-            System.out.println(faction.getTag());
             if (faction.isWilderness()) {
-                System.out.println("is wild");
                 lines.add(TextUtil.parse(Tag.parsePlain(faction, plugin.conf().commands().list().getFactionlessEntry())));
                 continue;
             }
-            System.out.println("reg?");
             lines.add(TextUtil.parse(Tag.parsePlain(faction, context.fPlayer, plugin.conf().commands().list().getEntry())));
-            System.out.println(TextUtil.parse(Tag.parsePlain(faction, context.fPlayer, plugin.conf().commands().list().getEntry())));
-            System.out.println(Tag.parsePlain(faction, context.fPlayer, plugin.conf().commands().list().getEntry()));
-            System.out.println(plugin.conf().commands().list().getEntry());
         }
 
         if (!footer.isEmpty()) {

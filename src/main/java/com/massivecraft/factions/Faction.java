@@ -237,6 +237,8 @@ public interface Faction extends EconomyParticipator {
 
     List<FPlayer> getFPlayersWhereRole(Role role);
 
+    int getTotalWhereRole(Role role);
+
     List<Player> getOnlinePlayers();
 
     // slightly faster check than getOnlinePlayers() if you just want to see if

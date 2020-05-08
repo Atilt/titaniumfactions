@@ -77,13 +77,6 @@ public class FactionsPlayerListener extends AbstractListener {
         ITEMS.add(MaterialDb.getInstance().provider.resolve("HOPPER_MINECART"));
         ITEMS.add(MaterialDb.getInstance().provider.resolve("TNT_MINECART"));
     }
-    
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(PlayerLoginEvent event) {
-        if (!FactionsPlugin.getInstance().isFinishedLoading()) {
-            event.disallow(PlayerLoginEvent.Result.KICK_OTHER, TL.FACTIONS_DATA_LOADING.toString());
-        }
-    }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerJoin(PlayerJoinEvent event) {

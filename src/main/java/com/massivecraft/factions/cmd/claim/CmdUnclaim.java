@@ -115,6 +115,8 @@ public class CmdUnclaim extends FCommand {
                 return false;
             }
 
+            //fix this class, removes all claims instead of just 1
+
             Board.getInstance().removeAt(target);
 
             targetFaction.msg(TL.COMMAND_UNCLAIM_UNCLAIMED, context.fPlayer.describeTo(targetFaction, true));

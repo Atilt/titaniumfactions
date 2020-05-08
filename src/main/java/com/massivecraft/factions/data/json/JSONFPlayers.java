@@ -14,8 +14,10 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.bukkit.Bukkit;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.IntConsumer;
@@ -65,6 +67,16 @@ public class JSONFPlayers extends MemoryFPlayers {
 
     private Object2ObjectMap<UUID, JSONFPlayer> loadCore() {
         if (Files.notExists(PLAYERS_PATH)) {
+            //move into folder if outside of folder
+            Path possibleData = FactionsPlugin.getInstance().getDataFolder().toPath().resolve("players.json");
+            if (Files.notExists(possibleData)) {
+                return new Object2ObjectOpenHashMap<>(0);
+            }
+            try {
+                Files.move(possibleData, PLAYERS_PATH, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             return new Object2ObjectOpenHashMap<>(0);
         }
         Object2ObjectMap<UUID, JSONFPlayer> read = DiscUtil.read(PLAYERS_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Object2ObjectOpenHashMap<UUID, JSONFPlayer>>(){}.getType());

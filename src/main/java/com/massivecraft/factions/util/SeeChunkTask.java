@@ -18,13 +18,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.UUID;
 
 @SuppressWarnings("unchecked")
-public final class SeeChunkUtil extends BukkitRunnable {
+public final class SeeChunkTask extends BukkitRunnable {
 
     private ObjectSet<UUID> playersSeeingChunks = new ObjectOpenHashSet<>();
     private boolean useColor;
     private Object effect;
 
-    public SeeChunkUtil() {
+    public SeeChunkTask() {
         this.effect = FactionsPlugin.getInstance().getParticleProvider().effectFromString(FactionsPlugin.getInstance().conf().commands().seeChunk().getParticleName());
         this.useColor = FactionsPlugin.getInstance().conf().commands().seeChunk().isRelationalColor();
     }

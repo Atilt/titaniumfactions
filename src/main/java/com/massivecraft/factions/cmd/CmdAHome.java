@@ -7,6 +7,7 @@ import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
 public class CmdAHome extends FCommand {
@@ -29,7 +30,8 @@ public class CmdAHome extends FCommand {
             return;
         }
 
-        if (target.isOnline()) {
+        Player player = target.getPlayer();
+        if (player != null) {
             Faction faction = target.getFaction();
             if (faction.hasHome()) {
                 Location destination = faction.getHome();
@@ -38,7 +40,7 @@ public class CmdAHome extends FCommand {
                 if (tpEvent.isCancelled()) {
                     return;
                 }
-                target.getPlayer().teleport(destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                player.teleport(destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
                 context.msg(TL.COMMAND_AHOME_SUCCESS, target.getName());
                 target.msg(TL.COMMAND_AHOME_TARGET);
             } else {
