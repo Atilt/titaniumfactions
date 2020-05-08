@@ -1027,6 +1027,10 @@ public enum TL {
         }
     }
 
+    public static boolean isSet() {
+        return LANG != null;
+    }
+
     public TextComponent toComponent() {
         return TextUtil.parseFancy(toString()).build();
     }
