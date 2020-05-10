@@ -1,5 +1,6 @@
 package com.massivecraft.factions.cmd;
 
+import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
@@ -19,13 +20,16 @@ public class CmdSB extends FCommand {
 
     @Override
     public void perform(CommandContext context) {
-        if (context.fPlayer.showScoreboard()) {
-            context.fPlayer.setShowScoreboard(false);
+        if (!FactionsPlugin.getInstance().conf().scoreboard().constant().isEnabled()) {
             context.player.sendMessage(TL.COMMAND_TOGGLESB_DISABLED.toString());
             return;
         }
-        context.fPlayer.setShowScoreboard(true);
-        context.player.sendMessage(TextUtil.replace(TL.TOGGLE_SB.toString(), "{value}", Boolean.toString(true)));
+        if (context.fPlayer.showScoreboard()) {
+            context.fPlayer.setShowScoreboard(false);
+        } else {
+            context.fPlayer.setShowScoreboard(true);
+        }
+        context.player.sendMessage(TextUtil.replace(TL.TOGGLE_SB.toString(), "{value}", Boolean.toString(context.fPlayer.showScoreboard())));
     }
 
     @Override

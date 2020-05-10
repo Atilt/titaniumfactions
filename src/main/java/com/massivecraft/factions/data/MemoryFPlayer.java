@@ -693,6 +693,7 @@ public abstract class MemoryFPlayer implements FPlayer {
             return;
         }
         if (FSidebarProvider.get().untrack(this)) {
+            this.scoreboard.delete();
             this.scoreboard = null;
         }
     }

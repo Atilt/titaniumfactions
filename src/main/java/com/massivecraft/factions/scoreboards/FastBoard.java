@@ -2,6 +2,7 @@ package com.massivecraft.factions.scoreboards;
 
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.util.TextUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
@@ -571,7 +572,7 @@ public class FastBoard {
     }
 
     private String getColorCode(int score) {
-        return ChatColor.values()[score].toString();
+        return TextUtil.BUKKIT_COLORS[score].toString();
     }
 
     private void sendPacket(Object packet) throws ReflectiveOperationException {

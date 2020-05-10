@@ -86,10 +86,11 @@ public final class TextUtil {
         return toFancy(parse(prefix));
     }
 
+    public static final ChatColor[] BUKKIT_COLORS = ChatColor.values();
     private static final Map<ChatColor, TextColor> BUKKIT_TO_KYORI = new EnumMap<>(ChatColor.class);
 
     static {
-        for (ChatColor chatColor : ChatColor.values()) {
+        for (ChatColor chatColor : BUKKIT_COLORS) {
             if (chatColor.isColor()) {
                 BUKKIT_TO_KYORI.put(chatColor, TextColor.valueOf(chatColor.name()));
             }
