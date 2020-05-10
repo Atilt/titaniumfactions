@@ -72,16 +72,16 @@ public final class VisualizeUtil {
     }
 
     @SuppressWarnings("deprecation")
-    public static void clear(Player player) {
-        Set<Location> locations = getPlayerLocationsRaw(player.getUniqueId());
+    public static void clear(Player player, boolean deep) {
+        Set<Location> locations = playerLocations.remove(player.getUniqueId());
         if (locations == null) {
             return;
         }
-        for (Location location : locations) {
-            Block block = location.getWorld().getBlockAt(location);
-            player.sendBlockChange(location, block.getType(), block.getData());
+        if (deep) {
+            for (Location location : locations) {
+                Block block = location.getWorld().getBlockAt(location);
+                player.sendBlockChange(location, block.getType(), block.getData());
+            }
         }
-        locations.clear();
     }
-
 }

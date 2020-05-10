@@ -2,68 +2,82 @@ package com.massivecraft.factions.util;
 
 import com.massivecraft.factions.Board;
 import com.massivecraft.factions.FPlayer;
-import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.util.material.FactionMaterial;
 import com.massivecraft.factions.util.particle.ParticleColor;
-import it.unimi.dsi.fastutil.objects.ObjectIterator;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
+import me.lucko.helper.bucket.Bucket;
+import me.lucko.helper.bucket.factory.BucketFactory;
+import me.lucko.helper.bucket.partitioning.PartitioningStrategies;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.UUID;
+public final class SeeChunkTask extends BukkitRunnable implements AutoCloseable {
 
-@SuppressWarnings("unchecked")
-public final class SeeChunkTask extends BukkitRunnable {
+    private static SeeChunkTask instance;
 
-    private ObjectSet<UUID> playersSeeingChunks = new ObjectOpenHashSet<>();
+    private final Bucket<FPlayer> players = BucketFactory.newHashSetBucket(18, PartitioningStrategies.lowestSize());
+
     private boolean useColor;
     private Object effect;
 
-    public SeeChunkTask() {
+    private int task = -1;
+
+    public static SeeChunkTask get() {
+        if (instance == null) {
+            synchronized (SeeChunkTask.class) {
+                if (instance == null) {
+                    instance = new SeeChunkTask();
+                }
+            }
+        }
+        return instance;
+    }
+
+    private SeeChunkTask() {}
+
+    public boolean isStarted() {
+        return this.task != -1;
+    }
+
+    public void start() {
         this.effect = FactionsPlugin.getInstance().getParticleProvider().effectFromString(FactionsPlugin.getInstance().conf().commands().seeChunk().getParticleName());
         this.useColor = FactionsPlugin.getInstance().conf().commands().seeChunk().isRelationalColor();
+        this.task = this.runTaskTimer(FactionsPlugin.getInstance(), 1L, 1L).getTaskId();
+    }
+
+    public boolean track(FPlayer fPlayer) {
+        return this.players.add(fPlayer);
+    }
+
+    public boolean untrack(FPlayer fPlayer, boolean deep) {
+        boolean removed = this.players.remove(fPlayer);
+        if (removed) {
+            VisualizeUtil.clear(fPlayer.getPlayer(), deep);
+        }
+        return removed;
     }
 
     @Override
     public void run() {
-        ObjectIterator<UUID> iterator = playersSeeingChunks.iterator();
-        while (iterator.hasNext()) {
-            UUID playerId = iterator.next();
-            Player player = Bukkit.getPlayer(playerId);
-            if (player == null) {
-                iterator.remove();
+        for (FPlayer fPlayer : this.players.asCycle().next()) {
+            if (!fPlayer.isSeeingChunk()) {
                 continue;
             }
-            FPlayer fme = FPlayers.getInstance().getByPlayer(player);
-            showPillars(player, fme, this.effect, useColor);
+            showPillars(Bukkit.getPlayer(fPlayer.getId()), fPlayer, this.effect, useColor);
         }
     }
 
-    @Deprecated
-    public void updatePlayerInfo(UUID uuid, boolean toggle) {
-        Player player = Bukkit.getPlayer(uuid);
-        if (player == null) {
-            return;
-        }
-        updatePlayerInfo(player, toggle);
-    }
-
-    public void updatePlayerInfo(Player player, boolean toggle) {
-        if (toggle) {
-            playersSeeingChunks.add(player.getUniqueId());
-        } else {
-            if (playersSeeingChunks.remove(player.getUniqueId())) {
-                VisualizeUtil.clear(player);
-            }
+    @Override
+    public void close() {
+        if (this.task != -1) {
+            Bukkit.getScheduler().cancelTask(this.task);
         }
     }
 
-    public static void showPillars(Player me, FPlayer fme, Object effect, boolean useColor) {
+    public void showPillars(Player me, FPlayer fme, Object effect, boolean useColor) {
         boolean hasEffect = effect != null;
         
         int x = fme.getLastStoodAt().getX();

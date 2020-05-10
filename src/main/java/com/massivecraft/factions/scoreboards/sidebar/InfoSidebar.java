@@ -9,11 +9,11 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 
 import java.util.List;
 
-public final class FInfoSidebar implements SidebarTextProvider {
+public final class InfoSidebar implements SidebarTextProvider {
 
     private Faction faction;
 
-    public FInfoSidebar(Faction faction) {
+    public InfoSidebar(Faction faction) {
         this.faction = faction;
     }
 

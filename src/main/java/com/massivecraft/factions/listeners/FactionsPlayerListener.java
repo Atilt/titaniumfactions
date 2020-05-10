@@ -12,9 +12,10 @@ import com.massivecraft.factions.gui.GUI;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
-import com.massivecraft.factions.scoreboards.FSidebarProvider;
+import com.massivecraft.factions.scoreboards.Sidebar;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.FlightUtil;
+import com.massivecraft.factions.util.SeeChunkTask;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
 import com.massivecraft.factions.util.VisualizeUtil;
@@ -126,7 +127,7 @@ public class FactionsPlayerListener extends AbstractListener {
         }.runTaskLater(FactionsPlugin.getInstance(), 33L); // Don't ask me why.
 
         if (FactionsPlugin.getInstance().conf().scoreboard().constant().isEnabled() && me.showScoreboard()) {
-            me.setTextProvider(FSidebarProvider.DEFAULT_SIDEBAR);
+            me.setTextProvider(Sidebar.DEFAULT_SIDEBAR);
             me.setShowScoreboard(true);
         }
 
@@ -146,8 +147,8 @@ public class FactionsPlayerListener extends AbstractListener {
             me.setFlying(false);
         }
 
-        if (FactionsPlugin.getInstance().getSeeChunkUtil() != null) {
-            FactionsPlugin.getInstance().getSeeChunkUtil().updatePlayerInfo(player, me.isSeeingChunk());
+        if (SeeChunkTask.get().isStarted() && me.isSeeingChunk()) {
+            SeeChunkTask.get().track(me);
         }
     }
 
@@ -174,7 +175,8 @@ public class FactionsPlayerListener extends AbstractListener {
 
         FPlayers.getInstance().removeOnline(me);
         FlightUtil.getInstance().untrack(me);
-        FSidebarProvider.get().untrack(me);
+        Sidebar.get().untrack(me);
+        SeeChunkTask.get().untrack(me, false);
 
         if (!myFaction.isWilderness()) {
             for (FPlayer player : myFaction.getFPlayersWhereOnline(true)) {
@@ -182,10 +184,6 @@ public class FactionsPlayerListener extends AbstractListener {
                     player.msg(TL.FACTION_LOGOUT, me.getName());
                 }
             }
-        }
-
-        if (FactionsPlugin.getInstance().getSeeChunkUtil() != null) {
-            FactionsPlugin.getInstance().getSeeChunkUtil().updatePlayerInfo(event.getPlayer(), false);
         }
         interactSpammers.remove(event.getPlayer().getName());
     }
@@ -209,7 +207,7 @@ public class FactionsPlayerListener extends AbstractListener {
 
         // clear visualization
         if (event.getFrom().getBlockX() != event.getTo().getBlockX() || event.getFrom().getBlockY() != event.getTo().getBlockY() || event.getFrom().getBlockZ() != event.getTo().getBlockZ()) {
-            VisualizeUtil.clear(event.getPlayer());
+            VisualizeUtil.clear(event.getPlayer(), true);
             if (me.isWarmingUp()) {
                 me.clearWarmup();
                 me.msg(TL.WARMUPS_CANCELLED);

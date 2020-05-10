@@ -19,15 +19,16 @@ import com.massivecraft.factions.landraidcontrol.PowerControl;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
-import com.massivecraft.factions.scoreboards.FSidebarProvider;
 import com.massivecraft.factions.scoreboards.FastBoard;
+import com.massivecraft.factions.scoreboards.Sidebar;
 import com.massivecraft.factions.scoreboards.SidebarTextProvider;
-import com.massivecraft.factions.scoreboards.sidebar.FInfoSidebar;
+import com.massivecraft.factions.scoreboards.sidebar.InfoSidebar;
 import com.massivecraft.factions.struct.ChatMode;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.tag.Tag;
 import com.massivecraft.factions.util.FastUUID;
 import com.massivecraft.factions.util.RelationUtil;
+import com.massivecraft.factions.util.SeeChunkTask;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
 import com.massivecraft.factions.util.TitleAPI;
@@ -634,10 +635,10 @@ public abstract class MemoryFPlayer implements FPlayer {
         }
 
         if (canSeeBoardFor(toShow)) {
-            if (this.provider == FSidebarProvider.DEFAULT_SIDEBAR) {
-                this.setTextProvider(new FInfoSidebar(toShow));
+            if (this.provider == Sidebar.DEFAULT_SIDEBAR) {
+                this.setTextProvider(new InfoSidebar(toShow));
             } else {
-                ((FInfoSidebar) this.provider).setFaction(toShow);
+                ((InfoSidebar) this.provider).setFaction(toShow);
             }
         }
         if (FactionsPlugin.getInstance().conf().factions().enterTitles().isAlsoShowChat()) {
@@ -674,7 +675,7 @@ public abstract class MemoryFPlayer implements FPlayer {
 
     @Override
     public void defaultTextProvider() {
-        this.provider = FSidebarProvider.DEFAULT_SIDEBAR;
+        this.provider = Sidebar.DEFAULT_SIDEBAR;
     }
 
     @Override
@@ -688,11 +689,11 @@ public abstract class MemoryFPlayer implements FPlayer {
             return;
         }
         this.showScoreboard = show;
-        if (show && FSidebarProvider.get().track(this)) {
+        if (show && Sidebar.get().track(this)) {
             this.scoreboard = new FastBoard(this.id);
             return;
         }
-        if (FSidebarProvider.get().untrack(this)) {
+        if (Sidebar.get().untrack(this)) {
             this.scoreboard.delete();
             this.scoreboard = null;
         }
@@ -1067,8 +1068,15 @@ public abstract class MemoryFPlayer implements FPlayer {
     }
 
     public void setSeeingChunk(boolean seeingChunk) {
+        if (this.seeingChunk == seeingChunk) {
+            return;
+        }
         this.seeingChunk = seeingChunk;
-        FactionsPlugin.getInstance().getSeeChunkUtil().updatePlayerInfo(getPlayer(), seeingChunk);
+        if (this.seeingChunk) {
+            SeeChunkTask.get().track(this);
+        } else {
+            SeeChunkTask.get().untrack(this, true);
+        }
     }
 
     public boolean getFlyTrailsState() {

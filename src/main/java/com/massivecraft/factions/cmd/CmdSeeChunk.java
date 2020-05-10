@@ -34,7 +34,7 @@ public class CmdSeeChunk extends FCommand {
             context.fPlayer.setSeeingChunk(toggle);
             context.msg(TL.COMMAND_SEECHUNK_TOGGLE, toggle ? "enabled" : "disabled");
         } else {
-            SeeChunkTask.showPillars(context.player, context.fPlayer, null, false);
+            SeeChunkTask.get().showPillars(context.player, context.fPlayer, null, false);
         }
     }
 

@@ -57,9 +57,10 @@ public final class MiscUtil {
 
     public static List<String> validateTag(String str) {
         ObjectList<String> errors = new ObjectArrayList<>();
+        String match = str.toLowerCase();
 
         for (String blacklistItem : FactionsPlugin.getInstance().conf().factions().other().getNameBlacklist()) {
-            if (str.toLowerCase().contains(blacklistItem.toLowerCase())) {
+            if (match.toLowerCase().contains(blacklistItem.toLowerCase())) {
                 errors.add(TextUtil.parse(TL.GENERIC_FACTIONTAG_BLACKLIST.toString()));
                 break;
             }

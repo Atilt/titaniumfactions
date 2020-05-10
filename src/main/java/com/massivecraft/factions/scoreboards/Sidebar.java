@@ -2,28 +2,28 @@ package com.massivecraft.factions.scoreboards;
 
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FactionsPlugin;
-import com.massivecraft.factions.scoreboards.sidebar.FDefaultSidebar;
+import com.massivecraft.factions.scoreboards.sidebar.DefaultSidebar;
 import me.lucko.helper.bucket.Bucket;
 import me.lucko.helper.bucket.factory.BucketFactory;
 import me.lucko.helper.bucket.partitioning.PartitioningStrategies;
 import org.bukkit.Bukkit;
 
-public class FSidebarProvider implements AutoCloseable {
+public class Sidebar implements AutoCloseable {
 
-    private static FSidebarProvider instance;
+    private static Sidebar instance;
 
     private int task = -1;
-    private Bucket<FPlayer> players = BucketFactory.newHashSetBucket(23, PartitioningStrategies.lowestSize());
+    private final Bucket<FPlayer> players = BucketFactory.newHashSetBucket(23, PartitioningStrategies.lowestSize());
 
-    public static final FDefaultSidebar DEFAULT_SIDEBAR = new FDefaultSidebar();
+    public static final DefaultSidebar DEFAULT_SIDEBAR = new DefaultSidebar();
 
-    private FSidebarProvider() {}
+    Sidebar() {}
 
-    public static FSidebarProvider get() {
+    public static Sidebar get() {
         if (instance == null) {
-            synchronized (FSidebarProvider.class) {
+            synchronized (Sidebar.class) {
                 if (instance == null) {
-                    instance = new FSidebarProvider();
+                    instance = new Sidebar();
                 }
             }
         }

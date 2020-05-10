@@ -40,7 +40,7 @@ import com.massivecraft.factions.metrics.Metrics;
 import com.massivecraft.factions.perms.Permissible;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.perms.PermissionsMapTypeAdapter;
-import com.massivecraft.factions.scoreboards.FSidebarProvider;
+import com.massivecraft.factions.scoreboards.Sidebar;
 import com.massivecraft.factions.struct.ChatMode;
 import com.massivecraft.factions.util.AutoLeaveTask;
 import com.massivecraft.factions.util.FlightUtil;
@@ -104,7 +104,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     private ConfigManager configManager = new ConfigManager();
 
-    private Integer saveTask = null;
     private boolean autoSave = true;
 
     private boolean loadDataSuccessful = false;
@@ -132,7 +131,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     private boolean mvdwPlaceholderAPIManager = false;
     private ObjectSet<String> pluginsHandlingChat = new ObjectOpenHashSet<>();
 
-    private SeeChunkTask seeChunkUtil;
     private ParticleProvider<?> particleProvider;
     private IWorldguard worldguard;
     private Set<EntityType> safeZoneNerfedCreatureTypes = EnumSet.noneOf(EntityType.class);
@@ -288,7 +286,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                 Bukkit.getPluginManager().registerEvents(new FactionsBlockListener(), this);
 
                 particleProvider = new PacketParticleProvider();
-                FSidebarProvider.get().start();
+                Sidebar.get().start();
 
 /*            // Run before initializing listeners to handle reloads properly.
             if (mcVersion < 1300) { // Before 1.13
@@ -298,12 +296,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             }*/
 
                 if (conf().commands().seeChunk().isParticles()) {
-                    double delay = Math.floor(conf().commands().seeChunk().getParticleUpdateTime() * 20);
-                    if (delay <= 0) {
-                        delay = 40;
-                    }
-                    seeChunkUtil = new SeeChunkTask();
-                    seeChunkUtil.runTaskTimer(this, 0, (long) delay);
+                    SeeChunkTask.get().start();
                 }
                 // End run before registering event handlers.
 
@@ -577,10 +570,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         return gson;
     }
 
-    public SeeChunkTask getSeeChunkUtil() {
-        return seeChunkUtil;
-    }
-
     public ParticleProvider getParticleProvider() {
         return particleProvider;
     }
@@ -713,7 +702,8 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             this.autoLeaveTask.close();
             this.autoLeaveTask = null;
         }
-        FSidebarProvider.get().close();
+        SeeChunkTask.get().close();
+        Sidebar.get().close();
         SaveTask.get().close();
         // only save data if plugin actually loaded successfully
         log("Saving data...");

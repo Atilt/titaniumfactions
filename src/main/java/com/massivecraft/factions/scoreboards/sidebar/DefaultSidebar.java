@@ -9,7 +9,7 @@ import it.unimi.dsi.fastutil.objects.ObjectLists;
 
 import java.util.List;
 
-public final class FDefaultSidebar implements SidebarTextProvider {
+public final class DefaultSidebar implements SidebarTextProvider {
 
     @Override
     public String getTitle(FPlayer fPlayer) {

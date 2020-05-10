@@ -60,7 +60,7 @@ public class FastBoard {
     private static final Object ENUM_SB_ACTION_REMOVE;
 
     private static final Function<Player, Object> PLAYER_TO_NMS;
-    private static final BiConsumer<Object, Object> SEND_PACKET;
+    private static final BiConsumer<Object, Object> SEND_PACKET = null;
 
     static {
         try {
@@ -68,6 +68,7 @@ public class FastBoard {
             Class<?> entityPlayerClass = ServerReflection.nmsClass("EntityPlayer");
             Class<?> playerConnectionClass = ServerReflection.nmsClass("PlayerConnection");
             Class<?> craftPlayerClass = ServerReflection.obcClass("entity.CraftPlayer");
+            Class<?> packetClass = ServerReflection.nmsClass("Packet");
 
             MESSAGE_FROM_STRING = craftChatMessageClass.getDeclaredMethod("fromString", String.class);
             CHAT_COMPONENT_CLASS = ServerReflection.nmsClass("IChatBaseComponent");
@@ -102,17 +103,17 @@ public class FastBoard {
             PLAYER_TO_NMS = (Function<Player, Object>) LambdaMetafactory.metafactory(lookup,
                     "apply",
                     MethodType.methodType(Function.class),
-                    MethodType.methodType(Player.class, Object.class),
+                    MethodType.methodType(Object.class, Object.class),
                     lookup.findVirtual(craftPlayerClass, "getHandle", MethodType.methodType(entityPlayerClass)),
                     MethodType.methodType(entityPlayerClass, craftPlayerClass)).getTarget().invokeExact();
 
             //playerConnection -> sendPacket
-            SEND_PACKET = (BiConsumer<Object, Object>) LambdaMetafactory.metafactory(lookup,
+/*            SEND_PACKET = (BiConsumer<Object, Object>) LambdaMetafactory.metafactory(lookup,
                     "accept",
                     MethodType.methodType(BiConsumer.class),
                     MethodType.methodType(Object.class, Object.class),
-                    lookup.findVirtual(playerConnectionClass, "sendPacket", MethodType.methodType(void.class, playerConnectionClass)),
-                    MethodType.methodType(void.class, playerConnectionClass)).getTarget().invokeExact();
+                    lookup.findVirtual(playerConnectionClass, "sendPacket", MethodType.methodType(packetClass)),
+                    MethodType.methodType(packetClass)).getTarget().invoke();*/
 
         } catch (Throwable exception) {
             throw new ExceptionInInitializerError(exception);
@@ -522,7 +523,7 @@ public class FastBoard {
         Object packet = PACKET_SB_TEAM.newInstance();
 
         setField(packet, String.class, id + ':' + score); // Team name
-        setField(packet, int.class, mode.ordinal(), FactionsPlugin.getInstance().getMCVersion() == MinecraftVersions.v1_8 ? 1 : 0); // Update mode
+        setField(packet, int.class, mode.ordinal(), 1); // Update mode
 
         if (mode == TeamMode.CREATE || mode == TeamMode.UPDATE) {
             String line = getLineByScore(score);
@@ -582,7 +583,10 @@ public class FastBoard {
         }
         Object entityPlayer = PLAYER_TO_NMS.apply(player);
         Object playerConnection = PLAYER_CONNECTION.get(entityPlayer);
-        SEND_PACKET.accept(playerConnection, packet);
+        Method method = playerConnection.getClass().getDeclaredMethod("sendPacket", ServerReflection.nmsClass("Packet"));
+        method.invoke(playerConnection, packet);
+
+        ///SEND_PACKET.accept(playerConnection, packet);
     }
 
     private void setField(Object object, Class<?> fieldType, Object value) throws ReflectiveOperationException {
