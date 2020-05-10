@@ -7,7 +7,6 @@ import com.massivecraft.factions.Factions;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.event.FactionRenameEvent;
 import com.massivecraft.factions.perms.Role;
-import com.massivecraft.factions.scoreboards.FTeamWrapper;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.MiscUtil;
 import com.massivecraft.factions.util.TL;
@@ -42,7 +41,7 @@ public class CmdTag extends FCommand {
         }
 
         List<String> errors = MiscUtil.validateTag(tag);
-        if (errors.size() > 0) {
+        if (!errors.isEmpty()) {
             context.sendMessage(errors);
             return;
         }
@@ -64,7 +63,6 @@ public class CmdTag extends FCommand {
             return;
         }
 
-        String oldtag = context.faction.getTag();
         context.faction.setTag(tag);
 
         // Inform
@@ -77,11 +75,9 @@ public class CmdTag extends FCommand {
             // Broadcast the tag change (if applicable)
             if (FactionsPlugin.getInstance().conf().factions().chat().isBroadcastTagChanges()) {
                 Faction faction = fplayer.getFaction();
-                fplayer.msg(TL.COMMAND_TAG_CHANGED, context.fPlayer.getColorTo(faction) + oldtag, context.faction.getTag(faction));
+                fplayer.msg(TL.COMMAND_TAG_CHANGED, context.fPlayer.getColorTo(faction) + context.faction.getTag(), context.faction.getTag(faction));
             }
         }
-
-        FTeamWrapper.updatePrefixes(context.faction);
     }
 
     @Override

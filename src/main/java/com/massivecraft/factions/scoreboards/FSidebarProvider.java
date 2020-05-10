@@ -1,41 +1,60 @@
 package com.massivecraft.factions.scoreboards;
 
 import com.massivecraft.factions.FPlayer;
-import com.massivecraft.factions.Faction;
-import com.massivecraft.factions.tag.Tag;
-import com.massivecraft.factions.util.TL;
-import com.massivecraft.factions.util.TextUtil;
+import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.scoreboards.sidebar.FDefaultSidebar;
+import me.lucko.helper.bucket.Bucket;
+import me.lucko.helper.bucket.factory.BucketFactory;
+import me.lucko.helper.bucket.partitioning.PartitioningStrategies;
+import org.bukkit.Bukkit;
 
-import java.util.List;
+public class FSidebarProvider implements AutoCloseable {
 
-public abstract class FSidebarProvider {
+    private static FSidebarProvider instance;
 
-    public abstract String getTitle(FPlayer fplayer);
+    private int task = -1;
+    private Bucket<FPlayer> players = BucketFactory.newHashSetBucket(23, PartitioningStrategies.lowestSize());
 
-    public abstract List<String> getLines(FPlayer fplayer);
+    public static final FDefaultSidebar DEFAULT_SIDEBAR = new FDefaultSidebar();
 
-    public String replaceTags(FPlayer fPlayer, String s) {
-        s = Tag.parsePlaceholders(fPlayer.getPlayer(), s);
+    private FSidebarProvider() {}
 
-        return qualityAssure(Tag.parsePlain(fPlayer, s));
+    public static FSidebarProvider get() {
+        if (instance == null) {
+            synchronized (FSidebarProvider.class) {
+                if (instance == null) {
+                    instance = new FSidebarProvider();
+                }
+            }
+        }
+        return instance;
     }
 
-    public String replaceTags(Faction faction, FPlayer fPlayer, String s) {
-        // Run through Placeholder API first
-        s = Tag.parsePlaceholders(fPlayer.getPlayer(), s);
-
-        return qualityAssure(Tag.parsePlain(faction, fPlayer, s));
+    public void start() {
+        this.task = Bukkit.getScheduler().runTaskTimer(FactionsPlugin.getInstance(), () -> {
+            for (FPlayer fPlayer : players.asCycle().next()) {
+                FastBoard fastBoard = fPlayer.getScoreboard();
+                if (fastBoard == null) {
+                    continue;
+                }
+                fastBoard.updateTitle(fPlayer);
+                fastBoard.updateLines(fPlayer);
+            }
+        }, 1L, 1L).getTaskId();
     }
 
-    private String qualityAssure(String line) {
-        if (line.contains("{notFrozen}") || line.contains("{notPermanent}")) {
-            return "n/a"; // we dont support support these error variables in scoreboards
+    public boolean track(FPlayer fPlayer) {
+        return this.players.add(fPlayer);
+    }
+
+    public boolean untrack(FPlayer fPlayer) {
+        return this.players.remove(fPlayer);
+    }
+
+    @Override
+    public void close() {
+        if (this.task != -1) {
+            Bukkit.getScheduler().cancelTask(this.task);
         }
-        if (line.contains("{ig}")) {
-            // since you can't really fit a whole "Faction Home: world, x, y, z" on one line
-            // we assume it's broken up into two lines, so returning our tl will suffice.
-            return TL.COMMAND_SHOW_NOHOME.toString();
-        }
-        return TextUtil.parse(line); // finally add color :)
     }
 }

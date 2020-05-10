@@ -9,7 +9,6 @@ import com.massivecraft.factions.event.FactionRelationEvent;
 import com.massivecraft.factions.event.FactionRelationWishEvent;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
-import com.massivecraft.factions.scoreboards.FTeamWrapper;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
 import org.bukkit.Bukkit;
@@ -101,9 +100,6 @@ public abstract class FRelationCommand extends FCommand {
             them.msg(TL.COMMAND_RELATIONS_PEACEFULOTHER);
             context.faction.msg(TL.COMMAND_RELATIONS_PEACEFUL);
         }
-
-        FTeamWrapper.updatePrefixes(context.faction);
-        FTeamWrapper.updatePrefixes(them);
     }
 
     private boolean hasMaxRelations(Faction them, Relation targetRelation, CommandContext context) {

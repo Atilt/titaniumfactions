@@ -7,6 +7,7 @@ import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.struct.ChatMode;
+import com.massivecraft.factions.util.TextUtil;
 import com.massivecraft.factions.util.WorldUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -107,7 +108,7 @@ public class FactionsChatListener implements Listener {
         }
     }
 
-    // this is for handling insertion of the player's faction tag, set at highest priority to give other plugins a chance to modify chat first
+        // this is for handling insertion of the player's faction tag, set at highest priority to give other plugins a chance to modify chat first
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         if (!WorldUtil.isEnabled(event.getPlayer().getWorld())) {
@@ -131,11 +132,9 @@ public class FactionsChatListener implements Listener {
 
         if (!FactionsPlugin.getInstance().conf().factions().chat().getTagReplaceString().isEmpty() && eventFormat.contains(FactionsPlugin.getInstance().conf().factions().chat().getTagReplaceString())) {
             // we're using the "replace" method of inserting the faction tags
-            if (eventFormat.contains("[FACTION_TITLE]")) {
-                eventFormat = eventFormat.replace("[FACTION_TITLE]", me.getTitle());
-            }
+            eventFormat = TextUtil.replace(eventFormat, "[FACTION_TITLE]", me.getTitle());
             InsertIndex = eventFormat.indexOf(FactionsPlugin.getInstance().conf().factions().chat().getTagReplaceString());
-            eventFormat = eventFormat.replace(FactionsPlugin.getInstance().conf().factions().chat().getTagReplaceString(), "");
+            eventFormat = TextUtil.replace(eventFormat, FactionsPlugin.getInstance().conf().factions().chat().getTagReplaceString(), "");
             padBefore = false;
             padAfter = false;
         } else if (!FactionsPlugin.getInstance().conf().factions().chat().getTagInsertAfterString().isEmpty() && eventFormat.contains(FactionsPlugin.getInstance().conf().factions().chat().getTagInsertAfterString())) {

@@ -19,7 +19,9 @@ import com.massivecraft.factions.landraidcontrol.PowerControl;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
-import com.massivecraft.factions.scoreboards.FScoreboard;
+import com.massivecraft.factions.scoreboards.FSidebarProvider;
+import com.massivecraft.factions.scoreboards.FastBoard;
+import com.massivecraft.factions.scoreboards.SidebarTextProvider;
 import com.massivecraft.factions.scoreboards.sidebar.FInfoSidebar;
 import com.massivecraft.factions.struct.ChatMode;
 import com.massivecraft.factions.struct.Permission;
@@ -90,6 +92,8 @@ public abstract class MemoryFPlayer implements FPlayer {
 
     protected boolean seeingChunk = false;
 
+    private transient SidebarTextProvider provider;
+    private transient FastBoard scoreboard;
     protected transient FLocation lastStoodAt = FLocation.empty(); // Where did this player stand the last time we checked?
     protected transient boolean mapAutoUpdating;
     protected transient Faction autoClaimFor;
@@ -629,8 +633,12 @@ public abstract class MemoryFPlayer implements FPlayer {
             TitleAPI.get().sendTitle(player, title, sub, in, stay, out);
         }
 
-        if (showInfoBoard(toShow)) {
-            FScoreboard.get(this).setTemporarySidebar(new FInfoSidebar(toShow));
+        if (canSeeBoardFor(toShow)) {
+            if (this.provider == FSidebarProvider.DEFAULT_SIDEBAR) {
+                this.setTextProvider(new FInfoSidebar(toShow));
+            } else {
+                ((FInfoSidebar) this.provider).setFaction(toShow);
+            }
         }
         if (FactionsPlugin.getInstance().conf().factions().enterTitles().isAlsoShowChat()) {
             this.sendMessage(TextUtil.parse(TL.FACTION_LEAVE.format(from.getTag(this), toShow.getTag(this))));
@@ -643,8 +651,30 @@ public abstract class MemoryFPlayer implements FPlayer {
      * @param toShow Faction to be shown.
      * @return true if should show, otherwise false.
      */
-    public boolean showInfoBoard(Faction toShow) {
-        return showScoreboard && !toShow.isWarZone() && !toShow.isWilderness() && !toShow.isSafeZone() && FactionsPlugin.getInstance().conf().scoreboard().info().isEnabled() && FScoreboard.get(this) != null;
+    public boolean canSeeBoardFor(Faction toShow) {
+        return this.showScoreboard &&
+                toShow.isNormal() &&
+                FactionsPlugin.getInstance().conf().scoreboard().info().isEnabled();
+    }
+
+    @Override
+    public FastBoard getScoreboard() {
+        return this.scoreboard;
+    }
+
+    @Override
+    public SidebarTextProvider getScoreboardTextProvider() {
+        return this.provider;
+    }
+
+    @Override
+    public void setTextProvider(SidebarTextProvider provider) {
+        this.provider = provider;
+    }
+
+    @Override
+    public void defaultTextProvider() {
+        this.provider = FSidebarProvider.DEFAULT_SIDEBAR;
     }
 
     @Override
@@ -654,7 +684,17 @@ public abstract class MemoryFPlayer implements FPlayer {
 
     @Override
     public void setShowScoreboard(boolean show) {
+        if (show == this.showScoreboard) {
+            return;
+        }
         this.showScoreboard = show;
+        if (show && FSidebarProvider.get().track(this)) {
+            this.scoreboard = new FastBoard(this.id);
+            return;
+        }
+        if (FSidebarProvider.get().untrack(this)) {
+            this.scoreboard = null;
+        }
     }
 
     public void leave(boolean makePay) {
@@ -717,15 +757,12 @@ public abstract class MemoryFPlayer implements FPlayer {
         this.resetFactionData();
         setFlying(false, false);
 
-        System.out.println("HERE IGGA");
-
         if (myFaction.isNormal() && !perm && myFaction.getFPlayers().isEmpty()) {
             // Remove this faction
             for (FPlayer fplayer : FPlayers.getInstance().getOnlinePlayers()) {
                 fplayer.msg(TL.LEAVE_DISBANDED, myFaction.describeTo(fplayer, true));
             }
 
-            System.out.println("GOT DISBANDED WTF!?!??!");
             Factions.getInstance().removeFaction(myFaction.getIdRaw());
             if (FactionsPlugin.getInstance().conf().logging().isFactionDisband()) {
                 FactionsPlugin.getInstance().log(TL.LEAVE_DISBANDEDLOG.format(myFaction.getTag(), myFaction.getIdRaw(), this.getName()));

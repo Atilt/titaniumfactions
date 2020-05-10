@@ -3,6 +3,8 @@ package com.massivecraft.factions;
 import com.massivecraft.factions.iface.EconomyParticipator;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
+import com.massivecraft.factions.scoreboards.FastBoard;
+import com.massivecraft.factions.scoreboards.SidebarTextProvider;
 import com.massivecraft.factions.struct.ChatMode;
 import com.massivecraft.factions.util.WarmUpUtil;
 import net.kyori.text.TextComponent;
@@ -26,6 +28,7 @@ import java.util.UUID;
  */
 
 public interface FPlayer extends EconomyParticipator, Comparable<FPlayer> {
+
     void login();
 
     void logout();
@@ -93,6 +96,14 @@ public interface FPlayer extends EconomyParticipator, Comparable<FPlayer> {
     void setSpyingChat(boolean chatSpying);
 
     boolean isSpyingChat();
+
+    FastBoard getScoreboard();
+
+    SidebarTextProvider getScoreboardTextProvider();
+
+    void setTextProvider(SidebarTextProvider provider);
+
+    void defaultTextProvider();
 
     boolean showScoreboard();
 

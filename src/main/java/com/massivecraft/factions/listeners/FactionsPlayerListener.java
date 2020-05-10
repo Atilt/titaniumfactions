@@ -8,15 +8,11 @@ import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.Factions;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.data.MemoryFPlayer;
-import com.massivecraft.factions.event.FPlayerJoinEvent;
-import com.massivecraft.factions.event.FPlayerLeaveEvent;
 import com.massivecraft.factions.gui.GUI;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
-import com.massivecraft.factions.scoreboards.FScoreboard;
-import com.massivecraft.factions.scoreboards.FTeamWrapper;
-import com.massivecraft.factions.scoreboards.sidebar.FDefaultSidebar;
+import com.massivecraft.factions.scoreboards.FSidebarProvider;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.FlightUtil;
 import com.massivecraft.factions.util.TL;
@@ -29,6 +25,7 @@ import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import me.lucko.helper.reflect.MinecraftVersions;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -46,7 +43,6 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -84,12 +80,12 @@ public class FactionsPlayerListener extends AbstractListener {
     }
 
     private void initPlayer(Player player) {
-/*        if (!this.FactionsPlugin.getInstance().isFinishedLoading()) {
-            Bukkit.getScheduler().runTaskLater(this.plugin, () -> player.kickPlayer(TL.FACTIONS_DATA_LOADING.toString()), 2L);
+        if (!Bukkit.getOnlineMode() && !FactionsPlugin.getInstance().isFinishedLoading()) {
+            Bukkit.getScheduler().runTaskLater(FactionsPlugin.getInstance(), () -> player.kickPlayer(TL.FACTIONS_DATA_LOADING.toString()), 2L);
             return;
-        }*/
+        }
         // Make sure that all online players do have a fplayer.
-        final FPlayer me = FPlayers.getInstance().getByPlayer(player);
+        FPlayer me = FPlayers.getInstance().getByPlayer(player);
         ((MemoryFPlayer) me).setName(player.getName());
 
         FactionsPlugin.getInstance().getLandRaidControl().onJoin(me);
@@ -129,10 +125,9 @@ public class FactionsPlayerListener extends AbstractListener {
             }
         }.runTaskLater(FactionsPlugin.getInstance(), 33L); // Don't ask me why.
 
-        if (FactionsPlugin.getInstance().conf().scoreboard().constant().isEnabled()) {
-            FScoreboard fScoreboard = FScoreboard.init(me);
-            fScoreboard.setDefaultSidebar(new FDefaultSidebar());
-            fScoreboard.setSidebarVisibility(me.showScoreboard());
+        if (FactionsPlugin.getInstance().conf().scoreboard().constant().isEnabled() && me.showScoreboard()) {
+            me.setTextProvider(FSidebarProvider.DEFAULT_SIDEBAR);
+            me.setShowScoreboard(true);
         }
 
         Faction myFaction = me.getFaction();
@@ -167,9 +162,9 @@ public class FactionsPlayerListener extends AbstractListener {
         me.logout(); // cache kills / deaths
 
         // if player is waiting for fstuck teleport but leaves, remove
-        if (FactionsPlugin.getInstance().getStuckMap().remove(me.getPlayer().getUniqueId()) != null) {
-            FPlayers.getInstance().getByPlayer(me.getPlayer()).msg(TL.COMMAND_STUCK_CANCELLED);
-            FactionsPlugin.getInstance().getTimers().remove(me.getPlayer().getUniqueId());
+        if (FactionsPlugin.getInstance().getStuckMap().remove(me.getId()) != null) {
+            me.msg(TL.COMMAND_STUCK_CANCELLED);
+            FactionsPlugin.getInstance().getTimers().remove(me.getId());
         }
 
         Faction myFaction = me.getFaction();
@@ -179,6 +174,7 @@ public class FactionsPlayerListener extends AbstractListener {
 
         FPlayers.getInstance().removeOnline(me);
         FlightUtil.getInstance().untrack(me);
+        FSidebarProvider.get().untrack(me);
 
         if (!myFaction.isWilderness()) {
             for (FPlayer player : myFaction.getFPlayersWhereOnline(true)) {
@@ -188,11 +184,10 @@ public class FactionsPlayerListener extends AbstractListener {
             }
         }
 
-        FScoreboard.remove(me, event.getPlayer());
-
         if (FactionsPlugin.getInstance().getSeeChunkUtil() != null) {
             FactionsPlugin.getInstance().getSeeChunkUtil().updatePlayerInfo(event.getPlayer(), false);
         }
+        interactSpammers.remove(event.getPlayer().getName());
     }
 
     // Holds the next time a player can have a map shown.
@@ -522,7 +517,7 @@ public class FactionsPlayerListener extends AbstractListener {
         FPlayer me = FPlayers.getInstance().getByPlayer(event.getPlayer());
         boolean isEnabled = WorldUtil.isEnabled(event.getTo().getWorld());
         if (!isEnabled) {
-            FScoreboard.remove(me, event.getPlayer());
+            me.setShowScoreboard(false);
             if (me.isFlying()) {
                 me.setFlying(false);
             }
@@ -698,16 +693,6 @@ public class FactionsPlayerListener extends AbstractListener {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    final public void onFactionJoin(FPlayerJoinEvent event) {
-        FTeamWrapper.applyUpdatesLater(event.getFaction());
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onFactionLeave(FPlayerLeaveEvent event) {
-        FTeamWrapper.applyUpdatesLater(event.getFaction());
-    }
-
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
         if (!WorldUtil.isEnabled(event.getPlayer().getWorld())) {
@@ -720,10 +705,5 @@ public class FactionsPlayerListener extends AbstractListener {
             }
             event.setCancelled(true);
         }
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onPlayerPreLogin(PlayerLoginEvent event) {
-        FPlayers.getInstance().getByPlayer(event.getPlayer());
     }
 }

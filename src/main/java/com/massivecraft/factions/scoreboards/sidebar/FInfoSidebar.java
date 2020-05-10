@@ -3,42 +3,40 @@ package com.massivecraft.factions.scoreboards.sidebar;
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.FactionsPlugin;
-import com.massivecraft.factions.scoreboards.FSidebarProvider;
+import com.massivecraft.factions.scoreboards.SidebarTextProvider;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
 
-public class FInfoSidebar extends FSidebarProvider {
-    private final Faction faction;
+public final class FInfoSidebar implements SidebarTextProvider {
+
+    private Faction faction;
 
     public FInfoSidebar(Faction faction) {
         this.faction = faction;
     }
 
     @Override
-    public String getTitle(FPlayer fplayer) {
-        return replaceTags(this.faction, fplayer, FactionsPlugin.getInstance().conf().scoreboard().info().getTitle());
+    public String getTitle(FPlayer fPlayer) {
+        return SidebarTextProvider.replaceTags(this.faction, fPlayer, FactionsPlugin.getInstance().conf().scoreboard().info().getTitle());
     }
 
     @Override
-    public List<String> getLines(FPlayer fplayer) {
-        List<String> lines = new ArrayList<>(FactionsPlugin.getInstance().conf().scoreboard().info().getContent());
-
-        ListIterator<String> it = lines.listIterator();
-        while (it.hasNext()) {
-            String next = it.next();
-            if (next == null) {
-                it.remove();
+    public List<String> getText(FPlayer fPlayer) {
+        List<String> content = FactionsPlugin.getInstance().conf().scoreboard().info().getContent();
+        ObjectList<String> lines = new ObjectArrayList<>(content.size());
+        for (String line : content) {
+            String replaced = SidebarTextProvider.replaceTags(fPlayer, line);
+            if (replaced == null) {
                 continue;
             }
-            String replaced = replaceTags(faction, fplayer, next);
-            if (replaced == null) {
-                it.remove();
-            } else {
-                it.set(replaced);
-            }
+            lines.add(replaced);
         }
         return lines;
+    }
+
+    public void setFaction(Faction faction) {
+        this.faction = faction;
     }
 }

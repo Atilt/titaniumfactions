@@ -2,51 +2,43 @@ package com.massivecraft.factions.scoreboards.sidebar;
 
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FactionsPlugin;
-import com.massivecraft.factions.scoreboards.FSidebarProvider;
+import com.massivecraft.factions.scoreboards.SidebarTextProvider;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 
 import java.util.List;
-import java.util.ListIterator;
 
-public class FDefaultSidebar extends FSidebarProvider {
+public final class FDefaultSidebar implements SidebarTextProvider {
 
     @Override
-    public String getTitle(FPlayer fplayer) {
-        if (FactionsPlugin.getInstance().conf().scoreboard().constant().isFactionlessEnabled() && !fplayer.hasFaction()) {
-            return replaceTags(fplayer, FactionsPlugin.getInstance().conf().scoreboard().constant().getFactionlessTitle());
+    public String getTitle(FPlayer fPlayer) {
+        if (FactionsPlugin.getInstance().conf().scoreboard().constant().isFactionlessEnabled() && !fPlayer.hasFaction()) {
+            return SidebarTextProvider.replaceTags(fPlayer, FactionsPlugin.getInstance().conf().scoreboard().constant().getFactionlessTitle());
         }
-        return replaceTags(fplayer, FactionsPlugin.getInstance().conf().scoreboard().constant().getTitle());
+        return SidebarTextProvider.replaceTags(fPlayer, FactionsPlugin.getInstance().conf().scoreboard().constant().getTitle());
     }
 
     @Override
-    public List<String> getLines(FPlayer fplayer) {
-        if (FactionsPlugin.getInstance().conf().scoreboard().constant().isFactionlessEnabled() && !fplayer.hasFaction()) {
-            return getOutput(fplayer, FactionsPlugin.getInstance().conf().scoreboard().constant().getFactionlessContent());
+    public List<String> getText(FPlayer fPlayer) {
+        if (FactionsPlugin.getInstance().conf().scoreboard().constant().isFactionlessEnabled() && !fPlayer.hasFaction()) {
+            return format(fPlayer, FactionsPlugin.getInstance().conf().scoreboard().constant().getFactionlessContent());
         }
-        return getOutput(fplayer, FactionsPlugin.getInstance().conf().scoreboard().constant().getContent());
+        return format(fPlayer, FactionsPlugin.getInstance().conf().scoreboard().constant().getContent());
     }
 
-    public List<String> getOutput(FPlayer fplayer, List<String> lines) {
+    private List<String> format(FPlayer fPlayer, List<String> lines) {
         if (lines == null || lines.isEmpty()) {
-            return new ObjectArrayList<>(0);
+            return ObjectLists.emptyList();
         }
-
-        lines = new ObjectArrayList<>(lines);
-
-        ListIterator<String> it = lines.listIterator();
-        while (it.hasNext()) {
-            String next = it.next();
-            if (next == null) {
-                it.remove();
+        ObjectList<String> formatted = new ObjectArrayList<>(lines.size());
+        for (String line : lines) {
+            String replaced = SidebarTextProvider.replaceTags(fPlayer, line);
+            if (replaced == null) {
                 continue;
             }
-            String replaced = replaceTags(fplayer, next);
-            if (replaced == null) {
-                it.remove();
-            } else {
-                it.set(replaced);
-            }
+            formatted.add(replaced);
         }
-        return lines;
+        return formatted;
     }
 }

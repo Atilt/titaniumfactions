@@ -40,6 +40,7 @@ import com.massivecraft.factions.metrics.Metrics;
 import com.massivecraft.factions.perms.Permissible;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.perms.PermissionsMapTypeAdapter;
+import com.massivecraft.factions.scoreboards.FSidebarProvider;
 import com.massivecraft.factions.struct.ChatMode;
 import com.massivecraft.factions.util.AutoLeaveTask;
 import com.massivecraft.factions.util.FlightUtil;
@@ -287,6 +288,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                 Bukkit.getPluginManager().registerEvents(new FactionsBlockListener(), this);
 
                 particleProvider = new PacketParticleProvider();
+                FSidebarProvider.get().start();
 
 /*            // Run before initializing listeners to handle reloads properly.
             if (mcVersion < 1300) { // Before 1.13
@@ -711,6 +713,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             this.autoLeaveTask.close();
             this.autoLeaveTask = null;
         }
+        FSidebarProvider.get().close();
         SaveTask.get().close();
         // only save data if plugin actually loaded successfully
         log("Saving data...");

@@ -1,22 +1,38 @@
 package com.massivecraft.factions.tag;
 
+import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
-import org.bukkit.Bukkit;
 
 import java.util.function.Supplier;
 
 public enum GeneralTag implements Tag {
-    MAX_WARPS("max-warps", () -> String.valueOf(FactionsPlugin.getInstance().conf().commands().warp().getMaxWarps())),
+    MAX_WARPS("max-warps", () -> Integer.toString(FactionsPlugin.getInstance().conf().commands().warp().getMaxWarps())),
     MAX_ALLIES("max-allies", () -> getRelation(Relation.ALLY)),
     MAX_ENEMIES("max-enemies", () -> getRelation(Relation.ENEMY)),
     MAX_TRUCES("max-truces", () -> getRelation(Relation.TRUCE)),
-    FACTIONLESS("factionless", () -> String.valueOf(FPlayers.getInstance().getOnlinePlayers().stream().filter(p -> !p.hasFaction()).count())),
-    FACTIONLESS_TOTAL("factionless-total", () -> String.valueOf(FPlayers.getInstance().getAllFPlayers().stream().filter(p -> !p.hasFaction()).count())),
-    TOTAL_ONLINE("total-online", () -> String.valueOf(Bukkit.getOnlinePlayers().size())),
+    FACTIONLESS("factionless", () -> {
+        int count = 0;
+        for (FPlayer onlinePlayer : FPlayers.getInstance().getOnlinePlayers()) {
+            if (!onlinePlayer.hasFaction()) {
+                count++;
+            }
+        }
+        return Integer.toString(count);
+    }),
+    FACTIONLESS_TOTAL("factionless-total", () -> {
+        int count = 0;
+        for (FPlayer fPlayer : FPlayers.getInstance().getAllFPlayers()) {
+            if (!fPlayer.hasFaction()) {
+                count++;
+            }
+        }
+        return Integer.toString(count);
+    }),
+    TOTAL_ONLINE("total-online", () -> Integer.toString(FPlayers.getInstance().size())),
     ;
 
     private final String tag;
@@ -24,7 +40,7 @@ public enum GeneralTag implements Tag {
 
     private static String getRelation(Relation relation) {
         if (FactionsPlugin.getInstance().conf().factions().maxRelations().isEnabled()) {
-            return String.valueOf(relation.getMax());
+            return Integer.toString(relation.getMax());
         }
         return TL.GENERIC_INFINITY.toString();
     }
