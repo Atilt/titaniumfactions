@@ -57,6 +57,7 @@ COMMAND:
     DISABLELOG: はチャットスパイモードで出た
   CLAIM:
     INVALIDRADIUS: <b>半径を指定しますなら１以上を指定して下さい・
+    MAXRADIUS: <b>半径を指定する場合は、100以下にする必要があります。
     DENIED: <b>半径で引き取る許可がありません・
   CONFIG:
     NOEXIST: <b>設定オプション"<h>%s<b>"はありません・

@@ -819,7 +819,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     }
 
     public int getSize() {
-        return fplayers.size();
+        return this.fplayers.size();
     }
 
     public Set<FPlayer> getFPlayers() {

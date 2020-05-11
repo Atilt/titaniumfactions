@@ -2,6 +2,7 @@ package com.massivecraft.factions.util;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import net.kyori.text.TextComponent;
 import org.bukkit.ChatColor;
 
@@ -28,10 +29,6 @@ public class AsciiCompass {
 
         Point(char asciiChar) {
             this.asciiChar = asciiChar;
-        }
-
-        public char getAsciiChar() {
-            return this.asciiChar;
         }
 
         public Point getOppositePoint() {
@@ -61,16 +58,16 @@ public class AsciiCompass {
         }
 
         public String getTranslation() {
-            if (this == N) {
+            if (this == Point.N) {
                 return TL.COMPASS_SHORT_NORTH.toString();
             }
-            if (this == E) {
+            if (this == Point.E) {
                 return TL.COMPASS_SHORT_EAST.toString();
             }
-            if (this == S) {
+            if (this == Point.S) {
                 return TL.COMPASS_SHORT_SOUTH.toString();
             }
-            if (this == W) {
+            if (this == Point.W) {
                 return TL.COMPASS_SHORT_WEST.toString();
             }
             return toString();
@@ -79,12 +76,11 @@ public class AsciiCompass {
         public String toString(boolean isActive, ChatColor ACTIVE_COLOR, String colorDefault) {
             return (isActive ? ACTIVE_COLOR : colorDefault) + getTranslation();
         }
-    }
 
-    public static Point getDirection(float degrees) {
-        return Point.VALUES[Math.round(degrees / 45.0f) & 0x7].getOppositePoint();
+        public static Point fromAngle(float degrees) {
+            return VALUES[Math.round(degrees / 45.0f) & 0x7].getOppositePoint();
+        }
     }
-
     /**
      *  \ N /
      *  W + E
@@ -130,10 +126,10 @@ public class AsciiCompass {
     }
 
     private static List<TextComponent> get(Point point) {
-        return point == null ? new ObjectArrayList<>(0) : COMPASSES.get(point);
+        return point == null ? ObjectLists.emptyList() : COMPASSES.get(point);
     }
 
     public static List<TextComponent> get(float degrees) {
-        return get(getDirection(degrees));
+        return get(Point.fromAngle(degrees));
     }
 }

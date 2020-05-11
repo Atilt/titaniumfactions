@@ -177,7 +177,7 @@ public abstract class FCommand {
 
         ret.append(TextUtil.implode(this.aliases, ","));
 
-        ObjectList<String> args = new ObjectArrayList<>();
+        ObjectList<String> args = new ObjectArrayList<>(this.requiredArgs.size() + this.optionalArgs.size());
 
         for (String requiredArg : this.requiredArgs) {
             args.add("<" + requiredArg + ">");
@@ -185,12 +185,7 @@ public abstract class FCommand {
 
         for (Map.Entry<String, String> optionalArg : this.optionalArgs.entrySet()) {
             String val = optionalArg.getValue();
-            if (val == null) {
-                val = "";
-            } else {
-                val = "=" + val;
-            }
-            args.add("[" + optionalArg.getKey() + val + "]");
+            args.add("[" + optionalArg.getKey() + (val == null ? "" : "=" + val) + "]");
         }
 
         if (args.size() > 0) {

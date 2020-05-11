@@ -143,7 +143,7 @@ public class ClipPlaceholderAPIManager extends PlaceholderExpansion implements R
             case "faction_description":
                 return faction.getDescription();
             case "faction_claims":
-                return String.valueOf(faction.getAllClaims().size());
+                return Integer.toString(faction.getAllClaims().size());
             case "faction_founded":
                 return TL.sdf.format(faction.getFoundedDate());
             case "faction_joining":
@@ -157,7 +157,7 @@ public class ClipPlaceholderAPIManager extends PlaceholderExpansion implements R
                 FPlayer fAdmin = faction.getFPlayerAdmin();
                 return fAdmin == null ? "Server" : fAdmin.getName().substring(0, fAdmin.getName().length() > 14 ? 13 : fAdmin.getName().length());
             case "faction_warps":
-                return String.valueOf(faction.getWarps().size());
+                return Integer.toString(faction.getWarps().size());
             case "faction_raidable":
                 boolean raid = FactionsPlugin.getInstance().getLandRaidControl().isRaidable(faction);
                 return raid ? TL.RAIDABLE_TRUE.toString() : TL.RAIDABLE_FALSE.toString();
@@ -228,10 +228,8 @@ public class ClipPlaceholderAPIManager extends PlaceholderExpansion implements R
             if (faction.getRelationTo(f) == relation) {
                 if (status == null) {
                     count += faction.getFPlayers().size();
-                } else if (status) {
-                    count += faction.getFPlayersWhereOnline(true, player).size();
                 } else {
-                    count += faction.getFPlayersWhereOnline(false, player).size();
+                    count += faction.getFPlayersWhereOnline(status, player).size();
                 }
             }
         }

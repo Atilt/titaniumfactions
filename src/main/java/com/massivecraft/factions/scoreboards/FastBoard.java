@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 /**
@@ -41,6 +40,7 @@ public class FastBoard {
 
     // Packets sending
     private static final Field PLAYER_CONNECTION;
+    private static final Method SEND_PACKET;
 
     // Chat components
     private static final Class<?> CHAT_COMPONENT_CLASS;
@@ -60,7 +60,7 @@ public class FastBoard {
     private static final Object ENUM_SB_ACTION_REMOVE;
 
     private static final Function<Player, Object> PLAYER_TO_NMS;
-    private static final BiConsumer<Object, Object> SEND_PACKET = null;
+    //private static final BiConsumer<Object, Object> SEND_PACKET = null;
 
     static {
         try {
@@ -74,6 +74,7 @@ public class FastBoard {
             CHAT_COMPONENT_CLASS = ServerReflection.nmsClass("IChatBaseComponent");
 
             PLAYER_CONNECTION = entityPlayerClass.getDeclaredField("playerConnection");
+            SEND_PACKET = entityPlayerClass.getDeclaredMethod("sendPacket", packetClass);
 
             PACKET_SB_OBJ = ServerReflection.nmsClass("PacketPlayOutScoreboardObjective").getConstructor();
             PACKET_SB_DISPLAY_OBJ = ServerReflection.nmsClass("PacketPlayOutScoreboardDisplayObjective").getConstructor();
@@ -583,8 +584,7 @@ public class FastBoard {
         }
         Object entityPlayer = PLAYER_TO_NMS.apply(player);
         Object playerConnection = PLAYER_CONNECTION.get(entityPlayer);
-        Method method = playerConnection.getClass().getDeclaredMethod("sendPacket", ServerReflection.nmsClass("Packet"));
-        method.invoke(playerConnection, packet);
+        SEND_PACKET.invoke(playerConnection, packet);
 
         ///SEND_PACKET.accept(playerConnection, packet);
     }

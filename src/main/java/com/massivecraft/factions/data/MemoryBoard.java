@@ -368,12 +368,12 @@ public abstract class MemoryBoard extends Board {
     // H x W
     //17 and 49
     //or 17 and 46
-    public List<TextComponent> getMap(FPlayer fplayer, FLocation flocation, double inDegrees) {
+    public List<TextComponent> getMap(FPlayer fplayer, FLocation flocation, double degrees) {
         ObjectList<TextComponent> lines = new ObjectArrayList<>(3);
 
         lines.add(TextComponent.of(TextUtil.titleize("(" + flocation.getCoordString() + ") " + this.getFactionAt(flocation).getTag(fplayer))));
 
-        List<TextComponent> compass = AsciiCompass.get((float) inDegrees);
+        List<TextComponent> compass = AsciiCompass.get((float) degrees);
 
         int height = fplayer.getMapHeight();
         int width = FactionsPlugin.getInstance().conf().map().getWidth();

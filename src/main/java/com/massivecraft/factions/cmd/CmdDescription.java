@@ -8,7 +8,11 @@ import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
 
+import java.util.regex.Pattern;
+
 public class CmdDescription extends FCommand {
+
+    private static final Pattern DESCRIPTION_PATTERN = Pattern.compile("(&([a-f0-9klmnor]))");
 
     public CmdDescription() {
         super();
@@ -34,7 +38,7 @@ public class CmdDescription extends FCommand {
 
         // since "&" color tags seem to work even through plain old FPlayer.sendMessage() for some reason, we need to break those up
         // And replace all the % because it messes with string formatting and this is easy way around that.
-        context.faction.setDescription(TextUtil.implode(context.args, " ").replaceAll("%", "").replaceAll("(&([a-f0-9klmnor]))", "& $2"));
+        context.faction.setDescription(DESCRIPTION_PATTERN.matcher(TextUtil.implode(context.args, " ").replace("%", "")).replaceAll("& $2"));
 
         if (!FactionsPlugin.getInstance().conf().factions().chat().isBroadcastDescriptionChanges()) {
             context.fPlayer.msg(TL.COMMAND_DESCRIPTION_CHANGED, context.faction.describeTo(context.fPlayer));

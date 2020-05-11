@@ -9,6 +9,7 @@ import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.FastUUID;
 import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.TextUtil;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
@@ -63,7 +64,7 @@ public class CmdVault extends FCommand {
             } else {
                 StringBuilder sb = new StringBuilder();
                 for (String key : file.getKeys(false)) {
-                    sb.append(key.replace("vault", "")).append(" ");
+                    sb.append(TextUtil.replace(key, "vault", "")).append(" ");
                 }
 
                 context.sender.sendMessage(Lang.TITLE.toString() + Lang.EXISTING_VAULTS.toString().replaceAll("%p", context.fPlayer.getTag()).replaceAll("%v", sb.toString().trim()));

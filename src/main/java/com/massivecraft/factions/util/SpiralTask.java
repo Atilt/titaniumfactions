@@ -27,7 +27,7 @@ public abstract class SpiralTask implements Runnable {
     // general task-related reference data
     private transient World world;
     private transient boolean readyToGo = false;
-    private transient int taskID = -1;
+    private transient int task = -1;
     private transient int limit;
 
     // values for the spiral pattern routine
@@ -40,7 +40,6 @@ public abstract class SpiralTask implements Runnable {
 
     private final Runnable finish;
 
-    @SuppressWarnings("LeakingThisInConstructor")
     public SpiralTask(FLocation fLocation, int radius, Runnable finish) {
         // limit is determined based on spiral leg length for given radius; see insideRadius()
         this.limit = (radius - 1) * 2;
@@ -62,7 +61,7 @@ public abstract class SpiralTask implements Runnable {
         this.readyToGo = true;
 
         // get this party started
-        this.setTaskID(Bukkit.getScheduler().scheduleSyncRepeatingTask(FactionsPlugin.getInstance(), this, 2, 2));
+        this.setTask(Bukkit.getScheduler().runTaskTimer(FactionsPlugin.getInstance(), this, 2, 2).getTaskId());
     }
 
     /*
@@ -104,11 +103,11 @@ public abstract class SpiralTask implements Runnable {
      * Below are the guts of the class, which you normally wouldn't need to mess with.
      */
 
-    public final void setTaskID(int ID) {
+    public final void setTask(int ID) {
         if (ID == -1) {
             this.stop();
         }
-        taskID = ID;
+        this.task = ID;
     }
 
     public final void run() {
@@ -202,13 +201,13 @@ public abstract class SpiralTask implements Runnable {
             return;
         }
         readyToGo = false;
-        Bukkit.getScheduler().cancelTask(taskID);
-        taskID = -1;
+        Bukkit.getScheduler().cancelTask(this.task);
+        this.task = -1;
     }
 
     // is this task still valid/workable?
     public final boolean valid() {
-        return taskID != -1;
+        return task != -1;
     }
 
     private static long now() {

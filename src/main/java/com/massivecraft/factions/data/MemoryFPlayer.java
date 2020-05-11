@@ -614,11 +614,17 @@ public abstract class MemoryFPlayer implements FPlayer {
         return Board.getInstance().getFactionAt(FLocation.wrap(this)).getRelationTo(this).isEnemy();
     }
 
+    @Override
     public void sendFactionHereMessage(Faction from) {
         Player player = getPlayer();
         if (player == null) {
             return;
         }
+        sendFactionHereMessage(from, player);
+    }
+
+    @Override
+    public void sendFactionHereMessage(Faction from, Player player) {
         Faction toShow = Board.getInstance().getFactionAt(getLastStoodAt());
 
         if (FactionsPlugin.getInstance().conf().factions().enterTitles().isEnabled()) {
@@ -640,11 +646,14 @@ public abstract class MemoryFPlayer implements FPlayer {
             } else {
                 ((InfoSidebar) this.provider).setFaction(toShow);
             }
+        } else if (this.provider != Sidebar.DEFAULT_SIDEBAR) {
+            this.defaultTextProvider();
         }
         if (FactionsPlugin.getInstance().conf().factions().enterTitles().isAlsoShowChat()) {
             this.sendMessage(TextUtil.parse(TL.FACTION_LEAVE.format(from.getTag(this), toShow.getTag(this))));
         }
     }
+
 
     /**
      * Check if the scoreboard should be shown. Simple method to be used by above method.
@@ -685,9 +694,6 @@ public abstract class MemoryFPlayer implements FPlayer {
 
     @Override
     public void setShowScoreboard(boolean show) {
-        if (show == this.showScoreboard) {
-            return;
-        }
         this.showScoreboard = show;
         if (show && Sidebar.get().track(this)) {
             this.scoreboard = new FastBoard(this.id);
@@ -1068,9 +1074,6 @@ public abstract class MemoryFPlayer implements FPlayer {
     }
 
     public void setSeeingChunk(boolean seeingChunk) {
-        if (this.seeingChunk == seeingChunk) {
-            return;
-        }
         this.seeingChunk = seeingChunk;
         if (this.seeingChunk) {
             SeeChunkTask.get().track(this);
@@ -1124,7 +1127,7 @@ public abstract class MemoryFPlayer implements FPlayer {
     public void sendFancyMessage(TextComponent message) {
         Player player = getPlayer();
         if (player != null) {
-            TextAdapter.sendComponent(player, message);
+            TextAdapter.sendMessage(player, message);
         }
     }
 
@@ -1132,7 +1135,7 @@ public abstract class MemoryFPlayer implements FPlayer {
         Player player = getPlayer();
         if (player != null) {
             for (TextComponent msg : messages) {
-                TextAdapter.sendComponent(player, msg);
+                TextAdapter.sendMessage(player, msg);
             }
         }
     }

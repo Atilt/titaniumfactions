@@ -270,6 +270,22 @@ public class Econ {
         return true;
     }
 
+    public static boolean hasAtLeast(EconomyParticipator ep, double delta) {
+        if (!shouldBeUsed()) {
+            return true;
+        }
+
+        // going the hard way round as econ.has refuses to work.
+
+        OfflinePlayer offline = Bukkit.getOfflinePlayer(ep.getAccountId());
+        double currentBalance = offline.getName() == null ? 0 : econ.getBalance(offline);
+
+        if (currentBalance >= delta) { //affordable
+            return false;
+        }
+        return true;
+    }
+
     public static boolean modifyMoney(EconomyParticipator ep, double delta, String toDoThis, String forDoingThis) {
         if (!shouldBeUsed()) {
             return false;

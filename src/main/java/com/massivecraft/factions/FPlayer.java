@@ -215,6 +215,8 @@ public interface FPlayer extends EconomyParticipator, Comparable<FPlayer> {
 
     void sendFactionHereMessage(Faction from);
 
+    void sendFactionHereMessage(Faction from, Player player);
+
     // -------------------------------
     // Actions
     // -------------------------------

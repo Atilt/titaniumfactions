@@ -52,6 +52,7 @@ import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
 import com.massivecraft.factions.util.material.FactionMaterial;
 import com.massivecraft.factions.util.material.MaterialDb;
+import com.massivecraft.factions.util.particle.BukkitParticleProvider;
 import com.massivecraft.factions.util.particle.PacketParticleProvider;
 import com.massivecraft.factions.util.particle.ParticleProvider;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
@@ -129,10 +130,12 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     private boolean hookedPlayervaults;
     private ClipPlaceholderAPIManager clipPlaceholderAPIManager;
     private boolean mvdwPlaceholderAPIManager = false;
+    private IWorldguard worldguard;
+
     private ObjectSet<String> pluginsHandlingChat = new ObjectOpenHashSet<>();
 
     private ParticleProvider<?> particleProvider;
-    private IWorldguard worldguard;
+
     private Set<EntityType> safeZoneNerfedCreatureTypes = EnumSet.noneOf(EntityType.class);
     private LandRaidControl landRaidControl;
 
@@ -159,7 +162,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             this.loadSettingsSuccessful = false;
             this.loadDataSuccessful = false;
             FPlayers.getInstance().wipeOnline();
-            FlightUtil.getInstance().wipe();
+            FlightUtil.get().wipe();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             onlinePlayer.kickPlayer("Server data reloading...");
@@ -285,15 +288,13 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                 Bukkit.getPluginManager().registerEvents(new FactionsExploitListener(), this);
                 Bukkit.getPluginManager().registerEvents(new FactionsBlockListener(), this);
 
-                particleProvider = new PacketParticleProvider();
-                Sidebar.get().start();
+                if (getMCVersion().isBefore(MinecraftVersions.v1_13)) {
+                    this.particleProvider = new PacketParticleProvider();
+                } else {
+                    this.particleProvider = new BukkitParticleProvider();
+                }
 
-/*            // Run before initializing listeners to handle reloads properly.
-            if (mcVersion < 1300) { // Before 1.13
-                particleProvider = new PacketParticleProvider();
-            } else {
-                particleProvider = new BukkitParticleProvider();
-            }*/
+                Sidebar.get().start();
 
                 if (conf().commands().seeChunk().isParticles()) {
                     SeeChunkTask.get().start();
@@ -313,7 +314,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                 this.getCommand(refCommand).setExecutor(new FCmdRoot());
 
                 if (conf().commands().fly().isEnable()) {
-                    FlightUtil.getInstance().start();
+                    FlightUtil.get().start();
                 }
 
                 setupPlaceholderAPI();

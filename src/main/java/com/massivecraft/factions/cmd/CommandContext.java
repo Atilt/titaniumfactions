@@ -68,7 +68,7 @@ public class CommandContext {
     }
 
     public void sendFancyMessage(TextComponent message) {
-        TextAdapter.sendComponent(this.sender, message);
+        TextAdapter.sendMessage(this.sender, message);
     }
 
     public void sendFancyMessage(List<TextComponent> messages) {

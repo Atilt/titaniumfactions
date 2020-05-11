@@ -92,8 +92,7 @@ public class CmdList extends FCommand {
         }
 
         if (!footer.isEmpty()) {
-            footer = footer.replace("{pagenumber}", pageNumberReadable).replace("{pagecount}", pageCountReadable);
-            lines.add(TextUtil.parse(footer));
+            lines.add(TextUtil.parse(TextUtil.replace(TextUtil.replace(footer, "{pagenumber}", pageNumberReadable), "{pagecount}", pageCountReadable)));
         }
 
         context.sendMessage(lines);

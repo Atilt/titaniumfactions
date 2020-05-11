@@ -61,6 +61,8 @@ import java.util.logging.Level;
 public class FactionsPlayerListener extends AbstractListener {
 
     private static final Set<Material> ITEMS = EnumSet.noneOf(Material.class);
+    private static final Set<Material> PRESSURE_PLATES = EnumSet.noneOf(Material.class);
+
 
     static {
         ITEMS.add(Material.ARMOR_STAND);
@@ -73,6 +75,21 @@ public class FactionsPlayerListener extends AbstractListener {
         ITEMS.add(MaterialDb.getInstance().provider.resolve("FURNACE_MINECART"));
         ITEMS.add(MaterialDb.getInstance().provider.resolve("HOPPER_MINECART"));
         ITEMS.add(MaterialDb.getInstance().provider.resolve("TNT_MINECART"));
+
+        PRESSURE_PLATES.add(MaterialDb.getInstance().provider.resolve("HEAVY_WEIGHTED_PRESSURE_PLATE"));
+        PRESSURE_PLATES.add(MaterialDb.getInstance().provider.resolve("LIGHT_WEIGHTED_PRESSURE_PLATE"));
+        PRESSURE_PLATES.add(MaterialDb.getInstance().provider.resolve("STONE_PRESSURE_PLATE"));
+        PRESSURE_PLATES.add(MaterialDb.getInstance().provider.resolve("LIGHT_WEIGHTED_PRESSURE_PLATE"));
+        if (FactionsPlugin.getInstance().getMCVersion().isAfterOrEq(MinecraftVersions.v1_13)) {
+            PRESSURE_PLATES.add(MaterialDb.getInstance().provider.resolve("ACACIA_PRESSURE_PLATE"));
+            PRESSURE_PLATES.add(MaterialDb.getInstance().provider.resolve("BIRCH_PRESSURE_PLATE"));
+            PRESSURE_PLATES.add(MaterialDb.getInstance().provider.resolve("DARK_OAK_PRESSURE_PLATE"));
+            PRESSURE_PLATES.add(MaterialDb.getInstance().provider.resolve("JUNGLE_PRESSURE_PLATE"));
+            PRESSURE_PLATES.add(MaterialDb.getInstance().provider.resolve("OAK_PRESSURE_PLATE"));
+            PRESSURE_PLATES.add(MaterialDb.getInstance().provider.resolve("SPRUCE_PRESSURE_PLATE"));
+        } else {
+            PRESSURE_PLATES.add(Material.valueOf("WOOD_PLATE"));
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -112,7 +129,7 @@ public class FactionsPlayerListener extends AbstractListener {
             this.initFactionWorld(me, player);
         }
         FPlayers.getInstance().addOnline(me);
-        FlightUtil.getInstance().track(me);
+        FlightUtil.get().track(me);
     }
 
     private void initFactionWorld(FPlayer me, Player player) {
@@ -174,7 +191,7 @@ public class FactionsPlayerListener extends AbstractListener {
         }
 
         FPlayers.getInstance().removeOnline(me);
-        FlightUtil.getInstance().untrack(me);
+        FlightUtil.get().untrack(me);
         Sidebar.get().untrack(me);
         SeeChunkTask.get().untrack(me, false);
 
@@ -276,7 +293,7 @@ public class FactionsPlayerListener extends AbstractListener {
             String ownersTo = myFaction.getOwnerListString(to);
 
             if (changedFaction) {
-                me.sendFactionHereMessage(factionFrom);
+                me.sendFactionHereMessage(factionFrom, player);
                 if (FactionsPlugin.getInstance().conf().factions().ownedArea().isEnabled() && FactionsPlugin.getInstance().conf().factions().ownedArea().isMessageOnBorder() && myFaction == factionTo && !ownersTo.isEmpty()) {
                     me.sendMessage(TL.GENERIC_OWNERS.format(ownersTo));
                 }
@@ -360,7 +377,8 @@ public class FactionsPlayerListener extends AbstractListener {
 
         if (!canPlayerUseBlock(player, block.getType(), block.getLocation(), false)) {
             event.setCancelled(true);
-            if (block.getType().name().endsWith("_PLATE")) {
+            //implement enumset
+            if (PRESSURE_PLATES.contains(block.getType())) {
                 return;
             }
             if (FactionsPlugin.getInstance().conf().exploits().isInteractionSpam()) {
@@ -586,7 +604,7 @@ public class FactionsPlayerListener extends AbstractListener {
         FPlayer me = FPlayers.getInstance().getByPlayer(player);
 
         String shortCmd;  // command without the slash at the beginning
-        if (fullCmd.startsWith("/")) {
+        if (fullCmd.charAt(0) == '/') {
             shortCmd = fullCmd.substring(1);
         } else {
             shortCmd = fullCmd;

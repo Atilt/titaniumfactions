@@ -114,7 +114,7 @@ public class CmdShow extends FCommand {
                     // replaces all variables with no home TL
                     parsed = parsed.substring(0, parsed.indexOf("{ig}")) + TL.COMMAND_SHOW_NOHOME.toString();
                 }
-                messageList.add(parsed.replace("%", ""));
+                messageList.add(TextUtil.replace(parsed, "%", ""));
             }
         }
         if (context.fPlayer != null && this.groupPresent()) {
@@ -141,7 +141,7 @@ public class CmdShow extends FCommand {
                     }
                 } else {
                     StringBuilder builder = new StringBuilder();
-                    builder.append(parsed.replace(tag.getTag(), ""));
+                    builder.append(TextUtil.replace(parsed, tag.getTag(), ""));
                     switch (tag) {
                         case ONLINE_LIST:
                             this.onOffLineMessage(builder, recipient, faction, true);

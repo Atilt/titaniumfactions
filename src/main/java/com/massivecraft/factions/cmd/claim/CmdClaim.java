@@ -19,6 +19,8 @@ public class CmdClaim extends FCommand {
 
     private final ObjectSet<UUID> claiming = new ObjectOpenHashSet<>();
 
+    private static final int MAX_RADIUS = 100;
+
     public CmdClaim() {
         super();
         this.aliases.add("claim");
@@ -35,12 +37,17 @@ public class CmdClaim extends FCommand {
     public void perform(final CommandContext context) {
         // Read and validate input
         int radius = context.argAsInt(0, 1); // Default to 1
-        final Faction forFaction = context.argAsFaction(1, context.faction); // Default to own
+
+        if (radius > MAX_RADIUS) {
+            context.msg(TL.COMMAND_CLAIM_MAXRADIUS);
+            return;
+        }
 
         if (radius < 1) {
             context.msg(TL.COMMAND_CLAIM_INVALIDRADIUS);
             return;
         }
+        Faction forFaction = context.argAsFaction(1, context.faction); // Default to own
 
         if (radius < 2) {
             // single chunk
@@ -60,8 +67,8 @@ public class CmdClaim extends FCommand {
                     public boolean work() {
                         boolean success = context.fPlayer.attemptClaim(forFaction, this.currentFLocation(), true);
                         if (success) {
-                            failCount = 0;
-                        } else if (failCount++ >= limit) {
+                            this.failCount = 0;
+                        } else if (this.failCount++ >= this.limit) {
                             this.stop();
                             return false;
                         }

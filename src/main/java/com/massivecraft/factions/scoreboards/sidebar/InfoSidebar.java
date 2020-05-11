@@ -27,7 +27,7 @@ public final class InfoSidebar implements SidebarTextProvider {
         List<String> content = FactionsPlugin.getInstance().conf().scoreboard().info().getContent();
         ObjectList<String> lines = new ObjectArrayList<>(content.size());
         for (String line : content) {
-            String replaced = SidebarTextProvider.replaceTags(fPlayer, line);
+            String replaced = SidebarTextProvider.replaceTags(this.faction, fPlayer, line);
             if (replaced == null) {
                 continue;
             }

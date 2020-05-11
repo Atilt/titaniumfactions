@@ -72,13 +72,10 @@ public class CmdClaimLine extends FCommand {
         Faction forFaction = context.argAsFaction(2, context.faction);
         Location location = context.player.getLocation();
 
-        int bX = blockFace.getModX() << 4;
-        int bZ = blockFace.getModZ() << 4;
-
         // TODO: make this a task like claiming a radius?
         for (int i = 0; i < amount; i++) {
             context.fPlayer.attemptClaim(forFaction, location, true);
-            location = location.add(bX, 0, bZ);
+            location = location.add(blockFace.getModX() << 4, 0, blockFace.getModZ() << 4);
         }
     }
 

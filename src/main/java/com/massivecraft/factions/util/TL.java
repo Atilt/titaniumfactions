@@ -118,6 +118,7 @@ public enum TL {
     COMMAND_CHATSPY_DESCRIPTION("Enable admin chat spy mode"),
 
     COMMAND_CLAIM_INVALIDRADIUS("&cIf you specify a radius, it must be at least 1."),
+    COMMAND_CLAIM_MAXRADIUS("&cIf you specify a radius, it must not be larger than 100."),
     COMMAND_CLAIM_ALREADY_OCCURING("&cPlease wait while your previous claiming finishes."),
     COMMAND_CLAIM_DENIED("&cYou do not have permission to claim in a radius."),
     COMMAND_CLAIM_DESCRIPTION("Claim land from where you are standing"),
@@ -1008,7 +1009,7 @@ public enum TL {
      * @param start The default string.
      */
     TL(String start) {
-        this.path = this.name().replace('_', '.');
+        this.path = TextUtil.replace(this.name(), "_", ".");
         if (this.path.startsWith(".")) {
             path = "root" + path;
         }

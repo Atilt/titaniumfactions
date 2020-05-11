@@ -64,7 +64,7 @@ public class CmdFly extends FCommand {
                 context.msg(TL.COMMAND_FLY_NO_ACCESS, factionAtLocation.getTag(context.fPlayer));
             }
             return false;
-        } else if (FlightUtil.getInstance().enemiesNearby(context.fPlayer, FactionsPlugin.getInstance().conf().commands().fly().getEnemyRadius())) {
+        } else if (FlightUtil.get().enemiesNearby(context.fPlayer, FactionsPlugin.getInstance().conf().commands().fly().getEnemyRadius())) {
             if (notify) {
                 context.msg(TL.COMMAND_FLY_ENEMY_NEARBY);
             }

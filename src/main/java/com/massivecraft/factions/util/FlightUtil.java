@@ -18,7 +18,7 @@ public final class FlightUtil {
 
     private static FlightUtil instance;
 
-    public static FlightUtil getInstance() {
+    public static FlightUtil get() {
         if (instance == null) {
             synchronized (FlightUtil.class) {
                 if (instance == null) {
@@ -188,7 +188,7 @@ public final class FlightUtil {
 
         @Override
         public void close() {
-            if (this.task != -1) {
+            if (!this.isClosed()) {
                 Bukkit.getScheduler().cancelTask(this.task);
                 this.task = -1;
             }
