@@ -3,6 +3,7 @@ package com.massivecraft.factions.scoreboards.sidebar;
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.scoreboards.SidebarTextProvider;
+import com.massivecraft.factions.tag.FancyTag;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;

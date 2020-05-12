@@ -61,8 +61,7 @@ public final class TitleAPI {
             Object titlePacket = PACKET_TITLE.newInstance(TITLE.get(null), chatTitle, fadeInTime, showTime, fadeOutTime);
             Object subTitlePacket = PACKET_TITLE.newInstance(SUBTITLE.get(null), chatsubTitle, fadeInTime, showTime, fadeOutTime);
 
-            Protocol.sendPacket(player, titlePacket);
-            Protocol.sendPacket(player, subTitlePacket);
+            Protocol.sendPacket(player, titlePacket, subTitlePacket);
         } catch (IllegalAccessException | InvocationTargetException | InstantiationException exception) {
             exception.printStackTrace();
         }

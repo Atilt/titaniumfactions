@@ -4,7 +4,6 @@ import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.massivecraft.factions.Faction;
-import com.massivecraft.factions.Factions;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.data.MemoryFaction;
 import com.massivecraft.factions.data.MemoryFactions;
@@ -128,6 +127,6 @@ public class JSONFactions extends MemoryFactions {
         this.factions.putAll(Maps.transformValues(old.factions, faction -> new JSONFaction((MemoryFaction) faction)));
         this.nextId = old.nextId;
         forceSave(finish);
-        Factions.instance = this;
+        instance = this;
     }
 }

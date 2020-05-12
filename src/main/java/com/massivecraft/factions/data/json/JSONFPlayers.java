@@ -4,7 +4,6 @@ import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.massivecraft.factions.FPlayer;
-import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.data.MemoryFPlayer;
 import com.massivecraft.factions.data.MemoryFPlayers;
@@ -33,7 +32,7 @@ public class JSONFPlayers extends MemoryFPlayers {
     public void convertFrom(MemoryFPlayers old, BooleanConsumer finish) {
         this.fPlayers.putAll(Maps.transformValues(old.getFPlayers(), faction -> new JSONFPlayer((MemoryFPlayer) faction)));
         forceSave(finish);
-        FPlayers.instance = this;
+        instance = this;
     }
 
     public void forceSave(BooleanConsumer finish) {

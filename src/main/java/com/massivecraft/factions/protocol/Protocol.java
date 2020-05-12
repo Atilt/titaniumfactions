@@ -62,4 +62,15 @@ public final class Protocol {
             e.printStackTrace();
         }
     }
+
+    public static void sendPacket(Player player, Object... packets) {
+        Object entityPlayer = PLAYER_TO_NMS.apply(player);
+        try {
+            for (Object packet : packets) {
+                SEND_PACKET.accept(PLAYER_CONNECTION.get(entityPlayer), packet);
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
 }
