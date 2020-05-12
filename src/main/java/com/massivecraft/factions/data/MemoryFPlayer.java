@@ -637,7 +637,7 @@ public abstract class MemoryFPlayer implements FPlayer {
 
             // We send null instead of empty because Spigot won't touch the title if it's null, but clears if empty.
             // We're just trying to be as unintrusive as possible.
-            TitleAPI.get().sendTitle(player, title, sub, in, stay, out);
+            TitleAPI.send(player, title, sub, in, stay, out);
         }
 
         if (canSeeBoardFor(toShow)) {
@@ -696,7 +696,7 @@ public abstract class MemoryFPlayer implements FPlayer {
     public void setShowScoreboard(boolean show) {
         this.showScoreboard = show;
         if (show && Sidebar.get().track(this)) {
-            this.scoreboard = new FastBoard(this.id);
+            this.scoreboard = new FastBoard(Bukkit.getPlayer(this.id));
             return;
         }
         if (Sidebar.get().untrack(this)) {
@@ -971,7 +971,7 @@ public abstract class MemoryFPlayer implements FPlayer {
     }
 
     public Player getPlayer() {
-        return Bukkit.getPlayer(this.getId());
+        return this.scoreboard != null ? this.scoreboard.getPlayer() : Bukkit.getPlayer(this.getId());
     }
 
     public boolean isOnline() {

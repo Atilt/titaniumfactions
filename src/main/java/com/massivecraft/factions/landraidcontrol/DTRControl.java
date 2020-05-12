@@ -25,7 +25,7 @@ public class DTRControl implements LandRaidControl {
 
     @Override
     public boolean isRaidable(Faction faction) {
-        return faction.getDTR() <= 0;
+        return !faction.isPeaceful() && faction.getDTR() <= 0;
     }
 
     @Override

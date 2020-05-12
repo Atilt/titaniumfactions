@@ -2,19 +2,16 @@ package com.massivecraft.factions.scoreboards;
 
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.protocol.Protocol;
 import com.massivecraft.factions.util.TextUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
 import me.lucko.helper.reflect.MinecraftVersions;
 import me.lucko.helper.reflect.ServerReflection;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import java.lang.invoke.LambdaMetafactory;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -25,8 +22,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
-import java.util.function.Function;
 
 /**
  * Simple Bukkit ScoreBoard API with 1.7 to 1.15 support.
@@ -37,10 +32,6 @@ import java.util.function.Function;
  * @author MrMicky
  */
 public class FastBoard {
-
-    // Packets sending
-    private static final Field PLAYER_CONNECTION;
-    private static final Method SEND_PACKET;
 
     // Chat components
     private static final Class<?> CHAT_COMPONENT_CLASS;
@@ -59,9 +50,6 @@ public class FastBoard {
     private static final Object ENUM_SB_ACTION_CHANGE;
     private static final Object ENUM_SB_ACTION_REMOVE;
 
-    private static final Function<Player, Object> PLAYER_TO_NMS;
-    //private static final BiConsumer<Object, Object> SEND_PACKET = null;
-
     static {
         try {
             Class<?> craftChatMessageClass = ServerReflection.obcClass("util.CraftChatMessage");
@@ -72,9 +60,6 @@ public class FastBoard {
 
             MESSAGE_FROM_STRING = craftChatMessageClass.getDeclaredMethod("fromString", String.class);
             CHAT_COMPONENT_CLASS = ServerReflection.nmsClass("IChatBaseComponent");
-
-            PLAYER_CONNECTION = entityPlayerClass.getDeclaredField("playerConnection");
-            SEND_PACKET = entityPlayerClass.getDeclaredMethod("sendPacket", packetClass);
 
             PACKET_SB_OBJ = ServerReflection.nmsClass("PacketPlayOutScoreboardObjective").getConstructor();
             PACKET_SB_DISPLAY_OBJ = ServerReflection.nmsClass("PacketPlayOutScoreboardDisplayObjective").getConstructor();
@@ -100,28 +85,13 @@ public class FastBoard {
                 ENUM_SB_ACTION_CHANGE = null;
                 ENUM_SB_ACTION_REMOVE = null;
             }
-            MethodHandles.Lookup lookup = MethodHandles.lookup();
-            PLAYER_TO_NMS = (Function<Player, Object>) LambdaMetafactory.metafactory(lookup,
-                    "apply",
-                    MethodType.methodType(Function.class),
-                    MethodType.methodType(Object.class, Object.class),
-                    lookup.findVirtual(craftPlayerClass, "getHandle", MethodType.methodType(entityPlayerClass)),
-                    MethodType.methodType(entityPlayerClass, craftPlayerClass)).getTarget().invokeExact();
-
-            //playerConnection -> sendPacket
-/*            SEND_PACKET = (BiConsumer<Object, Object>) LambdaMetafactory.metafactory(lookup,
-                    "accept",
-                    MethodType.methodType(BiConsumer.class),
-                    MethodType.methodType(Object.class, Object.class),
-                    lookup.findVirtual(playerConnectionClass, "sendPacket", MethodType.methodType(packetClass)),
-                    MethodType.methodType(packetClass)).getTarget().invoke();*/
 
         } catch (Throwable exception) {
             throw new ExceptionInInitializerError(exception);
         }
     }
 
-    private final UUID uuid;
+    private final Player player;
     private final String id;
 
     private String title = ChatColor.RESET.toString();
@@ -132,10 +102,10 @@ public class FastBoard {
     /**
      * Creates a new FastBoard.
      *
-     * @param uuid the player the scoreboard is for
+     * @param player the player the scoreboard is for
      */
-    public FastBoard(UUID uuid) {
-        this.uuid = Objects.requireNonNull(uuid, "uuid");
+    public FastBoard(Player player) {
+        this.player = Objects.requireNonNull(player, "player");
         this.id = "fb-" + Double.toString(Math.random()).substring(2, 10);
 
         try {
@@ -401,8 +371,8 @@ public class FastBoard {
      *
      * @return current player for this FastBoard
      */
-    public UUID getUUID() {
-        return this.uuid;
+    public Player getPlayer() {
+        return this.player;
     }
 
     /**
@@ -487,7 +457,7 @@ public class FastBoard {
                 setField(packet, ENUM_SB_HEALTH_DISPLAY, ENUM_SB_HEALTH_DISPLAY_INTEGER);
             }
         }
-        sendPacket(packet);
+        Protocol.sendPacket(this.player, packet);
     }
 
     private void sendDisplayObjectivePacket() throws ReflectiveOperationException {
@@ -496,7 +466,7 @@ public class FastBoard {
         setField(packet, int.class, 1);
         setField(packet, String.class, id);
 
-        sendPacket(packet);
+        Protocol.sendPacket(this.player, packet);
     }
 
     private void sendScorePacket(int score, ScoreboardAction action) throws ReflectiveOperationException {
@@ -513,7 +483,7 @@ public class FastBoard {
             setField(packet, int.class, score);
         }
 
-        sendPacket(packet);
+        Protocol.sendPacket(this.player, packet);
     }
 
     private void sendTeamPacket(int score, TeamMode mode) throws ReflectiveOperationException {
@@ -569,24 +539,11 @@ public class FastBoard {
                 setField(packet, Collection.class, Collections.singletonList(getColorCode(score))); // Players in the team
             }
         }
-
-        sendPacket(packet);
+        Protocol.sendPacket(this.player, packet);
     }
 
     private String getColorCode(int score) {
         return TextUtil.BUKKIT_COLORS[score].toString();
-    }
-
-    private void sendPacket(Object packet) throws ReflectiveOperationException {
-        Player player = Bukkit.getPlayer(this.uuid);
-        if (player == null || !player.isOnline()) {
-            return;
-        }
-        Object entityPlayer = PLAYER_TO_NMS.apply(player);
-        Object playerConnection = PLAYER_CONNECTION.get(entityPlayer);
-        SEND_PACKET.invoke(playerConnection, packet);
-
-        ///SEND_PACKET.accept(playerConnection, packet);
     }
 
     private void setField(Object object, Class<?> fieldType, Object value) throws ReflectiveOperationException {

@@ -1,26 +1,7 @@
 package com.massivecraft.factions.cmd;
 
-import com.google.common.base.Charsets;
-import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.kitteh.pastegg.PasteBuilder;
-import org.kitteh.pastegg.PasteContent;
-import org.kitteh.pastegg.PasteFile;
-import org.kitteh.pastegg.Visibility;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.logging.Level;
 
 public class CmdDebug extends FCommand {
     public CmdDebug() {
@@ -35,7 +16,7 @@ public class CmdDebug extends FCommand {
 
     @Override
     public void perform(CommandContext context) {
-        StringBuilder mainInfo = new StringBuilder();
+/*        StringBuilder mainInfo = new StringBuilder();
         mainInfo.append(Bukkit.getName()).append(" version: ").append(Bukkit.getVersion()).append('\n');
         mainInfo.append("Plugin version: ").append(FactionsPlugin.getInstance().getDescription().getVersion()).append('\n');
         mainInfo.append("Java version: ").append(System.getProperty("java.version")).append('\n');
@@ -124,7 +105,7 @@ public class CmdDebug extends FCommand {
                     }.runTask(FactionsPlugin.getInstance());
                 }
             }
-        }.runTaskAsynchronously(FactionsPlugin.getInstance());
+        }.runTaskAsynchronously(FactionsPlugin.getInstance());*/
         context.msg(TL.COMMAND_DEBUG_RUNNING);
     }
 
