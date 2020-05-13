@@ -16,7 +16,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -174,7 +173,7 @@ public class FastBoard {
      *
      * @return the scoreboard lines
      */
-    public List<String> getLines() {
+    public ObjectList<String> getLines() {
         return ObjectLists.unmodifiable(this.lines);
     }
 
@@ -274,7 +273,7 @@ public class FastBoard {
             }
         }
 
-        List<String> oldLines = new ArrayList<>(this.lines);
+        ObjectList<String> oldLines = new ObjectArrayList<>(this.lines);
         this.lines.clear();
         this.lines.addAll(lines);
 
@@ -282,7 +281,7 @@ public class FastBoard {
 
         try {
             if (oldLines.size() != linesSize) {
-                List<String> oldLinesCopy = new ArrayList<>(oldLines);
+                ObjectList<String> oldLinesCopy = new ObjectArrayList<>(oldLines);
 
                 if (oldLines.size() > linesSize) {
                     for (int i = oldLinesCopy.size(); i > linesSize; i--) {
@@ -327,7 +326,7 @@ public class FastBoard {
             }
         }
 
-        List<String> oldLines = new ArrayList<>(this.lines);
+        ObjectList<String> oldLines = new ObjectArrayList<>(this.lines);
         this.lines.clear();
         this.lines.addAll(lines);
 
@@ -335,7 +334,7 @@ public class FastBoard {
 
         try {
             if (oldLines.size() != linesSize) {
-                List<String> oldLinesCopy = new ArrayList<>(oldLines);
+                ObjectList<String> oldLinesCopy = new ObjectArrayList<>(oldLines);
 
                 if (oldLines.size() > linesSize) {
                     for (int i = oldLinesCopy.size(); i > linesSize; i--) {
@@ -440,7 +439,7 @@ public class FastBoard {
         return getLineByScore(lines, score);
     }
 
-    private String getLineByScore(List<String> lines, int score) {
+    private String getLineByScore(ObjectList<String> lines, int score) {
         return lines.get(lines.size() - score - 1);
     }
 

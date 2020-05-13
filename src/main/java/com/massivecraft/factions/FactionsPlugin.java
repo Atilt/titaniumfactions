@@ -40,7 +40,7 @@ import com.massivecraft.factions.metrics.Metrics;
 import com.massivecraft.factions.perms.Permissible;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.perms.PermissionsMapTypeAdapter;
-import com.massivecraft.factions.scoreboards.Sidebar;
+import com.massivecraft.factions.scoreboards.SidebarProvider;
 import com.massivecraft.factions.struct.ChatMode;
 import com.massivecraft.factions.util.AutoLeaveTask;
 import com.massivecraft.factions.util.FlightUtil;
@@ -294,7 +294,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                     this.particleProvider = new BukkitParticleProvider();
                 }
 
-                Sidebar.get().start();
+                SidebarProvider.get().start();
 
                 if (conf().commands().seeChunk().isParticles()) {
                     SeeChunkTask.get().start();
@@ -704,7 +704,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             this.autoLeaveTask = null;
         }
         SeeChunkTask.get().close();
-        Sidebar.get().close();
+        SidebarProvider.get().close();
         SaveTask.get().close();
         // only save data if plugin actually loaded successfully
         log("Saving data...");

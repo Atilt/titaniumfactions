@@ -12,7 +12,7 @@ import com.massivecraft.factions.gui.GUI;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
-import com.massivecraft.factions.scoreboards.Sidebar;
+import com.massivecraft.factions.scoreboards.SidebarProvider;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.FlightUtil;
 import com.massivecraft.factions.util.SeeChunkTask;
@@ -144,7 +144,7 @@ public class FactionsPlayerListener extends AbstractListener {
         }.runTaskLater(FactionsPlugin.getInstance(), 33L); // Don't ask me why.
 
         if (FactionsPlugin.getInstance().conf().scoreboard().constant().isEnabled() && me.showScoreboard()) {
-            me.setTextProvider(Sidebar.DEFAULT_SIDEBAR);
+            me.setTextProvider(SidebarProvider.DEFAULT_SIDEBAR);
             me.setShowScoreboard(true);
         }
 
@@ -192,7 +192,7 @@ public class FactionsPlayerListener extends AbstractListener {
 
         FPlayers.getInstance().removeOnline(me);
         FlightUtil.get().untrack(me);
-        Sidebar.get().untrack(me);
+        SidebarProvider.get().untrack(me);
         SeeChunkTask.get().untrack(me, false);
 
         if (!myFaction.isWilderness()) {

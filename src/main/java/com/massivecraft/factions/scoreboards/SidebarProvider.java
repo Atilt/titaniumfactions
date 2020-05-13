@@ -8,22 +8,22 @@ import me.lucko.helper.bucket.factory.BucketFactory;
 import me.lucko.helper.bucket.partitioning.PartitioningStrategies;
 import org.bukkit.Bukkit;
 
-public class Sidebar implements AutoCloseable {
+public class SidebarProvider implements AutoCloseable {
 
-    private static Sidebar instance;
+    private static SidebarProvider instance;
 
     private int task = -1;
     private final Bucket<FPlayer> players = BucketFactory.newHashSetBucket(23, PartitioningStrategies.lowestSize());
 
     public static final DefaultSidebar DEFAULT_SIDEBAR = new DefaultSidebar();
 
-    Sidebar() {}
+    SidebarProvider() {}
 
-    public static Sidebar get() {
+    public static SidebarProvider get() {
         if (instance == null) {
-            synchronized (Sidebar.class) {
+            synchronized (SidebarProvider.class) {
                 if (instance == null) {
-                    instance = new Sidebar();
+                    instance = new SidebarProvider();
                 }
             }
         }
@@ -55,6 +55,12 @@ public class Sidebar implements AutoCloseable {
     public void close() {
         if (this.task != -1) {
             Bukkit.getScheduler().cancelTask(this.task);
+            for (FPlayer fPlayer : this.players) {
+                if (fPlayer.getScoreboard() == null) {
+                    continue;
+                }
+                fPlayer.getScoreboard().delete();
+            }
         }
     }
 }

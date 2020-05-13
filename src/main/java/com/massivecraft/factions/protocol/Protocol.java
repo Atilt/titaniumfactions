@@ -38,11 +38,11 @@ public final class Protocol {
             SEND_PACKET = (BiConsumer<Object, Object>) LambdaMetafactory.metafactory(lookup,
                     "accept",
                     MethodType.methodType(BiConsumer.class),
-                    MethodType.methodType(Object.class, Object.class),
+                    MethodType.methodType(void.class, Object.class, Object.class),
                     lookup.findVirtual(playerConnectionClass, "sendPacket", MethodType.methodType(void.class, packetClass)),
-                    MethodType.methodType(packetClass)).getTarget().invoke();
+                    MethodType.methodType(void.class, playerConnectionClass, packetClass)).getTarget().invokeExact();
 
-            PLAYER_CONNECTION = entityPlayerClass.getDeclaredField("playerConnection");
+            PLAYER_CONNECTION = entityPlayerClass.getField("playerConnection");
             PLAYER_CONNECTION.setAccessible(true);
 
         } catch (Throwable e) {

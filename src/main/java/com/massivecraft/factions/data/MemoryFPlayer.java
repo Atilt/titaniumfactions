@@ -20,7 +20,7 @@ import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.scoreboards.FastBoard;
-import com.massivecraft.factions.scoreboards.Sidebar;
+import com.massivecraft.factions.scoreboards.SidebarProvider;
 import com.massivecraft.factions.scoreboards.SidebarTextProvider;
 import com.massivecraft.factions.scoreboards.sidebar.InfoSidebar;
 import com.massivecraft.factions.struct.ChatMode;
@@ -641,12 +641,12 @@ public abstract class MemoryFPlayer implements FPlayer {
         }
 
         if (canSeeBoardFor(toShow)) {
-            if (this.provider == Sidebar.DEFAULT_SIDEBAR) {
+            if (this.provider == SidebarProvider.DEFAULT_SIDEBAR) {
                 this.setTextProvider(new InfoSidebar(toShow));
             } else {
                 ((InfoSidebar) this.provider).setFaction(toShow);
             }
-        } else if (this.provider != Sidebar.DEFAULT_SIDEBAR) {
+        } else if (this.provider != SidebarProvider.DEFAULT_SIDEBAR) {
             this.defaultTextProvider();
         }
         if (FactionsPlugin.getInstance().conf().factions().enterTitles().isAlsoShowChat()) {
@@ -684,7 +684,7 @@ public abstract class MemoryFPlayer implements FPlayer {
 
     @Override
     public void defaultTextProvider() {
-        this.provider = Sidebar.DEFAULT_SIDEBAR;
+        this.provider = SidebarProvider.DEFAULT_SIDEBAR;
     }
 
     @Override
@@ -695,11 +695,11 @@ public abstract class MemoryFPlayer implements FPlayer {
     @Override
     public void setShowScoreboard(boolean show) {
         this.showScoreboard = show;
-        if (show && Sidebar.get().track(this)) {
+        if (show && SidebarProvider.get().track(this)) {
             this.scoreboard = new FastBoard(Bukkit.getPlayer(this.id));
             return;
         }
-        if (Sidebar.get().untrack(this)) {
+        if (SidebarProvider.get().untrack(this)) {
             this.scoreboard.delete();
             this.scoreboard = null;
         }

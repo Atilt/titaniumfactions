@@ -4,36 +4,48 @@ import com.massivecraft.factions.protocol.Protocol;
 import me.lucko.helper.reflect.ServerReflection;
 import org.bukkit.entity.Player;
 
+import java.lang.invoke.LambdaConversionException;
+import java.lang.invoke.LambdaMetafactory;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.util.function.Function;
 
-/**
- * With help from https://www.spigotmc.org/threads/send-titles-to-players-using-spigot-1-8-1-11-2.48819/
- */
 public final class TitleAPI {
 
     private static boolean SUPPORTED = false;
 
-    private static Method CHAT_TITLE;
+    private static Function<String, Object> STRING_TO_COMPONENT;
     private static Constructor<?> PACKET_TITLE;
     private static Field TITLE;
     private static Field SUBTITLE;
 
-    private TitleAPI() {
+    static  {
         try {
             Player.class.getMethod("sendTitle", String.class, String.class, int.class, int.class, int.class);
             SUPPORTED = true;
         } catch (NoSuchMethodException e) {
             try {
                 Class<?> chatComponent = ServerReflection.nmsClass("IChatBaseComponent");
+                Class<?> chatSerializer = chatComponent.getDeclaredClasses()[0];
+                Class<?> title = ServerReflection.nmsClass("PacketPlayOutTitle");
+                Class<?> nested = title.getDeclaredClasses()[0];
 
-                CHAT_TITLE = chatComponent.getDeclaredClasses()[0].getMethod("a", String.class);
-                PACKET_TITLE = ServerReflection.nmsClass("PacketPlayOutTitle").getConstructor(ServerReflection.nmsClass("PacketPlayOutTitle").getDeclaredClasses()[0], chatComponent, int.class, int.class, int.class);
-                TITLE = ServerReflection.nmsClass("PacketPlayOutTitle").getDeclaredClasses()[0].getField("TITLE");
-                SUBTITLE = ServerReflection.nmsClass("PacketPlayOutTitle").getDeclaredClasses()[0].getField("SUBTITLE");
-            } catch (NoSuchMethodException | NoSuchFieldException | ClassNotFoundException exception) {
+                MethodHandles.Lookup lookup = MethodHandles.lookup();
+
+                STRING_TO_COMPONENT = (Function<String, Object>) LambdaMetafactory.metafactory(lookup,
+                        "apply",
+                        MethodType.methodType(Function.class),
+                        MethodType.methodType(Object.class, Object.class),
+                        lookup.findStatic(chatSerializer, "a", MethodType.methodType(chatComponent, String.class)),
+                        MethodType.methodType(chatSerializer, String.class)).getTarget().invokeExact();
+
+                PACKET_TITLE = title.getConstructor(nested, chatComponent, int.class, int.class, int.class);
+                TITLE = nested.getField("TITLE");
+                SUBTITLE = nested.getField("SUBTITLE");
+            } catch (Throwable exception) {
                 exception.printStackTrace();
             }
         }
@@ -55,8 +67,8 @@ public final class TitleAPI {
             return;
         }
         try {
-            Object chatTitle = CHAT_TITLE.invoke(null, "{\"text\": \"" + title + "\"}");
-            Object chatsubTitle = CHAT_TITLE.invoke(null, "{\"text\": \"" + subtitle + "\"}");
+            Object chatTitle = STRING_TO_COMPONENT.apply("{\"text\": \"" + title + "\"}");
+            Object chatsubTitle = STRING_TO_COMPONENT.apply("{\"text\": \"" + subtitle + "\"}");
 
             Object titlePacket = PACKET_TITLE.newInstance(TITLE.get(null), chatTitle, fadeInTime, showTime, fadeOutTime);
             Object subTitlePacket = PACKET_TITLE.newInstance(SUBTITLE.get(null), chatsubTitle, fadeInTime, showTime, fadeOutTime);
