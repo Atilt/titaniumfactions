@@ -110,9 +110,9 @@ public class CmdJoin extends FCommand {
 
         if (FactionsPlugin.getInstance().conf().logging().isFactionJoin()) {
             if (samePlayer) {
-                FactionsPlugin.getInstance().log(TL.COMMAND_JOIN_JOINEDLOG.toString(), fplayer.getName(), faction.getTag());
+                FactionsPlugin.getInstance().getPluginLogger().info(TL.COMMAND_JOIN_JOINEDLOG.format(fplayer.getName(), faction.getTag()));
             } else {
-                FactionsPlugin.getInstance().log(TL.COMMAND_JOIN_MOVEDLOG.toString(), context.fPlayer.getName(), fplayer.getName(), faction.getTag());
+                FactionsPlugin.getInstance().getPluginLogger().info(TL.COMMAND_JOIN_MOVEDLOG.format(context.fPlayer.getName(), fplayer.getName(), faction.getTag()));
             }
         }
     }

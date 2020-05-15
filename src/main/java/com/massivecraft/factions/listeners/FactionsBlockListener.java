@@ -68,21 +68,19 @@ public class FactionsBlockListener implements Listener {
         if (!FactionsPlugin.getInstance().conf().exploits().isLiquidFlow()) {
             return;
         }
-        if (event.getBlock().isLiquid()) {
-            if (event.getToBlock().isEmpty()) {
-                Faction from = Board.getInstance().getFactionAt(FLocation.wrap(event.getBlock()));
-                Faction to = Board.getInstance().getFactionAt(FLocation.wrap(event.getToBlock()));
-                if (from == to) {
-                    // not concerned with inter-faction events
+        if (event.getBlock().isLiquid() && event.getToBlock().isEmpty()) {
+            Faction from = Board.getInstance().getFactionAt(FLocation.wrap(event.getBlock()));
+            Faction to = Board.getInstance().getFactionAt(FLocation.wrap(event.getToBlock()));
+            if (from == to) {
+                // not concerned with inter-faction events
+                return;
+            }
+            // from faction != to faction
+            if (to.isNormal()) {
+                if (from.isNormal() && from.getRelationTo(to).isAlly()) {
                     return;
                 }
-                // from faction != to faction
-                if (to.isNormal()) {
-                    if (from.isNormal() && from.getRelationTo(to).isAlly()) {
-                        return;
-                    }
-                    event.setCancelled(true);
-                }
+                event.setCancelled(true);
             }
         }
     }
@@ -159,18 +157,13 @@ public class FactionsBlockListener implements Listener {
         if (direction == null) {
             return true;
         }
-        ObjectSet<Faction> factions = new ObjectOpenHashSet<>(blocks.size());
         for (Block block : blocks) {
-            factions.add(Board.getInstance().getFactionAt(FLocation.wrap(block.getLocation().add(direction.getModX(), direction.getModY(), direction.getModZ()))));
-        }
-
-        boolean disableOverall = FactionsPlugin.getInstance().conf().factions().other().isDisablePistonsInTerritory();
-        for (Faction otherFaction : factions) {
+            Faction otherFaction = Board.getInstance().getFactionAt(FLocation.wrap(block.getLocation().add(direction.getModX(), direction.getModY(), direction.getModZ())));
             if (pistonFaction == otherFaction) {
                 continue;
             }
             // Check if the piston is moving in a faction's territory. This disables pistons entirely in faction territory.
-            if (disableOverall && otherFaction.isNormal()) {
+            if (FactionsPlugin.getInstance().conf().factions().other().isDisablePistonsInTerritory() && otherFaction.isNormal()) {
                 return false;
             }
             if (otherFaction.isWilderness() && FactionsPlugin.getInstance().conf().factions().protection().isWildernessDenyBuild() && !FactionsPlugin.getInstance().conf().factions().protection().getWorldsNoWildernessProtection().contains(world)) {

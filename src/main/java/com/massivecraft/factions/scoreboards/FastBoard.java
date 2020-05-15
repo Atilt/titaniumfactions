@@ -52,10 +52,6 @@ public class FastBoard {
     static {
         try {
             Class<?> craftChatMessageClass = ServerReflection.obcClass("util.CraftChatMessage");
-            Class<?> entityPlayerClass = ServerReflection.nmsClass("EntityPlayer");
-            Class<?> playerConnectionClass = ServerReflection.nmsClass("PlayerConnection");
-            Class<?> craftPlayerClass = ServerReflection.obcClass("entity.CraftPlayer");
-            Class<?> packetClass = ServerReflection.nmsClass("Packet");
 
             MESSAGE_FROM_STRING = craftChatMessageClass.getDeclaredMethod("fromString", String.class);
             CHAT_COMPONENT_CLASS = ServerReflection.nmsClass("IChatBaseComponent");

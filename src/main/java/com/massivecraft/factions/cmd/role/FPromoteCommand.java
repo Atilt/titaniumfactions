@@ -56,10 +56,10 @@ public class FPromoteCommand extends FCommand {
         // Success!
         target.setRole(promotion);
         if (target.isOnline()) {
-            target.msg(TL.COMMAND_PROMOTE_TARGET, action, promotion.nicename);
+            target.msg(TL.COMMAND_PROMOTE_TARGET, action, promotion.toString());
         }
 
-        context.msg(TL.COMMAND_PROMOTE_SUCCESS, action, target.getName(), promotion.nicename);
+        context.msg(TL.COMMAND_PROMOTE_SUCCESS, action, target.getName(), promotion.toString());
     }
 
     @Override

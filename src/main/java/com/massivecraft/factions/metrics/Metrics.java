@@ -282,7 +282,7 @@ public class Metrics {
                             } catch (ClassNotFoundException e) {
                                 // minecraft version 1.14+
                                 if (logFailedRequests) {
-                                    FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Encountered unexpected exception", e);
+                                    FactionsPlugin.getInstance().getPluginLogger().log(Level.SEVERE, "Encountered unexpected exception", e);
                                 }
                                 // continue looping since we cannot do any other thing.
                             }
@@ -304,7 +304,7 @@ public class Metrics {
             } catch (Exception e) {
                 // Something went wrong! :(
                 if (logFailedRequests) {
-                    FactionsPlugin.getInstance().getLogger().log(Level.WARNING, "Could not submit plugin stats of " + FactionsPlugin.getInstance().getName(), e);
+                    FactionsPlugin.getInstance().getPluginLogger().log(Level.WARNING, "Could not submit plugin stats of " + FactionsPlugin.getInstance().getName(), e);
                 }
             }
         }).start();
@@ -325,7 +325,7 @@ public class Metrics {
             throw new IllegalAccessException("This method must not be called from the main thread!");
         }
         if (logSentData) {
-            FactionsPlugin.getInstance().getLogger().info("Sending data to bStats: " + data.toString());
+            FactionsPlugin.getInstance().getPluginLogger().info("Sending data to bStats: " + data.toString());
         }
         HttpsURLConnection connection = (HttpsURLConnection) new URL(URL).openConnection();
 
@@ -358,7 +358,7 @@ public class Metrics {
         }
         bufferedReader.close();
         if (logResponseStatusText) {
-            FactionsPlugin.getInstance().getLogger().info("Sent data to bStats and received response: " + builder.toString());
+            FactionsPlugin.getInstance().getPluginLogger().info("Sent data to bStats and received response: " + builder.toString());
         }
     }
 

@@ -47,7 +47,6 @@ public abstract class SpiralTask implements Runnable {
         this.world = Bukkit.getWorld(fLocation.getWorldName());
         this.finish = finish;
         if (this.world == null) {
-            FactionsPlugin.getInstance().log(Level.WARNING, "[SpiralTask] A valid world must be specified!");
             this.stop();
             if (finish != null) {
                 finish.run();
@@ -83,7 +82,7 @@ public abstract class SpiralTask implements Runnable {
      * note that the Location is at the corner of the chunk, not the center.
      */
     public final Location currentLocation() {
-        return new Location(world, FLocation.chunkToBlock(x), 65.0, FLocation.chunkToBlock(z));
+        return new Location(world, WorldUtil.chunkToBlock(x), 65.0, WorldUtil.chunkToBlock(z));
     }
 
     /*
@@ -188,7 +187,7 @@ public abstract class SpiralTask implements Runnable {
 
     // for successful completion
     public void finish() {
-//		P.getInstance().log("SpiralTask successfully completed!");
+//		P.getInstance().getLogger().info("SpiralTask successfully completed!");
         this.stop();
         if (this.finish != null) {
             this.finish.run();

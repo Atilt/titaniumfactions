@@ -1,5 +1,6 @@
 package com.massivecraft.factions.util;
 
+import com.google.common.base.CharMatcher;
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FactionsPlugin;
 import it.unimi.dsi.fastutil.chars.CharOpenHashSet;
@@ -45,14 +46,7 @@ public final class MiscUtil {
     private static final CharSet SUBSTANCE_CHARS = new CharOpenHashSet(Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'));
 
     public static String getComparisonString(String str) {
-        StringBuilder ret = new StringBuilder();
-
-        for (char c : ChatColor.stripColor(str).toCharArray()) {
-            if (SUBSTANCE_CHARS.contains(c)) {
-                ret.append(c);
-            }
-        }
-        return ret.toString().toLowerCase();
+        return CharMatcher.javaLetterOrDigit().retainFrom(str);
     }
 
     public static List<String> validateTag(String str) {

@@ -44,7 +44,7 @@ public class CmdSafeunclaimall extends FCommand {
         context.msg(TL.COMMAND_SAFEUNCLAIMALL_UNCLAIMED);
 
         if (FactionsPlugin.getInstance().conf().logging().isLandUnclaims()) {
-            FactionsPlugin.getInstance().log(TL.COMMAND_SAFEUNCLAIMALL_UNCLAIMEDLOG.format(context.sender.getName()));
+            FactionsPlugin.getInstance().getPluginLogger().info(TL.COMMAND_SAFEUNCLAIMALL_UNCLAIMEDLOG.format(context.sender.getName()));
         }
     }
 

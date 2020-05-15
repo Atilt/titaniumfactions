@@ -180,7 +180,6 @@ public abstract class MemoryFPlayer implements FPlayer {
 
     public void setAutoLeave(boolean willLeave) {
         this.willAutoLeave = willLeave;
-        FactionsPlugin.getInstance().debug(name + " set autoLeave to " + willLeave);
     }
 
     public long getLastFrostwalkerMessage() {
@@ -757,7 +756,7 @@ public abstract class MemoryFPlayer implements FPlayer {
             }
 
             if (FactionsPlugin.getInstance().conf().logging().isFactionLeave()) {
-                FactionsPlugin.getInstance().log(TL.LEAVE_LEFT.format(this.getName(), myFaction.getTag()));
+                FactionsPlugin.getInstance().getPluginLogger().info(TL.LEAVE_LEFT.format(this.getName(), myFaction.getTag()));
             }
         }
 
@@ -773,7 +772,7 @@ public abstract class MemoryFPlayer implements FPlayer {
 
             Factions.getInstance().removeFaction(myFaction.getIdRaw());
             if (FactionsPlugin.getInstance().conf().logging().isFactionDisband()) {
-                FactionsPlugin.getInstance().log(TL.LEAVE_DISBANDEDLOG.format(myFaction.getTag(), myFaction.getIdRaw(), this.getName()));
+                FactionsPlugin.getInstance().getPluginLogger().info(TL.LEAVE_DISBANDEDLOG.format(myFaction.getTag(), myFaction.getIdRaw(), this.getName()));
             }
         }
     }
@@ -951,7 +950,7 @@ public abstract class MemoryFPlayer implements FPlayer {
 
         //temporary disable logging.
 /*        if (FactionsPlugin.getInstance().conf().logging().isLandClaims()) {
-            FactionsPlugin.getInstance().log(TL.CLAIM_CLAIMEDLOG.toString(), this.getName(), flocation.getCoordString(), forFaction.getTag());
+            FactionsPlugin.getInstance().getPluginLogger().info(TL.CLAIM_CLAIMEDLOG.toString(), this.getName(), flocation.getCoordString(), forFaction.getTag());
         }*/
 
         return true;

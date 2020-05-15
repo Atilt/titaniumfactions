@@ -24,6 +24,10 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public final class SmokeUtil {
 
+    private SmokeUtil() {
+        throw new UnsupportedOperationException("This class cannot be instantiated");
+    }
+
     public static void spawnSingle(Location location, int direction) {
         if (location == null) {
             return;
@@ -52,7 +56,7 @@ public final class SmokeUtil {
     }
 
     public static void spawnCloudRandom(Location location, float thickness) {
-        int singles = (int) Math.floor(thickness * 9);
+        int singles = FastMath.floor(thickness * 9);
         for (int i = 0; i < singles; i++) {
             spawnSingleRandom(location);
         }

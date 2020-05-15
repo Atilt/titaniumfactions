@@ -35,7 +35,7 @@ public class CmdPermanent extends FCommand {
             faction.setPermanent(true);
         }
 
-        FactionsPlugin.getInstance().log((context.fPlayer == null ? "A server admin" : context.fPlayer.getName()) + " " + change + " the faction \"" + faction.getTag() + "\".");
+        FactionsPlugin.getInstance().getPluginLogger().info((context.fPlayer == null ? "A server admin" : context.fPlayer.getName()) + " " + change + " the faction \"" + faction.getTag() + "\".");
 
         // Inform all players
         for (FPlayer fplayer : FPlayers.getInstance().getOnlinePlayers()) {

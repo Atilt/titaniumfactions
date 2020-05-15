@@ -86,7 +86,7 @@ public class CmdUnclaim extends FCommand {
                 context.msg(TL.COMMAND_UNCLAIM_SAFEZONE_SUCCESS);
 
                 if (FactionsPlugin.getInstance().conf().logging().isLandUnclaims()) {
-                    FactionsPlugin.getInstance().log(TL.COMMAND_UNCLAIM_LOG.format(context.fPlayer.getName(), target.getCoordString(), targetFaction.getTag()));
+                    FactionsPlugin.getInstance().getPluginLogger().info(TL.COMMAND_UNCLAIM_LOG.format(context.fPlayer.getName(), target.getCoordString(), targetFaction.getTag()));
                 }
                 return true;
             } else {
@@ -99,7 +99,7 @@ public class CmdUnclaim extends FCommand {
                 context.msg(TL.COMMAND_UNCLAIM_WARZONE_SUCCESS);
 
                 if (FactionsPlugin.getInstance().conf().logging().isLandUnclaims()) {
-                    FactionsPlugin.getInstance().log(TL.COMMAND_UNCLAIM_LOG.format(context.fPlayer.getName(), target.getCoordString(), targetFaction.getTag()));
+                    FactionsPlugin.getInstance().getPluginLogger().info(TL.COMMAND_UNCLAIM_LOG.format(context.fPlayer.getName(), target.getCoordString(), targetFaction.getTag()));
                 }
                 return true;
             } else {
@@ -123,7 +123,7 @@ public class CmdUnclaim extends FCommand {
             context.msg(TL.COMMAND_UNCLAIM_UNCLAIMS);
 
             if (FactionsPlugin.getInstance().conf().logging().isLandUnclaims()) {
-                FactionsPlugin.getInstance().log(TL.COMMAND_UNCLAIM_LOG.format(context.fPlayer.getName(), target.getCoordString(), targetFaction.getTag()));
+                FactionsPlugin.getInstance().getPluginLogger().info(TL.COMMAND_UNCLAIM_LOG.format(context.fPlayer.getName(), target.getCoordString(), targetFaction.getTag()));
             }
 
             return true;
@@ -167,7 +167,7 @@ public class CmdUnclaim extends FCommand {
         context.faction.msg(TL.COMMAND_UNCLAIM_FACTIONUNCLAIMED, context.fPlayer.describeTo(context.faction, true));
 
         if (FactionsPlugin.getInstance().conf().logging().isLandUnclaims()) {
-            FactionsPlugin.getInstance().log(TL.COMMAND_UNCLAIM_LOG.format(context.fPlayer.getName(), target.getCoordString(), targetFaction.getTag()));
+            FactionsPlugin.getInstance().getPluginLogger().info(TL.COMMAND_UNCLAIM_LOG.format(context.fPlayer.getName(), target.getCoordString(), targetFaction.getTag()));
         }
 
         return true;

@@ -8,6 +8,7 @@ import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.WarmUpUtil;
+import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -64,7 +65,7 @@ public class CmdWarp extends FCommand {
                 Player player = context.fPlayer.getPlayer();
                 context.doWarmUp(WarmUpUtil.Warmup.WARP, TL.WARMUPS_NOTIFY_TELEPORT, warpName, () -> {
                     if (player.isOnline()) {
-                        player.teleport(fPlayer.getFaction().getWarp(warpName).getLocation());
+                        PaperLib.teleportAsync(player, fPlayer.getFaction().getWarp(warpName).getLocation());
                         fPlayer.msg(TL.COMMAND_FWARP_WARPED, warpName);
                     }
                 }, this.plugin.conf().commands().warp().getDelay());

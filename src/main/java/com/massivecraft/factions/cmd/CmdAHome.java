@@ -5,6 +5,8 @@ import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.event.FPlayerTeleportEvent;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.WorldUtil;
+import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -40,7 +42,7 @@ public class CmdAHome extends FCommand {
                 if (tpEvent.isCancelled()) {
                     return;
                 }
-                player.teleport(destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                PaperLib.teleportAsync(player, destination);
                 context.msg(TL.COMMAND_AHOME_SUCCESS, target.getName());
                 target.msg(TL.COMMAND_AHOME_TARGET);
             } else {

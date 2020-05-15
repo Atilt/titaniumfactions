@@ -168,29 +168,6 @@ public class FactionsEntityListener extends AbstractListener {
             BlockFace.DOWN
     };
 
-    private static final Set<Material> EXPLOSIVE_RESISTANT_MATERIALS = EnumSet.noneOf(Material.class);
-
-    static {
-        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("WATER"));
-        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("STATIONARY_WATER"));
-        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("AIR"));
-        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("CAVE_AIR"));
-        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("VOID_AIR"));
-        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("BEDROCK"));
-        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("LAVA"));
-        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("STATIONARY_LAVA"));
-        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("OBSIDIAN"));
-        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("WATER"));
-        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("END_PORTAL"));
-        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("END_PORTAL_FRAME"));
-        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("NETHER_PORTAL"));
-        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("ENCHANTING_TABLE"));
-        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("ANVIL"));
-        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("CHIPPED_ANVIL"));
-        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("DAMAGED_ANVIL"));
-        EXPLOSIVE_RESISTANT_MATERIALS.add(MaterialDb.getInstance().provider.resolve("ENDER_CHEST"));
-    }
-
     private void handleExplosion(Location loc, Entity boomer, Cancellable event, List<Block> blockList) {
         if (!WorldUtil.isEnabled(loc.getWorld())) {
             return;
@@ -212,7 +189,7 @@ public class FactionsEntityListener extends AbstractListener {
                 // a single surrounding block in all 6 directions is broken if the material is weak enough
                 for (BlockFace target : FACES) {
                     Block relative = center.getRelative(target);
-                    if (explosionDisallowed(boomer, relative.getLocation()) || EXPLOSIVE_RESISTANT_MATERIALS.contains(relative.getType())) {
+                    if (explosionDisallowed(boomer, relative.getLocation()) || MaterialDb.get().getProvider().isExplosiveResistant(relative.getType())) {
                         continue;
                     }
                     relative.breakNaturally();

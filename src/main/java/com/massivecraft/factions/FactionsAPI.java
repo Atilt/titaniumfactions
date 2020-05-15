@@ -5,14 +5,12 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.Plugin;
 
 import java.util.Set;
+import java.util.logging.Logger;
 
 public interface FactionsAPI {
-    /**
-     * Gets the current API version.
-     *
-     * @return current API version
-     * @since API 5
-     */
+
+    Logger getPluginLogger();
+
     default int getAPIVersion() {
         return 5;
     }

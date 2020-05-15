@@ -36,6 +36,7 @@ import com.massivecraft.factions.listeners.FactionsPlayerListener;
 import com.massivecraft.factions.listeners.versionspecific.PortalHandler;
 import com.massivecraft.factions.listeners.versionspecific.PortalListenerLegacy;
 import com.massivecraft.factions.listeners.versionspecific.PortalListener_114;
+import com.massivecraft.factions.logging.FactionsLogger;
 import com.massivecraft.factions.metrics.Metrics;
 import com.massivecraft.factions.perms.Permissible;
 import com.massivecraft.factions.perms.PermissibleAction;
@@ -76,12 +77,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginLogger;
 import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.util.EnumSet;
@@ -94,12 +97,16 @@ import java.util.concurrent.Callable;
 import java.util.function.IntConsumer;
 import java.util.function.Supplier;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     private static FactionsPlugin instance;
 
+
     private static final MinecraftVersion MINECRAFT_VERSION = MinecraftVersion.getRuntimeVersion();
+
+    private Logger logger;
 
     private Permission perms = null;
 
@@ -141,9 +148,20 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     private Metrics metrics;
 
+    private static final String ENABLE_BANNER = TextUtil.parseAnsi(
+            "&f\n" +
+            "                  _____ ___ _____ _   _  _ ___ _   _ __  __ \n" +
+            "                 |_   _|_ _|_   _/_\\ | \\| |_ _| | | |  \\/  |\n" +
+            "                   | |  | |  | |/ _ \\| .` || || |_| | |\\/| |\n" +
+            "                  _|_|_|___|_|_/_/_\\_\\_|\\_|___|\\___/|_|  |_|\n" +
+            "                 | __/_\\ / __|_   _|_ _/ _ \\| \\| / __|      \n" +
+            "                 | _/ _ \\ (__  | |  | | (_) | .` \\__ \\      \n" +
+            "                 |_/_/ \\_\\___| |_| |___\\___/|_|\\_|___/ &b(v1.0.0)\n"
+    );
+
     public FactionsPlugin() {
         if (instance != null) {
-            return;
+            throw new IllegalStateException("Unable to instantiate new plugin instance");
         }
         synchronized (FactionsPlugin.class) {
             if (instance == null) {
@@ -158,6 +176,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     @Override
     public void onEnable() {
+        this.logger = new FactionsLogger(this, "&f[TitaniumFactions] &b");
         if (this.isFinishedLoading()) {
             this.loadSettingsSuccessful = false;
             this.loadDataSuccessful = false;
@@ -167,15 +186,14 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             onlinePlayer.kickPlayer("Server data reloading...");
         }
-        getLogger().info("=== Starting up! ===");
 
-        // Ensure basefolder exists!
+        System.out.println(ENABLE_BANNER);
 
-        getLogger().info("Running Minecraft version: " + getMCVersion().getVersion());
+        this.logger.info("Server version detected: &7" + getMCVersion().getVersion());
 
         if (MinecraftVersion.getRuntimeVersion().isBefore(MinecraftVersions.v1_8)) {
             Bukkit.getPluginManager().disablePlugin(this);
-            getLogger().info("1.8 is the minimum required version for Factions to run.");
+            this.logger.info("Server version is incompatible with &fTitaniumFactions&b. (1.8+)");
             return;
         }
 
@@ -189,12 +207,10 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
         long settingsStart = System.nanoTime();
 
-        getLogger().info("");
-
         this.gson = this.getGsonBuilder().create();
 
         this.loadMaterials(amount -> {
-            getLogger().info("Loaded " + amount + " material mappings.");
+            this.logger.info("Material database updated with &7" + amount + " &bmaterials.");
             loadLang(result -> {
                 if (!result) {
                     Bukkit.getPluginManager().disablePlugin(this);
@@ -242,27 +258,23 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                 hookedPlayervaults = setupPlayervaults();
 
                 long dataStart = System.nanoTime();
-                getLogger().info("Loading player data...");
                 FPlayers.getInstance().load(loadedPlayers -> {
-                    getLogger().info("Loaded data for " + loadedPlayers + " players.");
+                    this.logger.info("== Players: &7" + loadedPlayers + "&b loaded");
 
-                    getLogger().info("Loading faction data...");
                     Factions.getInstance().load(loadedFactions -> {
-                        getLogger().info("Loaded data for " + loadedFactions + " factions.");
+                        this.logger.info("== Factions: &7" + loadedFactions + "&b loaded");
                         for (FPlayer fPlayer : FPlayers.getInstance().getAllFPlayers()) {
                             Faction faction = Factions.getInstance().getFactionById(fPlayer.getFactionIdRaw());
                             if (faction == null) {
-                                log("Invalid faction id on " + fPlayer.getName() + ":" + fPlayer.getFactionIdRaw());
                                 fPlayer.resetFactionData(false);
                                 continue;
                             }
                             faction.addFPlayer(fPlayer);
                         }
                         //board needs to be loaded after factions in order for cleaning to work correctly.
-                        getLogger().info("Loading claim data...");
                         Board.getInstance().load(loadedClaims -> {
                             Board.getInstance().clean();
-                            getLogger().info("Loaded data for " + loadedClaims + " claims.");
+                            this.logger.info("== Claims: &7" + loadedClaims + "&b loaded");
 
                             //dynmap data needs to be loaded after board in order for display to work correctly.
                             EngineDynmap.getInstance().init();
@@ -273,9 +285,9 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
                             // Grand metrics adventure!
                             //metrics needs to be instantiated after all the data in order for proper data collection
-                            this.setupMetrics();
+                            //this.setupMetrics();
 
-                            getLogger().info("Loaded all faction related data in " + ((System.nanoTime() - dataStart) / 1000000.0D) + "ms.");
+                            this.logger.info("Faction data has been loaded successfully. (&7" + TextUtil.formatDecimal((System.nanoTime() - dataStart) / 1_000_000.0D) + "ms&b)");
                             loadDataSuccessful = true; //1st checkpoint for proper saving when plugin disables
                         });
                     });
@@ -319,12 +331,14 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
                 setupPlaceholderAPI();
 
-                if (ChatColor.stripColor(TL.NOFACTION_PREFIX.toString()).equals("[4-]")) {
-                    getLogger().warning("Looks like you have an old, mistaken 'nofactions-prefix' in your lang.yml. It currently displays [4-] which is... strange.");
-                }
-
-                getLogger().info("=== Loaded factions settings in " + ((System.nanoTime() - settingsStart) / 1000000.0D) + "ms! ===");
+                this.logger.info("Faction settings have been loaded successfully. (&7" + TextUtil.formatDecimal((System.nanoTime() - settingsStart) / 1_000_000.0D) + "ms&b)");
                 this.loadSettingsSuccessful = true; //2nd checkpoint for proper saving when plugin disables
+
+                Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
+                    if (Bukkit.getPluginManager().isPluginEnabled(this)) {
+                        this.setupMetrics();
+                    }
+                }, 20L);
             });
         });
     }
@@ -335,7 +349,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     private void loadMaterials(IntConsumer result) {
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-            int loaded = MaterialDb.load();
+            int loaded = MaterialDb.get().load();
             Bukkit.getScheduler().runTask(this, () -> result.accept(loaded));
         });
     }
@@ -463,8 +477,8 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     }
 
     private Map<String, Map<String, Integer>> metricsInfo(Object plugin, Supplier<String> versionGetter) {
-        Map<String, Map<String, Integer>> map = new HashMap<>();
-        Map<String, Integer> entry = new HashMap<>();
+        Map<String, Map<String, Integer>> map = new HashMap<>(1);
+        Map<String, Integer> entry = new HashMap<>(1);
         entry.put(plugin == null ? "nope" : versionGetter.get(), 1);
         map.put(plugin == null ? "absent" : "present", entry);
         return map;
@@ -528,7 +542,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                 this.worldguard = new Worldguard7();
             }
             if (this.worldguard != null) {
-                this.getLogger().info("WorldGuard support enabled.");
+                this.logger.info("Support enabled for: &7WorldGuard (" + version + ")");
             }
         }
     }
@@ -549,7 +563,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             // Remove this here because I'm sick of dealing with bug reports due to bad decisions on my part.
             if (conf.getString(TL.COMMAND_SHOW_POWER.getPath(), "").contains("%5$s")) {
                 conf.set(TL.COMMAND_SHOW_POWER.getPath(), TL.COMMAND_SHOW_POWER.getDefault());
-                log(Level.INFO, "Removed errant format specifier from f show power.");
             }
 
             TL.setFile(conf);
@@ -557,7 +570,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                 conf.save(lang);
                 Bukkit.getScheduler().runTask(this, () -> result.accept(true));
             } catch (IOException e) {
-                FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to save lang.yml", e);
                 Bukkit.getScheduler().runTask(this, () -> result.accept(false));
             }
         });
@@ -581,25 +593,6 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     public Map<UUID, Long> getTimers() {
         return this.timers;
-    }
-
-    // -------------------------------------------- //
-    // LOGGING
-    // -------------------------------------------- //
-    public void log(String msg) {
-        log(Level.INFO, msg);
-    }
-
-    public void log(String str, Object... args) {
-        log(Level.INFO, TextUtil.parse(str, args));
-    }
-
-    public void log(Level level, String str, Object... args) {
-        log(level, TextUtil.parse(str, args));
-    }
-
-    public void log(Level level, String msg) {
-        this.getLogger().log(level, msg);
     }
 
     public boolean getLocked() {
@@ -706,12 +699,11 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         SeeChunkTask.get().close();
         SidebarProvider.get().close();
         SaveTask.get().close();
-        // only save data if plugin actually loaded successfully
-        log("Saving data...");
+        this.logger.info("Saving data...");
         if (this.isFinishedLoading()) {
-            Factions.getInstance().forceSave(result -> log("Faction data saved."));
-            FPlayers.getInstance().forceSave(result -> log("Player data saved."));
-            Board.getInstance().forceSave(result -> log("Claim data saved."));
+            FPlayers.getInstance().forceSave(result -> this.logger.info(" == Players: Successfully saved all data."));
+            Factions.getInstance().forceSave(result -> this.logger.info(" == Factions: Successfully saved all data."));
+            Board.getInstance().forceSave(result -> this.logger.info(" == Claims: Successfully saved all data."));
         }
     }
 
@@ -732,9 +724,10 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         return this.conf().logging().isPlayerCommands();
     }
 
-    // -------------------------------------------- //
-    // Functions for other plugins to hook into
-    // -------------------------------------------- //
+    @Override
+    public Logger getPluginLogger() {
+        return this.logger;
+    }
 
     // This value will be updated whenever new hooks are added
     @Override
@@ -902,15 +895,5 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     public boolean isFinishedLoading() {
         return this.loadDataSuccessful && this.loadSettingsSuccessful;
-    }
-
-    public void debug(Level level, String s) {
-        if (conf().getaVeryFriendlyFactionsConfig().isDebug()) {
-            getLogger().log(level, s);
-        }
-    }
-
-    public void debug(String s) {
-        debug(Level.INFO, s);
     }
 }

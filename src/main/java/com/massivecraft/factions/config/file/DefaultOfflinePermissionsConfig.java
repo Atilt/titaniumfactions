@@ -34,7 +34,7 @@ public class DefaultOfflinePermissionsConfig {
                 }
             }
         } catch (IllegalAccessException e) {
-            FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to update offline permission special states", e);
+            FactionsPlugin.getInstance().getPluginLogger().log(Level.SEVERE, "Failed to update offline permission special states", e);
         }
     }
 

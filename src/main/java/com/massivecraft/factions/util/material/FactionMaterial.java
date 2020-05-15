@@ -3,18 +3,16 @@ package com.massivecraft.factions.util.material;
 import com.massivecraft.factions.FactionsPlugin;
 import org.bukkit.Material;
 
-import java.util.logging.Level;
-
 public class FactionMaterial {
 
     private String name;
 
     private FactionMaterial(String name) {
-        if (MaterialDb.getInstance().provider.isLegacy(name)) {
+        if (MaterialDb.get().getProvider().isLegacy(name)) {
             // If the name is legacy attempt to match it to 1.13 name and store that
-            this.name = MaterialDb.getInstance().provider.fromLegacy(name);
+            this.name = MaterialDb.get().getProvider().fromLegacy(name);
             if (this.name == null) {
-                FactionsPlugin.getInstance().log(Level.WARNING, "Material " + name + "does not exist");
+                FactionsPlugin.getInstance().getPluginLogger().warning("Material database could not recognize: " + name);
             }
         } else {
             this.name = name;
@@ -22,8 +20,8 @@ public class FactionMaterial {
     }
 
     private FactionMaterial(Material material) {
-        if (MaterialDb.getInstance().legacy) {
-            this.name = MaterialDb.getInstance().provider.fromLegacy(material.name());
+        if (MaterialDb.get().isLegacy()) {
+            this.name = MaterialDb.get().getProvider().fromLegacy(material.name());
         } else {
             this.name = material.name();
         }
@@ -40,7 +38,7 @@ public class FactionMaterial {
     }
 
     public Material get() {
-        return MaterialDb.getInstance().get(name);
+        return MaterialDb.get().get(name);
     }
 
     public String name() {
@@ -59,7 +57,7 @@ public class FactionMaterial {
         FactionMaterial that = (FactionMaterial) o;
         // If the MaterialDb is null then it means that Conf is initializing, wait it out.
         // We may not ask the Db for a Material so use the name instead.
-        if (MaterialDb.getInstance() == null) {
+        if (MaterialDb.get() == null) {
             return name.equals(that.name);
         }
         // Compare provided Materials instead of the name as different names might provide same materials
@@ -69,7 +67,7 @@ public class FactionMaterial {
     @Override
     public int hashCode() {
         // Use material hashCode instead of name
-        if (MaterialDb.getInstance() == null) {
+        if (MaterialDb.get() == null) {
             return name.hashCode();
         }
         return get().hashCode();

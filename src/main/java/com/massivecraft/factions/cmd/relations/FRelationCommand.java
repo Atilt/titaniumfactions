@@ -77,7 +77,7 @@ public abstract class FRelationCommand extends FCommand {
         ChatColor currentRelationColor = currentRelation.getColor();
 
         // if the relation change was successful
-        if (targetRelation.value == currentRelation.value) {
+        if (targetRelation.getValue() == currentRelation.getValue()) {
             // trigger the faction relation event
             FactionRelationEvent relationEvent = new FactionRelationEvent(context.faction, them, oldRelation, currentRelation);
             Bukkit.getPluginManager().callEvent(relationEvent);

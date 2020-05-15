@@ -25,7 +25,7 @@ public class LWC {
         if (!(test instanceof LWCPlugin) || !test.isEnabled()) return;
 
         lwc = ((LWCPlugin) test).getLWC();
-        FactionsPlugin.getInstance().log("Successfully hooked into LWC!" + (FactionsPlugin.getInstance().conf().lwc().isEnabled() ? "" : " Integration is currently disabled (\"lwc.integration\")."));
+        FactionsPlugin.getInstance().getPluginLogger().info("Successfully hooked into LWC!" + (FactionsPlugin.getInstance().conf().lwc().isEnabled() ? "" : " Integration is currently disabled (\"lwc.integration\")."));
     }
 
     public static boolean getEnabled() {

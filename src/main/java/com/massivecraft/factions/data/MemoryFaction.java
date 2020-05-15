@@ -468,7 +468,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     }
 
     public void resetPerms() {
-        // FactionsPlugin.getInstance().log(Level.WARNING, "Resetting permissions for Faction: " + tag);
+        // FactionsPlugin.getInstance().getPluginLogger().info(Level.WARNING, "Resetting permissions for Faction: " + tag);
 
         this.resetPerms(this.permissions, FactionsPlugin.getInstance().getConfigManager().getPermissionsConfig().getPermissions(), true);
         this.resetPerms(this.permissionsOffline, FactionsPlugin.getInstance().getConfigManager().getOfflinePermissionsConfig().getPermissions(), false);
@@ -982,7 +982,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
 
             // no members left and faction isn't permanent, so disband it
             if (FactionsPlugin.getInstance().conf().logging().isFactionDisband()) {
-                FactionsPlugin.getInstance().log("The faction " + this.getTag() + " (" + this.getId() + ") has been disbanded since it has no members left.");
+                FactionsPlugin.getInstance().getPluginLogger().info("== Factions: " + this.getTag() + " (" + this.getId() + ") has been disbanded since it has no members left.");
             }
 
             for (FPlayer fplayer : FPlayers.getInstance().getOnlinePlayers()) {
@@ -997,7 +997,6 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
             replacements.get(0).setRole(Role.ADMIN);
             //TODO:TL
             this.msg("<i>Faction admin <h>%s<i> has been removed. %s<i> has been promoted as the new faction admin.", oldLeader == null ? "" : oldLeader.getName(), replacements.get(0).getName());
-            FactionsPlugin.getInstance().log("Faction " + this.getTag() + " (" + this.getId() + ") admin was removed. Replacement admin: " + replacements.get(0).getName());
         }
     }
 

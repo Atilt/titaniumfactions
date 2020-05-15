@@ -63,8 +63,6 @@ public class CmdBan extends FCommand {
             Bukkit.getPluginManager().callEvent(event);
 
             if (event.isCancelled()) {
-                // if someone cancels a ban, we'll get people complaining here. So lets log it.
-                FactionsPlugin.getInstance().log(Level.WARNING, "Attempted to ban {0} but someone cancelled the kick event. This isn't good.", target.getName());
                 return;
             }
 

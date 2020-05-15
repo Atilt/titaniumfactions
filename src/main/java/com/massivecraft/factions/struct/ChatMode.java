@@ -27,7 +27,7 @@ public enum ChatMode {
 
     @Override
     public String toString() {
-        return this.nicename.toString();
+        return this.toString().toString();
     }
 
     public ChatMode getNext() {

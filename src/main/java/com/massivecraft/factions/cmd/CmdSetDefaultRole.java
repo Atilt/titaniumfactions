@@ -36,7 +36,7 @@ public class CmdSetDefaultRole extends FCommand {
         }
 
         context.faction.setDefaultRole(target);
-        context.msg(TL.COMMAND_SETDEFAULTROLE_SUCCESS, target.nicename);
+        context.msg(TL.COMMAND_SETDEFAULTROLE_SUCCESS, target.toString());
     }
 
     @Override

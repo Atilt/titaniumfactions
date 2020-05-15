@@ -26,10 +26,10 @@ public abstract class FCommand {
     public FactionsPlugin plugin;
 
     // Command Aliases
-    public ObjectList<String> aliases;
+    public List<String> aliases;
 
     // Information on the args
-    public ObjectList<String> requiredArgs;
+    public List<String> requiredArgs;
     public Map<String, String> optionalArgs;
 
     // Requirements to execute this command
@@ -122,7 +122,7 @@ public abstract class FCommand {
     /*
         Help
      */
-    public ObjectList<String> helpLong;
+    public List<String> helpLong;
     public CommandVisibility visibility;
 
     private String helpShort;

@@ -33,7 +33,7 @@ public class ConfigManager {
         try {
             Loader.loadAndSave(name, config);
         } catch (IOException | IllegalAccessException e) {
-            FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Could not load config '" + name + ".conf'", e);
+            FactionsPlugin.getInstance().getPluginLogger().log(Level.SEVERE, "Could not load config '" + name + ".conf'", e);
         }
     }
 

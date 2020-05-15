@@ -78,7 +78,7 @@ public class CmdDisband extends FCommand {
         }
         if (FactionsPlugin.getInstance().conf().logging().isFactionDisband()) {
             //TODO: Format this correctly and translate.
-            FactionsPlugin.getInstance().log("The faction " + faction.getTag() + " (" + faction.getIdRaw() + ") was disbanded by " + (context.player == null ? "console command" : context.fPlayer.getName()) + ".");
+            FactionsPlugin.getInstance().getPluginLogger().info("The faction " + faction.getTag() + " (" + faction.getIdRaw() + ") was disbanded by " + (context.player == null ? "console command" : context.fPlayer.getName()) + ".");
         }
 
         if (Econ.shouldBeUsed() && context.player != null) {
@@ -90,7 +90,7 @@ public class CmdDisband extends FCommand {
                 String amountString = Econ.moneyString(amount);
                 context.msg(TL.COMMAND_DISBAND_HOLDINGS, amountString);
                 //TODO: Format this correctly and translate
-                FactionsPlugin.getInstance().log(context.fPlayer.getName() + " has been given bank holdings of " + amountString + " from disbanding " + faction.getTag() + ".");
+                FactionsPlugin.getInstance().getPluginLogger().info(context.fPlayer.getName() + " has been given bank holdings of " + amountString + " from disbanding " + faction.getTag() + ".");
             }
         }
 

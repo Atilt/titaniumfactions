@@ -9,11 +9,14 @@ import com.massivecraft.factions.integration.Essentials;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.SpiralTask;
 import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.WorldUtil;
+import io.papermc.lib.PaperLib;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class CmdStuck extends FCommand {
@@ -85,16 +88,15 @@ public class CmdStuck extends FCommand {
 
                             Faction faction = board.getFactionAt(chunk);
                             if (faction.isWilderness()) {
-                                int cx = FLocation.chunkToBlock(chunk.getX());
-                                int cz = FLocation.chunkToBlock(chunk.getZ());
+                                int cx = WorldUtil.chunkToBlock(chunk.getX());
+                                int cz = WorldUtil.chunkToBlock(chunk.getZ());
                                 int y = world.getHighestBlockYAt(cx, cz);
                                 Location tp = new Location(world, cx, y, cz);
                                 context.msg(TL.COMMAND_STUCK_TELEPORT, tp.getBlockX(), tp.getBlockY(), tp.getBlockZ());
                                 FactionsPlugin.getInstance().getTimers().remove(player.getUniqueId());
                                 FactionsPlugin.getInstance().getStuckMap().remove(player.getUniqueId());
                                 if (!Essentials.handleTeleport(player, tp)) {
-                                    player.teleport(tp);
-                                    FactionsPlugin.getInstance().debug("/f stuck used regular teleport, not essentials!");
+                                    PaperLib.teleportAsync(player, tp);
                                 }
                                 this.stop();
                                 return false;

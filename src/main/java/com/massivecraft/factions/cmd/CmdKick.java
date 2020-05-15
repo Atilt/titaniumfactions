@@ -120,7 +120,7 @@ public class CmdKick extends FCommand {
         }
 
         if (FactionsPlugin.getInstance().conf().logging().isFactionKick()) {
-            FactionsPlugin.getInstance().log((context.player == null ? "A console command" : context.fPlayer.getName()) + " kicked " + toKick.getName() + " from the faction: " + toKickFaction.getTag());
+            FactionsPlugin.getInstance().getPluginLogger().info((context.player == null ? "A console command" : context.fPlayer.getName()) + " kicked " + toKick.getName() + " from the faction: " + toKickFaction.getTag());
         }
 
         if (toKick.getRole() == Role.ADMIN) {

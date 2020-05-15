@@ -55,7 +55,7 @@ public class BrigadierManager {
                     Constructor<? extends BrigadierProvider> constructor = brigadierProvider.getDeclaredConstructor(subCommand.getClass());
                     starting.then(constructor.newInstance(subCommand).get(literal));
                 } catch (Exception e) {
-                    FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to reflectively access brigadier", e);
+                    FactionsPlugin.getInstance().getPluginLogger().log(Level.SEVERE, "Failed to reflectively access brigadier", e);
                 }
             } else {
                 // Generate our own based on args - quite ugly

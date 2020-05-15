@@ -60,38 +60,6 @@ import java.util.logging.Level;
 
 public class FactionsPlayerListener extends AbstractListener {
 
-    private static final Set<Material> ITEMS = EnumSet.noneOf(Material.class);
-    private static final Set<Material> PRESSURE_PLATES = EnumSet.noneOf(Material.class);
-
-
-    static {
-        ITEMS.add(Material.ARMOR_STAND);
-        if (FactionsPlugin.getInstance().getMCVersion().isAfterOrEq(MinecraftVersions.v1_9)) {
-            ITEMS.add(Material.END_CRYSTAL);
-        }
-        ITEMS.add(Material.MINECART);
-        ITEMS.add(MaterialDb.getInstance().provider.resolve("CHEST_MINECART"));
-        ITEMS.add(MaterialDb.getInstance().provider.resolve("COMMAND_BLOCK_MINECART"));
-        ITEMS.add(MaterialDb.getInstance().provider.resolve("FURNACE_MINECART"));
-        ITEMS.add(MaterialDb.getInstance().provider.resolve("HOPPER_MINECART"));
-        ITEMS.add(MaterialDb.getInstance().provider.resolve("TNT_MINECART"));
-
-        PRESSURE_PLATES.add(MaterialDb.getInstance().provider.resolve("HEAVY_WEIGHTED_PRESSURE_PLATE"));
-        PRESSURE_PLATES.add(MaterialDb.getInstance().provider.resolve("LIGHT_WEIGHTED_PRESSURE_PLATE"));
-        PRESSURE_PLATES.add(MaterialDb.getInstance().provider.resolve("STONE_PRESSURE_PLATE"));
-        PRESSURE_PLATES.add(MaterialDb.getInstance().provider.resolve("LIGHT_WEIGHTED_PRESSURE_PLATE"));
-        if (FactionsPlugin.getInstance().getMCVersion().isAfterOrEq(MinecraftVersions.v1_13)) {
-            PRESSURE_PLATES.add(MaterialDb.getInstance().provider.resolve("ACACIA_PRESSURE_PLATE"));
-            PRESSURE_PLATES.add(MaterialDb.getInstance().provider.resolve("BIRCH_PRESSURE_PLATE"));
-            PRESSURE_PLATES.add(MaterialDb.getInstance().provider.resolve("DARK_OAK_PRESSURE_PLATE"));
-            PRESSURE_PLATES.add(MaterialDb.getInstance().provider.resolve("JUNGLE_PRESSURE_PLATE"));
-            PRESSURE_PLATES.add(MaterialDb.getInstance().provider.resolve("OAK_PRESSURE_PLATE"));
-            PRESSURE_PLATES.add(MaterialDb.getInstance().provider.resolve("SPRUCE_PRESSURE_PLATE"));
-        } else {
-            PRESSURE_PLATES.add(Material.valueOf("WOOD_PLATE"));
-        }
-    }
-
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
         initPlayer(event.getPlayer());
@@ -117,12 +85,10 @@ public class FactionsPlayerListener extends AbstractListener {
 
         if (me.isSpyingChat() && !player.hasPermission(Permission.CHATSPY.node)) {
             me.setSpyingChat(false);
-            FactionsPlugin.getInstance().log(Level.INFO, "Found %s spying chat without permission on login. Disabled their chat spying.", player.getName());
         }
 
         if (me.isAdminBypassing() && !player.hasPermission(Permission.BYPASS.node)) {
             me.setIsAdminBypassing(false);
-            FactionsPlugin.getInstance().log(Level.INFO, "Found %s on admin Bypass without permission on login. Disabled it for them.", player.getName());
         }
 
         if (WorldUtil.isEnabled(player.getWorld())) {
@@ -377,8 +343,7 @@ public class FactionsPlayerListener extends AbstractListener {
 
         if (!canPlayerUseBlock(player, block.getType(), block.getLocation(), false)) {
             event.setCancelled(true);
-            //implement enumset
-            if (PRESSURE_PLATES.contains(block.getType())) {
+            if (MaterialDb.get().getProvider().isPressurePlate(block.getType())) {
                 return;
             }
             if (FactionsPlugin.getInstance().conf().exploits().isInteractionSpam()) {
@@ -398,7 +363,7 @@ public class FactionsPlayerListener extends AbstractListener {
         }
 
         ItemStack item = event.getItem();
-        if (item != null && ITEMS.contains(item.getType()) && !FactionsPlugin.getInstance().conf().factions().specialCase().getIgnoreBuildMaterials().contains(item.getType()) &&
+        if (item != null && (MaterialDb.get().getProvider().isMinecart(item.getType()) || item.getType() == Material.ARMOR_STAND || (FactionsPlugin.getInstance().getMCVersion().isAfterOrEq(MinecraftVersions.v1_9) && item.getType() == Material.END_CRYSTAL)) && !FactionsPlugin.getInstance().conf().factions().specialCase().getIgnoreBuildMaterials().contains(item.getType()) &&
                 !FactionsBlockListener.playerCanBuildDestroyBlock(event.getPlayer(), event.getClickedBlock().getRelative(event.getBlockFace()).getLocation(), PermissibleAction.BUILD, false)) {
             event.setCancelled(true);
             return;
@@ -717,7 +682,7 @@ public class FactionsPlayerListener extends AbstractListener {
 
         if (FactionsPlayerListener.preventCommand(event.getMessage(), event.getPlayer())) {
             if (FactionsPlugin.getInstance().logPlayerCommands()) {
-                FactionsPlugin.getInstance().getLogger().info("[PLAYER_COMMAND] " + event.getPlayer().getName() + ": " + event.getMessage());
+                FactionsPlugin.getInstance().getPluginLogger().info("[PLAYER_COMMAND]: &7" + event.getPlayer().getName() + ": " + event.getMessage());
             }
             event.setCancelled(true);
         }

@@ -14,6 +14,8 @@ import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.SmokeUtil;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.WarmUpUtil;
+import com.massivecraft.factions.util.WorldUtil;
+import io.papermc.lib.PaperLib;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.bukkit.Bukkit;
@@ -45,7 +47,7 @@ public class CmdHome extends FCommand {
 
         if (targetFaction != context.faction && context.fPlayer.isAdminBypassing()) {
             if (targetFaction.hasHome()) {
-                context.player.teleport(targetFaction.getHome());
+                PaperLib.teleportAsync(context.player, targetFaction.getHome());
             } else {
                 context.fPlayer.msg(TL.COMMAND_HOME_NOHOME.toString());
             }
@@ -158,7 +160,7 @@ public class CmdHome extends FCommand {
                 destination.subtract(0, 1, 0);
             }
 
-            context.player.teleport(destination);
+            PaperLib.teleportAsync(context.player, destination);
         }, this.plugin.conf().commands().home().getDelay());
     }
 

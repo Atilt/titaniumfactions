@@ -224,12 +224,12 @@ public class FCmdRoot extends FCommand implements CommandExecutor {
             this.addSubCommand(this.cmdTNT);
         }
         if (Bukkit.getPluginManager().isPluginEnabled("FactionsTop")) {
-            FactionsPlugin.getInstance().getLogger().info("Found FactionsTop plugin. Disabling our own /f top command.");
+            FactionsPlugin.getInstance().getPluginLogger().info("Found FactionsTop plugin. Disabling our own /f top command.");
         } else {
             this.addSubCommand(this.cmdTop);
         }
         if (FactionsPlugin.getInstance().isHookedPlayervaults()) {
-            FactionsPlugin.getInstance().getLogger().info("Found PlayerVaults hook, adding /f vault and /f setmaxvault commands.");
+            FactionsPlugin.getInstance().getPluginLogger().info("Found PlayerVaults hook, adding /f vault and /f setmaxvault commands.");
             this.addSubCommand(new CmdSetMaxVaults());
             this.addSubCommand(new CmdVault());
         }

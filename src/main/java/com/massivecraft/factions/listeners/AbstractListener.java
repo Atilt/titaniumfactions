@@ -19,9 +19,9 @@ import org.bukkit.event.Listener;
 
 
 public abstract class AbstractListener implements Listener {
+
     public boolean playerCanInteractHere(Player player, Location location) {
-        String name = player.getName();
-        if (FactionsPlugin.getInstance().conf().factions().protection().getPlayersWhoBypassAllProtection().contains(name)) {
+        if (FactionsPlugin.getInstance().conf().factions().protection().getPlayersWhoBypassAllProtection().contains(player.getName())) {
             return true;
         }
 
@@ -156,26 +156,24 @@ public abstract class AbstractListener implements Listener {
             case FARMLAND:
             case BEACON:
             case ANVIL:
+            case CHIPPED_ANVIL:
+            case DAMAGED_ANVIL:
             case FLOWER_POT:
             case BEE_NEST:
                 action = PermissibleAction.CONTAINER;
                 break;
             default:
                 // Check for doors that might have diff material name in old version.
-                if (material.name().contains("DOOR") || material.name().contains("GATE")) {
+                if (MaterialDb.get().getProvider().isGate(material)) {
                     action = PermissibleAction.DOOR;
                 }
-                if (material.name().contains("BUTTON")) {
-                    action = PermissibleAction.BUTTON;
-                }
-                // Lazier than checking all the combinations
-                if (material.name().contains("SHULKER") || material.name().contains("ANVIL") || material.name().startsWith("POTTED")) {
+                if (MaterialDb.get().getProvider().isShulkerBox(material) || MaterialDb.get().getProvider().isPottedFlower(material)) {
                     action = PermissibleAction.CONTAINER;
                 }
-                if (material.name().endsWith("_PLATE")) {
+                if (MaterialDb.get().getProvider().isPressurePlate(material)) {
                     action = PermissibleAction.PLATE;
                 }
-                if (material.name().contains("SIGN")) {
+                if (MaterialDb.get().getProvider().isSign(material)) {
                     action = PermissibleAction.ITEM;
                 }
                 break;
@@ -201,7 +199,7 @@ public abstract class AbstractListener implements Listener {
             Material mainHand = player.getItemInHand().getType();
 
             // Check if material is at risk for dupe in either hand.
-            if (isDupeMaterial(mainHand)) {
+            if (MaterialDb.get().getProvider().isExploitable(mainHand)) {
                 return false;
             }
         }
@@ -216,28 +214,5 @@ public abstract class AbstractListener implements Listener {
         }
 
         return true;
-    }
-
-    private boolean isDupeMaterial(Material material) {
-        if (MaterialDb.getInstance().provider.isSign(material)) {
-            return true;
-        }
-
-        switch (material) {
-            case CHEST:
-            case TRAPPED_CHEST:
-            case DARK_OAK_DOOR:
-            case ACACIA_DOOR:
-            case BIRCH_DOOR:
-            case JUNGLE_DOOR:
-            case OAK_DOOR:
-            case SPRUCE_DOOR:
-            case IRON_DOOR:
-                return true;
-            default:
-                break;
-        }
-
-        return false;
     }
 }

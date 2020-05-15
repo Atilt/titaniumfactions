@@ -10,6 +10,7 @@ import net.kyori.text.TextComponent;
 import net.kyori.text.event.ClickEvent;
 import net.kyori.text.event.HoverEvent;
 import net.kyori.text.format.TextColor;
+import org.bukkit.ChatColor;
 
 public class CmdColeader extends FCommand {
 
@@ -31,6 +32,10 @@ public class CmdColeader extends FCommand {
 
     @Override
     public void perform(CommandContext context) {
+        if (!context.argIsSet(0)) {
+            context.msg(ChatColor.RED + "You must specify a player.");
+            return;
+        }
         FPlayer target = context.argAsBestFPlayerMatch(0);
         if (target == null) {
             TextComponent msg = TL.COMMAND_COLEADER_CANDIDATES.toComponent().color(TextColor.GOLD);

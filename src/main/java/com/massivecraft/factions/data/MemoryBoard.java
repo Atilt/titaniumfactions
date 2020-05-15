@@ -209,14 +209,6 @@ public abstract class MemoryBoard extends Board {
     @Override
     public Set<FLocation> getAllClaims(int factionId) {
         return this.flocationIds.factionToLandMap.getOrDefault(factionId, ObjectSets.emptySet());
-/*        ObjectSet<FLocation> locs = new ObjectOpenHashSet<>();
-        return this.flocationIds.factionToLandMap.get(factionId);
-        for (Object2IntMap.Entry<FLocation> entry : flocationIds.object2IntEntrySet()) {
-            if (entry.getIntValue() == factionId) {
-                locs.add(entry.getKey());
-            }
-        }
-        return locs;*/
     }
 
     @Override
@@ -325,7 +317,7 @@ public abstract class MemoryBoard extends Board {
                 if (LWC.getEnabled() && FactionsPlugin.getInstance().conf().lwc().isResetLocksOnUnclaim()) {
                     LWC.clearAllLocks(entry.getKey());
                 }
-                FactionsPlugin.getInstance().log("Board cleaner removed " + entry.getIntValue() + " from " + entry.getKey());
+                FactionsPlugin.getInstance().getPluginLogger().info(" == Claims: Removed" + entry.getIntValue() + " from " + entry.getKey());
                 iter.remove();
             }
         }

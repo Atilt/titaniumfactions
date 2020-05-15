@@ -89,7 +89,7 @@ public final class AutoLeaveTask implements Runnable, AutoCloseable {
 
                 if (fplayer.isOffline() && now - fplayer.getLastLoginTime() > toleranceMillis) {
                     if (FactionsPlugin.getInstance().conf().logging().isFactionLeave() || FactionsPlugin.getInstance().conf().logging().isFactionKick()) {
-                        FactionsPlugin.getInstance().log("Player " + fplayer.getName() + " was auto-removed due to inactivity.");
+                        FactionsPlugin.getInstance().getPluginLogger().info("== Players: " + fplayer.getName() + " was auto-removed due to inactivity.");
                     }
 
                     // if player is faction admin, sort out the faction since he's going away

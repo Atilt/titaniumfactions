@@ -77,7 +77,7 @@ public enum Role implements Permissible {
 
     @Override
     public String toString() {
-        return this.nicename;
+        return this.toString();
     }
 
     public TL getTranslation() {

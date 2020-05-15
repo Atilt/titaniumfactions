@@ -71,19 +71,18 @@ public abstract class MemoryFactions extends Factions {
         int minlength = start.length();
         Faction bestMatch = null;
         for (Faction faction : factions.values()) {
-            String candidate = ChatColor.stripColor(faction.getTag());
+            String candidate = ChatColor.stripColor(faction.getTag()).toLowerCase();
+            if (candidate.equals(start)) {
+                return faction;
+            }
             if (candidate.length() < minlength) {
                 continue;
             }
-            if (!candidate.toLowerCase().startsWith(start)) {
+            if (!candidate.startsWith(start)) {
                 continue;
             }
-
-            // The closer to zero the better
             int lendiff = candidate.length() - minlength;
-            if (lendiff == 0) {
-                return faction;
-            }
+            //if lenddiff is less than best then it means that it found a new string with a closer match (closer to 0 or less than the previous match)
             if (lendiff < best || best == 0) {
                 best = lendiff;
                 bestMatch = faction;

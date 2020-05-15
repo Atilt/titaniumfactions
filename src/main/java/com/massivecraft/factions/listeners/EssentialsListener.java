@@ -42,15 +42,13 @@ public class EssentialsListener implements Listener {
                 loc = user.getHome(homeName);
             } catch (InvalidWorldException e) {
                 // This can throw an exception for some reason.
-                FactionsPlugin.getInstance().getLogger().warning("Tried to check on home \"" + homeName + "\" for user \"" + event.getfPlayer().getName() + "\" but Essentials said world \"" + e.getWorld() + "\" does not exist. Skipping it.");
+                FactionsPlugin.getInstance().getPluginLogger().warning("Tried to check on home \"" + homeName + "\" for user \"" + event.getfPlayer().getName() + "\" but Essentials said world \"" + e.getWorld() + "\" does not exist. Skipping it.");
                 continue;
             }
             Faction factionAt = Board.getInstance().getFactionAt(FLocation.wrap(loc));
             // We're only going to remove homes in territory that belongs to THEIR faction.
             if (factionAt.equals(faction) && factionAt.isNormal()) {
                 user.delHome(homeName);
-                FactionsPlugin.getInstance().log(Level.INFO, "FactionLeaveEvent: Removing home %s, player %s, in territory of %s",
-                        homeName, event.getfPlayer().getName(), faction.getTag());
             }
         }
     }

@@ -47,7 +47,7 @@ public class FactionsChatListener implements Listener {
                 }
             }
 
-            FactionsPlugin.getInstance().log(Level.INFO, ChatColor.stripColor("ModChat " + myFaction.getTag() + ": " + message));
+            FactionsPlugin.getInstance().getPluginLogger().info(ChatColor.stripColor("[ModChat] " + myFaction.getTag() + ": " + message));
 
             event.setCancelled(true);
         } else if (chat == ChatMode.FACTION) {
@@ -56,7 +56,7 @@ public class FactionsChatListener implements Listener {
             String message = String.format(FactionsPlugin.getInstance().conf().factions().chat().getFactionChatFormat(), me.describeTo(myFaction), msg);
             myFaction.sendMessage(message);
 
-            FactionsPlugin.getInstance().log(Level.INFO, ChatColor.stripColor("FactionChat " + myFaction.getTag() + ": " + message));
+            FactionsPlugin.getInstance().getPluginLogger().info(ChatColor.stripColor("[FactionChat] " + myFaction.getTag() + ": " + message));
 
             //Send to any players who are spying chat
             for (FPlayer fplayer : FPlayers.getInstance().getOnlinePlayers()) {
@@ -83,7 +83,7 @@ public class FactionsChatListener implements Listener {
                 }
             }
 
-            FactionsPlugin.getInstance().log(Level.INFO, ChatColor.stripColor("AllianceChat: " + message));
+            FactionsPlugin.getInstance().getPluginLogger().info(ChatColor.stripColor("[AllianceChat]: " + message));
 
             event.setCancelled(true);
         } else if (chat == ChatMode.TRUCE) {
@@ -103,7 +103,7 @@ public class FactionsChatListener implements Listener {
                 }
             }
 
-            FactionsPlugin.getInstance().log(Level.INFO, ChatColor.stripColor("TruceChat: " + message));
+            FactionsPlugin.getInstance().getPluginLogger().info(ChatColor.stripColor("[TruceChat]: " + message));
             event.setCancelled(true);
         }
     }
@@ -161,8 +161,8 @@ public class FactionsChatListener implements Listener {
                     listeningPlayer.sendMessage(String.format(yourFormat, talkingPlayer.getDisplayName(), msg));
                 } catch (UnknownFormatConversionException ex) {
 
-                    FactionsPlugin.getInstance().log(Level.SEVERE, "Critical error in chat message formatting!");
-                    FactionsPlugin.getInstance().log(Level.SEVERE, "NOTE: This can be fixed right now by setting chat tagInsertIndex to 0.");
+                    FactionsPlugin.getInstance().getPluginLogger().warning("Critical error in chat message formatting!");
+                    FactionsPlugin.getInstance().getPluginLogger().warning("NOTE: This can be fixed right now by setting chat tagInsertIndex to 0.");
                     return;
                 }
             }

@@ -2597,8 +2597,29 @@
         "legacy": "MONSTER_EGG",
         "material": "SHULKER_SPAWN_EGG"
     },
-    "SIGN": {
-        "material": "SIGN"
+    "OAK_SIGN": {
+        "legacy": "SIGN",
+        "material": "OAK_SIGN"
+    },
+    "ACACIA_SIGN": {
+        "legacy": "SIGN",
+        "material": "ACACIA_SIGN"
+    },
+    "BIRCH_SIGN": {
+        "legacy": "SIGN",
+        "material": "BIRCH_SIGN"
+    },
+    "DARK_OAK_SIGN": {
+        "legacy": "SIGN",
+        "material": "DARK_OAK_SIGN"
+    },
+    "JUNGLE_SIGN": {
+        "legacy": "SIGN",
+        "material": "JUNGLE_SIGN"
+    },
+    "SPRUCE_SIGN": {
+        "legacy": "SIGN",
+        "material": "SPRUCE_SIGN"
     },
     "SILVERFISH_SPAWN_EGG": {
         "legacy": "MONSTER_EGG",
@@ -2936,8 +2957,29 @@
         "legacy": "AIR",
         "material": "VOID_AIR"
     },
-    "WALL_SIGN": {
-        "material": "WALL_SIGN"
+    "OAK_WALL_SIGN": {
+        "legacy": "WALL_SIGN",
+        "material": "OAK_WALL_SIGN"
+    },
+    "ACACIA_WALL_SIGN": {
+        "legacy": "WALL_SIGN",
+        "material": "ACACIA_WALL_SIGN"
+    },
+    "BIRCH_WALL_SIGN": {
+        "legacy": "WALL_SIGN",
+        "material": "BIRCH_WALL_SIGN"
+    },
+    "DARK_OAK_WALL_SIGN": {
+        "legacy": "WALL_SIGN",
+        "material": "DARK_OAK_SIGN"
+    },
+    "JUNGLE_WALL_SIGN": {
+        "legacy": "WALL_SIGN",
+        "material": "JUNGLE_WALL_SIGN"
+    },
+    "SPRUCE_WALL_SIGN": {
+        "legacy": "WALL_SIGN",
+        "material": "SPRUCE_WALL_SIGN"
     },
     "WALL_TORCH": {
         "legacy": "TORCH",

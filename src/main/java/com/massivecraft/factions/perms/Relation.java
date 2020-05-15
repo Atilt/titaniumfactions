@@ -12,32 +12,36 @@ public enum Relation implements Permissible {
     NEUTRAL(1, TL.RELATION_NEUTRAL_SINGULAR.toString()),
     ENEMY(0, TL.RELATION_ENEMY_SINGULAR.toString());
 
-    public final int value;
-    public final String nicename;
+    private final int value;
+    private final String niceName;
 
-    Relation(final int value, final String nicename) {
+    Relation(final int value, final String niceName) {
         this.value = value;
-        this.nicename = nicename;
+        this.niceName = niceName;
     }
 
     public static Relation fromString(String s) {
         // Because Java 6 doesn't allow String switches :(
-        if (s.equalsIgnoreCase(MEMBER.nicename)) {
+        if (s.equalsIgnoreCase(MEMBER.toString())) {
             return MEMBER;
-        } else if (s.equalsIgnoreCase(ALLY.nicename)) {
+        } else if (s.equalsIgnoreCase(ALLY.toString())) {
             return ALLY;
-        } else if (s.equalsIgnoreCase(TRUCE.nicename)) {
+        } else if (s.equalsIgnoreCase(TRUCE.toString())) {
             return TRUCE;
-        } else if (s.equalsIgnoreCase(ENEMY.nicename)) {
+        } else if (s.equalsIgnoreCase(ENEMY.toString())) {
             return ENEMY;
         } else {
             return NEUTRAL; // If they somehow mess things up, go back to default behavior.
         }
     }
 
+    public int getValue() {
+        return value;
+    }
+
     @Override
     public String toString() {
-        return this.nicename;
+        return this.niceName;
     }
 
     public String getTranslation() {

@@ -91,7 +91,7 @@ public class CmdCreate extends FCommand {
         context.msg(TL.COMMAND_CREATE_YOUSHOULD, FCmdRoot.getInstance().cmdDescription.getUsageTemplate(context));
 
         if (FactionsPlugin.getInstance().conf().logging().isFactionCreate()) {
-            FactionsPlugin.getInstance().log(context.fPlayer.getName() + TL.COMMAND_CREATE_CREATEDLOG.toString() + tag);
+            FactionsPlugin.getInstance().getPluginLogger().info(context.fPlayer.getName() + TL.COMMAND_CREATE_CREATEDLOG.toString() + tag);
         }
     }
 

@@ -3,7 +3,9 @@ package com.massivecraft.factions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.massivecraft.factions.util.FastMath;
 import com.massivecraft.factions.util.MiscUtil;
+import com.massivecraft.factions.util.WorldUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
@@ -81,7 +83,7 @@ public final class FLocation implements Serializable {
     }
 
     public static FLocation wrap(Location location) {
-        return wrap(location.getWorld().getName(), blockToChunk(location.getBlockX()), blockToChunk(location.getBlockZ()));
+        return wrap(location.getWorld().getName(), WorldUtil.blockToChunk(location.getBlockX()), WorldUtil.blockToChunk(location.getBlockZ()));
     }
 
     public static FLocation wrap(Block block) {
@@ -105,7 +107,7 @@ public final class FLocation implements Serializable {
 
     @Deprecated
     public FLocation(Location location) {
-        this(location.getWorld().getName(), blockToChunk(location.getBlockX()), blockToChunk(location.getBlockZ()));
+        this(location.getWorld().getName(), WorldUtil.blockToChunk(location.getBlockX()), WorldUtil.blockToChunk(location.getBlockZ()));
     }
 
     @Deprecated
@@ -155,7 +157,7 @@ public final class FLocation implements Serializable {
     public String toString() {
         return "[" + this.getWorldName() + "," + this.getCoordString() + "]";
     }
-
+/*
     public static FLocation fromString(String string) {
         int index = string.indexOf(',');
         int start = 1;
@@ -165,43 +167,10 @@ public final class FLocation implements Serializable {
         int x = Integer.parseInt(string.substring(start, index));
         int y = Integer.parseInt(string.substring(index + 1, string.length() - 1));
         return new FLocation(worldName, x, y);
-    }
-
-    //----------------------------------------------//
-    // Block/Chunk/Region Value Transformation
-    //----------------------------------------------//
-
-    // bit-shifting is used because it's much faster than standard division and multiplication
-    public static int blockToChunk(int blockVal) {    // 1 chunk is 16x16 blocks
-        return blockVal >> 4;   // ">> 4" == "/ 16"
-    }
-
-    public static int blockToRegion(int blockVal) {    // 1 region is 512x512 blocks
-        return blockVal >> 9;   // ">> 9" == "/ 512"
-    }
-
-    public static int chunkToRegion(int chunkVal) {    // 1 region is 32x32 chunks
-        return chunkVal >> 5;   // ">> 5" == "/ 32"
-    }
-
-    public static int chunkToBlock(int chunkVal) {
-        return chunkVal << 4;   // "<< 4" == "* 16"
-    }
-
-    public static int regionToBlock(int regionVal) {
-        return regionVal << 9;   // "<< 9" == "* 512"
-    }
-
-    public static int regionToChunk(int regionVal) {
-        return regionVal << 5;   // "<< 5" == "* 32"
-    }
-
-    //----------------------------------------------//
-    // Misc Geometry
-    //----------------------------------------------//
+    }*/
 
     public FLocation getRelative(int dx, int dz) {
-        return new FLocation(this.worldName, this.x + dx, this.z + dz);
+        return wrap(this.worldName, this.x + dx, this.z + dz);
     }
 
     public double getDistanceTo(FLocation that) {
@@ -269,9 +238,9 @@ public final class FLocation implements Serializable {
         int total = (int) Math.ceil(radius * 2);
         ObjectSet<FLocation> ret = new ObjectLinkedOpenHashSet<>((total * total) + 1);
 
-        int xfrom = (int) Math.floor(this.x - radius);
+        int xfrom = FastMath.floor(this.x - radius);
         int xto = (int) Math.ceil(this.x + radius);
-        int zfrom = (int) Math.floor(this.z - radius);
+        int zfrom = FastMath.floor(this.z - radius);
         int zto = (int) Math.ceil(this.z + radius);
 
         for (int x = xfrom; x <= xto; x++) {
@@ -302,7 +271,6 @@ public final class FLocation implements Serializable {
 
     @Override
     public int hashCode() {
-        // should be fast, with good range and few hash collisions: (x * 512) + z + worldName.hashCode
         return (this.x << 9) + this.z + (this.worldName != null ? this.worldName.hashCode() : 0);
     }
 
@@ -320,6 +288,10 @@ public final class FLocation implements Serializable {
     }
 
     public boolean is(Location bukkit) {
-        return blockToChunk(bukkit.getBlockX()) == this.x && blockToChunk(bukkit.getBlockZ()) == this.z && bukkit.getWorld().getName().equals(this.worldName);
+        return WorldUtil.blockToChunk(bukkit.getBlockX()) == this.x && WorldUtil.blockToChunk(bukkit.getBlockZ()) == this.z && bukkit.getWorld().getName().equals(this.worldName);
+    }
+
+    public long toKey() {
+        return WorldUtil.encodeChunk(this.x, this.z);
     }
 }

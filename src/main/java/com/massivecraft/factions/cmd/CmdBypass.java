@@ -26,10 +26,10 @@ public class CmdBypass extends FCommand {
         // TODO: Move this to a transient field in the model??
         if (context.fPlayer.isAdminBypassing()) {
             context.fPlayer.msg(TL.COMMAND_BYPASS_ENABLE.toString());
-            FactionsPlugin.getInstance().log(context.fPlayer.getName() + TL.COMMAND_BYPASS_ENABLELOG.toString());
+            FactionsPlugin.getInstance().getPluginLogger().info(context.fPlayer.getName() + TL.COMMAND_BYPASS_ENABLELOG.toString());
         } else {
             context.fPlayer.msg(TL.COMMAND_BYPASS_DISABLE.toString());
-            FactionsPlugin.getInstance().log(context.fPlayer.getName() + TL.COMMAND_BYPASS_DISABLELOG.toString());
+            FactionsPlugin.getInstance().getPluginLogger().info(context.fPlayer.getName() + TL.COMMAND_BYPASS_DISABLELOG.toString());
         }
     }
 

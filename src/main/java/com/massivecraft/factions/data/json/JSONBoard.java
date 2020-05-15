@@ -79,7 +79,7 @@ public class JSONBoard extends MemoryBoard {
                     loaded.accept(this.flocationIds.size());
                 });
             } catch (Exception e) {
-                FactionsPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to load the board from disk.", e);
+                FactionsPlugin.getInstance().getPluginLogger().log(Level.SEVERE, "Failed to load the board from disk.", e);
                 loaded.accept(0);
             }
         });

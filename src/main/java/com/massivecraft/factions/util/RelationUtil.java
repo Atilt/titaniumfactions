@@ -74,7 +74,7 @@ public final class RelationUtil {
             return Relation.NEUTRAL;
         }
 
-        if (fme.getRelationWish(fthat).value >= fthat.getRelationWish(fme).value) {
+        if (fme.getRelationWish(fthat).getValue() >= fthat.getRelationWish(fme).getValue()) {
             return fthat.getRelationWish(fme);
         }
 

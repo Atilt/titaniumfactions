@@ -60,7 +60,7 @@ public class Persist {
     public <T> T loadOrSaveDefault(T def, Class<T> clazz, Path path) {
         String name = path.getFileName().toString();
         if (Files.notExists(path)) {
-            FactionsPlugin.getInstance().getLogger().info("Creating default: " + name);
+            //FactionsPlugin.getInstance().getPluginLogger().info("Creating default: " + name);
             this.save(def, path);
             return def;
         }
@@ -68,7 +68,7 @@ public class Persist {
         T loaded = this.load(clazz, path);
 
         if (loaded == null) {
-            FactionsPlugin.getInstance().log(Level.WARNING, "Using default as I failed to load: " + name);
+            //FactionsPlugin.getInstance().getPluginLogger().info(Level.WARNING, "Using default as I failed to load: " + name);
 
             // backup bad Path, so user can attempt to recover their changes from it
             Path backup = path.resolve(name + "_bad");
@@ -77,7 +77,7 @@ public class Persist {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            FactionsPlugin.getInstance().log(Level.WARNING, "Backing up copy of bad Path to: " + backup.getFileName().toString());
+          //  FactionsPlugin.getInstance().getPluginLogger().info(Level.WARNING, "Backing up copy of bad Path to: " + backup.getFileName().toString());
             try {
                 Files.move(path, backup);
             } catch (IOException e) {

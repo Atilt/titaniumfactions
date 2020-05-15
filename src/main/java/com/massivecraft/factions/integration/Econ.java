@@ -16,6 +16,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 import java.text.DecimalFormat;
@@ -33,21 +34,21 @@ public class Econ {
             return;
         }
 
-        String integrationFail = "Economy integration is " + (FactionsPlugin.getInstance().conf().economy().isEnabled() ? "enabled, but" : "disabled, and") + " the plugin \"Vault\" ";
+        boolean economyEnabled = FactionsPlugin.getInstance().conf().economy().isEnabled();
 
-        if (Bukkit.getPluginManager().getPlugin("Vault") == null) {
-            FactionsPlugin.getInstance().getLogger().info(integrationFail + "is not installed.");
+        Plugin vault = Bukkit.getPluginManager().getPlugin("Vault");
+        if (vault == null) {
             return;
         }
 
         RegisteredServiceProvider<Economy> rsp = Bukkit.getServicesManager().getRegistration(Economy.class);
         if (rsp == null) {
-            FactionsPlugin.getInstance().getLogger().info(integrationFail + "is not hooked into an economy plugin.");
+            FactionsPlugin.getInstance().getPluginLogger().warning("Support enabled for: &7Vault " + "(v" + vault.getDescription().getVersion() + ")" + "(No economy plugin found)");
             return;
         }
         econ = rsp.getProvider();
 
-        FactionsPlugin.getInstance().getLogger().info("Found economy plugin through Vault: " + econ.getName());
+        FactionsPlugin.getInstance().getPluginLogger().warning("Support enabled for: &7Vault " + "(v" + vault.getDescription().getVersion() + ")" + " (" + rsp.getProvider().getName() + ")");
 
         String account = FactionsPlugin.getInstance().conf().economy().getUniverseAccount();
         if (account != null && !account.isEmpty()) {
@@ -56,11 +57,6 @@ public class Econ {
                 universeAccount = possible;
             }
         }
-        if (!FactionsPlugin.getInstance().conf().economy().isEnabled()) {
-            FactionsPlugin.getInstance().getLogger().info("NOTE: Economy is disabled. You can enable it in config/main.conf");
-        }
-
-        //P.getInstance().cmdBase.cmdHelp.updateHelp();
     }
 
     public static boolean shouldBeUsed() {
@@ -84,7 +80,6 @@ public class Econ {
 
     public static void sendBalanceInfo(FPlayer to, EconomyParticipator about) {
         if (!shouldBeUsed()) {
-            FactionsPlugin.getInstance().log(Level.WARNING, "Vault does not appear to be hooked into an economy plugin.");
             return;
         }
         to.msg(TL.ECON_BALANCE, about.describeTo(to, true), Econ.moneyString(econ.getBalance(Bukkit.getOfflinePlayer(about.getAccountId()))));
@@ -92,7 +87,6 @@ public class Econ {
 
     public static void sendBalanceInfo(CommandSender to, Faction about) {
         if (!shouldBeUsed()) {
-            FactionsPlugin.getInstance().log(Level.WARNING, "Vault does not appear to be hooked into an economy plugin.");
             return;
         }
         to.sendMessage(ChatColor.stripColor(String.format(TL.ECON_BALANCE.toString(), about.getTag(), Econ.moneyString(econ.getBalance(Bukkit.getOfflinePlayer(about.getAccountId()))))));
@@ -438,7 +432,7 @@ public class Econ {
     public static void createAccount(UUID id) {
         OfflinePlayer account = Bukkit.getOfflinePlayer(id);
         if (!econ.createPlayerAccount(account)) {
-            FactionsPlugin.getInstance().getLogger().warning("Failed to create economy account for: " + account.getName());
+            FactionsPlugin.getInstance().getPluginLogger().warning("Failed to create economy account for: " + account.getName());
         }
     }
 }

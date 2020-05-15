@@ -122,7 +122,7 @@ public class EngineDynmap {
         }, 100L, 100L);
 
         this.enabled = true;
-        FactionsPlugin.getInstance().getLogger().info("Enabled Dynmap integration");
+        FactionsPlugin.getInstance().getPluginLogger().info("Enabled Dynmap integration");
     }
 
     // Thread Safe / Asynchronous: No

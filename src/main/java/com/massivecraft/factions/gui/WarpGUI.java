@@ -10,6 +10,7 @@ import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
 import com.massivecraft.factions.util.WarmUpUtil;
 import com.massivecraft.factions.util.material.FactionMaterial;
+import io.papermc.lib.PaperLib;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -235,7 +236,7 @@ public class WarpGUI extends GUI<Integer> {
                     user.msg(TL.COMMAND_FWARP_NOACCESS, faction.getTag(user));
                     return;
                 }
-                player.teleport(faction.getWarp(warp).getLocation());
+                PaperLib.teleportAsync(player, faction.getWarp(warp).getLocation());
                 user.msg(TL.COMMAND_FWARP_WARPED, warp);
             }
         }, FactionsPlugin.getInstance().conf().commands().warp().getDelay());
