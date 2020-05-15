@@ -169,7 +169,7 @@ public class FastBoard {
      *
      * @return the scoreboard lines
      */
-    public ObjectList<String> getLines() {
+    public List<String> getLines() {
         return ObjectLists.unmodifiable(this.lines);
     }
 

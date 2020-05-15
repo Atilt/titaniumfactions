@@ -2,7 +2,6 @@ package com.massivecraft.factions.util.material;
 
 import com.google.gson.reflect.TypeToken;
 import com.massivecraft.factions.FactionsPlugin;
-import com.massivecraft.factions.util.FlightUtil;
 import me.lucko.helper.reflect.MinecraftVersions;
 import org.bukkit.Material;
 

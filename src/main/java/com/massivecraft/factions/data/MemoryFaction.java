@@ -477,19 +477,19 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
 
         for (Relation relation : Relation.VALUES) {
             if (relation != Relation.MEMBER) {
-                permissions.put(relation, new HashMap<>());
+                permissions.put(relation, new Object2BooleanOpenHashMap<>());
             }
         }
         if (online) {
             for (Role role : Role.VALUES) {
                 if (role != Role.ADMIN) {
-                    permissions.put(role, new HashMap<>());
+                    permissions.put(role, new Object2BooleanOpenHashMap<>());
                 }
             }
         }
 
         for (Map.Entry<Permissible, Map<PermissibleAction, Boolean>> entry : permissions.entrySet()) {
-            for (PermissibleAction permissibleAction : PermissibleAction.values()) {
+            for (PermissibleAction permissibleAction : PermissibleAction.VALUES) {
                 if (permissibleAction.isFactionOnly()) {
                     if (online && !(entry.getKey() instanceof Relation)) {
                         entry.getValue().put(permissibleAction, permissibleAction.getFactionOnly(defaults).get(entry.getKey()).defaultAllowed());
@@ -703,8 +703,6 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         if (this.hasPermanentPower()) {
             return this.getPermanentPower();
         }
-
-
         double ret = 0;
         for (FPlayer fplayer : fplayers) {
             ret += fplayer.getPower();
@@ -720,7 +718,6 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         if (this.hasPermanentPower()) {
             return this.getPermanentPower();
         }
-
         double ret = 0;
         for (FPlayer fplayer : this.fplayers) {
             ret += fplayer.getPowerMax();

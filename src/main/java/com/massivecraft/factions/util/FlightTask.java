@@ -14,22 +14,22 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public final class FlightUtil {
+public final class FlightTask {
 
-    private static FlightUtil instance;
+    private static FlightTask instance;
 
-    public static FlightUtil get() {
+    public static FlightTask get() {
         if (instance == null) {
-            synchronized (FlightUtil.class) {
+            synchronized (FlightTask.class) {
                 if (instance == null) {
-                    instance = new FlightUtil();
+                    instance = new FlightTask();
                 }
             }
         }
         return instance;
     }
 
-    private FlightUtil() {}
+    private FlightTask() {}
 
     public void start() {
         double enemyCheck = FactionsPlugin.getInstance().conf().commands().fly().getRadiusCheck() * 20;

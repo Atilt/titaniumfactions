@@ -14,7 +14,7 @@ import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.scoreboards.SidebarProvider;
 import com.massivecraft.factions.struct.Permission;
-import com.massivecraft.factions.util.FlightUtil;
+import com.massivecraft.factions.util.FlightTask;
 import com.massivecraft.factions.util.SeeChunkTask;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
@@ -52,10 +52,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.NumberConversions;
 
-import java.util.EnumSet;
 import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Level;
 
 
 public class FactionsPlayerListener extends AbstractListener {
@@ -95,7 +93,7 @@ public class FactionsPlayerListener extends AbstractListener {
             this.initFactionWorld(me, player);
         }
         FPlayers.getInstance().addOnline(me);
-        FlightUtil.get().track(me);
+        FlightTask.get().track(me);
     }
 
     private void initFactionWorld(FPlayer me, Player player) {
@@ -157,7 +155,7 @@ public class FactionsPlayerListener extends AbstractListener {
         }
 
         FPlayers.getInstance().removeOnline(me);
-        FlightUtil.get().untrack(me);
+        FlightTask.get().untrack(me);
         SidebarProvider.get().untrack(me);
         SeeChunkTask.get().untrack(me, false);
 

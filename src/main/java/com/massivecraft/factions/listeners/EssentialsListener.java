@@ -26,13 +26,13 @@ public class EssentialsListener implements Listener {
     @EventHandler
     public void onLeave(FPlayerLeaveEvent event) throws Exception {
         // Get the USER from their UUID.
-        Faction faction = event.getFaction();
         User user = ess.getUser(event.getfPlayer().getId());
 
         List<String> homes = user.getHomes();
         if (homes == null || homes.isEmpty()) {
             return;
         }
+        Faction faction = event.getFaction();
 
         // Not a great way to do this on essential's side.
         for (String homeName : user.getHomes()) {

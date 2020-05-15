@@ -44,7 +44,7 @@ import com.massivecraft.factions.perms.PermissionsMapTypeAdapter;
 import com.massivecraft.factions.scoreboards.SidebarProvider;
 import com.massivecraft.factions.struct.ChatMode;
 import com.massivecraft.factions.util.AutoLeaveTask;
-import com.massivecraft.factions.util.FlightUtil;
+import com.massivecraft.factions.util.FlightTask;
 import com.massivecraft.factions.util.LazyLocation;
 import com.massivecraft.factions.util.PermUtil;
 import com.massivecraft.factions.util.Persist;
@@ -68,7 +68,6 @@ import me.lucko.helper.reflect.MinecraftVersion;
 import me.lucko.helper.reflect.MinecraftVersions;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -77,14 +76,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginLogger;
 import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.util.EnumSet;
@@ -96,13 +93,11 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.function.IntConsumer;
 import java.util.function.Supplier;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
+public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     private static FactionsPlugin instance;
-
 
     private static final MinecraftVersion MINECRAFT_VERSION = MinecraftVersion.getRuntimeVersion();
 
@@ -181,7 +176,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             this.loadSettingsSuccessful = false;
             this.loadDataSuccessful = false;
             FPlayers.getInstance().wipeOnline();
-            FlightUtil.get().wipe();
+            FlightTask.get().wipe();
         }
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             onlinePlayer.kickPlayer("Server data reloading...");
@@ -326,7 +321,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                 this.getCommand(refCommand).setExecutor(new FCmdRoot());
 
                 if (conf().commands().fly().isEnable()) {
-                    FlightUtil.get().start();
+                    FlightTask.get().start();
                 }
 
                 setupPlaceholderAPI();
@@ -358,8 +353,8 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         this.metrics = new Metrics();
 
         this.metricsDrillPie("fuuid_version", () -> {
-            Map<String, Map<String, Integer>> map = new HashMap<>();
-            Map<String, Integer> entry = new HashMap<>();
+            Map<String, Map<String, Integer>> map = new HashMap<>(1);
+            Map<String, Integer> entry = new HashMap<>(1);
             entry.put(this.getDescription().getVersion(), 1);
             map.put(this.getDescription().getVersion(), entry);
             return map;
@@ -391,8 +386,8 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         if (vault != null) {
             this.metricsDrillPie("vault_perms", () -> this.metricsInfo(perms, perms::getName));
             this.metricsDrillPie("vault_econ", () -> {
-                Map<String, Map<String, Integer>> map = new HashMap<>();
-                Map<String, Integer> entry = new HashMap<>();
+                Map<String, Map<String, Integer>> map = new HashMap<>(1);
+                Map<String, Integer> entry = new HashMap<>(1);
                 entry.put(Econ.getEcon() == null ? "none" : Econ.getEcon().getName(), 1);
                 map.put((this.conf().economy().isEnabled() && Econ.getEcon() != null) ? "enabled" : "disabled", entry);
                 return map;
@@ -408,8 +403,8 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         String dynmapVersion = EngineDynmap.getInstance().getVersion();
         boolean dynmapEnabled = EngineDynmap.getInstance().isRunning();
         this.metricsDrillPie("dynmap", () -> {
-            Map<String, Map<String, Integer>> map = new HashMap<>();
-            Map<String, Integer> entry = new HashMap<>();
+            Map<String, Map<String, Integer>> map = new HashMap<>(1);
+            Map<String, Integer> entry = new HashMap<>(1);
             entry.put(dynmapVersion == null ? "none" : dynmapVersion, 1);
             map.put(dynmapEnabled ? "enabled" : "disabled", entry);
             return map;
@@ -432,10 +427,10 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             Set<Plugin> pluginsListening = this.getPlugins(FactionEvent.getHandlerList(), FactionCreateEvent.getHandlerList(), FactionRelationEvent.getHandlerList());
             Map<String, Map<String, Integer>> map = new HashMap<>();
             for (Plugin plugin : pluginsListening) {
-                if (plugin.getName().equalsIgnoreCase("factions")) {
+                if (plugin == this) {
                     continue;
                 }
-                Map<String, Integer> entry = new HashMap<>();
+                Map<String, Integer> entry = new HashMap<>(1);
                 entry.put(plugin.getDescription().getVersion(), 1);
                 map.put(plugin.getName(), entry);
             }
