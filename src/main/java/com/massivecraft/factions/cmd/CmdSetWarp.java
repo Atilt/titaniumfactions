@@ -45,8 +45,7 @@ public class CmdSetWarp extends FCommand {
         String warp = context.argAsString(0);
         String password = context.argAsString(1);
 
-        LazyLocation loc = new LazyLocation(context.fPlayer.getPlayer().getLocation());
-        context.faction.setWarp(warp, loc);
+        context.faction.setWarp(warp, new LazyLocation(context.fPlayer.getPlayer().getLocation()));
         if (password != null) {
             context.faction.setWarpPassword(warp, password);
         }

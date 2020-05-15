@@ -56,7 +56,7 @@ public class CmdStuck extends FCommand {
                 return;
             }
 
-            final int id = new BukkitRunnable() {
+           int id = new BukkitRunnable() {
 
                 @Override
                 public void run() {

@@ -241,6 +241,8 @@ public interface Faction extends EconomyParticipator {
 
     List<Player> getOnlinePlayers();
 
+    int getTotalOnline();
+
     // slightly faster check than getOnlinePlayers() if you just want to see if
     // there are any players online
     boolean hasPlayersOnline();
@@ -290,6 +292,10 @@ public interface Faction extends EconomyParticipator {
     void remove();
 
     Set<FLocation> getAllClaims();
+
+    double getMoney();
+
+    double getTotalMoney();
 
     @Deprecated
     void setId(String id);

@@ -40,7 +40,7 @@ public class CmdTitle extends FCommand {
         if (!context.payForCommand(FactionsPlugin.getInstance().conf().economy().getCostTitle(), TL.COMMAND_TITLE_TOCHANGE, TL.COMMAND_TITLE_FORCHANGE)) {
             return;
         }
-        you.setTitle(context.sender, TextUtil.implode(context.args, " ").replace(",", ""));
+        you.setTitle(context.sender, TextUtil.replace(TextUtil.implode(context.args, " "), ",", ""));
 
         // Inform
         context.faction.msg(TL.COMMAND_TITLE_CHANGED, context.fPlayer.describeTo(context.faction, true), you.describeTo(context.faction, true));

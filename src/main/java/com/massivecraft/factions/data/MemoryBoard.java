@@ -39,15 +39,9 @@ public abstract class MemoryBoard extends Board {
 
     private static final int NONE = -82102;
 
-    //this is what's being used to determine each chunk's ownership.
     public static class MemoryBoardMap extends Object2IntOpenHashMap<FLocation> {
         private static final long serialVersionUID = -6689617828610585368L;
 
-
-        //better implementation. setIdAt = 0.06%
-        //this is what's being used to save in json
-        //Multimap<FactionId, Chunk> aka Map<FactionId, Set<Chunk>>
-        //
         private final Int2ObjectMap<ObjectSet<FLocation>> factionToLandMap = new Int2ObjectOpenHashMap<>();
 
         @Override
@@ -56,7 +50,7 @@ public abstract class MemoryBoard extends Board {
                 throw new IllegalArgumentException("illegal faction set");
             }
             int previousValue = super.put(fLocation, factionId);
-            if (previousValue != NONE) { //if there was a previous value, then remove it from the multimap.
+            if (previousValue != NONE) {
                 ObjectSet<FLocation> fLocations = factionToLandMap.remove(previousValue);
                 if (fLocations != null) {
                     fLocations.remove(fLocation);

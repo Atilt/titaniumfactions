@@ -77,7 +77,7 @@ public final class MiscUtil {
         return errors;
     }
 
-    public static Iterable<FPlayer> rankOrder(Collection<FPlayer> players) {
+    public static List<FPlayer> rankOrder(Collection<FPlayer> players) {
         ObjectList<FPlayer> ret = new ObjectArrayList<>(players);
         Collections.sort(ret);
         return ret;

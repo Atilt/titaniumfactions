@@ -193,7 +193,7 @@ public class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
         if (MinecraftVersion.getRuntimeVersion().isBefore(MinecraftVersions.v1_8)) {
             Bukkit.getPluginManager().disablePlugin(this);
-            this.logger.info("Server version is incompatible with &fTitaniumFactions&b. (1.8+)");
+            this.logger.severe("Server version is incompatible with &fTitaniumFactions&b. (1.8+)");
             return;
         }
 

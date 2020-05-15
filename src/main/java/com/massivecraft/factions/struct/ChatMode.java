@@ -12,6 +12,8 @@ public enum ChatMode {
     public final int value;
     public final TL nicename;
 
+    private static final ChatMode[] MODES = ChatMode.values();
+
     ChatMode(final int value, final TL nicename) {
         this.value = value;
         this.nicename = nicename;
@@ -27,21 +29,10 @@ public enum ChatMode {
 
     @Override
     public String toString() {
-        return this.toString().toString();
+        return this.nicename.toString();
     }
 
     public ChatMode getNext() {
-        switch (this) {
-            case PUBLIC:
-                return TRUCE;
-            case TRUCE:
-                return ALLIANCE;
-            case ALLIANCE:
-                return FACTION;
-            case FACTION:
-                return MOD;
-            default:
-                return PUBLIC;
-        }
+        return MODES[(this.ordinal() == 0 ? MODES.length : this.ordinal()) - 1];
     }
 }

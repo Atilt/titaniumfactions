@@ -89,8 +89,7 @@ public enum FactionTag implements Tag {
         if (fp != null && fp.isOnline()) {
             return Integer.toString(fac.getFPlayersWhereOnline(true, fp).size());
         } else {
-            // Only console should ever get here.
-            return Integer.toString(fac.getFPlayersWhereOnline(true).size());
+            return Integer.toString(fac.getTotalOnline());
         }
     }),
     OFFLINE_COUNT("offline", (fac, fp) -> {

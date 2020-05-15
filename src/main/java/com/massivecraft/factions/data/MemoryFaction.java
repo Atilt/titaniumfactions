@@ -26,6 +26,7 @@ import com.massivecraft.factions.util.RelationUtil;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -452,21 +453,18 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
             return false; // Locked, can't continue;
         }
 
-        Map<PermissibleAction, Boolean> accessMap = permissionsMap.get(permissible);
-        if (accessMap == null) {
-            accessMap = new HashMap<>();
-        }
-
-        accessMap.put(permissibleAction, value);
+        permissionsMap.computeIfAbsent(permissible, pa -> new Object2BooleanOpenHashMap<>()).put(permissibleAction, value);
         return true;
     }
 
+    @Override
     public void checkPerms() {
         if (this.permissions == null || this.permissions.isEmpty()) {
             this.resetPerms();
         }
     }
 
+    @Override
     public void resetPerms() {
         // FactionsPlugin.getInstance().getPluginLogger().info(Level.WARNING, "Resetting permissions for Faction: " + tag);
 
@@ -503,11 +501,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         }
     }
 
-    /**
-     * Read only map of Permissions.
-     *
-     * @return map of permissions
-     */
+    @Override
     public Map<Permissible, Map<PermissibleAction, Boolean>> getPermissions() {
         return Collections.unmodifiableMap(permissions);
     }
@@ -516,17 +510,16 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         return Collections.unmodifiableMap(permissionsOffline);
     }
 
+    @Override
     public Role getDefaultRole() {
         return this.defaultRole;
     }
 
+    @Override
     public void setDefaultRole(Role role) {
         this.defaultRole = role;
     }
 
-    // -------------------------------------------- //
-    // Construct
-    // -------------------------------------------- //
     protected MemoryFaction() {
     }
 
@@ -572,50 +565,47 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         resetPerms(); // Reset on new Faction so it has default values.
     }
 
-    // -------------------------------------------- //
-    // Extra Getters And Setters
-    // -------------------------------------------- //
+    @Override
     public boolean noPvPInTerritory() {
         return isSafeZone() || (peaceful && FactionsPlugin.getInstance().conf().factions().specialCase().isPeacefulTerritoryDisablePVP());
     }
 
+    @Override
     public boolean noMonstersInTerritory() {
         return isSafeZone() ||
                 (peaceful && FactionsPlugin.getInstance().conf().factions().specialCase().isPeacefulTerritoryDisableMonsters()) ||
                 (isWarZone() && FactionsPlugin.getInstance().conf().factions().protection().isWarZonePreventMonsterSpawns());
     }
 
-    // -------------------------------
-    // Understand the type
-    // -------------------------------
-
+    @Override
     public boolean isNormal() {
         return !(this.isWilderness() || this.isSafeZone() || this.isWarZone());
     }
 
+    @Override
     public boolean isNone() {
         return this.id == 0;
     }
 
+    @Override
     public boolean isWilderness() {
         return this.id == 0;
     }
 
+    @Override
     public boolean isSafeZone() {
         return this.id == -1;
     }
 
+    @Override
     public boolean isWarZone() {
         return this.id == -2;
     }
 
+    @Override
     public boolean isPlayerFreeType() {
         return this.isSafeZone() || this.isWarZone();
     }
-
-    // -------------------------------
-    // Relation and relation colors
-    // -------------------------------
 
     @Override
     public String describeTo(RelationParticipator that, boolean ucfirst) {
@@ -642,10 +632,12 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         return RelationUtil.getColorOfThatToMe(this, rp);
     }
 
+    @Override
     public Relation getRelationWish(Faction otherFaction) {
         return this.relationWish.getOrDefault(otherFaction.getIdRaw(), Relation.fromString(FactionsPlugin.getInstance().conf().factions().other().getDefaultRelation()));
     }
 
+    @Override
     public void setRelationWish(Faction otherFaction, Relation relation) {
         if (relation == Relation.NEUTRAL) {
             this.relationWish.remove(otherFaction.getIdRaw());
@@ -654,6 +646,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         this.relationWish.put(otherFaction.getIdRaw(), relation);
     }
 
+    @Override
     public int getRelationCount(Relation relation) {
         int count = 0;
         for (Faction faction : Factions.getInstance().getAllFactions()) {
@@ -663,10 +656,6 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         }
         return count;
     }
-
-    // ----------------------------------------------//
-    // DTR
-    // ----------------------------------------------//
 
     @Override
     public double getDTR() {
@@ -708,10 +697,8 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         return System.currentTimeMillis() < this.frozenDTRUntilTime;
     }
 
-    // ----------------------------------------------//
-    // Power
-    // ----------------------------------------------//
-    @Deprecated
+
+    @Override
     public double getPower() {
         if (this.hasPermanentPower()) {
             return this.getPermanentPower();
@@ -728,14 +715,14 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         return ret + this.powerBoost;
     }
 
-    @Deprecated
+    @Override
     public double getPowerMax() {
         if (this.hasPermanentPower()) {
             return this.getPermanentPower();
         }
 
         double ret = 0;
-        for (FPlayer fplayer : fplayers) {
+        for (FPlayer fplayer : this.fplayers) {
             ret += fplayer.getPowerMax();
         }
         if (FactionsPlugin.getInstance().conf().factions().landRaidControl().power().getFactionMax() > 0 && ret > FactionsPlugin.getInstance().conf().factions().landRaidControl().power().getFactionMax()) {
@@ -744,59 +731,73 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         return ret + this.powerBoost;
     }
 
+    @Override
     public int getPowerRounded() {
         return (int) Math.round(this.getPower());
     }
 
+    @Override
     public int getPowerMaxRounded() {
         return (int) Math.round(this.getPowerMax());
     }
 
+    @Override
     public boolean hasLandInflation() {
         return FactionsPlugin.getInstance().getLandRaidControl().hasLandInflation(this);
     }
 
+    @Override
     public Integer getPermanentPower() {
         return this.permanentPower;
     }
 
+    @Override
     public void setPermanentPower(Integer permanentPower) {
         this.permanentPower = permanentPower;
     }
 
+    @Override
     public boolean hasPermanentPower() {
         return this.permanentPower != null;
     }
 
+    @Override
     public double getPowerBoost() {
         return this.powerBoost;
     }
 
+    @Override
     public void setPowerBoost(double powerBoost) {
         this.powerBoost = powerBoost;
     }
 
+    @Override
     public boolean isPowerFrozen() {
         int freezeSeconds = FactionsPlugin.getInstance().conf().factions().landRaidControl().power().getPowerFreeze();
         return freezeSeconds != 0 && System.currentTimeMillis() - lastDeath < freezeSeconds * 1000;
     }
 
+    @Override
     public int getLandRounded() {
         return Board.getInstance().getFactionCoordCount(this);
     }
 
+    @Override
     public int getLandRoundedInWorld(String worldName) {
         return Board.getInstance().getFactionCoordCountInWorld(this, worldName);
     }
 
+    @Override
     public int getTNTBank() {
         return this.tntBank;
     }
 
+    @Override
     public void setTNTBank(int amount) {
         this.tntBank = amount;
     }
 
+    @Override
     public void refreshFPlayers() {
         fplayers.clear();
         if (this.isPlayerFreeType()) {
@@ -810,22 +811,27 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         }
     }
 
+    @Override
     public boolean addFPlayer(FPlayer fplayer) {
         return !this.isPlayerFreeType() && fplayers.add(fplayer);
     }
 
+    @Override
     public boolean removeFPlayer(FPlayer fplayer) {
         return !this.isPlayerFreeType() && fplayers.remove(fplayer);
     }
 
+    @Override
     public int getSize() {
         return this.fplayers.size();
     }
 
+    @Override
     public Set<FPlayer> getFPlayers() {
         return ObjectSets.unmodifiable(this.fplayers);
     }
 
+    @Override
     public Set<FPlayer> getFPlayersWhereOnline(boolean online) {
         if (!this.isNormal()) {
             return ObjectSets.emptySet();
@@ -847,6 +853,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         return ret;
     }
 
+    @Override
     public Set<FPlayer> getFPlayersWhereOnline(boolean online, FPlayer viewer) {
         if (!this.isNormal()) {
             return ObjectSets.emptySet();
@@ -911,6 +918,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         return amount;
     }
 
+    @Override
     public List<Player> getOnlinePlayers() {
         if (this.isPlayerFreeType()) {
             return ObjectLists.emptyList();
@@ -926,8 +934,21 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         return ret;
     }
 
+    @Override
+    public int getTotalOnline() {
+        int online = 0;
+        for (FPlayer onlinePlayer : FPlayers.getInstance().getOnlinePlayers()) {
+            if (onlinePlayer.getFaction() != this) {
+                continue;
+            }
+            online++;
+        }
+        return online;
+    }
+
     // slightly faster check than getOnlinePlayers() if you just want to see if
     // there are any players online
+    @Override
     public boolean hasPlayersOnline() {
         // only real factions can have players online, not safe zone / war zone
         if (this.isPlayerFreeType()) {
@@ -1163,5 +1184,19 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
 
     public Set<FLocation> getAllClaims() {
         return Board.getInstance().getAllClaims(this);
+    }
+
+    @Override
+    public double getMoney() {
+        return Econ.getBalance(this.getAccountId());
+    }
+
+    @Override
+    public double getTotalMoney() {
+        double money = this.getMoney();
+        for (FPlayer fplayer : this.fplayers) {
+            money += Econ.getBalance(fplayer.getAccountId());
+        }
+        return money;
     }
 }

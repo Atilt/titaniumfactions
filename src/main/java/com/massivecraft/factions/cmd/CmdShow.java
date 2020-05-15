@@ -219,7 +219,7 @@ public class CmdShow extends FCommand {
 
         @Override
         public void run() {
-            Object2ObjectMap<UUID, String> map = new Object2ObjectOpenHashMap<>();
+            Object2ObjectMap<UUID, String> map = new Object2ObjectOpenHashMap<>(this.players.size());
             for (OfflinePlayer player : this.players) {
                 map.put(player.getUniqueId(), FactionsPlugin.getInstance().getPrimaryGroup(player));
             }
