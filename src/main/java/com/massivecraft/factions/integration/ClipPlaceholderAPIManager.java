@@ -11,12 +11,15 @@ import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.tag.FactionTag;
 import com.massivecraft.factions.tag.Tag;
 import com.massivecraft.factions.util.TL;
+import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.clip.placeholderapi.expansion.Relational;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+
+import java.util.List;
 
 public class ClipPlaceholderAPIManager extends PlaceholderExpansion implements Relational {
 
@@ -234,5 +237,13 @@ public class ClipPlaceholderAPIManager extends PlaceholderExpansion implements R
             }
         }
         return count;
+    }
+
+    public String setPlaceholders(Player player, String text) {
+        return PlaceholderAPI.setPlaceholders(player, text);
+    }
+
+    public List<String> setPlaceholders(Player player, List<String> text) {
+        return PlaceholderAPI.setPlaceholders(player, text);
     }
 }

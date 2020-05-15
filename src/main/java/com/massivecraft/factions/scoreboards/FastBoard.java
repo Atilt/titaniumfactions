@@ -1,6 +1,7 @@
 package com.massivecraft.factions.scoreboards;
 
 import com.massivecraft.factions.FPlayer;
+import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.protocol.Protocol;
 import com.massivecraft.factions.util.TextUtil;
@@ -309,7 +310,7 @@ public class FastBoard {
     }
 
     public void updateLines(FPlayer fPlayer) {
-        List<String> lines = fPlayer.getScoreboardTextProvider().getText(fPlayer);
+        List<String> lines = FactionsPlugin.getInstance().isClipPlaceholderAPIHooked() ? FactionsPlugin.getInstance().getClipPlaceholderAPIManager().setPlaceholders(this.player, fPlayer.getScoreboardTextProvider().getText(fPlayer)) : fPlayer.getScoreboardTextProvider().getText(fPlayer);
         Objects.requireNonNull(lines, "lines");
 
         if (FactionsPlugin.getInstance().getMCVersion().isBefore(MinecraftVersions.v1_13)) {

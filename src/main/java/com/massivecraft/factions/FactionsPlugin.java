@@ -640,6 +640,10 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         }
     }
 
+    public ClipPlaceholderAPIManager getClipPlaceholderAPIManager() {
+        return clipPlaceholderAPIManager;
+    }
+
     public boolean isClipPlaceholderAPIHooked() {
         return this.clipPlaceholderAPIManager != null;
     }
