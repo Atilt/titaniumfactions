@@ -20,6 +20,8 @@ import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.struct.BanInfo;
 import com.massivecraft.factions.struct.Permission;
+import com.massivecraft.factions.util.FastMath;
+import com.massivecraft.factions.util.FastUUID;
 import com.massivecraft.factions.util.LazyLocation;
 import com.massivecraft.factions.util.MiscUtil;
 import com.massivecraft.factions.util.RelationUtil;
@@ -40,9 +42,9 @@ import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -85,10 +87,17 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         return this.announcements;
     }
 
+    @Override
     public void addAnnouncement(FPlayer fPlayer, String msg) {
         announcements.computeIfAbsent(fPlayer.getId(), id -> new ObjectArrayList<>()).add(msg);
     }
 
+    @Override
+    public boolean hasUnreadAnnouncements(FPlayer fPlayer) {
+        return this.announcements.containsKey(fPlayer.getId());
+    }
+
+    @Override
     public void sendUnreadAnnouncements(FPlayer fPlayer) {
         Collection<String> messages = announcements.remove(fPlayer.getId());
         if (messages == null) {
@@ -186,7 +195,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     }
 
     public void ban(FPlayer target, FPlayer banner) {
-        this.bans.add(new BanInfo(banner.getId(), target.getId(), System.currentTimeMillis()));
+        this.bans.add(new BanInfo(banner.getId(), target.getId(), Instant.now().toEpochMilli()));
     }
 
     public void unban(FPlayer player) {
@@ -300,7 +309,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
 
     public long getFoundedDate() {
         if (this.foundedDate == 0) {
-            setFoundedDate(System.currentTimeMillis());
+            setFoundedDate(Instant.now().toEpochMilli());
         }
         return this.foundedDate;
     }
@@ -314,7 +323,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
             return;
         }
 
-        msg("<b>Your faction home has been un-set since it is no longer in your territory.");
+        sendMessage(TextUtil.parseTags("<b>Your faction home has been un-set since it is no longer in your territory."));
         this.home = null;
     }
 
@@ -376,11 +385,11 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         }
 
         Map<PermissibleAction, Boolean> accessMap = permissionsMap.get(permissible);
-        if (accessMap != null && accessMap.containsKey(permissibleAction)) {
-            return accessMap.get(permissibleAction);
+        if (accessMap == null) {
+            return permInfo.defaultAllowed();
         }
-
-        return permInfo.defaultAllowed(); // Fall back on default if something went wrong
+        Boolean access = accessMap.get(permissibleAction);
+        return access == null ? permInfo.defaultAllowed() : access;
     }
 
     public boolean isLocked(boolean online, Permissible permissible, PermissibleAction permissibleAction) {
@@ -533,7 +542,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         this.peacefulExplosionsEnabled = false;
         this.permanent = false;
         this.powerBoost = 0.0;
-        this.foundedDate = System.currentTimeMillis();
+        this.foundedDate = Instant.now().toEpochMilli();
         this.maxVaults = FactionsPlugin.getInstance().conf().playerVaults().getDefaultMaxVaults();
         this.defaultRole = FactionsPlugin.getInstance().conf().factions().other().getDefaultRole();
         this.dtr = FactionsPlugin.getInstance().conf().factions().landRaidControl().dtr().getStartingDTR();
@@ -674,7 +683,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     @Override
     public void setDTR(double dtr) {
         this.dtr = dtr;
-        this.lastDTRUpdateTime = System.currentTimeMillis();
+        this.lastDTRUpdateTime = Instant.now().toEpochMilli();
     }
 
     @Override
@@ -694,7 +703,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
 
     @Override
     public boolean isFrozenDTR() {
-        return System.currentTimeMillis() < this.frozenDTRUntilTime;
+        return Instant.now().toEpochMilli() < this.frozenDTRUntilTime;
     }
 
 
@@ -730,12 +739,12 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
 
     @Override
     public int getPowerRounded() {
-        return (int) Math.round(this.getPower());
+        return FastMath.round(this.getPower());
     }
 
     @Override
     public int getPowerMaxRounded() {
-        return (int) Math.round(this.getPowerMax());
+        return FastMath.round(this.getPowerMax());
     }
 
     @Override
@@ -771,7 +780,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     @Override
     public boolean isPowerFrozen() {
         int freezeSeconds = FactionsPlugin.getInstance().conf().factions().landRaidControl().power().getPowerFreeze();
-        return freezeSeconds != 0 && System.currentTimeMillis() - lastDeath < freezeSeconds * 1000;
+        return freezeSeconds != 0 && Instant.now().toEpochMilli() - lastDeath < freezeSeconds * 1000;
     }
 
     @Override
@@ -842,7 +851,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
             }
             return ret;
         }
-        for (FPlayer fplayer : fplayers) {
+        for (FPlayer fplayer : this.fplayers) {
             if (!fplayer.isOnline()) {
                 ret.add(fplayer);
             }
@@ -959,12 +968,12 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
 
         // even if all players are technically logged off, maybe someone was on
         // recently enough to not consider them officially offline yet
-        return FactionsPlugin.getInstance().conf().factions().other().getConsiderFactionsReallyOfflineAfterXMinutes() > 0 && System.currentTimeMillis() < lastPlayerLoggedOffTime + (FactionsPlugin.getInstance().conf().factions().other().getConsiderFactionsReallyOfflineAfterXMinutes() * 60000);
+        return FactionsPlugin.getInstance().conf().factions().other().getConsiderFactionsReallyOfflineAfterXMinutes() > 0 && Instant.now().toEpochMilli() < lastPlayerLoggedOffTime + (FactionsPlugin.getInstance().conf().factions().other().getConsiderFactionsReallyOfflineAfterXMinutes() * 60000);
     }
 
     public void memberLoggedOff() {
         if (this.isNormal()) {
-            lastPlayerLoggedOffTime = System.currentTimeMillis();
+            lastPlayerLoggedOffTime = Instant.now().toEpochMilli();
         }
     }
 
@@ -1014,23 +1023,31 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
             }
             replacements.get(0).setRole(Role.ADMIN);
             //TODO:TL
-            this.msg("<i>Faction admin <h>%s<i> has been removed. %s<i> has been promoted as the new faction admin.", oldLeader == null ? "" : oldLeader.getName(), replacements.get(0).getName());
+            if (oldLeader == null) {
+                return;
+            }
+            this.sendMessage(TextUtil.parseTags(oldLeader.getName() + "<i> has been removed. " + replacements.get(0).getName() + "<i> has been promoted as the new faction admin."));
         }
     }
 
-    // ----------------------------------------------//
-    // Messages
-    // ----------------------------------------------//
-    public void msg(String message, Object... args) {
-        message = TextUtil.parse(message, args);
-
-        for (FPlayer fplayer : this.getFPlayersWhereOnline(true)) {
-            fplayer.sendMessage(message);
-        }
+    @Override
+    public void msg(String msg) {
+        this.sendMessage(msg);
     }
 
-    public void msg(TL translation, Object... args) {
-        msg(translation.toString(), args);
+    @Override
+    public void msg(TL translation) {
+        this.sendMessage(translation.toString());
+    }
+
+    @Override
+    public void msg(TL translation, TL toAppend) {
+        this.sendMessage(translation.format(toAppend.toString()));
+    }
+
+    @Override
+    public void msg(TL translation, String... args) {
+        this.sendMessage(translation.format(args));
     }
 
     public void sendMessage(String message) {
@@ -1088,14 +1105,13 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     }
 
     public int getCountOfClaimsWithOwners() {
-        return claimOwnership.isEmpty() ? 0 : claimOwnership.size();
+        return claimOwnership.size();
     }
 
     public boolean doesLocationHaveOwnersSet(FLocation loc) {
-        if (claimOwnership.isEmpty() || !claimOwnership.containsKey(loc)) {
+        if (claimOwnership.isEmpty()) {
             return false;
         }
-
         Collection<UUID> ownerData = claimOwnership.get(loc);
         return ownerData != null && !ownerData.isEmpty();
     }
@@ -1138,7 +1154,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
                 ownerList.append(", ");
             }
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(anOwnerData);
-            ownerList.append(offlinePlayer.getName() == null ? "null player" : offlinePlayer.getName());
+            ownerList.append(offlinePlayer.getName() == null ? FastUUID.toString(anOwnerData) : offlinePlayer.getName());
         }
         return ownerList.toString();
     }
@@ -1195,5 +1211,20 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
             money += Econ.getBalance(fplayer.getAccountId());
         }
         return money;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MemoryFaction that = (MemoryFaction) o;
+
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
     }
 }

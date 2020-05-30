@@ -50,6 +50,10 @@ public class CmdTop extends FCommand {
         } else if (criteria.equalsIgnoreCase("online")) {
             factionList.sort(Comparator.comparingInt(Faction::getTotalOnline).reversed());
         } else if (criteria.equalsIgnoreCase("money") || criteria.equalsIgnoreCase("balance") || criteria.equalsIgnoreCase("bal")) {
+            if (!FactionsPlugin.getInstance().conf().economy().isEnabled()) {
+                context.msg("<b>Faction economy features are disabled on this server.");
+                return;
+            }
             factionList.sort(Comparator.comparingDouble(Faction::getTotalMoney).reversed());
         } else {
             context.msg(TL.COMMAND_TOP_INVALID, criteria);
@@ -66,11 +70,11 @@ public class CmdTop extends FCommand {
         List<Faction> factions = factionList.subList(start, end);
         ObjectList<String> lines = new ObjectArrayList<>(factionList.size() + 1);
 
-        lines.add(TL.COMMAND_TOP_TOP.format(criteria.toUpperCase(), pagenumber, pagecount));
+        lines.add(TL.COMMAND_TOP_TOP.format(criteria.toUpperCase(), Integer.toString(pagenumber), Integer.toString(pagecount)));
 
         for (int rank = 0; rank < factions.size(); rank++) {
             Faction faction = factions.get(rank);
-            lines.add(TL.COMMAND_TOP_LINE.format(rank + 1, context.sender instanceof Player ? faction.getRelationTo(context.fPlayer).getColor() + faction.getTag() : faction.getTag(), getValue(faction, criteria)));
+            lines.add(TL.COMMAND_TOP_LINE.format(Integer.toString(rank + 1), context.sender instanceof Player ? faction.getRelationTo(context.fPlayer).getColor() + faction.getTag() : faction.getTag(), getValue(faction, criteria)));
         }
 
         context.sendMessage(lines);
@@ -81,7 +85,7 @@ public class CmdTop extends FCommand {
             return Integer.toString(faction.getSize());
         }
         if (criteria.equalsIgnoreCase("start")) {
-            return TL.sdf.format(faction.getFoundedDate());
+            return TL.formatDate(faction.getFoundedDate());
         }
         if (criteria.equalsIgnoreCase("power") && FactionsPlugin.getInstance().getLandRaidControl() instanceof PowerControl) {
             return Integer.toString(faction.getPowerRounded());

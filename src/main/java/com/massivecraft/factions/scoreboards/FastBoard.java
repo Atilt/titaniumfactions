@@ -1,7 +1,6 @@
 package com.massivecraft.factions.scoreboards;
 
 import com.massivecraft.factions.FPlayer;
-import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.protocol.Protocol;
 import com.massivecraft.factions.util.TextUtil;
@@ -21,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Objects;
 
 /**
@@ -134,10 +134,10 @@ public class FastBoard {
         }
 
         if (FactionsPlugin.getInstance().getMCVersion().isBefore(MinecraftVersions.v1_13) && title.length() > 32) {
-            throw new IllegalArgumentException("Title is longer than 32 chars");
+            this.title = title.substring(0, 33);
+        } else {
+            this.title = title;
         }
-
-        this.title = title;
 
         try {
             sendObjectivePacket(ObjectiveMode.UPDATE);
@@ -147,16 +147,16 @@ public class FastBoard {
     }
 
     public void updateTitle(FPlayer fPlayer) {
-        String attempt = fPlayer.getScoreboardTextProvider().getTitle(fPlayer);
+        String attempt = FactionsPlugin.getInstance().isClipPlaceholderAPIHooked() ? FactionsPlugin.getInstance().getClipPlaceholderAPIManager().setPlaceholders(this.player, fPlayer.getScoreboardTextProvider().getTitle(fPlayer)) : fPlayer.getScoreboardTextProvider().getTitle(fPlayer);
         if (this.title.equals(Objects.requireNonNull(attempt, "title"))) {
             return;
         }
 
-        if (FactionsPlugin.getInstance().getMCVersion().isBefore(MinecraftVersions.v1_13) && title.length() > 32) {
-            throw new IllegalArgumentException("Title is longer than 32 chars");
+        if (FactionsPlugin.getInstance().getMCVersion().isBefore(MinecraftVersions.v1_13) && attempt.length() > 32) {
+            this.title = attempt.substring(0, 33);
+        } else {
+            this.title = attempt;
         }
-
-        this.title = attempt;
 
         try {
             sendObjectivePacket(ObjectiveMode.UPDATE);
@@ -257,16 +257,17 @@ public class FastBoard {
      * @throws IllegalArgumentException if one line is longer than 30 chars on 1.12 or lower
      * @throws IllegalStateException    if {@link #delete()} was call before
      */
-    public void updateLines(Collection<String> lines) {
+    public void updateLines(List<String> lines) {
         Objects.requireNonNull(lines, "lines");
 
         if (FactionsPlugin.getInstance().getMCVersion().isBefore(MinecraftVersions.v1_13)) {
-            int lineCount = 0;
-            for (String s : lines) {
-                if (s != null && s.length() > 30) {
-                    throw new IllegalArgumentException("Line " + lineCount + " is longer than 30 chars");
+
+            ListIterator<String> possible = lines.listIterator();
+            while (possible.hasNext()) {
+                String current = possible.next();
+                if (current.length() > 30) {
+                    possible.set(current.substring(0, 31));
                 }
-                lineCount++;
             }
         }
 
@@ -314,12 +315,12 @@ public class FastBoard {
         Objects.requireNonNull(lines, "lines");
 
         if (FactionsPlugin.getInstance().getMCVersion().isBefore(MinecraftVersions.v1_13)) {
-            int lineCount = 0;
-            for (String s : lines) {
-                if (s != null && s.length() > 30) {
-                    throw new IllegalArgumentException("Line " + lineCount + " is longer than 30 chars");
+            ListIterator<String> possible = lines.listIterator();
+            while (possible.hasNext()) {
+                String current = possible.next();
+                if (current.length() > 30) {
+                    possible.set(current.substring(0, 31));
                 }
-                lineCount++;
             }
         }
 

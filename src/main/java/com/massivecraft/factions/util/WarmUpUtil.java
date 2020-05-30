@@ -13,22 +13,21 @@ public final class WarmUpUtil {
      * @param runnable       The task to run after the delay. If the delay is 0, the task is instantly ran.
      * @param delay          The time used, in seconds, for the delay.
      *                       <p/>
-     *                       note: for translations: %s = action, %d = delay
+     *                       note: for translations: [] = action, [] = delay
      */
-    public static void process(final FPlayer player, Warmup warmup, TL translationKey, String action, final Runnable runnable, long delay) {
+    public static void process(final FPlayer player, Warmup warmup, TL translationKey, String action, Runnable runnable, long delay) {
         if (delay > 0) {
             if (player.isWarmingUp()) {
                 player.msg(TL.WARMUPS_ALREADY);
             } else {
-                player.msg(translationKey.format(action, delay));
-                int id = new BukkitRunnable() {
+                player.msg(translationKey.format(action, Long.toString(delay)));
+                player.addWarmup(warmup, new BukkitRunnable() {
                     @Override
                     public void run() {
                         player.stopWarmup();
                         runnable.run();
                     }
-                }.runTaskLater(FactionsPlugin.getInstance(), delay * 20).getTaskId();
-                player.addWarmup(warmup, id);
+                }.runTaskLater(FactionsPlugin.getInstance(), delay * 20L).getTaskId());
             }
         } else {
             runnable.run();

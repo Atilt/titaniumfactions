@@ -8,6 +8,7 @@ import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.cmd.CommandContext;
 import com.massivecraft.factions.event.PowerLossEvent;
+import com.massivecraft.factions.util.StringFormat;
 import com.massivecraft.factions.util.TL;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -121,7 +122,8 @@ public class PowerControl implements LandRaidControl {
         // Send the message from the powerLossEvent
         final String msg = powerLossEvent.getMessage();
         if (msg != null && !msg.isEmpty()) {
-            fplayer.msg(msg, fplayer.getPowerRounded(), fplayer.getPowerMaxRounded());
+            //TODO kind of hacky, fix this later
+            fplayer.msg(StringFormat.compile(msg).format(fplayer.getPowerRounded(), fplayer.getPowerMaxRounded()));
         }
     }
 }

@@ -57,7 +57,7 @@ public abstract class MemoryFPlayers extends FPlayers {
     }
 
     @Override
-    public int size() {
+    public int onlineSize() {
         return this.online.size();
     }
 

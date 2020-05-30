@@ -65,6 +65,9 @@ public class NewMemoryFaction {
         old.permissions.forEach((permiss, map) -> {
             Map<PermissibleAction, Boolean> newMap = new HashMap<>();
             map.forEach((permact, access) -> {
+                if (permact == null) {
+                    return;
+                }
                 if (access == OldAccessV0.ALLOW || access == OldAccessV0.DENY) {
                     newMap.put(permact.getNew(), access == OldAccessV0.ALLOW);
                 }

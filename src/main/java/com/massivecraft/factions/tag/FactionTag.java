@@ -7,10 +7,12 @@ import com.massivecraft.factions.integration.Econ;
 import com.massivecraft.factions.landraidcontrol.DTRControl;
 import com.massivecraft.factions.landraidcontrol.PowerControl;
 import com.massivecraft.factions.perms.Relation;
+import com.massivecraft.factions.util.FastMath;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
 import org.apache.commons.lang.time.DurationFormatUtils;
 
+import java.time.Instant;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -41,8 +43,8 @@ public enum FactionTag implements Tag {
     }),
     DTR("dtr", (fac) -> {
         if (FactionsPlugin.getInstance().getLandRaidControl() instanceof PowerControl) {
-            int dtr = fac.getLandRounded() >= fac.getPowerRounded() ? 0 : (int) Math.ceil(((double) (fac.getPowerRounded() - fac.getLandRounded())) / FactionsPlugin.getInstance().conf().factions().landRaidControl().power().getLossPerDeath());
-            return TL.COMMAND_SHOW_DEATHS_TIL_RAIDABLE.format(dtr);
+            int dtr = fac.getLandRounded() >= fac.getPowerRounded() ? 0 : FastMath.ceil(((double) (fac.getPowerRounded() - fac.getLandRounded())) / FactionsPlugin.getInstance().conf().factions().landRaidControl().power().getLossPerDeath());
+            return TL.COMMAND_SHOW_DEATHS_TIL_RAIDABLE.format(Integer.toString(dtr));
         } else {
             return DTRControl.round(fac.getDTR());
         }
@@ -55,14 +57,14 @@ public enum FactionTag implements Tag {
     }),
     DTR_FROZEN("dtr-frozen-status", (fac -> TL.DTR_FROZEN_STATUS_MESSAGE.format(fac.isFrozenDTR() ? TL.DTR_FROZEN_STATUS_TRUE.toString() : TL.DTR_FROZEN_STATUS_FALSE.toString()))),
     DTR_FROZEN_TIME("dtr-frozen-time", (fac -> TL.DTR_FROZEN_TIME_MESSAGE.format(fac.isFrozenDTR() ?
-            DurationFormatUtils.formatDuration(fac.getFrozenDTRUntilTime() - System.currentTimeMillis(), FactionsPlugin.getInstance().conf().factions().landRaidControl().dtr().getFreezeTimeFormat()) :
+            DurationFormatUtils.formatDuration(fac.getFrozenDTRUntilTime() - Instant.now().toEpochMilli(), FactionsPlugin.getInstance().conf().factions().landRaidControl().dtr().getFreezeTimeFormat()) :
             TL.DTR_FROZEN_TIME_NOTFROZEN.toString()))),
     MAX_CHUNKS("max-chunks", (fac -> Integer.toString(FactionsPlugin.getInstance().getLandRaidControl().getLandLimit(fac)))),
     PEACEFUL("peaceful", (fac) -> fac.isPeaceful() ? FactionsPlugin.getInstance().conf().colors().relations().getPeaceful() + TL.COMMAND_SHOW_PEACEFUL.toString() : ""),
     PERMANENT("permanent", (fac) -> fac.isPermanent() ? "permanent" : "{notPermanent}"), // no braces needed
     LAND_VALUE("land-value", (fac) -> Econ.shouldBeUsed() ? Econ.moneyString(Econ.calculateTotalLandValue(fac.getLandRounded())) : Tag.isMinimalShow() ? null : TL.ECON_OFF.format("value")),
     DESCRIPTION("description", Faction::getDescription),
-    CREATE_DATE("create-date", (fac) -> TL.sdf.format(fac.getFoundedDate())),
+    CREATE_DATE("create-date", (fac) -> TL.formatDate(fac.getFoundedDate())),
     LAND_REFUND("land-refund", (fac) -> Econ.shouldBeUsed() ? Econ.moneyString(Econ.calculateTotalLandRefund(fac.getLandRounded())) : Tag.isMinimalShow() ? null : TL.ECON_OFF.format("refund")),
     BANK_BALANCE("faction-balance", (fac) -> {
         if (Econ.shouldBeUsed()) {
@@ -82,9 +84,9 @@ public enum FactionTag implements Tag {
         }
         return Tag.isMinimalShow() ? null : "";
     }),
-    ALLIES_COUNT("allies", (fac) -> String.valueOf(fac.getRelationCount(Relation.ALLY))),
-    ENEMIES_COUNT("enemies", (fac) -> String.valueOf(fac.getRelationCount(Relation.ENEMY))),
-    TRUCES_COUNT("truces", (fac) -> String.valueOf(fac.getRelationCount(Relation.TRUCE))),
+    ALLIES_COUNT("allies", (fac) -> Integer.toString(fac.getRelationCount(Relation.ALLY))),
+    ENEMIES_COUNT("enemies", (fac) -> Integer.toString(fac.getRelationCount(Relation.ENEMY))),
+    TRUCES_COUNT("truces", (fac) -> Integer.toString(fac.getRelationCount(Relation.TRUCE))),
     ONLINE_COUNT("online", (fac, fp) -> {
         if (fp != null && fp.isOnline()) {
             return Integer.toString(fac.getFPlayersWhereOnline(true, fp).size());
@@ -94,16 +96,16 @@ public enum FactionTag implements Tag {
     }),
     OFFLINE_COUNT("offline", (fac, fp) -> {
         if (fp != null && fp.isOnline()) {
-            return Integer.toString(fac.getFPlayers().size() - fac.getFPlayersWhereOnline(true, fp).size());
+            return Integer.toString(fac.getSize() - fac.getFPlayersWhereOnline(true, fp).size());
         } else {
             // Only console should ever get here.
             return Integer.toString(fac.getFPlayersWhereOnline(false).size());
         }
     }),
-    FACTION_SIZE("members", (fac) -> String.valueOf(fac.getFPlayers().size())),
-    FACTION_KILLS("faction-kills", (fac) -> String.valueOf(fac.getKills())),
-    FACTION_DEATHS("faction-deaths", (fac) -> String.valueOf(fac.getDeaths())),
-    FACTION_BANCOUNT("faction-bancount", (fac) -> String.valueOf(fac.getBannedPlayers().size())),
+    FACTION_SIZE("members", (fac) -> Integer.toString(fac.getSize())),
+    FACTION_KILLS("faction-kills", (fac) -> Integer.toString(fac.getKills())),
+    FACTION_DEATHS("faction-deaths", (fac) -> Integer.toString(fac.getDeaths())),
+    FACTION_BANCOUNT("faction-bancount", (fac) -> Integer.toString(fac.getBannedPlayers().size())),
     ;
 
     private final String tag;

@@ -46,7 +46,7 @@ public class CmdTNTSiphon extends FCommand {
         }
 
         if (radius > FactionsPlugin.getInstance().conf().commands().tnt().getMaxRadius()) {
-            context.msg(TL.COMMAND_TNT_SIPHON_FAIL_MAXRADIUS, radius, FactionsPlugin.getInstance().conf().commands().tnt().getMaxRadius());
+            context.msg(TL.COMMAND_TNT_SIPHON_FAIL_MAXRADIUS, Integer.toString(radius), Integer.toString(FactionsPlugin.getInstance().conf().commands().tnt().getMaxRadius()));
             return;
         }
 
@@ -83,7 +83,7 @@ public class CmdTNTSiphon extends FCommand {
 
         context.faction.setTNTBank(context.faction.getTNTBank() + acquired);
 
-        context.msg(TL.COMMAND_TNT_SIPHON_MESSAGE, acquired, context.faction.getTNTBank());
+        context.msg(TL.COMMAND_TNT_SIPHON_MESSAGE, Integer.toString(acquired), Integer.toString(context.faction.getTNTBank()));
     }
 
     @Override

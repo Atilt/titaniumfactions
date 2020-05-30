@@ -51,9 +51,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
 
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 
 public class FactionsEntityListener extends AbstractListener {
@@ -368,7 +366,7 @@ public class FactionsEntityListener extends AbstractListener {
 
         if (attacker.hasLoginPvpDisabled()) {
             if (notify) {
-                attacker.msg(TL.PLAYER_PVP_LOGIN, FactionsPlugin.getInstance().conf().factions().pvp().getNoPVPDamageToOthersForXSecondsAfterLogin());
+                attacker.msg(TL.PLAYER_PVP_LOGIN, Integer.toString(FactionsPlugin.getInstance().conf().factions().pvp().getNoPVPDamageToOthersForXSecondsAfterLogin()));
             }
             return false;
         }
@@ -462,13 +460,13 @@ public class FactionsEntityListener extends AbstractListener {
         // Damage will be dealt. However check if the damage should be reduced.
         /*
         if (damage > 0.0 && ownTerritory && Conf.territoryShieldFactor > 0) {
-            double newDamage = Math.ceil(damage * (1D - Conf.territoryShieldFactor));
+            double newDamage = FastMath.ceil(damage * (1D - Conf.territoryShieldFactor));
             sub.setDamage(newDamage);
 
             // Send message
             if (notify) {
                 String perc = MessageFormat.format("{0,number,#%}", (Conf.territoryShieldFactor)); // TODO does this display correctly??
-                defender.msg("<i>Enemy damage reduced by <rose>%s<i>.", perc);
+                defender.msg("<i>Enemy damage reduced by <rose>[]<i>.", perc);
             }
         } */
 

@@ -49,12 +49,23 @@ public class CommandContext {
         }
     }
 
-    public void msg(String str, Object... args) {
-        sender.sendMessage(TextUtil.parse(str, args));
+    public void msg(String message) {
+        if (this.player == null || !this.player.isOnline()) {
+            return;
+        }
+        this.player.sendMessage(TextUtil.parseTags(message));
     }
 
-    public void msg(TL translation, Object... args) {
-        sender.sendMessage(TextUtil.parse(translation.toString(), args));
+    public void msg(TL translation) {
+        sender.sendMessage(translation.toString());
+    }
+
+    public void msg(TL translation, TL toAppend) {
+        sender.sendMessage(translation.format(toAppend.toString()));
+    }
+
+    public void msg(TL translation, String... args) {
+        sender.sendMessage(TextUtil.parseColor(translation.format(args)));
     }
 
     public void sendMessage(String msg) {
@@ -342,7 +353,7 @@ public class CommandContext {
         }
 
         if (fPlayer.getRole().value < role.value) {
-            msg("<b>You <h>must be " + role);
+            this.msg("<b>You <h>must be " + role);
             return false;
         }
         return true;
@@ -353,7 +364,7 @@ public class CommandContext {
     */
     public boolean canIAdministerYou(FPlayer i, FPlayer you) {
         if (!i.getFaction().equals(you.getFaction())) {
-            i.sendMessage(TextUtil.parse("%s <b>is not in the same faction as you.", you.describeTo(i, true)));
+            i.sendMessage(you.describeTo(i, true) + " <b>is not in the same faction as you.");
             return false;
         }
 
@@ -361,7 +372,7 @@ public class CommandContext {
             return true;
         }
 
-        i.sendMessage(TextUtil.parse("%s <b>has a higher rank than you.", you.describeTo(i, true)));
+        i.sendMessage(you.describeTo(i, true) + " <b> has a higher rank than you.");
 
         return false;
     }

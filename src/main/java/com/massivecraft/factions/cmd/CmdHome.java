@@ -14,7 +14,6 @@ import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.SmokeUtil;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.WarmUpUtil;
-import com.massivecraft.factions.util.WorldUtil;
 import io.papermc.lib.PaperLib;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -126,7 +125,7 @@ public class CmdHome extends FCommand {
                     continue;
                 }
 
-                context.fPlayer.msg(TL.COMMAND_HOME_ENEMYNEAR, FactionsPlugin.getInstance().conf().factions().homes().getTeleportAllowedEnemyDistance());
+                context.fPlayer.msg(TL.COMMAND_HOME_ENEMYNEAR, Double.toString(FactionsPlugin.getInstance().conf().factions().homes().getTeleportAllowedEnemyDistance()));
                 return;
             }
         }

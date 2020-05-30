@@ -8,7 +8,7 @@ import org.bukkit.Material;
 
 import java.io.IOException;
 
-public class MaterialAdapter extends TypeAdapter<Material> {
+public final class MaterialTypeAdapter extends TypeAdapter<Material> {
 
     // Use FactionMaterial as an adapter from: Material <-> Name
     @Override

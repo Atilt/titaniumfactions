@@ -11,6 +11,7 @@ import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.WorldUtil;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -25,12 +26,15 @@ public class PortalListener_114 implements Listener {
     @EventHandler
     public void onPortalCreate(PortalCreateEvent event) {
         Entity entity = event.getEntity();
+        if (entity == null) {
+            return;
+        }
 
         if (!FactionsPlugin.getInstance().conf().factions().portals().isLimit()) {
             return; // Don't do anything if they don't want us to.
         }
 
-        if (!(entity instanceof Player) || !WorldUtil.isEnabled(event.getEntity().getWorld())) {
+        if (entity.getType() != EntityType.PLAYER || !WorldUtil.isEnabled(event.getEntity().getWorld())) {
             return;
         }
 
@@ -39,8 +43,7 @@ public class PortalListener_114 implements Listener {
 
         // Only 8 blocks so a loop should be fine.
         for (BlockState block : event.getBlocks()) {
-            FLocation loc = FLocation.wrap(block.getLocation());
-            Faction faction = Board.getInstance().getFactionAt(loc);
+            Faction faction = Board.getInstance().getFactionAt(FLocation.wrap(block.getLocation()));
 
             if (faction.isWilderness()) {
                 continue; // We don't care about wilderness.
@@ -59,6 +62,5 @@ public class PortalListener_114 implements Listener {
                 return;
             }
         }
-
     }
 }

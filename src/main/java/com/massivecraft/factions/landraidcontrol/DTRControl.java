@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
 
 public class DTRControl implements LandRaidControl {
 
@@ -35,7 +36,7 @@ public class DTRControl implements LandRaidControl {
 
     @Override
     public int getLandLimit(Faction faction) {
-        return conf().getLandStarting() + (faction.getFPlayers().size() * conf().getLandPerPlayer());
+        return conf().getLandStarting() + (faction.getSize() * conf().getLandPerPlayer());
     }
 
     @Override
@@ -96,7 +97,7 @@ public class DTRControl implements LandRaidControl {
             return;
         }
         faction.setDTR(Math.max(conf().getMinDTR(), faction.getDTR() - conf().getLossPerDeath(player.getWorld())));
-        faction.setFrozenDTR(System.currentTimeMillis() + (conf().getFreezeTime() * 1000));
+        faction.setFrozenDTR(Instant.now().toEpochMilli() + (conf().getFreezeTime() * 1000));
     }
 
     @Override
@@ -116,7 +117,7 @@ public class DTRControl implements LandRaidControl {
     }
 
     public void updateDTR(Faction faction, int minusPlayer) {
-        long now = System.currentTimeMillis();
+        long now = Instant.now().toEpochMilli();
         if (faction.getFrozenDTRUntilTime() > now) {
             // Not yet time to regen
             return;
@@ -136,6 +137,6 @@ public class DTRControl implements LandRaidControl {
     }
 
     public double getMaxDTR(Faction faction) {
-        return Math.min(conf().getStartingDTR() + (conf().getPerPlayer() * faction.getFPlayers().size()), conf().getMaxDTR());
+        return Math.min(conf().getStartingDTR() + (conf().getPerPlayer() * faction.getSize()), conf().getMaxDTR());
     }
 }

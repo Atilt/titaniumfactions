@@ -32,18 +32,20 @@ public final class FLocation implements Serializable {
     private static final Object2ObjectMap<String, LoadingCache<Long, FLocation>> LOCATIONS = new Object2ObjectOpenHashMap<>();
 
     private static final long serialVersionUID = -8292915234027387983L;
-    private static boolean worldBorderSupport;
+    private static boolean WORLD_BORDER_SUPPORT;
 
     private final String worldName;
     private final int x;
     private final int z;
 
+    private final String readable;
+
     static {
         try {
             Class.forName("org.bukkit.WorldBorder");
-            worldBorderSupport = true;
+            WORLD_BORDER_SUPPORT = true;
         } catch (ClassNotFoundException ignored) {
-            worldBorderSupport = false;
+            WORLD_BORDER_SUPPORT = false;
         }
     }
 
@@ -51,6 +53,7 @@ public final class FLocation implements Serializable {
         this.worldName = Bukkit.getWorlds().get(0).getName();
         this.x = 0;
         this.z = 0;
+        this.readable = this.x + "," + this.z;
     }
 
     public static FLocation empty() {
@@ -83,7 +86,7 @@ public final class FLocation implements Serializable {
     }
 
     public static FLocation wrap(Location location) {
-        return wrap(location.getWorld().getName(), WorldUtil.blockToChunk(location.getBlockX()), WorldUtil.blockToChunk(location.getBlockZ()));
+        return wrap(location.getWorld().getName(), WorldUtil.blockToChunk(FastMath.floor(location.getX())), WorldUtil.blockToChunk(FastMath.floor(location.getZ())));
     }
 
     public static FLocation wrap(Block block) {
@@ -103,11 +106,12 @@ public final class FLocation implements Serializable {
         this.worldName = worldName;
         this.x = x;
         this.z = z;
+        this.readable = x + "," + z;
     }
 
     @Deprecated
     public FLocation(Location location) {
-        this(location.getWorld().getName(), WorldUtil.blockToChunk(location.getBlockX()), WorldUtil.blockToChunk(location.getBlockZ()));
+        this(location.getWorld().getName(), WorldUtil.blockToChunk(FastMath.floor(location.getX())), WorldUtil.blockToChunk(FastMath.floor(location.getZ())));
     }
 
     @Deprecated
@@ -146,28 +150,17 @@ public final class FLocation implements Serializable {
     }
 
     public String getCoordString() {
-        return "" + x + "," + z;
+        return this.readable;
     }
 
     public Chunk getChunk() {
-        return getWorld().getChunkAt(x, z);
+        return getWorld().getChunkAt(this.x, this.z);
     }
 
     @Override
     public String toString() {
-        return "[" + this.getWorldName() + "," + this.getCoordString() + "]";
+        return "[" + this.getWorldName() + "," + this.readable + "]";
     }
-/*
-    public static FLocation fromString(String string) {
-        int index = string.indexOf(',');
-        int start = 1;
-        String worldName = string.substring(start, index);
-        start = index + 1;
-        index = string.indexOf(',', start);
-        int x = Integer.parseInt(string.substring(start, index));
-        int y = Integer.parseInt(string.substring(index + 1, string.length() - 1));
-        return new FLocation(worldName, x, y);
-    }*/
 
     public FLocation getRelative(int dx, int dz) {
         return wrap(this.worldName, this.x + dx, this.z + dz);
@@ -191,7 +184,7 @@ public final class FLocation implements Serializable {
         if (loc == null) {
             return false;
         }
-        return loc.getWorld().getName().equals(getWorldName()) && loc.getBlockX() >> 4 == x && loc.getBlockZ() >> 4 == z;
+        return loc.getWorld().getName().equals(getWorldName()) && FastMath.floor(loc.getX()) >> 4 == x && FastMath.floor(loc.getZ()) >> 4 == z;
     }
 
     /**
@@ -201,7 +194,7 @@ public final class FLocation implements Serializable {
      * @return whether this location is outside of the border
      */
     public boolean isOutsideWorldBorder(int buffer) {
-        if (!worldBorderSupport) {
+        if (!WORLD_BORDER_SUPPORT) {
             return false;
         }
         WorldBorder border = getWorld().getWorldBorder();
@@ -224,6 +217,31 @@ public final class FLocation implements Serializable {
         return (chunkMinX >= borderMaxX) || (chunkMinZ >= borderMaxZ) || (chunkMaxX <= borderMinX) || (chunkMaxZ <= borderMinZ);
     }
 
+    public boolean isOutsideWorldBorder(World world, int buffer) {
+        if (!WORLD_BORDER_SUPPORT) {
+            return false;
+        }
+        WorldBorder border = world.getWorldBorder();
+        Location center = border.getCenter();
+
+        double size = border.getSize() / 2.0D;
+
+        int bufferBlocks = buffer << 4;
+
+        double borderMinX = (center.getX() - size) + bufferBlocks;
+        double borderMinZ = (center.getZ() - size) + bufferBlocks;
+        double borderMaxX = (center.getX() + size) - bufferBlocks;
+        double borderMaxZ = (center.getZ() + size) - bufferBlocks;
+
+        int chunkMinX = this.x << 4;
+        int chunkMaxX = chunkMinX | 15;
+        int chunkMinZ = this.z << 4;
+        int chunkMaxZ = chunkMinZ | 15;
+
+        return (chunkMinX >= borderMaxX) || (chunkMinZ >= borderMaxZ) || (chunkMaxX <= borderMinX) || (chunkMaxZ <= borderMinZ);
+    }
+
+
 
     //----------------------------------------------//
     // Some Geometry
@@ -235,13 +253,13 @@ public final class FLocation implements Serializable {
             return new HashSet<>(0);
         }
 
-        int total = (int) Math.ceil(radius * 2);
+        int total = FastMath.ceil(radius * 2);
         ObjectSet<FLocation> ret = new ObjectLinkedOpenHashSet<>((total * total) + 1);
 
         int xfrom = FastMath.floor(this.x - radius);
-        int xto = (int) Math.ceil(this.x + radius);
+        int xto = FastMath.ceil(this.x + radius);
         int zfrom = FastMath.floor(this.z - radius);
-        int zto = (int) Math.ceil(this.z + radius);
+        int zto = FastMath.ceil(this.z + radius);
 
         for (int x = xfrom; x <= xto; x++) {
             for (int z = zfrom; z <= zto; z++) {
@@ -267,28 +285,26 @@ public final class FLocation implements Serializable {
 
     //----------------------------------------------//
     // Comparison
-    //----------------------------------------------//
+    //----------------------------------------------/
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FLocation fLocation = (FLocation) o;
+        return x == fLocation.x &&
+                z == fLocation.z &&
+                Objects.equals(worldName, fLocation.worldName);
+    }
 
     @Override
     public int hashCode() {
-        return (this.x << 9) + this.z + (this.worldName != null ? this.worldName.hashCode() : 0);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (!(obj instanceof FLocation)) {
-            return false;
-        }
-
-        FLocation that = (FLocation) obj;
-        return this.x == that.x && this.z == that.z && (Objects.equals(this.worldName, that.worldName));
+        return (this.x << 9) ^ this.z + (this.worldName != null ? this.worldName.hashCode() : 0);
     }
 
     public boolean is(Location bukkit) {
-        return WorldUtil.blockToChunk(bukkit.getBlockX()) == this.x && WorldUtil.blockToChunk(bukkit.getBlockZ()) == this.z && bukkit.getWorld().getName().equals(this.worldName);
+        return WorldUtil.blockToChunk(FastMath.floor(bukkit.getX())) == this.x && WorldUtil.blockToChunk(FastMath.floor(bukkit.getZ())) == this.z && bukkit.getWorld().getName().equals(this.worldName);
     }
 
     public long toKey() {

@@ -51,12 +51,12 @@ public class CmdTNTFill extends FCommand {
         }
 
         if (amount > context.faction.getTNTBank()) {
-            context.msg(TL.COMMAND_TNT_FILL_FAIL_NOTENOUGH, amount);
+            context.msg(TL.COMMAND_TNT_FILL_FAIL_NOTENOUGH, Integer.toString(amount));
             return;
         }
 
         if (radius > FactionsPlugin.getInstance().conf().commands().tnt().getMaxRadius()) {
-            context.msg(TL.COMMAND_TNT_FILL_FAIL_MAXRADIUS, radius, FactionsPlugin.getInstance().conf().commands().tnt().getMaxRadius());
+            context.msg(TL.COMMAND_TNT_FILL_FAIL_MAXRADIUS, Integer.toString(radius), Integer.toString(FactionsPlugin.getInstance().conf().commands().tnt().getMaxRadius()));
             return;
         }
 
@@ -84,7 +84,7 @@ public class CmdTNTFill extends FCommand {
 
         context.faction.setTNTBank(context.faction.getTNTBank() - amount + remaining);
 
-        context.msg(TL.COMMAND_TNT_FILL_MESSAGE, amount - remaining, dispenserCount, context.faction.getTNTBank());
+        context.msg(TL.COMMAND_TNT_FILL_MESSAGE, Integer.toString(amount - remaining), Integer.toString(dispenserCount), Integer.toString(context.faction.getTNTBank()));
     }
 
     static ItemStack[] getStacks(int count) {

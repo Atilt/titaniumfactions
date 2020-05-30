@@ -22,7 +22,6 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import java.text.DecimalFormat;
 import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Level;
 
 public class Econ {
 
@@ -89,7 +88,7 @@ public class Econ {
         if (!shouldBeUsed()) {
             return;
         }
-        to.sendMessage(ChatColor.stripColor(String.format(TL.ECON_BALANCE.toString(), about.getTag(), Econ.moneyString(econ.getBalance(Bukkit.getOfflinePlayer(about.getAccountId()))))));
+        to.sendMessage(ChatColor.stripColor(TL.ECON_BALANCE.format(about.getTag(), Econ.moneyString(econ.getBalance(Bukkit.getOfflinePlayer(about.getAccountId()))))));
     }
 
     public static boolean canIControlYou(EconomyParticipator i, EconomyParticipator you) {
@@ -178,7 +177,7 @@ public class Econ {
 
         // Check if the new balance is over Essential's money cap.
         if (Essentials.isOverBalCap(to, econ.getBalance(toAcc) + amount)) {
-            invoker.msg(TL.ECON_OVER_BAL_CAP, amount);
+            invoker.msg(TL.ECON_OVER_BAL_CAP, Double.toString(amount));
             return false;
         }
 
@@ -280,6 +279,50 @@ public class Econ {
         return true;
     }
 
+    public static boolean modifyMoneyV2(EconomyParticipator ep, double delta) {
+        if (!shouldBeUsed()) {
+            return false;
+        }
+
+        OfflinePlayer acc = Bukkit.getOfflinePlayer(ep.getAccountId());
+        if (acc.getName() == null) {
+            return false;
+        }
+
+        if (delta == 0) {
+            // no money actually transferred?
+//			ep.msg("<h>[]<i> didn't have to pay anything [].", You, forDoingThis);  // might be for gains, might be for losses
+            return true;
+        }
+
+        if (delta > 0) {
+            // The player should gain money
+            // The account might not have enough space
+            EconomyResponse er = econ.depositPlayer(acc, delta);
+            if (er.transactionSuccess()) {
+                modifyUniverseMoney(-delta);
+                return true;
+            } else {
+                // transfer to account failed
+                return false;
+            }
+        } else {
+            // The player should loose money
+            // The player might not have enough.
+
+            if (econ.has(acc, -delta) && econ.withdrawPlayer(acc, -delta).transactionSuccess()) {
+                // There is enough money to pay
+                modifyUniverseMoney(-delta);
+/*                if (forDoingThis != null && !forDoingThis.isEmpty()) {
+                    ep.msg(TL.ECON_LOST_SUCCESS, You, moneyString(-delta), forDoingThis);
+                }*/
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
     public static boolean modifyMoney(EconomyParticipator ep, double delta, String toDoThis, String forDoingThis) {
         if (!shouldBeUsed()) {
             return false;
@@ -294,7 +337,7 @@ public class Econ {
 
         if (delta == 0) {
             // no money actually transferred?
-//			ep.msg("<h>%s<i> didn't have to pay anything %s.", You, forDoingThis);  // might be for gains, might be for losses
+//			ep.msg("<h>[]<i> didn't have to pay anything [].", You, forDoingThis);  // might be for gains, might be for losses
             return true;
         }
 
@@ -336,14 +379,57 @@ public class Econ {
         }
     }
 
+    public static boolean modifyMoney(EconomyParticipator ep, double delta) {
+        if (!shouldBeUsed()) {
+            return false;
+        }
+
+        OfflinePlayer acc = Bukkit.getOfflinePlayer(ep.getAccountId());
+        if (acc.getName() == null) {
+            return false;
+        }
+
+        String You = ep.describeTo(ep, true);
+
+        if (delta == 0) {
+            // no money actually transferred?
+//			ep.msg("<h>[]<i> didn't have to pay anything [].", You, forDoingThis);  // might be for gains, might be for losses
+            return true;
+        }
+
+        if (delta > 0) {
+            // The player should gain money
+            // The account might not have enough space
+            EconomyResponse er = econ.depositPlayer(acc, delta);
+            if (er.transactionSuccess()) {
+                modifyUniverseMoney(-delta);
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            // The player should loose money
+            // The player might not have enough.
+
+            if (econ.has(acc, -delta) && econ.withdrawPlayer(acc, -delta).transactionSuccess()) {
+                // There is enough money to pay
+                modifyUniverseMoney(-delta);
+                return true;
+            } else {
+                // There was not enough money to pay
+                return false;
+            }
+        }
+    }
+
     public static String moneyString(double amount) {
-        return format.format(amount);
+        return MONEY_FORMAT.format(amount);
     }
 
     // calculate the cost for claiming land
     public static double calculateClaimCost(int ownedLand, boolean takingFromAnotherFaction) {
         if (!shouldBeUsed()) {
-            return 0d;
+            return 0.0D;
         }
 
         // basic claim cost, plus land inflation cost, minus the potential bonus given for claiming from another faction
@@ -382,14 +468,14 @@ public class Econ {
         return econ.getBalance(Bukkit.getOfflinePlayer(account));
     }
 
-    private static final DecimalFormat format = new DecimalFormat(TL.ECON_FORMAT.toString());
+    private static final DecimalFormat MONEY_FORMAT = new DecimalFormat(TL.ECON_FORMAT.toString());
 
     public static String getFriendlyBalance(UUID uuid) {
         OfflinePlayer offline = Bukkit.getOfflinePlayer(uuid);
         if (offline.getName() == null) {
             return "0";
         }
-        return format.format(econ.getBalance(offline));
+        return MONEY_FORMAT.format(econ.getBalance(offline));
     }
 
     public static String getFriendlyBalance(FPlayer player) {

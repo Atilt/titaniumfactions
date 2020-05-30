@@ -8,6 +8,7 @@ import com.drtshock.playervaults.vaultmanagement.VaultViewInfo;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.FastUUID;
+import com.massivecraft.factions.util.StringFormat;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -48,12 +49,12 @@ public class CmdVault extends FCommand {
         int number = context.argAsInt(0, 0); // Default to 0 or show on 0
         int max = context.faction.getMaxVaults();
         if (number > max) {
-            player.sendMessage(TL.COMMAND_VAULT_TOOHIGH.format(number, max));
+            player.sendMessage(TL.COMMAND_VAULT_TOOHIGH.format(Integer.toString(number), Integer.toString(max)));
             return;
         }
 
-        // Something like faction-id
-        String vaultName = String.format(FactionsPlugin.getInstance().conf().playerVaults().getVaultPrefix(), context.faction.getIdRaw());
+        //pre-compile
+        String vaultName = StringFormat.compile(FactionsPlugin.getInstance().conf().playerVaults().getVaultPrefix()).formatInts(context.faction.getIdRaw());
 
         if (number < 1) {
             // Message about which vaults that Faction has.

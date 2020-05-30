@@ -1,7 +1,12 @@
 package com.massivecraft.factions.config.transition;
 
+import com.google.common.base.Charsets;
+import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.massivecraft.factions.FLocation;
 import com.massivecraft.factions.FactionsPlugin;
@@ -16,26 +21,26 @@ import com.massivecraft.factions.config.transition.oldclass.v0.OldPermissionsMap
 import com.massivecraft.factions.config.transition.oldclass.v0.TransitionConfigV0;
 import com.massivecraft.factions.config.transition.oldclass.v1.OldMainConfigV1;
 import com.massivecraft.factions.config.transition.oldclass.v1.TransitionConfigV1;
-import com.massivecraft.factions.data.json.adapters.EnumTypeAdapter;
-import com.massivecraft.factions.data.json.adapters.FactionMaterialAdapter;
+import com.massivecraft.factions.data.json.adapters.EnumTypeTypeAdapter;
+import com.massivecraft.factions.data.json.adapters.FactionMaterialTypeAdapter;
 import com.massivecraft.factions.data.json.adapters.MapFLocToStringSetTypeAdapter;
-import com.massivecraft.factions.data.json.adapters.MaterialAdapter;
+import com.massivecraft.factions.data.json.adapters.MaterialTypeAdapter;
 import com.massivecraft.factions.data.json.adapters.MyLocationTypeAdapter;
 import com.massivecraft.factions.data.json.adapters.UUIDTypeAdapter;
+import com.massivecraft.factions.perms.Role;
+import com.massivecraft.factions.util.DiscUtil;
 import com.massivecraft.factions.util.LazyLocation;
 import com.massivecraft.factions.util.material.FactionMaterial;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import org.bukkit.Material;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -44,6 +49,7 @@ import java.util.logging.Level;
 public class Transitioner {
     
     private Gson gsonV0;
+    private static final JsonParser PARSER = new JsonParser();
 
     public static void transition() {
         Transitioner transitioner = new Transitioner();
@@ -67,7 +73,6 @@ public class Transitioner {
                     return; // Failure!
                 }
             }
-
             int version = rootNode.getNode("aVeryFriendlyFactionsConfig").getNode("version").getInt();
             if (version < 3) {
                 transitioner.migrateV2(rootNode);
@@ -92,8 +97,7 @@ public class Transitioner {
             return;
         }
         Path oldConfigFolder = pluginFolder.resolve("oldConfig");
-        File oldConfigFolderFile = oldConfigFolder.toFile();
-        if (oldConfigFolderFile.exists()) {
+        if (Files.exists(oldConfigFolder)) {
             // Found existing oldConfig, implying it was already upgraded once
             FactionsPlugin.getInstance().getPluginLogger().warning("Found no 'config' folder, but an 'oldConfig' exists. Not attempting conversion.");
             return;
@@ -104,25 +108,43 @@ public class Transitioner {
             OldConfV0 conf = this.gsonV0.fromJson(new String(Files.readAllBytes(oldConf), StandardCharsets.UTF_8), OldConfV0.class);
             TransitionConfigV0 newConfig = new TransitionConfigV0(conf);
             Loader.loadAndSave("main", newConfig);
-            oldConfigFolderFile.mkdir();
+            Files.createDirectory(oldConfigFolder);
             Path dataFolder = pluginFolder.resolve("data");
-            dataFolder.toFile().mkdir();
+            if (Files.notExists(dataFolder)) {
+                Files.createDirectory(dataFolder);
+            }
+            Path newPlayers = dataFolder.resolve("players.json");
+            Files.move(pluginFolder.resolve("players.json"), newPlayers);
             Files.move(pluginFolder.resolve("board.json"), dataFolder.resolve("board.json"));
-            Files.move(pluginFolder.resolve("players.json"), dataFolder.resolve("players.json"));
+
+            DiscUtil.write(newPlayers, this.gsonV0, transitionRoles(PARSER.parse(Files.newBufferedReader(newPlayers, Charsets.UTF_8))), true, null);
 
             Path oldFactions = pluginFolder.resolve("factions.json");
-            Map<String, OldMemoryFactionV0> data = this.gsonV0.fromJson(new String(Files.readAllBytes(oldFactions), StandardCharsets.UTF_8), new TypeToken<Map<String, OldMemoryFactionV0>>() {
-            }.getType());
-            Map<String, NewMemoryFaction> newData = new HashMap<>();
-            data.forEach((id, fac) -> newData.put(id, new NewMemoryFaction(fac)));
-            Files.write(dataFolder.resolve("factions.json"), FactionsPlugin.getInstance().getGson().toJson(newData).getBytes(StandardCharsets.UTF_8));
+            Map<String, OldMemoryFactionV0> data = DiscUtil.read(oldFactions, this.gsonV0, new TypeToken<Map<String, OldMemoryFactionV0>>(){}.getType());
+            Map<String, NewMemoryFaction> newData = Maps.transformValues(data, NewMemoryFaction::new);
 
             Files.move(oldFactions, oldConfigFolder.resolve("factions.json"));
             Files.move(oldConf, oldConfigFolder.resolve("conf.json"));
+
+            DiscUtil.write(dataFolder.resolve("factions.json"), this.gsonV0, newData, true, null);
             FactionsPlugin.getInstance().getPluginLogger().info("Transition complete!");
-        } catch (Exception e) {
-            FactionsPlugin.getInstance().getPluginLogger().log(Level.SEVERE, "Could not convert old conf.json", e);
+        } catch (IOException | IllegalAccessException exception) {
+            FactionsPlugin.getInstance().getPluginLogger().log(Level.SEVERE, "Could not convert old conf.json", exception);
         }
+    }
+
+    public JsonObject transitionRoles(JsonElement element) {
+        JsonObject object = element.getAsJsonObject();
+        for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
+            JsonObject data = entry.getValue().getAsJsonObject();
+            JsonElement role = data.get("role");
+            if (role == null) {
+                continue;
+            }
+            data.remove("role");
+            data.addProperty("role", Role.fromString(role.getAsString(), Role.NORMAL).name());
+        }
+        return object;
     }
 
     private void buildV0Gson() {
@@ -143,13 +165,13 @@ public class Transitioner {
                 .disableHtmlEscaping()
                 .enableComplexMapKeySerialization()
                 .excludeFieldsWithModifiers(Modifier.TRANSIENT, Modifier.VOLATILE)
-                .registerTypeAdapter(factionMaterialType, new FactionMaterialAdapter())
-                .registerTypeAdapter(materialType, new MaterialAdapter())
+                .registerTypeAdapter(factionMaterialType, new FactionMaterialTypeAdapter())
+                .registerTypeAdapter(materialType, new MaterialTypeAdapter())
                 .registerTypeAdapter(accessTypeAdatper, new OldPermissionsMapTypeAdapterV0())
                 .registerTypeAdapter(LazyLocation.class, new MyLocationTypeAdapter())
                 .registerTypeAdapter(mapFLocToStringSetType, new MapFLocToStringSetTypeAdapter())
                 .registerTypeAdapter(UUID.class, new UUIDTypeAdapter())
-                .registerTypeAdapterFactory(EnumTypeAdapter.ENUM_FACTORY).create();
+                .registerTypeAdapterFactory(EnumTypeTypeAdapter.ENUM_FACTORY).create();
     }
 
     private void migrateV1(HoconConfigurationLoader loader) {
@@ -167,8 +189,8 @@ public class Transitioner {
             Loader.load(loader, newConf);
             newConf.update(oldConf, FactionsPlugin.getInstance().getConfig());
             Loader.loadAndSave(loader, newConf);
-            if (!oldConfigFolder.toFile().exists()) {
-                oldConfigFolder.toFile().mkdir();
+            if (Files.notExists(oldConfigFolder)) {
+                Files.createDirectories(oldConfigFolder);
             }
             Files.move(configPath, oldConfigFolder.resolve("config.yml"));
         } catch (Exception e) {

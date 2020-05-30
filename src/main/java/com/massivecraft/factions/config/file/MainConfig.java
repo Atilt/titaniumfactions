@@ -1,6 +1,5 @@
 package com.massivecraft.factions.config.file;
 
-import com.google.common.collect.ImmutableList;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.config.annotation.Comment;
 import com.massivecraft.factions.config.annotation.WipeOnReload;
@@ -16,6 +15,7 @@ import org.bukkit.World;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -36,6 +36,32 @@ public class MainConfig {
 
         public boolean isDebug() {
             return debug;
+        }
+    }
+
+    public static class Lang {
+        @Comment("Determines if the language file has been transitioned to the new format. By default, the old Factions\n" +
+                "language file will be converted to a format such as '{0}, {1}, {2}, etc.' for arguments. If this is set to false,\n" +
+                "the language file will transitioned on startup.")
+        private boolean langTransitioned = false;
+
+        @Comment("This is the format type that the language file will use. There are currently two types: INDEX and LOOSE.\n" +
+                "INDEX is the default format. This format allows you to specify what arguments go where in the message, hence why you\n" +
+                "can specify indexes in the format ({0}, {1}, etc.). LOOSE does not give you the option to specify argument indexes in the format ([], []).\n" +
+                "LOOSE will give better performance over INDEX, given you don't mind losing the ability to customize argument placement in messages."
+        )
+        private String formatType = "INDEX";
+
+        public boolean isLangTransitioned() {
+            return langTransitioned;
+        }
+
+        public void setLangTransitioned(boolean langTransitioned) {
+            this.langTransitioned = langTransitioned;
+        }
+
+        public String getFormatType() {
+            return formatType;
         }
     }
 
@@ -662,7 +688,7 @@ public class MainConfig {
                 @Comment("If greater than 0, used as a cap for how much power a faction can have\nAdditional power from players beyond this acts as a \"buffer\" of sorts")
                 private double factionMax = 0.0;
                 private boolean respawnHomeFromNoPowerLossWorlds = true;
-                private Set<String> worldsNoPowerLoss = new HashSet<String>() {
+                private Set<String> worldsNoPowerLoss = new ObjectOpenHashSet<String>() {
                     {
                         this.add("exampleWorld");
                     }
@@ -743,7 +769,7 @@ public class MainConfig {
                 }
 
                 public Set<String> getWorldsNoPowerLoss() {
-                    return worldsNoPowerLoss == null ? Collections.emptySet() : Collections.unmodifiableSet(worldsNoPowerLoss);
+                    return worldsNoPowerLoss == null ? ObjectSets.emptySet() : Collections.unmodifiableSet(worldsNoPowerLoss);
                 }
 
                 public boolean isPeacefulMembersDisablePowerLoss() {
@@ -812,12 +838,12 @@ public class MainConfig {
             private int tagInsertIndex = 0;
             private boolean tagPadBefore = false;
             private boolean tagPadAfter = true;
-            private String tagFormat = "%s\u00A7f";
+            private String tagFormat = "[]\u00A7f";
             private boolean alwaysShowChatTag = true;
-            private String factionChatFormat = "%s:\u00A7f %s";
-            private String allianceChatFormat = "\u00A7d%s:\u00A7f %s";
-            private String truceChatFormat = "\u00A75%s:\u00A7f %s";
-            private String modChatFormat = "\u00A7c%s:\u00A7f %s";
+            private String factionChatFormat = "[]:\u00A7f []";
+            private String allianceChatFormat = "\u00A7d[]:\u00A7f []";
+            private String truceChatFormat = "\u00A75[]:\u00A7f []";
+            private String modChatFormat = "\u00A7c[]:\u00A7f []";
             private boolean broadcastDescriptionChanges = false;
             private boolean broadcastTagChanges = false;
 
@@ -982,7 +1008,7 @@ public class MainConfig {
             private boolean enablePVPAgainstFactionlessInAttackersLand = false;
             private boolean disablePeacefulPVPInWarzone = true;
             private int noPVPDamageToOthersForXSecondsAfterLogin = 3;
-            private Set<String> worldsIgnorePvP = new HashSet<String>() {
+            private Set<String> worldsIgnorePvP = new ObjectOpenHashSet<String>() {
                 {
                     this.add("exampleWorldName");
                 }
@@ -1009,7 +1035,7 @@ public class MainConfig {
             }
 
             public Set<String> getWorldsIgnorePvP() {
-                return worldsIgnorePvP == null ? Collections.emptySet() : Collections.unmodifiableSet(worldsIgnorePvP);
+                return worldsIgnorePvP == null ? ObjectSets.emptySet() : Collections.unmodifiableSet(worldsIgnorePvP);
             }
         }
 
@@ -1019,7 +1045,7 @@ public class MainConfig {
             private boolean peacefulTerritoryDisableBoom = false;
             private boolean permanentFactionsDisableLeaderPromotion = false;
             @Comment("Material names of things whose placement is ignored in faction territory")
-            private Set<String> ignoreBuildMaterials = new HashSet<String>() {
+            private Set<String> ignoreBuildMaterials = new ObjectOpenHashSet<String>() {
                 {
                     this.add("exampleMaterial");
                 }
@@ -1029,7 +1055,7 @@ public class MainConfig {
 
             public Set<Material> getIgnoreBuildMaterials() {
                 if (ignoreBuildMaterialsMat == null) {
-                    ignoreBuildMaterialsMat = new HashSet<>();
+                    ignoreBuildMaterialsMat = EnumSet.noneOf(Material.class);
                     ignoreBuildMaterials.forEach(m -> ignoreBuildMaterialsMat.add(FactionMaterial.from(m).get()));
                     ignoreBuildMaterialsMat.remove(Material.AIR);
                     ignoreBuildMaterials = Collections.unmodifiableSet(ignoreBuildMaterials);
@@ -1074,6 +1100,7 @@ public class MainConfig {
         }
 
         public class Claims {
+            private boolean optimizeClaiming = true;
             private boolean mustBeConnected = false;
             private boolean canBeUnconnectedIfOwnedByOtherFaction = true;
             private int requireMinFactionMembers = 1;
@@ -1083,7 +1110,7 @@ public class MainConfig {
             private int fillClaimMaxDistance = 5;
             @Comment("If someone is doing a radius claim and the process fails to claim land this many times in a row, it will exit")
             private int radiusClaimFailureLimit = 9;
-            private Set<String> worldsNoClaiming = new HashSet<String>() {
+            private Set<String> worldsNoClaiming = new ObjectOpenHashSet<String>() {
                 {
                     this.add("exampleWorldName");
                 }
@@ -1114,6 +1141,10 @@ public class MainConfig {
 
             public int getBufferZone() {
                 return bufferZone;
+            }
+
+            public boolean shouldOptimizeClaiming() {
+                return optimizeClaiming;
             }
 
             public boolean isMustBeConnected() {
@@ -1149,7 +1180,7 @@ public class MainConfig {
             }
 
             public Set<String> getWorldsNoClaiming() {
-                return worldsNoClaiming == null ? ObjectSets.emptySet() : new ObjectOpenHashSet<>(worldsNoClaiming);
+                return this.worldsNoClaiming;
             }
         }
 
@@ -1243,12 +1274,12 @@ public class MainConfig {
             private transient Set<Material> territoryDenyUsageMaterialsWhenOfflineMat;
 
             @Comment("Mainly for other plugins/mods that use a fake player to take actions, which shouldn't be subject to our protections")
-            private Set<String> playersWhoBypassAllProtection = new HashSet<String>() {
+            private Set<String> playersWhoBypassAllProtection = new ObjectOpenHashSet<String>() {
                 {
                     this.add("example-player-name");
                 }
             };
-            private Set<String> worldsNoWildernessProtection = new HashSet<String>() {
+            private Set<String> worldsNoWildernessProtection = new ObjectOpenHashSet<String>() {
                 {
                     this.add("exampleWorld");
                 }
@@ -1268,27 +1299,27 @@ public class MainConfig {
             }
 
             public Set<String> getPermanentFactionMemberDenyCommands() {
-                return permanentFactionMemberDenyCommands == null ? Collections.emptySet() : Collections.unmodifiableSet(permanentFactionMemberDenyCommands);
+                return permanentFactionMemberDenyCommands == null ? ObjectSets.emptySet() : Collections.unmodifiableSet(permanentFactionMemberDenyCommands);
             }
 
             public Set<String> getTerritoryNeutralDenyCommands() {
-                return territoryNeutralDenyCommands == null ? Collections.emptySet() : Collections.unmodifiableSet(territoryNeutralDenyCommands);
+                return territoryNeutralDenyCommands == null ? ObjectSets.emptySet() : Collections.unmodifiableSet(territoryNeutralDenyCommands);
             }
 
             public Set<String> getTerritoryEnemyDenyCommands() {
-                return territoryEnemyDenyCommands == null ? Collections.emptySet() : Collections.unmodifiableSet(territoryEnemyDenyCommands);
+                return territoryEnemyDenyCommands == null ? ObjectSets.emptySet() : Collections.unmodifiableSet(territoryEnemyDenyCommands);
             }
 
             public Set<String> getTerritoryAllyDenyCommands() {
-                return territoryAllyDenyCommands == null ? Collections.emptySet() : Collections.unmodifiableSet(territoryAllyDenyCommands);
+                return territoryAllyDenyCommands == null ? ObjectSets.emptySet() : Collections.unmodifiableSet(territoryAllyDenyCommands);
             }
 
             public Set<String> getWarzoneDenyCommands() {
-                return warzoneDenyCommands == null ? Collections.emptySet() : Collections.unmodifiableSet(warzoneDenyCommands);
+                return warzoneDenyCommands == null ? ObjectSets.emptySet() : Collections.unmodifiableSet(warzoneDenyCommands);
             }
 
             public Set<String> getWildernessDenyCommands() {
-                return wildernessDenyCommands == null ? Collections.emptySet() : Collections.unmodifiableSet(wildernessDenyCommands);
+                return wildernessDenyCommands == null ? ObjectSets.emptySet() : Collections.unmodifiableSet(wildernessDenyCommands);
             }
 
             public boolean isTerritoryBlockCreepers() {
@@ -1425,7 +1456,7 @@ public class MainConfig {
 
             public Set<Material> getTerritoryDenyUsageMaterials() {
                 if (territoryDenyUsageMaterialsMat == null) {
-                    territoryDenyUsageMaterialsMat = new HashSet<>();
+                    territoryDenyUsageMaterialsMat = EnumSet.noneOf(Material.class);
                     territoryDenyUsageMaterials.forEach(m -> territoryDenyUsageMaterialsMat.add(FactionMaterial.from(m).get()));
                     territoryDenyUsageMaterialsMat.remove(Material.AIR);
                     territoryDenyUsageMaterialsMat = Collections.unmodifiableSet(territoryDenyUsageMaterialsMat);
@@ -1435,7 +1466,7 @@ public class MainConfig {
 
             public Set<Material> getTerritoryDenyUsageMaterialsWhenOffline() {
                 if (territoryDenyUsageMaterialsWhenOfflineMat == null) {
-                    territoryDenyUsageMaterialsWhenOfflineMat = new HashSet<>();
+                    territoryDenyUsageMaterialsWhenOfflineMat = EnumSet.noneOf(Material.class);
                     territoryDenyUsageMaterialsWhenOffline.forEach(m -> territoryDenyUsageMaterialsWhenOfflineMat.add(FactionMaterial.from(m).get()));
                     territoryDenyUsageMaterialsWhenOfflineMat.remove(Material.AIR);
                     territoryDenyUsageMaterialsWhenOfflineMat = Collections.unmodifiableSet(territoryDenyUsageMaterialsWhenOfflineMat);
@@ -1444,11 +1475,11 @@ public class MainConfig {
             }
 
             public Set<String> getPlayersWhoBypassAllProtection() {
-                return playersWhoBypassAllProtection == null ? Collections.emptySet() : Collections.unmodifiableSet(playersWhoBypassAllProtection);
+                return playersWhoBypassAllProtection == null ? ObjectSets.emptySet() : this.playersWhoBypassAllProtection;
             }
 
             public Set<String> getWorldsNoWildernessProtection() {
-                return worldsNoWildernessProtection == null ? Collections.emptySet() : Collections.unmodifiableSet(worldsNoWildernessProtection);
+                return worldsNoWildernessProtection == null ? ObjectSets.emptySet() : this.worldsNoWildernessProtection;
             }
         }
 
@@ -2129,7 +2160,7 @@ public class MainConfig {
         }
 
         public Set<String> getWorldList() {
-            return worldList == null ? Collections.emptySet() : Collections.unmodifiableSet(worldList);
+            return worldList == null ? ObjectSets.emptySet() : Collections.unmodifiableSet(worldList);
         }
     }
 
@@ -2272,8 +2303,8 @@ public class MainConfig {
     }
 
     public class PlayerVaults {
-        @Comment("The %s is for the faction id")
-        private String vaultPrefix = "faction-%s";
+        @Comment("The [] is for the faction id")
+        private String vaultPrefix = "faction-[]";
         private int defaultMaxVaults = 0;
 
         public String getVaultPrefix() {
@@ -2325,6 +2356,8 @@ public class MainConfig {
             "Made with love <3")
     private AVeryFriendlyFactionsConfig aVeryFriendlyFactionsConfig = new AVeryFriendlyFactionsConfig();
 
+    @Comment("Language file settings")
+    private Lang lang = new Lang();
     @Comment("Colors for relationships and default factions")
     private Colors colors = new Colors();
     private Commands commands = new Commands();
@@ -2356,11 +2389,15 @@ public class MainConfig {
     private WorldBorder worldBorder = new WorldBorder();
 
     public List<String> getCommandBase() {
-        return commandBase == null ? ImmutableList.of("f") : Collections.unmodifiableList(commandBase);
+        return commandBase == null ? FactionsPlugin.DEFAULT_COMMAND_BASE : this.commandBase;
     }
 
     public AVeryFriendlyFactionsConfig getaVeryFriendlyFactionsConfig() {
         return aVeryFriendlyFactionsConfig;
+    }
+
+    public Lang lang() {
+        return lang;
     }
 
     public Colors colors() {

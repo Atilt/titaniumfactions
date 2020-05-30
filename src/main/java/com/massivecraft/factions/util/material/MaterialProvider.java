@@ -7,6 +7,7 @@ import org.bukkit.Material;
 
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class MaterialProvider {
@@ -20,6 +21,7 @@ public class MaterialProvider {
     private static final Set<Material> EXPLOSIVE_RESISTANT = EnumSet.noneOf(Material.class);
     private static final Set<Material> SHULKER_BOXES = EnumSet.noneOf(Material.class);
     private static final Set<Material> POTTED_FLOWERS = EnumSet.noneOf(Material.class);
+    private static final Set<Material> FENCES = EnumSet.noneOf(Material.class);
 
     protected Map<String, MaterialData> materialData;
 
@@ -53,6 +55,13 @@ public class MaterialProvider {
         GATES.add(resolve("BIRCH_FENCE_GATE"));
         GATES.add(resolve("JUNGLE_FENCE_GATE"));
         GATES.add(resolve("SPRUCE_FENCE_GATE"));
+
+        FENCES.add(resolve("OAK_FENCE"));
+        FENCES.add(resolve("DARK_OAK_FENCE"));
+        FENCES.add(resolve("ACACIA_FENCE"));
+        FENCES.add(resolve("BIRCH_FENCE"));
+        FENCES.add(resolve("JUNGLE_FENCE"));
+        FENCES.add(resolve("SPRUCE_FENCE"));
 
         EXPLOITABLE.addAll(SIGNS);
         EXPLOITABLE.addAll(DOORS);
@@ -196,6 +205,10 @@ public class MaterialProvider {
         return GATES.contains(material);
     }
 
+    public boolean isFence(Material material) {
+        return FENCES.contains(material);
+    }
+
     public boolean isExploitable(Material material) {
         return EXPLOITABLE.contains(material);
     }
@@ -241,6 +254,24 @@ public class MaterialProvider {
                     "name='" + name + '\'' +
                     ", legacy='" + legacy + '\'' +
                     '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            MaterialData that = (MaterialData) o;
+
+            if (!Objects.equals(name, that.name)) return false;
+            return Objects.equals(legacy, that.legacy);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = name != null ? name.hashCode() : 0;
+            result = 31 * result + (legacy != null ? legacy.hashCode() : 0);
+            return result;
         }
     }
 }

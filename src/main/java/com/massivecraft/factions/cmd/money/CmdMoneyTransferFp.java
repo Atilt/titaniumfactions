@@ -7,8 +7,6 @@ import com.massivecraft.factions.iface.EconomyParticipator;
 import com.massivecraft.factions.integration.Econ;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
-import com.massivecraft.factions.util.TextUtil;
-import org.bukkit.ChatColor;
 
 
 public class CmdMoneyTransferFp extends MoneyCommand {
@@ -37,7 +35,7 @@ public class CmdMoneyTransferFp extends MoneyCommand {
             return;
         }
         if (Econ.transferMoney(context.fPlayer, from, to, amount) && FactionsPlugin.getInstance().conf().logging().isMoneyTransactions()) {
-            FactionsPlugin.getInstance().getPluginLogger().info(ChatColor.stripColor(TextUtil.parse(TL.COMMAND_MONEYTRANSFERFP_TRANSFER.toString(), context.fPlayer.getName(), Econ.moneyString(amount), from.describeTo(null), to.describeTo(null))));
+            FactionsPlugin.getInstance().getPluginLogger().info(TL.COMMAND_MONEYTRANSFERFP_TRANSFER.format(context.fPlayer.getName(), Econ.moneyString(amount), from.describeTo(null), to.describeTo(null)));
         }
     }
 

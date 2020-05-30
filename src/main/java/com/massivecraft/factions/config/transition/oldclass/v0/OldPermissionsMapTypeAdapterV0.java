@@ -29,9 +29,9 @@ public class OldPermissionsMapTypeAdapterV0 implements JsonDeserializer<Map<OldP
 
             // Top level is Relation
             for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
-                OldPermissableV0 permissable = getPermissable(entry.getKey());
+                OldPermissableV0 permissible = getPermissible(entry.getKey());
 
-                if (permissable == null) {
+                if (permissible == null) {
                     continue;
                 }
 
@@ -55,7 +55,7 @@ public class OldPermissionsMapTypeAdapterV0 implements JsonDeserializer<Map<OldP
                     OldAccessV0 access = OldAccessV0.fromString(entry2.getValue().getAsString());
                     accessMap.put(permissableAction, access);
                 }
-                permissionsMap.put(permissable, accessMap);
+                permissionsMap.put(permissible, accessMap);
             }
 
             return permissionsMap;
@@ -66,15 +66,16 @@ public class OldPermissionsMapTypeAdapterV0 implements JsonDeserializer<Map<OldP
         }
     }
 
-    private OldPermissableV0 getPermissable(String name) {
-        // If name is uppercase then it is (probably, no way to completely know) valid if not begin conversion
-        if (name.equals(name.toUpperCase())) {
-            if (OldRoleV0.fromString(name.toUpperCase()) != null) {
-                return OldRoleV0.fromString(name.toUpperCase());
-            } else if (OldRelationV0.fromString(name.toUpperCase()) != null) {
-                return OldRelationV0.fromString(name.toUpperCase());
-            } else {
-                return null;
+    private OldPermissableV0 getPermissible(String name) {
+        String formatted = name.toUpperCase();
+        if (name.equals(formatted)) {
+            OldRoleV0 oldRole = OldRoleV0.fromString(formatted);
+            if (oldRole != null) {
+                return oldRole;
+            }
+            OldRelationV0 oldRelation = OldRelationV0.fromString(formatted);
+            if (oldRelation != null) {
+                return oldRelation;
             }
         } else {
             if (name.equals(TL.ROLE_RECRUIT.toString())) {
@@ -88,9 +89,8 @@ public class OldPermissionsMapTypeAdapterV0 implements JsonDeserializer<Map<OldP
                 if (name.equals("member")) {
                     return null;
                 }
-                return OldRelationV0.fromString(name);
             }
         }
+        return OldRelationV0.fromString(name);
     }
-
 }

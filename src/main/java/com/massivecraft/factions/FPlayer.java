@@ -6,9 +6,11 @@ import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.scoreboards.FastBoard;
 import com.massivecraft.factions.scoreboards.SidebarTextProvider;
 import com.massivecraft.factions.struct.ChatMode;
+import com.massivecraft.factions.util.MultiClaim;
 import com.massivecraft.factions.util.WarmUpUtil;
 import net.kyori.text.TextComponent;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -232,6 +234,8 @@ public interface FPlayer extends EconomyParticipator, Comparable<FPlayer> {
     boolean attemptClaim(Faction forFaction, Location location, boolean notifyFailure);
 
     boolean attemptClaim(Faction forFaction, FLocation location, boolean notifyFailure);
+
+    void attemptClaimCompact(World world, Faction forFaction, FLocation flocation, MultiClaim multiClaim);
 
     UUID getId();
 

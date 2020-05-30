@@ -20,7 +20,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 
-public class MapFLocToStringSetTypeAdapter implements JsonDeserializer<Map<FLocation, Set<String>>>, JsonSerializer<Map<FLocation, Set<String>>> {
+public final class MapFLocToStringSetTypeAdapter implements JsonDeserializer<Map<FLocation, Set<String>>>, JsonSerializer<Map<FLocation, Set<String>>> {
 
     public static final transient Pattern COORDINATE_PATTERN = Pattern.compile("[,\\s]+");
 

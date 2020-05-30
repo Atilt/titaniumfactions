@@ -15,7 +15,7 @@ import java.util.List;
  * to a respective ItemStack, also has utility methods
  * to merge, clone, etc
  */
-public class SimpleItem {
+public class SimpleItem implements Cloneable {
     private String name;
     private List<String> lore;
     private Material material;
@@ -161,5 +161,10 @@ public class SimpleItem {
         public SimpleItem build() {
             return new SimpleItem(this);
         }
+    }
+
+    @Override
+    protected SimpleItem clone() {
+        return new SimpleItem(this);
     }
 }

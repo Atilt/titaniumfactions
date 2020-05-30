@@ -86,12 +86,12 @@ public class TransitionConfigV0 {
             private int tagInsertIndex = 0;
             private boolean tagPadBefore = false;
             private boolean tagPadAfter = true;
-            private String tagFormat = "%s\u00A7f";
+            private String tagFormat = "[]\u00A7f";
             private boolean alwaysShowChatTag = true;
-            private String factionChatFormat = "%s:\u00A7f %s";
-            private String allianceChatFormat = "\u00A7d%s:\u00A7f %s";
-            private String truceChatFormat = "\u00A75%s:\u00A7f %s";
-            private String modChatFormat = "\u00A7c%s:\u00A7f %s";
+            private String factionChatFormat = "[]:\u00A7f []";
+            private String allianceChatFormat = "\u00A7d[]:\u00A7f []";
+            private String truceChatFormat = "\u00A75[]:\u00A7f []";
+            private String modChatFormat = "\u00A7c[]:\u00A7f []";
             private boolean broadcastDescriptionChanges = false;
             private boolean broadcastTagChanges = false;
         }
@@ -394,8 +394,8 @@ public class TransitionConfigV0 {
     }
 
     public class PlayerVaults {
-        @Comment("The %s is for the faction id")
-        private String vaultPrefix = "faction-%s";
+        @Comment("The [] is for the faction id")
+        private String vaultPrefix = "faction-[]";
         private int defaultMaxVaults = 0;
     }
 

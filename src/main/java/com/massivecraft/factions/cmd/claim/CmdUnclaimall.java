@@ -52,7 +52,7 @@ public class CmdUnclaimall extends FCommand {
         }
 
         Board.getInstance().unclaimAll(context.faction.getIdRaw());
-        context.faction.msg(TL.COMMAND_UNCLAIMALL_UNCLAIMED, context.fPlayer.describeTo(context.faction, true));
+        context.faction.msg(TL.COMMAND_UNCLAIMALL_UNCLAIMED.format(context.fPlayer.describeTo(context.faction, true)));
 
         if (FactionsPlugin.getInstance().conf().logging().isLandUnclaims()) {
             FactionsPlugin.getInstance().getPluginLogger().info(TL.COMMAND_UNCLAIMALL_LOG.format(context.fPlayer.getName(), context.faction.getTag()));

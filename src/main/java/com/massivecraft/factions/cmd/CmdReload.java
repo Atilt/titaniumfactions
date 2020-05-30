@@ -16,13 +16,11 @@ public class CmdReload extends FCommand {
 
     @Override
     public void perform(CommandContext context) {
-        long timeInitStart = System.currentTimeMillis();
+        long start = System.nanoTime();
         FactionsPlugin.getInstance().getConfigManager().loadConfigs();
         FactionsPlugin.getInstance().reloadConfig();
-        FactionsPlugin.getInstance().loadLang(result -> {
-            long timeReload = (System.currentTimeMillis() - timeInitStart);
-            context.msg(TL.COMMAND_RELOAD_TIME, timeReload);
-        });
+        FactionsPlugin.getInstance().loadLang();
+        context.msg(TL.COMMAND_RELOAD_TIME, Double.toString((System.nanoTime() - start) / 1_000_000.0D));
     }
 
     @Override

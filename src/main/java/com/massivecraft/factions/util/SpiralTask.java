@@ -6,7 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 
-import java.util.logging.Level;
+import java.time.Instant;
 
 
 /*
@@ -210,6 +210,6 @@ public abstract class SpiralTask implements Runnable {
     }
 
     private static long now() {
-        return System.currentTimeMillis();
+        return Instant.now().toEpochMilli();
     }
 }

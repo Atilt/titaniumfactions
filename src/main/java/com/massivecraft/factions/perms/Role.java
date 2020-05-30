@@ -55,7 +55,12 @@ public enum Role implements Permissible {
     }
 
     public static Role fromString(String check) {
+        return fromString(check, null);
+    }
+
+    public static Role fromString(String check, Role orElse) {
         switch (check.toLowerCase()) {
+            case "leader":
             case "admin":
                 return ADMIN;
             case "coleader":
@@ -71,13 +76,12 @@ public enum Role implements Permissible {
             case "rec":
                 return RECRUIT;
         }
-
-        return null;
+        return orElse;
     }
 
     @Override
     public String toString() {
-        return this.toString();
+        return this.nicename;
     }
 
     public TL getTranslation() {

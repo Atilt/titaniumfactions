@@ -42,16 +42,16 @@ public class CmdBanlist extends FCommand {
             return;
         }
 
-        ObjectList<String> lines = new ObjectArrayList<>();
-        lines.add(TL.COMMAND_BANLIST_HEADER.format(target.getBannedPlayers().size(), target.getTag(context.faction)));
+        int size = target.getBannedPlayers().size();
+        ObjectList<String> lines = new ObjectArrayList<>(size + 1);
+        lines.add(TL.COMMAND_BANLIST_HEADER.format(Integer.toString(size), target.getTag(context.faction)));
+
         int i = 1;
 
         for (BanInfo info : target.getBannedPlayers()) {
             FPlayer banned = FPlayers.getInstance().getById(info.getBanned());
             FPlayer banner = FPlayers.getInstance().getById(info.getBanner());
-            String timestamp = TL.sdf.format(info.getTime());
-
-            lines.add(TL.COMMAND_BANLIST_ENTRY.format(i, banned.getName(), banner.getName(), timestamp));
+            lines.add(TL.COMMAND_BANLIST_ENTRY.format(Integer.toString(i), banned.getName(), banner.getName(), TL.formatDate(info.getTime())));
             i++;
         }
 

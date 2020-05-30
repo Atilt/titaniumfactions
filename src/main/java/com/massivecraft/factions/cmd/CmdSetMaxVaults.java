@@ -42,7 +42,7 @@ public class CmdSetMaxVaults extends FCommand {
         }
 
         targetFaction.setMaxVaults(value);
-        context.sender.sendMessage(TL.COMMAND_SETMAXVAULTS_SUCCESS.format(targetFaction.getTag(), value));
+        context.sender.sendMessage(TL.COMMAND_SETMAXVAULTS_SUCCESS.format(targetFaction.getTag(), Integer.toString(value)));
     }
 
     @Override

@@ -32,7 +32,7 @@ public class CmdPower extends FCommand {
 
         double powerBoost = target.getPowerBoost();
         String boost = (powerBoost == 0.0) ? "" : (powerBoost > 0.0 ? TL.COMMAND_POWER_BONUS.toString() : TL.COMMAND_POWER_PENALTY.toString()) + powerBoost + ")";
-        context.msg(TL.COMMAND_POWER_POWER, target.describeTo(context.fPlayer, true), target.getPowerRounded(), target.getPowerMaxRounded(), boost);
+        context.msg(TL.COMMAND_POWER_POWER, target.describeTo(context.fPlayer, true), Integer.toString(target.getPowerRounded()), Integer.toString(target.getPowerMaxRounded()), boost);
     }
 
     @Override

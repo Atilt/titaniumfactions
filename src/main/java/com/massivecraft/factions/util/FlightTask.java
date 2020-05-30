@@ -200,11 +200,14 @@ public final class FlightTask {
 
         @Override
         public void run() {
+            if (FPlayers.getInstance().onlineSize() == 1) {
+                return;
+            }
             for (FPlayer pilot : this.players.asCycle().next()) {
                 if (!pilot.isFlying()) {
                     continue;
                 }
-                Player player = Bukkit.getPlayer(pilot.getId());
+                Player player = pilot.getPlayer();
                 if (pilot.getFlyTrailsEffect() != null && Permission.FLY_TRAILS.has(player) && pilot.getFlyTrailsState()) {
                     FactionsPlugin.getInstance().getParticleProvider().spawn(FactionsPlugin.getInstance().getParticleProvider().effectFromString(pilot.getFlyTrailsEffect()), player.getLocation(), this.amount, this.speed, 0, 0, 0);
                 }

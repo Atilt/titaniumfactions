@@ -18,7 +18,7 @@ public class CmdTNTInfo extends FCommand {
 
     @Override
     public void perform(CommandContext context) {
-        context.msg(TL.COMMAND_TNT_INFO_MESSAGE, context.faction.getTNTBank());
+        context.msg(TL.COMMAND_TNT_INFO_MESSAGE, Integer.toString(context.faction.getTNTBank()));
     }
 
     @Override

@@ -37,12 +37,12 @@ public class CmdTNTWithdraw extends FCommand {
         }
         int amount = context.argAsInt(0, -1);
         if (amount <= 0) {
-            context.msg(TL.COMMAND_TNT_WITHDRAW_FAIL_POSITIVE, amount);
+            context.msg(TL.COMMAND_TNT_WITHDRAW_FAIL_POSITIVE, Integer.toString(amount));
             return;
         }
 
         if (context.faction.getTNTBank() < amount) {
-            context.msg(TL.COMMAND_TNT_WITHDRAW_FAIL_NOTENOUGH, amount);
+            context.msg(TL.COMMAND_TNT_WITHDRAW_FAIL_NOTENOUGH, Integer.toString(amount));
             return;
         }
 
@@ -62,7 +62,7 @@ public class CmdTNTWithdraw extends FCommand {
         }
 
         context.faction.setTNTBank(context.faction.getTNTBank() - amount + notTaken);
-        context.msg(TL.COMMAND_TNT_WITHDRAW_MESSAGE, (amount - notTaken), context.faction.getTNTBank());
+        context.msg(TL.COMMAND_TNT_WITHDRAW_MESSAGE, Integer.toString((amount - notTaken)), Integer.toString(context.faction.getTNTBank()));
     }
 
 

@@ -7,6 +7,7 @@ import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.perms.Permissible;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.perms.Relation;
+import com.massivecraft.factions.util.FastMath;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
 import com.massivecraft.factions.util.material.FactionMaterial;
@@ -20,7 +21,7 @@ import java.util.Map;
 
 public class PermissibleActionGUI extends GUI<PermissibleAction> implements GUI.Backable {
     private static SimpleItem backItem = SimpleItem.builder().setMaterial(FactionMaterial.from("ARROW").get()).setName(TL.GUI_BUTTON_BACK.toString()).build();
-    private static SimpleItem base;
+    private static final SimpleItem BASE;
 
     static {
         List<String> lore = ImmutableList.of(
@@ -29,14 +30,14 @@ public class PermissibleActionGUI extends GUI<PermissibleAction> implements GUI.
                 "",
                 "&8Left click to &a&lAllow",
                 "&8Right click to &c&lDeny");
-        base = SimpleItem.builder().setLore(lore).setName("&8[{action-access-color}{action}&8]").build();
+        BASE = SimpleItem.builder().setLore(lore).setName("&8[{action-access-color}{action}&8]").build();
     }
 
     private Permissible permissible;
     private boolean online;
 
     public PermissibleActionGUI(boolean online, FPlayer user, Permissible permissible) {
-        super(user, (int) Math.ceil(((double) PermissibleAction.values().length) / 9d) + 1);
+        super(user, FastMath.ceil(((double) PermissibleAction.VALUES.length) / 9.0D) + 1);
         this.permissible = permissible;
         this.online = online;
         build();
@@ -45,7 +46,7 @@ public class PermissibleActionGUI extends GUI<PermissibleAction> implements GUI.
     @Override
     protected String getName() {
         String bit = FactionsPlugin.getInstance().conf().factions().other().isSeparateOfflinePerms() ?
-                TL.GUI_PERMS_ACTION_ONLINEOFFLINEBIT.format(online ? TL.GUI_PERMS_ONLINE.toString() : TL.GUI_PERMS_OFFLINE)
+                TL.GUI_PERMS_ACTION_ONLINEOFFLINEBIT.format(online ? TL.GUI_PERMS_ONLINE.toString() : TL.GUI_PERMS_OFFLINE.toString())
                 : "";
         return TL.GUI_PERMS_ACTION_NAME.format(permissible.name().toLowerCase(), bit);
     }
@@ -56,21 +57,18 @@ public class PermissibleActionGUI extends GUI<PermissibleAction> implements GUI.
         toParse = toParse.replace("{action}", actionName);
 
         boolean access = user.getFaction().hasAccess(online, permissible, action);
-        String extra = "";
-        if (user.getFaction().isLocked(online, permissible, action)) {
-            extra = " (Locked)";
-        }
 
-        toParse = toParse.replace("{action-access}", (access ? "Allow" : "Deny") + extra);
-        toParse = toParse.replace("{action-access-color}", access ? ChatColor.GREEN.toString() : ChatColor.DARK_RED.toString());
-        toParse = toParse.replace("{action-desc}", action.getDescription());
+
+        toParse = TextUtil.replace(toParse, "{action-access}", (access ? "Allow" : "Deny") + ((user.getFaction().isLocked(online, permissible, action)) ? " (Locked)" : ""));
+        toParse = TextUtil.replace(toParse, "{action-access-color}", access ? ChatColor.GREEN.toString() : ChatColor.DARK_RED.toString());
+        toParse = TextUtil.replace(toParse, "{action-desc}", action.getDescription());
 
         return toParse;
     }
 
     @Override
     public void click(int slot, ClickType clickType) {
-        if (FactionsPlugin.getInstance().conf().factions().other().isSeparateOfflinePerms() && permissible instanceof Relation && slot == this.back + 4) {
+        if (FactionsPlugin.getInstance().conf().factions().other().isSeparateOfflinePerms() && slot == this.back + 4 && permissible instanceof Relation) {
             new PermissibleActionGUI(!online, user, permissible).open();
         } else {
             super.click(slot, clickType);
@@ -102,7 +100,7 @@ public class PermissibleActionGUI extends GUI<PermissibleAction> implements GUI.
         Int2ObjectMap<PermissibleAction> map = new Int2ObjectOpenHashMap<>();
         for (int i = 0; i < PermissibleAction.VALUES.length; i++) {
             PermissibleAction action = PermissibleAction.VALUES[i];
-            if (this.permissible instanceof Relation && action.isFactionOnly()) {
+            if (action.isFactionOnly() && this.permissible instanceof Relation) {
                 continue;
             }
             map.put(i, action);
@@ -112,7 +110,7 @@ public class PermissibleActionGUI extends GUI<PermissibleAction> implements GUI.
 
     @Override
     protected SimpleItem getItem(PermissibleAction permissibleAction) {
-        SimpleItem item = new SimpleItem(base);
+        SimpleItem item = BASE.clone();
         item.setEnchant(user.getFaction().hasAccess(online, permissible, permissibleAction));
         item.setMaterial(permissibleAction.getMaterial());
         return item;
@@ -120,9 +118,9 @@ public class PermissibleActionGUI extends GUI<PermissibleAction> implements GUI.
 
     @Override
     protected Map<Integer, SimpleItem> createDummyItems() {
-        ImmutableMap.Builder<Integer, SimpleItem> builder = ImmutableMap.<Integer, SimpleItem>builder().put(this.back = ((PermissibleAction.values().length / 9) + 1) * 9, backItem);
+        ImmutableMap.Builder<Integer, SimpleItem> builder = ImmutableMap.<Integer, SimpleItem>builder().put(this.back = ((PermissibleAction.VALUES.length / 9) + 1) * 9, backItem);
         if (FactionsPlugin.getInstance().conf().factions().other().isSeparateOfflinePerms() && permissible instanceof Relation) {
-            builder.put(this.back + 4, PermissibleRelationGUI.offlineSwitch);
+            builder.put(this.back + 4, PermissibleRelationGUI.OFFLINE_SWITCH);
         }
         return builder.build();
     }
@@ -130,10 +128,7 @@ public class PermissibleActionGUI extends GUI<PermissibleAction> implements GUI.
     // For dummy items only parseDefault is called, but we want to provide the relation placeholders, so: Override
     @Override
     protected String parseDefault(String string) {
-        String permissibleName = TextUtil.upperCaseFirst(permissible.toString());
-        String parsed = TextUtil.replace(string, "{relation-color}", permissible.getColor().toString());
-        parsed = TextUtil.replace(parsed, "{relation}", permissibleName);
-        return super.parseDefault(parsed);
+        return super.parseDefault(TextUtil.replace(TextUtil.replace(string, "{relation-color}", permissible.getColor().toString()), "{relation}", TextUtil.upperCaseFirst(permissible.toString())));
     }
 
     @Override

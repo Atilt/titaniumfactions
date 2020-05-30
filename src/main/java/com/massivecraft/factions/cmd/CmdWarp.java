@@ -43,8 +43,8 @@ public class CmdWarp extends FCommand {
         } else if (context.args.size() > 2) {
             context.msg(TL.COMMAND_FWARP_COMMANDFORMAT);
         } else {
-            final String warpName = context.argAsString(0);
-            final String passwordAttempt = context.argAsString(1);
+            String warpName = context.argAsString(0);
+            String passwordAttempt = context.argAsString(1);
 
             if (context.faction.isWarp(context.argAsString(0))) {
                 // Check if requires password and if so, check if valid. CASE SENSITIVE
@@ -62,7 +62,7 @@ public class CmdWarp extends FCommand {
                     return;
                 }
                 FPlayer fPlayer = context.fPlayer;
-                Player player = context.fPlayer.getPlayer();
+                Player player = context.player;
                 context.doWarmUp(WarmUpUtil.Warmup.WARP, TL.WARMUPS_NOTIFY_TELEPORT, warpName, () -> {
                     if (player.isOnline()) {
                         PaperLib.teleportAsync(player, fPlayer.getFaction().getWarp(warpName).getLocation());

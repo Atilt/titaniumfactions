@@ -10,6 +10,7 @@ import com.massivecraft.factions.landraidcontrol.DTRControl;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.tag.FactionTag;
 import com.massivecraft.factions.tag.Tag;
+import com.massivecraft.factions.util.FastMath;
 import com.massivecraft.factions.util.TL;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -19,6 +20,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import java.time.Instant;
 import java.util.List;
 
 public class ClipPlaceholderAPIManager extends PlaceholderExpansion implements Relational {
@@ -95,8 +97,8 @@ public class ClipPlaceholderAPIManager extends PlaceholderExpansion implements R
             case "player_name":
                 return fPlayer.getName();
             case "player_lastseen":
-                String humanized = DurationFormatUtils.formatDurationWords(System.currentTimeMillis() - fPlayer.getLastLoginTime(), true, true) + TL.COMMAND_STATUS_AGOSUFFIX;
-                return fPlayer.isOnline() ? ChatColor.GREEN + TL.COMMAND_STATUS_ONLINE.toString() : (System.currentTimeMillis() - fPlayer.getLastLoginTime() < 432000000 ? ChatColor.YELLOW + humanized : ChatColor.RED + humanized);
+                String humanized = DurationFormatUtils.formatDurationWords(Instant.now().toEpochMilli() - fPlayer.getLastLoginTime(), true, true) + TL.COMMAND_STATUS_AGOSUFFIX;
+                return fPlayer.isOnline() ? ChatColor.GREEN + TL.COMMAND_STATUS_ONLINE.toString() : (Instant.now().toEpochMilli() - fPlayer.getLastLoginTime() < 432000000 ? ChatColor.YELLOW + humanized : ChatColor.RED + humanized);
             case "player_group":
                 return FactionsPlugin.getInstance().getPrimaryGroup(Bukkit.getOfflinePlayer(fPlayer.getId()));
             case "player_balance":
@@ -148,7 +150,7 @@ public class ClipPlaceholderAPIManager extends PlaceholderExpansion implements R
             case "faction_claims":
                 return Integer.toString(faction.getAllClaims().size());
             case "faction_founded":
-                return TL.sdf.format(faction.getFoundedDate());
+                return TL.formatDate(faction.getFoundedDate());
             case "faction_joining":
                 return (faction.getOpen() ? TL.COMMAND_SHOW_UNINVITED.toString() : TL.COMMAND_SHOW_INVITATION.toString());
             case "faction_peaceful":
@@ -167,7 +169,7 @@ public class ClipPlaceholderAPIManager extends PlaceholderExpansion implements R
             case "faction_home_world":
                 return faction.hasHome() ? faction.getHome().getWorld().getName() : "";
             case "faction_home_x":
-                return faction.hasHome() ? String.valueOf(faction.getHome().getBlockX()) : "";
+                return faction.hasHome() ? String.valueOf(FastMath.floor(faction.getHome().getX())) : "";
             case "faction_home_y":
                 return faction.hasHome() ? String.valueOf(faction.getHome().getBlockY()) : "";
             case "faction_home_z":
@@ -209,9 +211,9 @@ public class ClipPlaceholderAPIManager extends PlaceholderExpansion implements R
             case "faction_online":
                 return String.valueOf(faction.getOnlinePlayers().size());
             case "faction_offline":
-                return String.valueOf(faction.getFPlayers().size() - faction.getOnlinePlayers().size());
+                return String.valueOf(faction.getSize() - faction.getOnlinePlayers().size());
             case "faction_size":
-                return String.valueOf(faction.getFPlayers().size());
+                return String.valueOf(faction.getSize());
             case "faction_kills":
                 return String.valueOf(faction.getKills());
             case "faction_deaths":
@@ -230,7 +232,7 @@ public class ClipPlaceholderAPIManager extends PlaceholderExpansion implements R
         for (Faction faction : Factions.getInstance().getAllFactions()) {
             if (faction.getRelationTo(f) == relation) {
                 if (status == null) {
-                    count += faction.getFPlayers().size();
+                    count += faction.getSize();
                 } else {
                     count += faction.getFPlayersWhereOnline(status, player).size();
                 }

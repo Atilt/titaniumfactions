@@ -8,8 +8,6 @@ import com.massivecraft.factions.integration.Econ;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
-import com.massivecraft.factions.util.TextUtil;
-import org.bukkit.ChatColor;
 
 
 public class CmdMoneyWithdraw extends MoneyCommand {
@@ -44,7 +42,7 @@ public class CmdMoneyWithdraw extends MoneyCommand {
         boolean success = Econ.transferMoney(context.fPlayer, faction, context.fPlayer, amount);
 
         if (success && FactionsPlugin.getInstance().conf().logging().isMoneyTransactions()) {
-            FactionsPlugin.getInstance().getPluginLogger().info(ChatColor.stripColor(TextUtil.parse(TL.COMMAND_MONEYWITHDRAW_WITHDRAW.toString(), context.fPlayer.getName(), Econ.moneyString(amount), faction.describeTo(null))));
+            FactionsPlugin.getInstance().getPluginLogger().info(TL.COMMAND_MONEYWITHDRAW_WITHDRAW.format(context.fPlayer.getName(), Econ.moneyString(amount), faction.describeTo(null)));
         }
     }
 

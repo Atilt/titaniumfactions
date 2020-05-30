@@ -7,7 +7,7 @@ import com.massivecraft.factions.util.material.FactionMaterial;
 
 import java.io.IOException;
 
-public class FactionMaterialAdapter extends TypeAdapter<FactionMaterial> {
+public final class FactionMaterialTypeAdapter extends TypeAdapter<FactionMaterial> {
 
     @Override
     public void write(JsonWriter out, FactionMaterial value) throws IOException {

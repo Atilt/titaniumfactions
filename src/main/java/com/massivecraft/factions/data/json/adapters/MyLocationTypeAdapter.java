@@ -9,7 +9,7 @@ import com.massivecraft.factions.util.LazyLocation;
 import java.io.IOException;
 
 
-public class MyLocationTypeAdapter extends TypeAdapter<LazyLocation> {
+public final class MyLocationTypeAdapter extends TypeAdapter<LazyLocation> {
 
     @Override
     public LazyLocation read(JsonReader jsonReader) throws IOException {

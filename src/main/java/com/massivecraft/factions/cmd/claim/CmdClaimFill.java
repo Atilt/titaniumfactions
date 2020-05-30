@@ -9,6 +9,7 @@ import com.massivecraft.factions.cmd.CommandRequirements;
 import com.massivecraft.factions.cmd.FCommand;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.struct.Permission;
+import com.massivecraft.factions.util.FastMath;
 import com.massivecraft.factions.util.TL;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
@@ -39,7 +40,7 @@ public class CmdClaimFill extends FCommand {
         final int limit = context.argAsInt(0, FactionsPlugin.getInstance().conf().factions().claims().getFillClaimMaxClaims());
 
         if (limit > FactionsPlugin.getInstance().conf().factions().claims().getFillClaimMaxClaims()) {
-            context.msg(TL.COMMAND_CLAIMFILL_ABOVEMAX, FactionsPlugin.getInstance().conf().factions().claims().getFillClaimMaxClaims());
+            context.msg(TL.COMMAND_CLAIMFILL_ABOVEMAX, Integer.toString(FactionsPlugin.getInstance().conf().factions().claims().getFillClaimMaxClaims()));
             return;
         }
 
@@ -76,7 +77,7 @@ public class CmdClaimFill extends FCommand {
             FLocation currentHead = queue.poll();
 
             if (Math.abs(currentHead.getX() - startX) > distance || Math.abs(currentHead.getZ() - startZ) > distance) {
-                context.msg(TL.COMMAND_CLAIMFILL_TOOFAR, distance);
+                context.msg(TL.COMMAND_CLAIMFILL_TOOFAR, Integer.toString(FastMath.floor(distance)));
                 return;
             }
 
@@ -92,7 +93,7 @@ public class CmdClaimFill extends FCommand {
         }
 
         if (toClaim.size() > this.plugin.getLandRaidControl().getPossibleClaimCount(forFaction)) {
-            context.msg(TL.COMMAND_CLAIMFILL_NOTENOUGHLANDLEFT, forFaction.describeTo(context.fPlayer), toClaim.size());
+            context.msg(TL.COMMAND_CLAIMFILL_NOTENOUGHLANDLEFT, forFaction.describeTo(context.fPlayer), Integer.toString(toClaim.size()));
             return;
         }
 
@@ -103,7 +104,7 @@ public class CmdClaimFill extends FCommand {
                 fails++;
             }
             if (fails >= limFail) {
-                context.msg(TL.COMMAND_CLAIMFILL_TOOMUCHFAIL, fails);
+                context.msg(TL.COMMAND_CLAIMFILL_TOOMUCHFAIL, Integer.toString(fails));
                 return;
             }
         }

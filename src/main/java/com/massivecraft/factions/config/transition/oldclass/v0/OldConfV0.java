@@ -77,12 +77,12 @@ public class OldConfV0 {
     public int chatTagInsertIndex = 0;
     public boolean chatTagPadBefore = false;
     public boolean chatTagPadAfter = true;
-    public String chatTagFormat = "%s" + ChatColor.WHITE;
+    public String chatTagFormat = "[]" + ChatColor.WHITE;
     public boolean alwaysShowChatTag = true;
-    public String factionChatFormat = "%s:" + ChatColor.WHITE + " %s";
-    public String allianceChatFormat = ChatColor.LIGHT_PURPLE + "%s:" + ChatColor.WHITE + " %s";
-    public String truceChatFormat = ChatColor.DARK_PURPLE + "%s:" + ChatColor.WHITE + " %s";
-    public String modChatFormat = ChatColor.RED + "%s:" + ChatColor.WHITE + " %s";
+    public String factionChatFormat = "[]:" + ChatColor.WHITE + " []";
+    public String allianceChatFormat = ChatColor.LIGHT_PURPLE + "[]:" + ChatColor.WHITE + " []";
+    public String truceChatFormat = ChatColor.DARK_PURPLE + "[]:" + ChatColor.WHITE + " []";
+    public String modChatFormat = ChatColor.RED + "[]:" + ChatColor.WHITE + " []";
 
     public boolean broadcastDescriptionChanges = false;
     public boolean broadcastTagChanges = false;
@@ -375,7 +375,7 @@ public class OldConfV0 {
     public Set<String> worldsNoWildernessProtection = new LinkedHashSet<>();
 
     // faction-<factionId>
-    public String vaultPrefix = "faction-%s";
+    public String vaultPrefix = "faction-[]";
     public int defaultMaxVaults = 0;
 
     // Taller and wider for "bigger f map"

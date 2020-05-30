@@ -186,7 +186,7 @@ public abstract class AbstractListener implements Listener {
         // F PERM check runs through before other checks.
         if (!otherFaction.hasAccess(me, action)) {
             if (action != PermissibleAction.PLATE) {
-                me.msg(TL.GENERIC_NOPERMISSION, action);
+                me.msg(TL.GENERIC_NOPERMISSION, action.getShortDescription());
             }
             return false;
         }
@@ -196,10 +196,8 @@ public abstract class AbstractListener implements Listener {
         Relation rel = myFaction.getRelationTo(otherFaction);
         if (FactionsPlugin.getInstance().conf().exploits().doPreventDuping() &&
                 (!rel.isMember() || !otherFaction.playerHasOwnershipRights(me, loc))) {
-            Material mainHand = player.getItemInHand().getType();
-
             // Check if material is at risk for dupe in either hand.
-            if (MaterialDb.get().getProvider().isExploitable(mainHand)) {
+            if (MaterialDb.get().getProvider().isExploitable(player.getItemInHand().getType())) {
                 return false;
             }
         }

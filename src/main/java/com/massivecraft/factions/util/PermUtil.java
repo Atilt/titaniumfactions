@@ -16,7 +16,7 @@ public final class PermUtil {
     }
 
     public static String getForbiddenMessage(String perm) {
-        return TextUtil.parse(TL.GENERIC_NOPERMISSION.toString(), getPermissionDescription(perm));
+        return TL.GENERIC_NOPERMISSION.format(getPermissionDescription(perm));
     }
 
     /**

@@ -34,7 +34,7 @@ public class CmdSetWarp extends FCommand {
 
         int maxWarps = FactionsPlugin.getInstance().conf().commands().warp().getMaxWarps();
         if (maxWarps <= context.faction.getWarps().size()) {
-            context.fPlayer.msg(TL.COMMAND_SETFWARP_LIMIT, maxWarps);
+            context.fPlayer.msg(TL.COMMAND_SETFWARP_LIMIT, Integer.toString(maxWarps));
             return;
         }
 

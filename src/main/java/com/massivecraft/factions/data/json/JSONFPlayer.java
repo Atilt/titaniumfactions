@@ -3,7 +3,9 @@ package com.massivecraft.factions.data.json;
 import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.data.MemoryFPlayer;
+import com.massivecraft.factions.util.FastMath;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class JSONFPlayer extends MemoryFPlayer {
@@ -13,7 +15,7 @@ public class JSONFPlayer extends MemoryFPlayer {
     }
 
     public JSONFPlayer(UUID id) {
-        super(id);
+        super(Objects.requireNonNull(id, "id"));
     }
 
     @Override
@@ -22,6 +24,6 @@ public class JSONFPlayer extends MemoryFPlayer {
     }
 
     public boolean shouldBeSaved() {
-        return this.hasFaction() || (this.getPowerRounded() != this.getPowerMaxRounded() && this.getPowerRounded() != (int) Math.round(FactionsPlugin.getInstance().conf().factions().landRaidControl().power().getPlayerStarting()));
+        return this.hasFaction() || (this.getPowerRounded() != this.getPowerMaxRounded() && this.getPowerRounded() != FastMath.round(FactionsPlugin.getInstance().conf().factions().landRaidControl().power().getPlayerStarting()));
     }
 }

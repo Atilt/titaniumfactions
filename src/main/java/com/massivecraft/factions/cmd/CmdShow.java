@@ -242,7 +242,7 @@ public class CmdShow extends FCommand {
 
         @Override
         public void run() {
-            Player player = Bukkit.getPlayer(sender.getName());
+            Player player = this.sender.getPlayer();
             if (player != null) {
                 CmdShow.this.sendMessages(messageList, player, faction, sender, map);
             }

@@ -1,6 +1,7 @@
 package com.massivecraft.factions;
 
 import com.earth2me.essentials.IEssentials;
+import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -8,11 +9,12 @@ import com.massivecraft.factions.cmd.FCmdRoot;
 import com.massivecraft.factions.config.ConfigManager;
 import com.massivecraft.factions.config.file.MainConfig;
 import com.massivecraft.factions.data.SaveTask;
-import com.massivecraft.factions.data.json.adapters.EnumTypeAdapter;
-import com.massivecraft.factions.data.json.adapters.FactionMaterialAdapter;
+import com.massivecraft.factions.data.json.adapters.EnumTypeTypeAdapter;
+import com.massivecraft.factions.data.json.adapters.FactionMaterialTypeAdapter;
 import com.massivecraft.factions.data.json.adapters.MapFLocToStringSetTypeAdapter;
-import com.massivecraft.factions.data.json.adapters.MaterialAdapter;
+import com.massivecraft.factions.data.json.adapters.MaterialTypeAdapter;
 import com.massivecraft.factions.data.json.adapters.MyLocationTypeAdapter;
+import com.massivecraft.factions.data.json.adapters.PermissionsMapTypeAdapter;
 import com.massivecraft.factions.data.json.adapters.UUIDTypeAdapter;
 import com.massivecraft.factions.event.FactionCreateEvent;
 import com.massivecraft.factions.event.FactionEvent;
@@ -40,11 +42,12 @@ import com.massivecraft.factions.logging.FactionsLogger;
 import com.massivecraft.factions.metrics.Metrics;
 import com.massivecraft.factions.perms.Permissible;
 import com.massivecraft.factions.perms.PermissibleAction;
-import com.massivecraft.factions.perms.PermissionsMapTypeAdapter;
 import com.massivecraft.factions.scoreboards.SidebarProvider;
 import com.massivecraft.factions.struct.ChatMode;
 import com.massivecraft.factions.util.AutoLeaveTask;
+import com.massivecraft.factions.util.BlockVisualizer;
 import com.massivecraft.factions.util.FlightTask;
+import com.massivecraft.factions.util.FormatTransitioner;
 import com.massivecraft.factions.util.LazyLocation;
 import com.massivecraft.factions.util.PermUtil;
 import com.massivecraft.factions.util.Persist;
@@ -56,7 +59,6 @@ import com.massivecraft.factions.util.material.MaterialDb;
 import com.massivecraft.factions.util.particle.BukkitParticleProvider;
 import com.massivecraft.factions.util.particle.PacketParticleProvider;
 import com.massivecraft.factions.util.particle.ParticleProvider;
-import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
@@ -70,6 +72,7 @@ import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -80,17 +83,20 @@ import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.function.Function;
 import java.util.function.IntConsumer;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -137,13 +143,17 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     private ObjectSet<String> pluginsHandlingChat = new ObjectOpenHashSet<>();
 
     private ParticleProvider<?> particleProvider;
+    private BlockVisualizer blockVisualizer;
 
-    private Set<EntityType> safeZoneNerfedCreatureTypes = EnumSet.noneOf(EntityType.class);
+
+    private final Set<EntityType> safeZoneNerfedCreatureTypes = EnumSet.noneOf(EntityType.class);
     private LandRaidControl landRaidControl;
+
+    public static final List<String> DEFAULT_COMMAND_BASE = ImmutableList.of("f");
 
     private Metrics metrics;
 
-    private static final String ENABLE_BANNER = TextUtil.parseAnsi(
+    private static final Function<FactionsPlugin, String> ENABLE_BANNER = plugin -> TextUtil.parseAnsi(
             "&f\n" +
             "                  _____ ___ _____ _   _  _ ___ _   _ __  __ \n" +
             "                 |_   _|_ _|_   _/_\\ | \\| |_ _| | | |  \\/  |\n" +
@@ -151,7 +161,7 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             "                  _|_|_|___|_|_/_/_\\_\\_|\\_|___|\\___/|_|  |_|\n" +
             "                 | __/_\\ / __|_   _|_ _/ _ \\| \\| / __|      \n" +
             "                 | _/ _ \\ (__  | |  | | (_) | .` \\__ \\      \n" +
-            "                 |_/_/ \\_\\___| |_| |___\\___/|_|\\_|___/ &b(v1.0.0)\n"
+            "                 |_/_/ \\_\\___| |_| |___\\___/|_|\\_|___/ &b(v" + plugin.getDescription().getVersion() + ")\n"
     );
 
     public FactionsPlugin() {
@@ -182,7 +192,7 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             onlinePlayer.kickPlayer("Server data reloading...");
         }
 
-        System.out.println(ENABLE_BANNER);
+        System.out.println(ENABLE_BANNER.apply(this));
 
         this.logger.info("Server version detected: &7" + getMCVersion().getVersion());
 
@@ -191,14 +201,21 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             this.logger.severe("Server version is incompatible with &fTitaniumFactions&b. (1.8+)");
             return;
         }
+        this.configManager.startup();
 
-        Bukkit.getPluginManager().registerEvents(new FactionsDataListener(), this);
+        if (!this.loadLang()) {
+            return;
+        }
 
         try {
             Files.createDirectories(getDataFolder().toPath().resolve("data"));
         } catch (IOException e) {
-            e.printStackTrace();
+            this.logger.severe("Unable to create data directory.");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
         }
+
+        Bukkit.getPluginManager().registerEvents(new FactionsDataListener(), this);
 
         long settingsStart = System.nanoTime();
 
@@ -206,135 +223,133 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
         this.loadMaterials(amount -> {
             this.logger.info("Material database updated with &7" + amount + " &bmaterials.");
-            loadLang(result -> {
-                if (!result) {
-                    Bukkit.getPluginManager().disablePlugin(this);
-                    return;
+
+            Econ.setup();
+            LWC.setup();
+            setupPermissions();
+            loadWorldGuard();
+
+            // Load Conf from disk
+            this.setNerfedEntities();
+
+            this.landRaidControl = LandRaidControl.getByName(this.conf().factions().landRaidControl().getSystem());
+            this.persist = new Persist();
+
+            TextUtil.init();
+            PermUtil.init();
+
+            // attempt to get first command defined in plugin.yml as reference command, if any commands are defined in there
+            // reference command will be used to prevent "unknown command" console messages
+            String refCommand = "";
+            try {
+                Map<String, Map<String, Object>> refCmd = this.getDescription().getCommands();
+                if (!refCmd.isEmpty()) {
+                    refCommand = (String) (refCmd.keySet().toArray()[0]);
                 }
+            } catch (ClassCastException ignored) {}
 
-                Econ.setup();
-                LWC.setup();
-                setupPermissions();
-                loadWorldGuard();
+            // Register recurring tasks
+            if (this.conf().factions().other().getSaveToFileEveryXMinutes() > 0.0) {
+                SaveTask.get().start();
+            }
+            // Check for Essentials
+            IEssentials ess = Essentials.setup();
 
-                // Load Conf from disk
-                this.setNerfedEntities();
-                this.configManager.startup();
-
-                this.landRaidControl = LandRaidControl.getByName(this.conf().factions().landRaidControl().getSystem());
-                this.persist = new Persist();
-
-                TextUtil.init();
-                PermUtil.init();
-
-                // attempt to get first command defined in plugin.yml as reference command, if any commands are defined in there
-                // reference command will be used to prevent "unknown command" console messages
-                String refCommand = "";
-                try {
-                    Map<String, Map<String, Object>> refCmd = this.getDescription().getCommands();
-                    if (!refCmd.isEmpty()) {
-                        refCommand = (String) (refCmd.keySet().toArray()[0]);
-                    }
-                } catch (ClassCastException ignored) {}
-
-                // Register recurring tasks
-                if (this.conf().factions().other().getSaveToFileEveryXMinutes() > 0.0) {
-                    SaveTask.get().start();
+            if (ess != null) {
+                if (conf().factions().other().isDeleteEssentialsHomes()) {
+                    Bukkit.getPluginManager().registerEvents(new EssentialsListener(ess), this);
                 }
-                // Check for Essentials
-                IEssentials ess = Essentials.setup();
+            }
 
-                if (ess != null) {
-                    if (conf().factions().other().isDeleteEssentialsHomes()) {
-                        Bukkit.getPluginManager().registerEvents(new EssentialsListener(ess), this);
-                    }
-                }
+            hookedPlayervaults = setupPlayervaults();
 
-                hookedPlayervaults = setupPlayervaults();
+            long dataStart = System.nanoTime();
+            FPlayers.getInstance().load(loadedPlayers -> {
+                this.logger.info("== Players: &7" + loadedPlayers + "&b loaded");
 
-                long dataStart = System.nanoTime();
-                FPlayers.getInstance().load(loadedPlayers -> {
-                    this.logger.info("== Players: &7" + loadedPlayers + "&b loaded");
-
-                    Factions.getInstance().load(loadedFactions -> {
-                        this.logger.info("== Factions: &7" + loadedFactions + "&b loaded");
-                        for (FPlayer fPlayer : FPlayers.getInstance().getAllFPlayers()) {
-                            Faction faction = Factions.getInstance().getFactionById(fPlayer.getFactionIdRaw());
-                            if (faction == null) {
-                                fPlayer.resetFactionData(false);
-                                continue;
-                            }
-                            faction.addFPlayer(fPlayer);
+                Factions.getInstance().load(loadedFactions -> {
+                    this.logger.info("== Factions: &7" + loadedFactions + "&b loaded");
+                    for (FPlayer fPlayer : FPlayers.getInstance().getAllFPlayers()) {
+                        Faction faction = Factions.getInstance().getFactionById(fPlayer.getFactionIdRaw());
+                        if (faction == null) {
+                            fPlayer.resetFactionData(false);
+                            continue;
                         }
-                        //board needs to be loaded after factions in order for cleaning to work correctly.
-                        Board.getInstance().load(loadedClaims -> {
-                            Board.getInstance().clean();
-                            this.logger.info("== Claims: &7" + loadedClaims + "&b loaded");
+                        faction.addFPlayer(fPlayer);
+                    }
+                    //board needs to be loaded after factions in order for cleaning to work correctly.
+                    Board.getInstance().load(loadedClaims -> {
+                        Board.getInstance().clean();
+                        //TODO: F Admin is null when converting from Saber to Titanium
+                        //NPE on Scoreboard Title (PAPI?)
 
-                            //dynmap data needs to be loaded after board in order for display to work correctly.
-                            EngineDynmap.getInstance().init();
 
-                            // dataStart up task which runs the autoLeaveAfterDaysOfInactivity routine
-                            //task needs to be instantiated after players in order for purging to work correctly
-                            startAutoLeaveTask(false);
+                        this.logger.info("== Claims: &7" + loadedClaims + "&b loaded");
 
-                            // Grand metrics adventure!
-                            //metrics needs to be instantiated after all the data in order for proper data collection
-                            //this.setupMetrics();
+                        //dynmap data needs to be loaded after board in order for display to work correctly.
+                        EngineDynmap.getInstance().init();
 
-                            this.logger.info("Faction data has been loaded successfully. (&7" + TextUtil.formatDecimal((System.nanoTime() - dataStart) / 1_000_000.0D) + "ms&b)");
-                            loadDataSuccessful = true; //1st checkpoint for proper saving when plugin disables
-                        });
+                        // dataStart up task which runs the autoLeaveAfterDaysOfInactivity routine
+                        //task needs to be instantiated after players in order for purging to work correctly
+                        startAutoLeaveTask(false);
+
+                        // Grand metrics adventure!
+                        //metrics needs to be instantiated after all the data in order for proper data collection
+                        //this.setupMetrics();
+
+                        this.logger.info("Faction data has been loaded successfully. (&7" + TextUtil.formatDecimal((System.nanoTime() - dataStart) / 1_000_000.0D) + "ms&b)");
+                        loadDataSuccessful = true; //1st checkpoint for proper saving when plugin disables
                     });
                 });
-                // Add Base Commands
-
-                Bukkit.getPluginManager().registerEvents(new FactionsPlayerListener(), this);
-                Bukkit.getPluginManager().registerEvents(new FactionsChatListener(), this);
-                Bukkit.getPluginManager().registerEvents(new FactionsEntityListener(), this);
-                Bukkit.getPluginManager().registerEvents(new FactionsExploitListener(), this);
-                Bukkit.getPluginManager().registerEvents(new FactionsBlockListener(), this);
-
-                if (getMCVersion().isBefore(MinecraftVersions.v1_13)) {
-                    this.particleProvider = new PacketParticleProvider();
-                } else {
-                    this.particleProvider = new BukkitParticleProvider();
-                }
-
-                SidebarProvider.get().start();
-
-                if (conf().commands().seeChunk().isParticles()) {
-                    SeeChunkTask.get().start();
-                }
-                // End run before registering event handlers.
-
-                // Register Event Handlers
-
-                // Version specific portal listener check.
-                if (getMCVersion().isAfterOrEq(MinecraftVersions.v1_14)) { // Starting with 1.14
-                    Bukkit.getPluginManager().registerEvents(new PortalListener_114(), this);
-                } else {
-                    Bukkit.getPluginManager().registerEvents(new PortalListenerLegacy(new PortalHandler()), this);
-                }
-
-                // since some other plugins execute commands directly through this command interface, provide it
-                this.getCommand(refCommand).setExecutor(new FCmdRoot());
-
-                if (conf().commands().fly().isEnable()) {
-                    FlightTask.get().start();
-                }
-
-                setupPlaceholderAPI();
-
-                this.logger.info("Faction settings have been loaded successfully. (&7" + TextUtil.formatDecimal((System.nanoTime() - settingsStart) / 1_000_000.0D) + "ms&b)");
-                this.loadSettingsSuccessful = true; //2nd checkpoint for proper saving when plugin disables
-
-                Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
-                    if (Bukkit.getPluginManager().isPluginEnabled(this)) {
-                        this.setupMetrics();
-                    }
-                }, 20L);
             });
+            // Add Base Commands
+
+            Bukkit.getPluginManager().registerEvents(new FactionsPlayerListener(), this);
+            Bukkit.getPluginManager().registerEvents(new FactionsChatListener(), this);
+            Bukkit.getPluginManager().registerEvents(new FactionsEntityListener(), this);
+            Bukkit.getPluginManager().registerEvents(new FactionsExploitListener(), this);
+            Bukkit.getPluginManager().registerEvents(new FactionsBlockListener(), this);
+
+            if (getMCVersion().isBefore(MinecraftVersions.v1_13)) {
+                this.particleProvider = new PacketParticleProvider();
+            } else {
+                this.particleProvider = new BukkitParticleProvider();
+            }
+
+            this.blockVisualizer = new BlockVisualizer();
+
+            SidebarProvider.get().start();
+
+            if (conf().commands().seeChunk().isParticles()) {
+                SeeChunkTask.get().start();
+            }
+
+            // Register Event Handlers
+
+            // Version specific portal listener check.
+            if (getMCVersion().isAfterOrEq(MinecraftVersions.v1_14)) { // Starting with 1.14
+                Bukkit.getPluginManager().registerEvents(new PortalListener_114(), this);
+            } else {
+                Bukkit.getPluginManager().registerEvents(new PortalListenerLegacy(new PortalHandler()), this);
+            }
+
+            // since some other plugins execute commands directly through this command interface, provide it
+            this.getCommand(refCommand).setExecutor(new FCmdRoot());
+
+            if (conf().commands().fly().isEnable()) {
+                FlightTask.get().start();
+            }
+
+            setupPlaceholderAPI();
+
+            this.logger.info("Faction settings have been loaded successfully. (&7" + TextUtil.formatDecimal((System.nanoTime() - settingsStart) / 1_000_000.0D) + "ms&b)");
+            this.loadSettingsSuccessful = true; //2nd checkpoint for proper saving when plugin disables
+
+            Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
+                if (Bukkit.getPluginManager().isPluginEnabled(this)) {
+                    this.setupMetrics();
+                }
+            }, 20L);
         });
     }
 
@@ -542,32 +557,59 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         }
     }
 
-    public void loadLang(BooleanConsumer result) {
-        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-            File lang = new File(this.getDataFolder(), "lang.yml");
-            if (!lang.exists()) {
-                this.saveResource("lang.yml", false);
-            }
-            YamlConfiguration conf = YamlConfiguration.loadConfiguration(lang);
-            for (TL item : TL.VALUES) {
-                if (conf.getString(item.getPath()) == null) {
-                    conf.set(item.getPath(), item.getDefault());
-                }
-            }
+    public boolean loadLang() {
+        Path lang = this.getDataFolder().toPath().resolve("lang.yml");
 
-            // Remove this here because I'm sick of dealing with bug reports due to bad decisions on my part.
-            if (conf.getString(TL.COMMAND_SHOW_POWER.getPath(), "").contains("%5$s")) {
-                conf.set(TL.COMMAND_SHOW_POWER.getPath(), TL.COMMAND_SHOW_POWER.getDefault());
-            }
-
-            TL.setFile(conf);
+        if (Files.exists(lang)) {
             try {
-                conf.save(lang);
-                Bukkit.getScheduler().runTask(this, () -> result.accept(true));
-            } catch (IOException e) {
-                Bukkit.getScheduler().runTask(this, () -> result.accept(false));
+                if (!this.conf().lang().isLangTransitioned()) {
+                    Files.copy(lang, this.getDataFolder().toPath().resolve("old_lang.yml"), StandardCopyOption.REPLACE_EXISTING);
+                    FormatTransitioner.get().toIndexed(lang);
+                    TL.setTransition(true);
+                    this.logger.info("Translation file successfully converted.");
+                }
+            } catch (IOException exception) {
+                this.logger.severe("Unable to convert translation file.");
+                Bukkit.getPluginManager().disablePlugin(this);
+                return false;
             }
-        });
+        } else {
+            this.saveResource("lang.yml", false);
+        }
+        FileConfiguration yml = YamlConfiguration.loadConfiguration(lang.toFile());
+        boolean modified = false;
+        for (TL item : TL.VALUES) {
+            if (!yml.isSet(item.getPath())) {
+                yml.set(item.getPath(), item.getDefault());
+                modified = true;
+            }
+        }
+        String type = yml.getString("lang-type");
+        if (type != null) {
+            if (!type.equalsIgnoreCase(this.conf().lang().getFormatType())) {
+                modified = true;
+                if (this.conf().lang().getFormatType().equalsIgnoreCase("LOOSE")) {
+                    FormatTransitioner.get().toLoose(lang);
+                } else {
+                    FormatTransitioner.get().toIndexed(lang);
+                }
+                yml = YamlConfiguration.loadConfiguration(lang.toFile());
+            }
+        } else {
+            yml.set("lang-type", "INDEX");
+            modified = true;
+        }
+        TL.inheritFrom(lang, yml);
+        if (modified) {
+            try {
+                yml.save(lang.toFile());
+            } catch (IOException exception) {
+                this.logger.severe("Unable to modify translation file.");
+                Bukkit.getPluginManager().disablePlugin(this);
+                return false;
+            }
+        }
+        return true;
     }
 
     public Persist getPersist() {
@@ -580,6 +622,10 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     public ParticleProvider getParticleProvider() {
         return particleProvider;
+    }
+
+    public BlockVisualizer getBlockVisualizer() {
+        return this.blockVisualizer;
     }
 
     public Map<UUID, Integer> getStuckMap() {
@@ -680,13 +726,13 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                 .disableHtmlEscaping()
                 .enableComplexMapKeySerialization()
                 .excludeFieldsWithModifiers(Modifier.TRANSIENT, Modifier.VOLATILE)
-                .registerTypeAdapter(FactionMaterial.class, new FactionMaterialAdapter())
-                .registerTypeAdapter(Material.class, new MaterialAdapter())
+                .registerTypeAdapter(FactionMaterial.class, new FactionMaterialTypeAdapter())
+                .registerTypeAdapter(Material.class, new MaterialTypeAdapter())
                 .registerTypeAdapter(new TypeToken<Map<Permissible, Map<PermissibleAction, Boolean>>>(){}.getType(), new PermissionsMapTypeAdapter())
                 .registerTypeAdapter(LazyLocation.class, new MyLocationTypeAdapter())
                 .registerTypeAdapter(new TypeToken<Map<FLocation, Set<String>>>(){}.getType(), new MapFLocToStringSetTypeAdapter())
                 .registerTypeAdapter(UUID.class, new UUIDTypeAdapter())
-                .registerTypeAdapterFactory(EnumTypeAdapter.ENUM_FACTORY);
+                .registerTypeAdapterFactory(EnumTypeTypeAdapter.ENUM_FACTORY);
     }
 
     @Override

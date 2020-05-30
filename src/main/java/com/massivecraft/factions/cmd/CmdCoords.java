@@ -2,6 +2,7 @@ package com.massivecraft.factions.cmd;
 
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.struct.Permission;
+import com.massivecraft.factions.util.FastMath;
 import com.massivecraft.factions.util.TL;
 import org.bukkit.Location;
 
@@ -21,7 +22,7 @@ public class CmdCoords extends FCommand {
     @Override
     public void perform(CommandContext context) {
         Location location = context.player.getLocation();
-        String message = TL.COMMAND_COORDS_MESSAGE.format(context.player.getDisplayName(), location.getBlockX(), location.getBlockY(), location.getBlockZ(), location.getWorld().getName());
+        String message = TL.COMMAND_COORDS_MESSAGE.format(context.player.getDisplayName(), Integer.toString(FastMath.floor(location.getX())), Integer.toString(FastMath.floor(location.getY())), Integer.toString(FastMath.floor(location.getZ())), location.getWorld().getName());
         for (FPlayer fPlayer : context.faction.getFPlayers()) {
             fPlayer.sendMessage(message);
         }

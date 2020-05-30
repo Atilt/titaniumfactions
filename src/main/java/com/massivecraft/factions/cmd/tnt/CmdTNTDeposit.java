@@ -36,18 +36,18 @@ public class CmdTNTDeposit extends FCommand {
         }
         int amount = context.argAsInt(0, -1);
         if (amount <= 0) {
-            context.msg(TL.COMMAND_TNT_DEPOSIT_FAIL_POSITIVE, amount);
+            context.msg(TL.COMMAND_TNT_DEPOSIT_FAIL_POSITIVE, Integer.toString(amount));
             return;
         }
 
         if (!player.getInventory().containsAtLeast(new ItemStack(Material.TNT), amount)) {
-            context.msg(TL.COMMAND_TNT_DEPOSIT_FAIL_NOTENOUGH, amount);
+            context.msg(TL.COMMAND_TNT_DEPOSIT_FAIL_NOTENOUGH, Integer.toString(amount));
             return;
         }
 
         if (FactionsPlugin.getInstance().conf().commands().tnt().isAboveMaxStorage(context.faction.getTNTBank() + amount)) {
             if (FactionsPlugin.getInstance().conf().commands().tnt().getMaxStorage() == context.faction.getTNTBank()) {
-                context.msg(TL.COMMAND_TNT_DEPOSIT_FAIL_FULL, FactionsPlugin.getInstance().conf().commands().tnt().getMaxStorage());
+                context.msg(TL.COMMAND_TNT_DEPOSIT_FAIL_FULL, Integer.toString(FactionsPlugin.getInstance().conf().commands().tnt().getMaxStorage()));
                 return;
             }
             amount = FactionsPlugin.getInstance().conf().commands().tnt().getMaxStorage() - context.faction.getTNTBank();
@@ -68,7 +68,7 @@ public class CmdTNTDeposit extends FCommand {
             }
         }
         context.faction.setTNTBank(context.faction.getTNTBank() + amount);
-        context.msg(TL.COMMAND_TNT_DEPOSIT_SUCCESS, context.faction.getTNTBank());
+        context.msg(TL.COMMAND_TNT_DEPOSIT_SUCCESS, Integer.toString(context.faction.getTNTBank()));
     }
 
     @Override

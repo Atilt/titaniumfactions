@@ -12,7 +12,7 @@ public class FactionsDataListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerLoginEvent event) {
         if (!FactionsPlugin.getInstance().isFinishedLoading()) {
-            event.disallow(PlayerLoginEvent.Result.KICK_OTHER, TL.isSet() ? TL.FACTIONS_DATA_LOADING.toString() : TL.FACTIONS_DATA_LOADING.getDefault());
+            event.disallow(PlayerLoginEvent.Result.KICK_OTHER, TL.FACTIONS_DATA_LOADING.toString());
         }
     }
 }

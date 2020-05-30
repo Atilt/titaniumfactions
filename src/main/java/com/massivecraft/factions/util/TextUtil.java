@@ -157,10 +157,6 @@ public final class TextUtil {
         return TAGS.put(key, value);
     }
 
-    public static String parse(String str, Object... args) {
-        return String.format(parse(str), args);
-    }
-
     public static String parse(String str) {
         return parseTags(parseColor(str));
     }
@@ -296,7 +292,7 @@ public final class TextUtil {
         ret.add(titleize(title + " " + pageHumanBased + "/" + pagecount));
 
         if (pageZeroBased < 0 || pageHumanBased > pagecount) {
-            ret.add(parseTags(TL.INVALIDPAGE.format(pagecount)));
+            ret.add(parseTags(TL.INVALIDPAGE.format(Integer.toString(pagecount))));
             return ret;
         }
 

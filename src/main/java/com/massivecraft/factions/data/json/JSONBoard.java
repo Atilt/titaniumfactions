@@ -1,7 +1,6 @@
 package com.massivecraft.factions.data.json;
 
 import com.google.gson.reflect.TypeToken;
-import com.massivecraft.factions.Board;
 import com.massivecraft.factions.FLocation;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.data.MemoryBoard;
@@ -15,10 +14,8 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.bukkit.Bukkit;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.Map;
 import java.util.function.IntConsumer;
 import java.util.logging.Level;
@@ -28,7 +25,6 @@ public class JSONBoard extends MemoryBoard {
 
     private static final transient Path BOARD_PATH = FactionsPlugin.getInstance().getDataFolder().toPath().resolve("data").resolve("board.json");
 
-    //Map<World, Map<CompactCoord, FactionId>>
     public Map<String, Object2IntMap<String>> dumpAsSaveFormat() {
         Object2ObjectMap<String, Object2IntMap<String>> worldCoordIds = new Object2ObjectOpenHashMap<>(flocationIds.size());
 
@@ -50,17 +46,8 @@ public class JSONBoard extends MemoryBoard {
     @Override
     public void load(IntConsumer loaded) {
         if (Files.notExists(BOARD_PATH)) {
-            //move into folder if outside of folder
-            Path possibleData = FactionsPlugin.getInstance().getDataFolder().toPath().resolve("board.json");
-            if (Files.notExists(possibleData)) {
-                forceSave(result -> loaded.accept(0));
-                return;
-            }
-            try {
-                Files.move(possibleData, BOARD_PATH, StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            loaded.accept(0);
+            return;
         }
         Bukkit.getScheduler().runTaskAsynchronously(FactionsPlugin.getInstance(), () -> {
             try {

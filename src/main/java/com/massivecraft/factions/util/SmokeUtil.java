@@ -44,7 +44,7 @@ public final class SmokeUtil {
     }
 
     public static void spawnCloudSimple(Location location) {
-        for (int i = 0; i <= 8; i++) {
+        for (int i = 0; i < 9; i++) {
             spawnSingle(location, i);
         }
     }
@@ -55,16 +55,21 @@ public final class SmokeUtil {
         }
     }
 
-    public static void spawnCloudRandom(Location location, float thickness) {
-        int singles = FastMath.floor(thickness * 9);
+    private static void spawnCloudRandom(Location location, int singles) {
         for (int i = 0; i < singles; i++) {
             spawnSingleRandom(location);
         }
     }
 
+    public static void spawnCloudRandom(Location location, float thickness) {
+        int singles = FastMath.floor(thickness * 9);
+        spawnCloudRandom(location, singles);
+    }
+
     public static void spawnCloudRandom(Collection<Location> locations, float thickness) {
+        int singles = FastMath.floor(thickness * 9);
         for (Location location : locations) {
-            spawnCloudRandom(location, thickness);
+            spawnCloudRandom(location, singles);
         }
     }
 }

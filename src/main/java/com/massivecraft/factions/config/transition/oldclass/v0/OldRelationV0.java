@@ -27,7 +27,6 @@ public enum OldRelationV0 implements OldPermissableV0 {
     }
 
     public static OldRelationV0 fromString(String s) {
-        // Because Java 6 doesn't allow String switches :(
         if (s.equalsIgnoreCase(MEMBER.toString())) {
             return MEMBER;
         } else if (s.equalsIgnoreCase(ALLY.toString())) {
@@ -37,12 +36,12 @@ public enum OldRelationV0 implements OldPermissableV0 {
         } else if (s.equalsIgnoreCase(ENEMY.toString())) {
             return ENEMY;
         } else {
-            return NEUTRAL; // If they somehow mess things up, go back to default behavior.
+            return NEUTRAL;
         }
     }
 
     @Override
     public String toString() {
-        return this.toString();
+        return this.nicename;
     }
 }

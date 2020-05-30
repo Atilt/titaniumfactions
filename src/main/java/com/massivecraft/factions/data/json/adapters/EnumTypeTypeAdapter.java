@@ -13,12 +13,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
+public final class EnumTypeTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
 
     private final Map<String, T> nameToConstant = new HashMap<>();
     private final Map<T, String> constantToName = new HashMap<>();
 
-    public EnumTypeAdapter(Class<T> classOfT) {
+    public EnumTypeTypeAdapter(Class<T> classOfT) {
         try {
             for (T constant : classOfT.getEnumConstants()) {
                 String name = constant.name();
@@ -59,7 +59,7 @@ public final class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
                 if (!rawType.isEnum()) {
                     rawType = rawType.getSuperclass(); // handle anonymous subclasses
                 }
-                return (TypeAdapter<T>) new EnumTypeAdapter(rawType);
+                return (TypeAdapter<T>) new EnumTypeTypeAdapter(rawType);
             }
         };
     }

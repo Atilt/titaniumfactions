@@ -32,6 +32,7 @@ public class SidebarProvider implements AutoCloseable {
 
     public void start() {
         this.task = Bukkit.getScheduler().runTaskTimer(FactionsPlugin.getInstance(), () -> {
+
             for (FPlayer fPlayer : players.asCycle().next()) {
                 FastBoard fastBoard = fPlayer.getScoreboard();
                 if (fastBoard == null) {

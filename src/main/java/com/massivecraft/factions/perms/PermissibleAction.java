@@ -65,7 +65,7 @@ public enum PermissibleAction {
         this.materialName = materialName;
     }
 
-    private static Object2ObjectMap<String, PermissibleAction> map = new Object2ObjectOpenHashMap<>();
+    private static final Object2ObjectMap<String, PermissibleAction> map = new Object2ObjectOpenHashMap<>();
     public static final PermissibleAction[] VALUES = PermissibleAction.values();
 
     static {

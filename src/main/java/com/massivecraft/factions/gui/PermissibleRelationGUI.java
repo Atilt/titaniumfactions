@@ -18,52 +18,51 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class PermissibleRelationGUI extends GUI<Permissible> {
-    private static Map<Permissible, SimpleItem> items;
-    public static SimpleItem offlineSwitch = SimpleItem.builder().setName(TL.GUI_PERMS_TOGGLE.toString()).setMaterial(FactionMaterial.from("LEVER").get()).build();
+    private static Map<Permissible, SimpleItem> ITEMS = new LinkedHashMap<>(8);
+    public static final SimpleItem OFFLINE_SWITCH = SimpleItem.builder().setName(TL.GUI_PERMS_TOGGLE.toString()).setMaterial(FactionMaterial.from("LEVER").get()).build();
 
     static {
-        items = new LinkedHashMap<>();
         SimpleItem.Builder starter = SimpleItem.builder().setName("&8[{relation-color}{relation}&8]");
 
         SimpleItem recruit = starter.build();
         recruit.setName(Role.RECRUIT.getTranslation().toString());
         recruit.setMaterial(FactionMaterial.from("WOODEN_SWORD").get());
-        items.put(Role.RECRUIT, recruit);
+        ITEMS.put(Role.RECRUIT, recruit);
 
         SimpleItem normal = starter.build();
         normal.setName(Role.NORMAL.getTranslation().toString());
         normal.setMaterial(FactionMaterial.from("STONE_SWORD").get());
-        items.put(Role.NORMAL, normal);
+        ITEMS.put(Role.NORMAL, normal);
 
         SimpleItem moderator = starter.build();
         moderator.setName(Role.MODERATOR.getTranslation().toString());
         moderator.setMaterial(FactionMaterial.from("IRON_SWORD").get());
-        items.put(Role.MODERATOR, moderator);
+        ITEMS.put(Role.MODERATOR, moderator);
 
         SimpleItem coleader = starter.build();
         coleader.setName(Role.COLEADER.getTranslation().toString());
         coleader.setMaterial(FactionMaterial.from("DIAMOND_SWORD").get());
-        items.put(Role.COLEADER, coleader);
+        ITEMS.put(Role.COLEADER, coleader);
 
         SimpleItem ally = starter.build();
         ally.setName(Relation.ALLY.getTranslation());
         ally.setMaterial(FactionMaterial.from("GOLD_SWORD").get());
-        items.put(Relation.ALLY, ally);
+        ITEMS.put(Relation.ALLY, ally);
 
         SimpleItem truce = starter.build();
         truce.setName(Relation.TRUCE.getTranslation());
         truce.setMaterial(FactionMaterial.from("IRON_AXE").get());
-        items.put(Relation.TRUCE, truce);
+        ITEMS.put(Relation.TRUCE, truce);
 
         SimpleItem neutral = starter.build();
         neutral.setName(Relation.NEUTRAL.getTranslation());
         neutral.setMaterial(FactionMaterial.from("STONE_HOE").get());
-        items.put(Relation.NEUTRAL, neutral);
+        ITEMS.put(Relation.NEUTRAL, neutral);
 
         SimpleItem enemy = starter.build();
         enemy.setName(Relation.ENEMY.getTranslation());
         enemy.setMaterial(FactionMaterial.from("STONE_AXE").get());
-        items.put(Relation.ENEMY, enemy);
+        ITEMS.put(Relation.ENEMY, enemy);
     }
 
     private boolean online;
@@ -77,7 +76,7 @@ public class PermissibleRelationGUI extends GUI<Permissible> {
     @Override
     protected String getName() {
         String bit = FactionsPlugin.getInstance().conf().factions().other().isSeparateOfflinePerms() ?
-                TL.GUI_PERMS_RELATION_ONLINEOFFLINEBIT.format(online ? TL.GUI_PERMS_ONLINE.toString() : TL.GUI_PERMS_OFFLINE)
+                TL.GUI_PERMS_RELATION_ONLINEOFFLINEBIT.format(this.online ? TL.GUI_PERMS_ONLINE.toString() : TL.GUI_PERMS_OFFLINE.toString())
                 : "";
         return TL.GUI_PERMS_RELATION_NAME.format(bit);
     }
@@ -120,11 +119,11 @@ public class PermissibleRelationGUI extends GUI<Permissible> {
 
     @Override
     protected SimpleItem getItem(Permissible permissible) {
-        return items.get(permissible);
+        return ITEMS.get(permissible);
     }
 
     @Override
     protected Map<Integer, SimpleItem> createDummyItems() {
-        return FactionsPlugin.getInstance().conf().factions().other().isSeparateOfflinePerms() ? ImmutableMap.of(13, offlineSwitch) : Collections.emptyMap();
+        return FactionsPlugin.getInstance().conf().factions().other().isSeparateOfflinePerms() ? ImmutableMap.of(13, OFFLINE_SWITCH) : Collections.emptyMap();
     }
 }

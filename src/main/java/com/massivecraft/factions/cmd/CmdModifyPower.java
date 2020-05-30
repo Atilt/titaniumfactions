@@ -32,8 +32,7 @@ public class CmdModifyPower extends FCommand {
         }
 
         player.alterPower(number);
-        int newPower = player.getPowerRounded(); // int so we don't have super long doubles.
-        context.msg(TL.COMMAND_MODIFYPOWER_ADDED, number, player.getName(), newPower);
+        context.msg(TL.COMMAND_MODIFYPOWER_ADDED, Double.toString(number), player.getName(), Integer.toString(player.getPowerRounded()));
     }
 
     @Override

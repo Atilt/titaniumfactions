@@ -20,7 +20,7 @@ public final class RelationUtil {
         String ret = "";
 
         if (that instanceof Faction) {
-            if (me instanceof FPlayer && myFaction == thatFaction) {
+            if (myFaction == thatFaction && me instanceof FPlayer) {
                 ret = TL.GENERIC_YOURFACTION.toString();
             } else {
                 ret = thatFaction.getTag();

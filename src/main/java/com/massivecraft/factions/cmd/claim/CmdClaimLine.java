@@ -6,6 +6,7 @@ import com.massivecraft.factions.cmd.CommandContext;
 import com.massivecraft.factions.cmd.CommandRequirements;
 import com.massivecraft.factions.cmd.FCommand;
 import com.massivecraft.factions.struct.Permission;
+import com.massivecraft.factions.util.FastMath;
 import com.massivecraft.factions.util.TL;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
@@ -52,7 +53,7 @@ public class CmdClaimLine extends FCommand {
         Integer amount = context.argAsInt(0, 1); // Default to 1
 
         if (amount > FactionsPlugin.getInstance().conf().factions().claims().getLineClaimLimit()) {
-            context.msg(TL.COMMAND_CLAIMLINE_ABOVEMAX, FactionsPlugin.getInstance().conf().factions().claims().getLineClaimLimit());
+            context.msg(TL.COMMAND_CLAIMLINE_ABOVEMAX, Integer.toString(FactionsPlugin.getInstance().conf().factions().claims().getLineClaimLimit()));
             return;
         }
 
@@ -60,7 +61,7 @@ public class CmdClaimLine extends FCommand {
         BlockFace blockFace;
 
         if (direction == null) {
-            blockFace = ValidCardinal.VALUES[Math.round(context.player.getLocation().getYaw() / 90f) & 0x3].getFace();
+            blockFace = ValidCardinal.VALUES[FastMath.round(context.player.getLocation().getYaw() / 90f) & 0x3].getFace();
         } else {
             try {
                 blockFace = ValidCardinal.valueOf(direction.toUpperCase()).getFace();
@@ -73,9 +74,11 @@ public class CmdClaimLine extends FCommand {
         Location location = context.player.getLocation();
 
         // TODO: make this a task like claiming a radius?
+        int relativeX = blockFace.getModX() << 4;
+        int relativeZ = blockFace.getModZ() << 4;
         for (int i = 0; i < amount; i++) {
             context.fPlayer.attemptClaim(forFaction, location, true);
-            location = location.add(blockFace.getModX() << 4, 0, blockFace.getModZ() << 4);
+            location.add(relativeX, 0, relativeZ);
         }
     }
 

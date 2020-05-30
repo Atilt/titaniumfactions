@@ -8,7 +8,11 @@ public interface EconomyParticipator extends RelationParticipator {
 
     UUID getAccountId();
 
-    void msg(String str, Object... args);
+    void msg(String msg);
 
-    void msg(TL translation, Object... args);
+     void msg(TL translation);
+
+     void msg(TL translation, TL toAppend);
+
+     void msg(TL translation, String... args);
 }

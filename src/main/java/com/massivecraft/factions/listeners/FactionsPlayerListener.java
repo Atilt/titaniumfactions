@@ -14,11 +14,11 @@ import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.scoreboards.SidebarProvider;
 import com.massivecraft.factions.struct.Permission;
+import com.massivecraft.factions.util.FastMath;
 import com.massivecraft.factions.util.FlightTask;
 import com.massivecraft.factions.util.SeeChunkTask;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
-import com.massivecraft.factions.util.VisualizeUtil;
 import com.massivecraft.factions.util.WorldUtil;
 import com.massivecraft.factions.util.material.MaterialDb;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
@@ -30,6 +30,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -52,11 +53,31 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.NumberConversions;
 
+import java.time.Instant;
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.UUID;
 
 
 public class FactionsPlayerListener extends AbstractListener {
+
+    private static final Set<EntityType> INTERACTABLE_ENTITIES = EnumSet.noneOf(EntityType.class);
+
+    static {
+        if (FactionsPlugin.getInstance().getMCVersion().isAfterOrEq(MinecraftVersions.v1_11)) {
+            INTERACTABLE_ENTITIES.add(EntityType.LLAMA);
+        }
+        if (FactionsPlugin.getInstance().getMCVersion().isAfterOrEq(MinecraftVersions.v1_14)) {
+            INTERACTABLE_ENTITIES.add(EntityType.TRADER_LLAMA);
+        }
+        INTERACTABLE_ENTITIES.add(EntityType.ITEM_FRAME);
+        INTERACTABLE_ENTITIES.add(EntityType.HORSE);
+        INTERACTABLE_ENTITIES.add(EntityType.PIG);
+        INTERACTABLE_ENTITIES.add(EntityType.LEASH_HITCH);
+        INTERACTABLE_ENTITIES.add(EntityType.MINECART_CHEST);
+        INTERACTABLE_ENTITIES.add(EntityType.MINECART_FURNACE);
+        INTERACTABLE_ENTITIES.add(EntityType.MINECART_HOPPER);
+    }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
@@ -74,7 +95,7 @@ public class FactionsPlayerListener extends AbstractListener {
 
         FactionsPlugin.getInstance().getLandRaidControl().onJoin(me);
         // Update the lastLoginTime for this fplayer
-        me.setLastLoginTime(System.currentTimeMillis());
+        me.setLastLoginTime(Instant.now().toEpochMilli());
 
         // Store player's current FLocation and notify them where they are
         me.setLastStoodAt(FLocation.wrap(player.getLocation()));
@@ -98,23 +119,25 @@ public class FactionsPlayerListener extends AbstractListener {
 
     private void initFactionWorld(FPlayer me, Player player) {
         // Check for Faction announcements. Let's delay this so they actually see it.
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (me.isOnline()) {
-                    me.getFaction().sendUnreadAnnouncements(me);
+        Faction faction = me.getFaction();
+        if (faction.hasUnreadAnnouncements(me)) {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (me.isOnline() && faction == me.getFaction()) {
+                        faction.sendUnreadAnnouncements(me);
+                    }
                 }
-            }
-        }.runTaskLater(FactionsPlugin.getInstance(), 33L); // Don't ask me why.
+            }.runTaskLater(FactionsPlugin.getInstance(), 33L); // Due to essentials being an MOTD hog.
+        }
 
         if (FactionsPlugin.getInstance().conf().scoreboard().constant().isEnabled() && me.showScoreboard()) {
             me.setTextProvider(SidebarProvider.DEFAULT_SIDEBAR);
             me.setShowScoreboard(true);
         }
 
-        Faction myFaction = me.getFaction();
-        if (!myFaction.isWilderness()) {
-            for (FPlayer other : myFaction.getFPlayersWhereOnline(true)) {
+        if (!faction.isWilderness()) {
+            for (FPlayer other : faction.getFPlayersWhereOnline(true)) {
                 if (other != me && other.isMonitoringJoins()) {
                     other.msg(TL.FACTION_LOGIN, me.getName());
                 }
@@ -139,7 +162,7 @@ public class FactionsPlayerListener extends AbstractListener {
 
         FactionsPlugin.getInstance().getLandRaidControl().onQuit(me);
         // and update their last login time to point to when the logged off, for auto-remove routine
-        me.setLastLoginTime(System.currentTimeMillis());
+        me.setLastLoginTime(Instant.now().toEpochMilli());
 
         me.logout(); // cache kills / deaths
 
@@ -187,8 +210,8 @@ public class FactionsPlayerListener extends AbstractListener {
         FPlayer me = FPlayers.getInstance().getByPlayer(player);
 
         // clear visualization
-        if (event.getFrom().getBlockX() != event.getTo().getBlockX() || event.getFrom().getBlockY() != event.getTo().getBlockY() || event.getFrom().getBlockZ() != event.getTo().getBlockZ()) {
-            VisualizeUtil.clear(event.getPlayer(), true);
+        if (FastMath.floor(event.getFrom().getX()) != FastMath.floor(event.getTo().getX()) || FastMath.floor(event.getFrom().getY()) != FastMath.floor(event.getTo().getY()) || FastMath.floor(event.getFrom().getZ()) != FastMath.floor(event.getTo().getZ())) {
+            FactionsPlugin.getInstance().getBlockVisualizer().clear(event.getPlayer(), true);
             if (me.isWarmingUp()) {
                 me.clearWarmup();
                 me.msg(TL.WARMUPS_CANCELLED);
@@ -196,7 +219,7 @@ public class FactionsPlayerListener extends AbstractListener {
         }
 
         // quick check to make sure player is moving between chunks; good performance boost
-        if (event.getFrom().getBlockX() >> 4 == event.getTo().getBlockX() >> 4 && event.getFrom().getBlockZ() >> 4 == event.getTo().getBlockZ() >> 4 && event.getFrom().getWorld() == event.getTo().getWorld()) {
+        if (FastMath.floor(event.getFrom().getX()) >> 4 == FastMath.floor(event.getTo().getX()) >> 4 && FastMath.floor(event.getFrom().getZ()) >> 4 == event.getTo().getBlockZ() >> 4 && event.getFrom().getWorld() == event.getTo().getWorld()) {
             return;
         }
 
@@ -248,9 +271,9 @@ public class FactionsPlayerListener extends AbstractListener {
         }
 
         if (me.isMapAutoUpdating()) {
-            if (!showTimes.containsKey(player.getUniqueId()) || (showTimes.getLong(player.getUniqueId()) < System.currentTimeMillis())) {
+            if (!showTimes.containsKey(player.getUniqueId()) || (showTimes.getLong(player.getUniqueId()) < Instant.now().toEpochMilli())) {
                 me.sendFancyMessage(Board.getInstance().getMap(me, to, player.getLocation().getYaw()));
-                showTimes.put(player.getUniqueId(), System.currentTimeMillis() + FactionsPlugin.getInstance().conf().commands().map().getCooldown());
+                showTimes.put(player.getUniqueId(), Instant.now().toEpochMilli() + FactionsPlugin.getInstance().conf().commands().map().getCooldown());
             }
         } else {
             Faction myFaction = me.getFaction();
@@ -280,28 +303,16 @@ public class FactionsPlayerListener extends AbstractListener {
             return;
         }
 
-        switch (event.getRightClicked().getType().name()) {
-            case "ITEM_FRAME":
-                if (!canPlayerUseBlock(event.getPlayer(), Material.ITEM_FRAME, event.getRightClicked().getLocation(), false)) {
-                    event.setCancelled(true);
-                }
-                break;
-            case "HORSE":
-            case "SKELETON_HORSE":
-            case "ZOMBIE_HORSE":
-            case "DONKEY":
-            case "MULE":
-            case "LLAMA":
-            case "TRADER_LLAMA":
-            case "PIG":
-            case "LEASH_HITCH":
-            case "MINECART_CHEST":
-            case "MINECART_FURNACE":
-            case "MINECART_HOPPER":
-                if (!this.playerCanInteractHere(event.getPlayer(), event.getRightClicked().getLocation())) {
-                    event.setCancelled(true);
-                }
-                break;
+        EntityType type = event.getRightClicked().getType();
+
+        if (INTERACTABLE_ENTITIES.contains(type)) {
+            if (type == EntityType.ITEM_FRAME && !canPlayerUseBlock(event.getPlayer(), Material.ITEM_FRAME, event.getRightClicked().getLocation(), false)) {
+                event.setCancelled(true);
+                return;
+            }
+            if (!this.playerCanInteractHere(event.getPlayer(), event.getRightClicked().getLocation())) {
+                event.setCancelled(true);
+            }
         }
     }
 
@@ -378,11 +389,11 @@ public class FactionsPlayerListener extends AbstractListener {
 
     private static class InteractAttemptSpam {
         private int attempts = 0;
-        private long lastAttempt = System.currentTimeMillis();
+        private long lastAttempt = Instant.now().toEpochMilli();
 
         // returns the current attempt count
         public int increment() {
-            long now = System.currentTimeMillis();
+            long now = Instant.now().toEpochMilli();
             if (now > lastAttempt + 2000) {
                 attempts = 1;
             } else {
@@ -394,8 +405,7 @@ public class FactionsPlayerListener extends AbstractListener {
     }
 
     public boolean playerCanUseItemHere(Player player, Location location, Material material, boolean justCheck) {
-        String name = player.getName();
-        if (FactionsPlugin.getInstance().conf().factions().protection().getPlayersWhoBypassAllProtection().contains(name)) {
+        if (FactionsPlugin.getInstance().conf().factions().protection().getPlayersWhoBypassAllProtection().contains(player.getName())) {
             return true;
         }
 

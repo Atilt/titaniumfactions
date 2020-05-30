@@ -103,12 +103,12 @@ public class OldMainConfigV1 {
             public int tagInsertIndex = 0;
             public boolean tagPadBefore = false;
             public boolean tagPadAfter = true;
-            public String tagFormat = "%s\u00A7f";
+            public String tagFormat = "[]\u00A7f";
             public boolean alwaysShowChatTag = true;
-            public String factionChatFormat = "%s:\u00A7f %s";
-            public String allianceChatFormat = "\u00A7d%s:\u00A7f %s";
-            public String truceChatFormat = "\u00A75%s:\u00A7f %s";
-            public String modChatFormat = "\u00A7c%s:\u00A7f %s";
+            public String factionChatFormat = "[]:\u00A7f []";
+            public String allianceChatFormat = "\u00A7d[]:\u00A7f []";
+            public String truceChatFormat = "\u00A75[]:\u00A7f []";
+            public String modChatFormat = "\u00A7c[]:\u00A7f []";
             public boolean broadcastDescriptionChanges = false;
             public boolean broadcastTagChanges = false;
         }
@@ -382,8 +382,8 @@ public class OldMainConfigV1 {
     }
 
     public class PlayerVaults {
-        @Comment("The %s is for the faction id")
-        public String vaultPrefix = "faction-%s";
+        @Comment("The [] is for the faction id")
+        public String vaultPrefix = "faction-[]";
         public int defaultMaxVaults = 0;
     }
 

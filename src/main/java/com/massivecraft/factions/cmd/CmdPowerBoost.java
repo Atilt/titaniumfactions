@@ -4,6 +4,7 @@ import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.struct.Permission;
+import com.massivecraft.factions.util.FastMath;
 import com.massivecraft.factions.util.TL;
 
 public class CmdPowerBoost extends FCommand {
@@ -68,7 +69,7 @@ public class CmdPowerBoost extends FCommand {
             target = TL.COMMAND_POWERBOOST_FACTION.format(targetFaction.getTag());
         }
 
-        int roundedPower = (int) Math.round(targetPower);
+        String roundedPower = Integer.toString(FastMath.round(targetPower));
         context.msg(TL.COMMAND_POWERBOOST_BOOST, target, roundedPower);
         if (context.player != null) {
             FactionsPlugin.getInstance().getPluginLogger().info(TL.COMMAND_POWERBOOST_BOOSTLOG.format(context.fPlayer.getName(), target, roundedPower));

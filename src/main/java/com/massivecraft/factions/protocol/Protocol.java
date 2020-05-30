@@ -66,8 +66,9 @@ public final class Protocol {
     public static void sendPacket(Player player, Object... packets) {
         Object entityPlayer = PLAYER_TO_NMS.apply(player);
         try {
+            Object connection = PLAYER_CONNECTION.get(entityPlayer);
             for (Object packet : packets) {
-                SEND_PACKET.accept(PLAYER_CONNECTION.get(entityPlayer), packet);
+                SEND_PACKET.accept(connection, packet);
             }
         } catch (IllegalAccessException e) {
             e.printStackTrace();

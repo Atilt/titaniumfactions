@@ -623,30 +623,30 @@ public class EngineDynmap {
 
         String money = "unavailable";
         if (FactionsPlugin.getInstance().conf().economy().isBankEnabled() && dynmapConf.dynmap().isDescriptionMoney()) {
-            money = String.format("%.2f", Econ.getBalance(faction.getAccountId()));
+            money = Double.toString(Econ.getBalance(faction.getAccountId()));
         }
         ret = ret.replace("%money%", money);
 
 
         // Players
         Set<FPlayer> playersList = faction.getFPlayers();
-        String playersCount = String.valueOf(playersList.size());
+        String playersCount = Integer.toString(playersList.size());
         String players = getHtmlPlayerString(playersList);
 
         FPlayer playersLeaderObject = faction.getFPlayerAdmin();
         String playersLeader = getHtmlPlayerName(playersLeaderObject);
 
         List<FPlayer> playersAdminsList = faction.getFPlayersWhereRole(Role.ADMIN);
-        String playersAdminsCount = String.valueOf(playersAdminsList.size());
+        String playersAdminsCount = Integer.toString(playersAdminsList.size());
         String playersAdmins = getHtmlPlayerString(playersAdminsList);
 
         List<FPlayer> playersModeratorsList = faction.getFPlayersWhereRole(Role.MODERATOR);
-        String playersModeratorsCount = String.valueOf(playersModeratorsList.size());
+        String playersModeratorsCount = Integer.toString(playersModeratorsList.size());
         String playersModerators = getHtmlPlayerString(playersModeratorsList);
 
 
         List<FPlayer> playersNormalsList = faction.getFPlayersWhereRole(Role.NORMAL);
-        String playersNormalsCount = String.valueOf(playersNormalsList.size());
+        String playersNormalsCount = Integer.toString(playersNormalsList.size());
         String playersNormals = getHtmlPlayerString(playersNormalsList);
 
 

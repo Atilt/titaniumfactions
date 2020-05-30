@@ -3,6 +3,8 @@ package com.massivecraft.factions.config.transition.oldclass.v1;
 import com.google.common.collect.ImmutableList;
 import com.massivecraft.factions.config.annotation.Comment;
 import com.massivecraft.factions.util.material.FactionMaterial;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSets;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -651,12 +653,12 @@ public class TransitionConfigV1 {
             private int tagInsertIndex = 0;
             private boolean tagPadBefore = false;
             private boolean tagPadAfter = true;
-            private String tagFormat = "%s\u00A7f";
+            private String tagFormat = "[]\u00A7f";
             private boolean alwaysShowChatTag = true;
-            private String factionChatFormat = "%s:\u00A7f %s";
-            private String allianceChatFormat = "\u00A7d%s:\u00A7f %s";
-            private String truceChatFormat = "\u00A75%s:\u00A7f %s";
-            private String modChatFormat = "\u00A7c%s:\u00A7f %s";
+            private String factionChatFormat = "[]:\u00A7f []";
+            private String allianceChatFormat = "\u00A7d[]:\u00A7f []";
+            private String truceChatFormat = "\u00A75[]:\u00A7f []";
+            private String modChatFormat = "\u00A7c[]:\u00A7f []";
             private boolean broadcastDescriptionChanges = false;
             private boolean broadcastTagChanges = false;
 
@@ -893,7 +895,7 @@ public class TransitionConfigV1 {
             private int lineClaimLimit = 5;
             @Comment("If someone is doing a radius claim and the process fails to claim land this many times in a row, it will exit")
             private int radiusClaimFailureLimit = 9;
-            private Set<String> worldsNoClaiming = new HashSet<>();
+            private Set<String> worldsNoClaiming = new ObjectOpenHashSet<>();
             @Comment("Buffer Zone is an chunk area required between claims of different Factions.\n" +
                     "This is default to 0 and has always been that way. Meaning Factions can have\n" +
                     "  claims that border each other.\n" +
@@ -941,7 +943,7 @@ public class TransitionConfigV1 {
             }
 
             public Set<String> getWorldsNoClaiming() {
-                return worldsNoClaiming == null ? Collections.emptySet() : worldsNoClaiming;
+                return worldsNoClaiming == null ? ObjectSets.emptySet() : worldsNoClaiming;
             }
         }
 
@@ -1939,8 +1941,8 @@ public class TransitionConfigV1 {
     }
 
     public class PlayerVaults {
-        @Comment("The %s is for the faction id")
-        private String vaultPrefix = "faction-%s";
+        @Comment("The [] is for the faction id")
+        private String vaultPrefix = "faction-[]";
         private int defaultMaxVaults = 0;
 
         public String getVaultPrefix() {

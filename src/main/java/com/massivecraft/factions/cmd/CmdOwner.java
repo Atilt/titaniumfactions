@@ -41,7 +41,7 @@ public class CmdOwner extends FCommand {
         }
 
         if (!hasBypass && FactionsPlugin.getInstance().conf().factions().ownedArea().getLimitPerFaction() > 0 && context.faction.getCountOfClaimsWithOwners() >= FactionsPlugin.getInstance().conf().factions().ownedArea().getLimitPerFaction()) {
-            context.msg(TL.COMMAND_OWNER_LIMIT, FactionsPlugin.getInstance().conf().factions().ownedArea().getLimitPerFaction());
+            context.msg(TL.COMMAND_OWNER_LIMIT, Integer.toString(FactionsPlugin.getInstance().conf().factions().ownedArea().getLimitPerFaction()));
             return;
         }
 

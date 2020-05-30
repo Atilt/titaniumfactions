@@ -77,22 +77,11 @@ public class AsciiCompass {
             return (isActive ? ACTIVE_COLOR : colorDefault) + getTranslation();
         }
 
-        public static Point fromAngle(float degrees) {
-            return VALUES[Math.round(degrees / 45.0f) & 0x7].getOppositePoint();
+        public static Point fromAngle(double degrees) {
+            return VALUES[FastMath.round(degrees / 45.0d) & 0x7].getOppositePoint();
         }
     }
-    /**
-     *  \ N /
-     *  W + E
-     *  / S \
-     *
-     *
-     * @param point
-     * @param ACTIVE_COLOR
-     * @param colorDefault
-     * @return
-     */
-    
+
     private static final ChatColor ACTIVE_COLOR = ChatColor.RED;
     private static final String DEFAULT_COLOR = TextUtil.parse("<a>");
     
@@ -129,7 +118,7 @@ public class AsciiCompass {
         return point == null ? ObjectLists.emptyList() : COMPASSES.get(point);
     }
 
-    public static List<TextComponent> get(float degrees) {
+    public static List<TextComponent> get(double degrees) {
         return get(Point.fromAngle(degrees));
     }
 }

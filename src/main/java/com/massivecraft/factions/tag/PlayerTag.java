@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import java.time.Instant;
 import java.util.function.Function;
 
 public enum PlayerTag implements Tag {
@@ -22,8 +23,8 @@ public enum PlayerTag implements Tag {
         }
     }),
     LAST_SEEN("lastSeen", (fp) -> {
-        String humanized = DurationFormatUtils.formatDurationWords(System.currentTimeMillis() - fp.getLastLoginTime(), true, true) + TL.COMMAND_STATUS_AGOSUFFIX;
-        return fp.isOnline() ? ChatColor.GREEN + TL.COMMAND_STATUS_ONLINE.toString() : (System.currentTimeMillis() - fp.getLastLoginTime() < 432000000 ? ChatColor.YELLOW + humanized : ChatColor.RED + humanized);
+        String humanized = DurationFormatUtils.formatDurationWords(Instant.now().toEpochMilli() - fp.getLastLoginTime(), true, true) + TL.COMMAND_STATUS_AGOSUFFIX;
+        return fp.isOnline() ? ChatColor.GREEN + TL.COMMAND_STATUS_ONLINE.toString() : (Instant.now().toEpochMilli() - fp.getLastLoginTime() < 432000000 ? ChatColor.YELLOW + humanized : ChatColor.RED + humanized);
     }),
     PLAYER_BALANCE("balance", (fp) -> Econ.isSetup() ? Econ.getFriendlyBalance(fp) : (Tag.isMinimalShow() ? null : TL.ECON_OFF.format("balance"))),
     PLAYER_POWER("player-power", (fp) -> Integer.toString(fp.getPowerRounded())),
@@ -33,7 +34,7 @@ public enum PlayerTag implements Tag {
     PLAYER_NAME("name", FPlayer::getName),
     TOTAL_ONLINE_VISIBLE("total-online-visible", (fp) -> {
         if (fp == null) {
-            return Integer.toString(FPlayers.getInstance().size());
+            return Integer.toString(FPlayers.getInstance().onlineSize());
         }
         int count = 0;
         Player me = fp.getPlayer();

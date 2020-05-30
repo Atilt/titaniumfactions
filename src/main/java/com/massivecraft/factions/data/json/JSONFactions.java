@@ -13,10 +13,8 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.bukkit.Bukkit;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.Map;
 import java.util.function.IntConsumer;
 
@@ -55,37 +53,22 @@ public class JSONFactions extends MemoryFactions {
 
     @Override
     public void load(IntConsumer loaded) {
+        if (Files.notExists(FACTIONS_PATH)) {
+            loaded.accept(0);
+            return;
+        }
         Bukkit.getScheduler().runTaskAsynchronously(FactionsPlugin.getInstance(), () -> {
-            Int2ObjectMap<JSONFaction> factions = this.loadCore(null);
+            Int2ObjectMap<JSONFaction> factions = DiscUtil.read(FACTIONS_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Int2ObjectOpenHashMap<JSONFaction>>(){}.getType());
             int amount = factions == null ? 0 : factions.size();
             Bukkit.getScheduler().runTask(FactionsPlugin.getInstance(), () -> {
-                this.factions.clear();
                 if (amount > 0) {
                     this.factions.putAll(factions);
                 }
                 super.load();
+                this.nextId = 1;
                 loaded.accept(amount);
             });
         });
-    }
-
-    private Int2ObjectMap<JSONFaction> loadCore(BooleanConsumer finish) {
-        if (Files.notExists(FACTIONS_PATH)) {
-            //move into folder if outside of folder
-            Path possibleData = FactionsPlugin.getInstance().getDataFolder().toPath().resolve("factions.json");
-            if (Files.notExists(possibleData)) {
-                return new Int2ObjectOpenHashMap<>(0);
-            }
-            try {
-                Files.move(possibleData, FACTIONS_PATH, StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        Int2ObjectMap<JSONFaction> data = DiscUtil.read(FACTIONS_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Int2ObjectOpenHashMap<JSONFaction>>(){}.getType());
-        this.nextId = 1;
-        saveCore(data, true, finish);
-        return data;
     }
 
     public int getNextId() {

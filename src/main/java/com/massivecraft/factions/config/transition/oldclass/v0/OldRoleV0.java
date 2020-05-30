@@ -30,6 +30,7 @@ public enum OldRoleV0 implements OldPermissableV0 {
     public static OldRoleV0 fromString(String check) {
         switch (check.toLowerCase()) {
             case "admin":
+            case "leader":
                 return ADMIN;
             case "coleader":
             case "coowner":

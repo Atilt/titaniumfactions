@@ -32,7 +32,7 @@ public enum GeneralTag implements Tag {
         }
         return Integer.toString(count);
     }),
-    TOTAL_ONLINE("total-online", () -> Integer.toString(FPlayers.getInstance().size())),
+    TOTAL_ONLINE("total-online", () -> Integer.toString(FPlayers.getInstance().onlineSize())),
     ;
 
     private final String tag;

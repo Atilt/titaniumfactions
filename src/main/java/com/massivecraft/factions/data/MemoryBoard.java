@@ -117,7 +117,7 @@ public abstract class MemoryBoard extends Board {
         }
     }
 
-    private static final transient char[] MAP_CHARS = "\\/#$%=&^ABCDEFGHJKLMNOPQRSTUVWXYZ1234567890abcdeghjmnopqrsuvwxyz?".toCharArray();
+    private static final transient char[] MAP_FACTION_ICONS = "\\/#$%=&^ABCDEFGHJKLMNOPQRSTUVWXYZ1234567890abcdeghjmnopqrsuvwxyz?".toCharArray();
 
     public MemoryBoardMap flocationIds = new MemoryBoardMap();
     public static final int NO_ID = 0;
@@ -130,7 +130,7 @@ public abstract class MemoryBoard extends Board {
 
     @Override
     public int getIdRawAt(FLocation flocation) {
-        return flocationIds.getOrDefault(flocation, NO_ID);
+        return flocationIds.getInt(flocation);
     }
 
     @Override
@@ -311,7 +311,7 @@ public abstract class MemoryBoard extends Board {
                 if (LWC.getEnabled() && FactionsPlugin.getInstance().conf().lwc().isResetLocksOnUnclaim()) {
                     LWC.clearAllLocks(entry.getKey());
                 }
-                FactionsPlugin.getInstance().getPluginLogger().info(" == Claims: Removed" + entry.getIntValue() + " from " + entry.getKey());
+                FactionsPlugin.getInstance().getPluginLogger().info(" == Claims: Removed " + entry.getIntValue() + " from " + entry.getKey());
                 iter.remove();
             }
         }
@@ -359,24 +359,37 @@ public abstract class MemoryBoard extends Board {
 
         lines.add(TextComponent.of(TextUtil.titleize("(" + flocation.getCoordString() + ") " + this.getFactionAt(flocation).getTag(fplayer))));
 
-        List<TextComponent> compass = AsciiCompass.get((float) degrees);
+        List<TextComponent> compass = AsciiCompass.get(degrees);
 
         int height = fplayer.getMapHeight();
         int width = FactionsPlugin.getInstance().conf().map().getWidth();
-
-        int fixedWidth = width - 2;
 
         FLocation start = flocation.getRelative(-width / 2, -height / 2);
 
         if (FactionsPlugin.getInstance().conf().map().isShowFactionKey()) {
             height--;
         }
+
+
+        /*
+        * \N/--*--^----
+        * W+E----------
+        * /S\----------
+        * -------------
+        *
+        * * = where it should be
+        * ^ = where its currently offset
+        *
+        * */
+
+
         Object2ObjectMap<String, String> fList = new Object2ObjectOpenHashMap<>();
         int charIdx = 0;
         for (int y = 0; y < height; y++) {
             TextComponent.Builder row = TextComponent.builder();
-            for (int x = 0; x < (y < 3 ? fixedWidth : width); x++) {
-                if (y < 3 && x == 0) {
+            boolean compassPosition = y < 3;
+            for (int x = compassPosition ? 2 : 0; x < width; x++) {
+                if (compassPosition && x == 2) {
                     row.append(compass.get(y));
                     continue;
                 }
@@ -403,7 +416,7 @@ public abstract class MemoryBoard extends Board {
                 if (fplayer.getFactionIdRaw() == found.getIdRaw() || relation.isAtLeast(Relation.ALLY) || (FactionsPlugin.getInstance().conf().map().isShowNeutralFactionsOnMap() && relation == Relation.NEUTRAL) || (FactionsPlugin.getInstance().conf().map().isShowEnemyFactions() && relation == Relation.ENEMY) || (FactionsPlugin.getInstance().conf().map().isShowTruceFactions() && relation == Relation.TRUCE)) {
                     int incremented = charIdx++;
                     TextColor relationColor = TextUtil.kyoriColor(relation.getColor());
-                    row.append(TextComponent.of(fList.computeIfAbsent(found.getTag(), c -> String.valueOf(MAP_CHARS[(incremented) % MAP_CHARS.length]))).color(relationColor).hoverEvent(HoverEvent.showText(TextComponent.of(found.getTag()).color(relationColor))).clickEvent(ClickEvent.runCommand("/f show " + found.getTag())));
+                    row.append(TextComponent.of(fList.computeIfAbsent(found.getTag(), c -> String.valueOf(MAP_FACTION_ICONS[(incremented) % MAP_FACTION_ICONS.length]))).color(relationColor).hoverEvent(HoverEvent.showText(TextComponent.of(found.getTag()).color(relationColor))).clickEvent(ClickEvent.runCommand("/f show " + found.getTag())));
                     continue;
                 }
                 row.append(TextComponent.of("-").color(TextColor.GRAY).hoverEvent(HoverEvent.showText(TextComponent.of(found.getTag()).color(TextColor.GRAY))).clickEvent(ClickEvent.runCommand("/f show " + found.getTag())));

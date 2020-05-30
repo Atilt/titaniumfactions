@@ -106,7 +106,7 @@ public class CmdPerm extends FCommand {
             }
         }
 
-        context.fPlayer.msg(TL.COMMAND_PERM_SET, context.argAsString(1), access, context.argAsString(0));
+        context.fPlayer.msg(TL.COMMAND_PERM_SET.format(context.argAsString(1), Boolean.toString(access), context.argAsString(0)));
         FactionsPlugin.getInstance().getPluginLogger().info(String.format(TL.COMMAND_PERM_SET.toString(), context.argAsString(1), access, context.argAsString(0)) + " for faction " + context.fPlayer.getTag());
     }
 

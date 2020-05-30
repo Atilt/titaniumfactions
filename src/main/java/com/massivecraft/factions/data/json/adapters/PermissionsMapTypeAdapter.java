@@ -1,4 +1,4 @@
-package com.massivecraft.factions.perms;
+package com.massivecraft.factions.data.json.adapters;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -6,6 +6,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.perms.Permissible;
+import com.massivecraft.factions.perms.PermissibleAction;
+import com.massivecraft.factions.perms.Relation;
+import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.util.TL;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;

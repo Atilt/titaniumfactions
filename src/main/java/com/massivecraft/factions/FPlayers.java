@@ -31,7 +31,7 @@ public abstract class FPlayers implements Iterable<FPlayer> {
 
     public abstract void wipeOnline();
 
-    public abstract int size();
+    public abstract int onlineSize();
 
     public abstract Collection<FPlayer> getOnlinePlayers();
 

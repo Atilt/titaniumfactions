@@ -141,4 +141,34 @@ public class LazyLocation implements Serializable {
     public final double getYaw() {
         return yaw;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LazyLocation that = (LazyLocation) o;
+
+        if (Double.compare(that.x, x) != 0) return false;
+        if (Double.compare(that.y, y) != 0) return false;
+        if (Double.compare(that.z, z) != 0) return false;
+        if (Float.compare(that.pitch, pitch) != 0) return false;
+        if (Float.compare(that.yaw, yaw) != 0) return false;
+        return worldName.equals(that.worldName);
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        temp = Double.doubleToLongBits(x);
+        result = (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(y);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(z);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (pitch != +0.0f ? Float.floatToIntBits(pitch) : 0);
+        result = 31 * result + (yaw != +0.0f ? Float.floatToIntBits(yaw) : 0);
+        return result;
+    }
 }

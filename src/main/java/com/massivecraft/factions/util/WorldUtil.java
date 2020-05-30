@@ -1,13 +1,10 @@
 package com.massivecraft.factions.util;
 
 import com.massivecraft.factions.FactionsPlugin;
-import io.papermc.lib.PaperLib;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerTeleportEvent;
 
 public final class WorldUtil {
 
@@ -42,7 +39,7 @@ public final class WorldUtil {
     }
 
     public static long encodeLocation(Location location) {
-        return ((long) location.getBlockX() & 0x7FFFFFF) | (((long) location.getBlockZ() & 0x7FFFFFF) << 27) | ((long) location.getBlockY() << 54);
+        return ((long) FastMath.floor(location.getX())  & 0x7FFFFFF) | (((long) FastMath.floor(location.getZ()) & 0x7FFFFFF) << 27) | ((long) FastMath.floor(location.getY()) << 54);
     }
 
     public static int[] decodeLocation(long encoded) {

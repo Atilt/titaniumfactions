@@ -11,8 +11,6 @@ import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.WorldUtil;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -30,6 +28,7 @@ import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.EntityBlockFormEvent;
 
+import java.time.Instant;
 import java.util.List;
 
 public class FactionsBlockListener implements Listener {
@@ -187,7 +186,7 @@ public class FactionsBlockListener implements Listener {
             return;
         }
 
-        if (event.getEntity() == null || event.getEntity().getType() != EntityType.PLAYER || event.getBlock() == null) {
+        if (event.getEntity() == null || event.getBlock() == null || event.getEntity().getType() != EntityType.PLAYER) {
             return;
         }
 
@@ -196,7 +195,7 @@ public class FactionsBlockListener implements Listener {
 
         // only notify every 10 seconds
         FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
-        boolean justCheck = fPlayer.getLastFrostwalkerMessage() + 10000 > System.currentTimeMillis();
+        boolean justCheck = fPlayer.getLastFrostwalkerMessage() + 10000 > Instant.now().toEpochMilli();
         if (!justCheck) {
             fPlayer.setLastFrostwalkerMessage();
         }
@@ -208,8 +207,7 @@ public class FactionsBlockListener implements Listener {
     }
 
     public static boolean playerCanBuildDestroyBlock(Player player, Location location, PermissibleAction permissibleAction, boolean justCheck) {
-        String name = player.getName();
-        if (FactionsPlugin.getInstance().conf().factions().protection().getPlayersWhoBypassAllProtection().contains(name)) {
+        if (FactionsPlugin.getInstance().conf().factions().protection().getPlayersWhoBypassAllProtection().contains(player.getName())) {
             return true;
         }
 

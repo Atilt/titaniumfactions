@@ -14,13 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public abstract class GUI<Type> implements InventoryHolder {
+public abstract class GUI<T> implements InventoryHolder {
     protected Inventory inventory;
 
     protected final int size;
     protected int back = -1;
 
-    private Int2ObjectMap<Type> slotMap = new Int2ObjectOpenHashMap<>();
+    private Int2ObjectMap<T> slotMap = new Int2ObjectOpenHashMap<>();
 
     protected final FPlayer user;
 
@@ -32,13 +32,13 @@ public abstract class GUI<Type> implements InventoryHolder {
     protected abstract String getName();
 
     // Parse all the placeholder values in this String, will be injected into the SimpleItem and return it
-    protected abstract String parse(String toParse, Type type);
+    protected abstract String parse(String toParse, T type);
 
-    protected abstract void onClick(Type action, ClickType clickType);
+    protected abstract void onClick(T action, ClickType clickType);
 
     // Should only be called by the InventoryListener
     public void click(int slot, ClickType clickType) {
-        Type type = slotMap.get(slot);
+        T type = slotMap.get(slot);
         if (type != null) {
             onClick(type, clickType);
         } else if (this instanceof Backable && back == slot) {
@@ -46,7 +46,7 @@ public abstract class GUI<Type> implements InventoryHolder {
         }
     }
 
-    protected abstract Int2ObjectMap<Type> createSlotMap();
+    protected abstract Int2ObjectMap<T> createSlotMap();
 
     public void build() {
         String guiName = this.getName();
@@ -58,23 +58,23 @@ public abstract class GUI<Type> implements InventoryHolder {
         buildItems();
     }
 
-    protected abstract SimpleItem getItem(Type type);
+    protected abstract SimpleItem getItem(T type);
 
     protected void buildItems() {
-        for (Int2ObjectMap.Entry<Type> entry : slotMap.int2ObjectEntrySet()) {
+        for (Int2ObjectMap.Entry<T> entry : slotMap.int2ObjectEntrySet()) {
             setItemAtSlot(entry.getIntKey(), entry.getValue());
         }
     }
 
-    protected void buildItem(Type type) {
-        for (Int2ObjectMap.Entry<Type> entry : slotMap.int2ObjectEntrySet()) {
+    protected void buildItem(T type) {
+        for (Int2ObjectMap.Entry<T> entry : slotMap.int2ObjectEntrySet()) {
             if (entry.getValue().equals(type)) {
                 setItemAtSlot(entry.getIntKey(), entry.getValue());
             }
         }
     }
 
-    private void setItemAtSlot(int slot, Type type) {
+    private void setItemAtSlot(int slot, T type) {
         SimpleItem item = getItem(type);
         parse(item, type);
         inventory.setItem(slot, item.get());
@@ -91,7 +91,7 @@ public abstract class GUI<Type> implements InventoryHolder {
     }
 
     // Will parse default faction stuff, ie: Faction Name, Power, Colors etc
-    protected void parse(SimpleItem item, Type type) {
+    protected void parse(SimpleItem item, T type) {
         if (type != null) {
             item.setName(parse(item.getName(), type));
         }
@@ -101,7 +101,7 @@ public abstract class GUI<Type> implements InventoryHolder {
         }
     }
 
-    protected List<String> parseList(List<String> stringList, Type type) {
+    protected List<String> parseList(List<String> stringList, T type) {
         List<String> newList = new ArrayList<>();
         for (String toParse : stringList) {
             String parsed = toParse;

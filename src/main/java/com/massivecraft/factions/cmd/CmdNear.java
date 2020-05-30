@@ -4,6 +4,7 @@ import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.tag.Tag;
+import com.massivecraft.factions.util.FastMath;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -25,11 +26,12 @@ public class CmdNear extends FCommand {
     public void perform(CommandContext context) {
         int radius = FactionsPlugin.getInstance().conf().commands().near().getRadius();
         ObjectList<FPlayer> nearbyMembers = new ObjectArrayList<>();
+        String world = context.fPlayer.getLastStoodAt().getWorldName();
         for (FPlayer fPlayer : context.fPlayer.getFaction().getFPlayersWhereOnline(true)) {
             if (fPlayer == context.fPlayer) {
                 continue;
             }
-            if (fPlayer.getLastStoodAt().getDistanceSquaredTo(context.fPlayer.getLastStoodAt()) <= radius * radius) {
+            if (fPlayer.getLastStoodAt().getDistanceSquaredTo(context.fPlayer.getLastStoodAt()) <= radius * radius && fPlayer.getLastStoodAt().getWorldName().equals(world)) {
                 nearbyMembers.add(fPlayer);
             }
         }
@@ -54,8 +56,8 @@ public class CmdNear extends FCommand {
         string = TextUtil.replace(string, "{role-prefix}", target.getRole().getPrefix());
         // Only run distance calculation if needed
         if (string.contains("{distance}")) {
-            double distance = Math.round(user.getPlayer().getLocation().distance(target.getPlayer().getLocation()));
-            string = string.replace("{distance}", distance + "");
+            double distance = FastMath.round(user.getPlayer().getLocation().distance(target.getPlayer().getLocation()));
+            string = TextUtil.replace(string,"{distance}", Double.toString(distance));
         }
         return string;
     }

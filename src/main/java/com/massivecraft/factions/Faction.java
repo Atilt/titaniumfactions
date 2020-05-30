@@ -43,6 +43,8 @@ public interface Faction extends EconomyParticipator {
 
     void addAnnouncement(FPlayer fPlayer, String msg);
 
+    boolean hasUnreadAnnouncements(FPlayer fPlayer);
+
     void sendUnreadAnnouncements(FPlayer fPlayer);
 
     void removeAnnouncements(FPlayer fPlayer);

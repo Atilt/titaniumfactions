@@ -62,9 +62,9 @@ public class CmdInvite extends FCommand {
                 .append(TL.COMMAND_INVITE_INVITEDYOU.toComponent())
                 .color(TextColor.YELLOW);
 
-        TextAdapter.sendComponent(target.getPlayer(), message);
+        TextAdapter.sendMessage(target.getPlayer(), message);
 
-        //you.msg("%s<i> invited you to %s",context.fPlayer.describeTo(you, true), context.faction.describeTo(you));
+        //you.msg("[]<i> invited you to []",context.fPlayer.describeTo(you, true), context.faction.describeTo(you));
         context.faction.msg(TL.COMMAND_INVITE_INVITED, context.fPlayer.describeTo(context.faction, true), target.describeTo(context.faction));
     }
 

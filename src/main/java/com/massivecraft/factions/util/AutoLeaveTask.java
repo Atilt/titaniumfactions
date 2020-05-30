@@ -10,6 +10,7 @@ import me.lucko.helper.bucket.factory.BucketFactory;
 import me.lucko.helper.bucket.partitioning.PartitioningStrategies;
 import org.bukkit.Bukkit;
 
+import java.time.Instant;
 import java.util.Iterator;
 
 public final class AutoLeaveTask implements Runnable, AutoCloseable {
@@ -66,13 +67,17 @@ public final class AutoLeaveTask implements Runnable, AutoCloseable {
             // this is set so it only does one iteration at a time, no matter how frequently the timer fires
             this.ready = false;
             // and this is tracked to keep one iteration from dragging on too long and possibly choking the system if there are a very large number of players to go through
-            long loopStartTime = System.currentTimeMillis();
+            long loopStartTime = Instant.now().toEpochMilli();
 
             //a partition
             Iterator<FPlayer> selected = this.players.asCycle().next().iterator();
 
             while (selected.hasNext()) {
-                long now = System.currentTimeMillis();
+                FPlayer fplayer = selected.next();
+                if (!fplayer.hasFaction()) {
+                    continue;
+                }
+                long now = Instant.now().toEpochMilli();
 
                 // if this iteration has been running for maximum time, stop to take a breather until next tick
                 if (now > loopStartTime + FactionsPlugin.getInstance().conf().factions().other().getAutoLeaveRoutineMaxMillisecondsPerTick()) {
@@ -80,7 +85,6 @@ public final class AutoLeaveTask implements Runnable, AutoCloseable {
                     return;
                 }
                 this.runs++;
-                FPlayer fplayer = selected.next();
 
                 // Check if they should be exempt from this.
                 if (!fplayer.willAutoLeave()) {
