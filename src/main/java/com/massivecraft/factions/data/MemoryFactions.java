@@ -7,12 +7,14 @@ import com.massivecraft.factions.util.TL;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.bukkit.ChatColor;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.IntConsumer;
 
 public abstract class MemoryFactions extends Factions {
 
@@ -139,6 +141,33 @@ public abstract class MemoryFactions extends Factions {
     @Override
     public List<Faction> getAllFactions() {
         return new ObjectArrayList<>(factions.values());
+    }
+
+    @Override
+    public List<Faction> getAllNormalFactions() {
+        ObjectList<Faction> factions = new ObjectArrayList<>(this.factions.size() - 3);
+        for (Faction value : this.factions.values()) {
+            if (value.getIdRaw() < 1) {
+                continue;
+            }
+            factions.add(value);
+        }
+        return factions;
+    }
+
+    @Override
+    public void forceSave(BooleanConsumer finish) {
+
+    }
+
+    @Override
+    public void forceSave(boolean sync, BooleanConsumer finish) {
+
+    }
+
+    @Override
+    public void load(IntConsumer loaded) {
+
     }
 
     @Override

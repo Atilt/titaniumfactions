@@ -37,6 +37,8 @@ public abstract class Factions {
 
     public abstract List<Faction> getAllFactions();
 
+    public abstract List<Faction> getAllNormalFactions();
+
     @Deprecated
     public abstract Faction getNone();
 

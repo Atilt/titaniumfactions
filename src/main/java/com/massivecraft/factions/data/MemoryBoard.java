@@ -1,12 +1,6 @@
 package com.massivecraft.factions.data;
 
-import com.massivecraft.factions.Board;
-import com.massivecraft.factions.FLocation;
-import com.massivecraft.factions.FPlayer;
-import com.massivecraft.factions.FPlayers;
-import com.massivecraft.factions.Faction;
-import com.massivecraft.factions.Factions;
-import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.*;
 import com.massivecraft.factions.integration.LWC;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.util.AsciiCompass;
@@ -15,16 +9,7 @@ import com.massivecraft.factions.util.TextUtil;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectIterator;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
-import it.unimi.dsi.fastutil.objects.ObjectSets;
+import it.unimi.dsi.fastutil.objects.*;
 import net.kyori.text.TextComponent;
 import net.kyori.text.event.ClickEvent;
 import net.kyori.text.event.HoverEvent;
@@ -157,7 +142,7 @@ public abstract class MemoryBoard extends Board {
         setIdAt(faction.getIdRaw(), flocation);
     }
 
-    public void removeAt(Faction faction, FLocation flocation) {
+    private void purgeCommodities(Faction faction, FLocation flocation) {
         faction.getWarps().values().removeIf(lazyLocation -> flocation.isInChunk(lazyLocation.getLocation()));
 
         for (FPlayer fPlayer : faction.getFPlayersWhereOnline(true)) {
@@ -172,25 +157,16 @@ public abstract class MemoryBoard extends Board {
                 fPlayer.msg(TL.WARMUPS_CANCELLED);
             }
         }
+    }
+
+    public void removeAt(Faction faction, FLocation flocation) {
+        purgeCommodities(faction, flocation);
         flocationIds.removeInt(flocation);
     }
 
     public void removeAt(FLocation flocation) {
         Faction faction = getFactionAt(flocation);
-        faction.getWarps().values().removeIf(lazyLocation -> flocation.isInChunk(lazyLocation.getLocation()));
-
-        for (FPlayer fPlayer : faction.getFPlayersWhereOnline(true)) {
-            if (!fPlayer.getLastStoodAt().equals(flocation)) {
-                continue;
-            }
-            if (!fPlayer.isAdminBypassing() && fPlayer.isFlying()) {
-                fPlayer.setFlying(false);
-            }
-            if (fPlayer.isWarmingUp()) {
-                fPlayer.clearWarmup();
-                fPlayer.msg(TL.WARMUPS_CANCELLED);
-            }
-        }
+        purgeCommodities(faction, flocation);
         clearOwnershipAt(faction, flocation);
         flocationIds.removeInt(flocation);
     }
@@ -343,17 +319,10 @@ public abstract class MemoryBoard extends Board {
         return ret;
     }
 
-    //----------------------------------------------//
-    // Map generation
-    //----------------------------------------------//
-
     /**
      * The map is relative to a coord and a faction north is in the direction of decreasing x east is in the direction
      * of decreasing z
      */
-    // H x W
-    //17 and 49
-    //or 17 and 46
     public List<TextComponent> getMap(FPlayer fplayer, FLocation flocation, double degrees) {
         ObjectList<TextComponent> lines = new ObjectArrayList<>(3);
 
@@ -370,19 +339,6 @@ public abstract class MemoryBoard extends Board {
             height--;
         }
 
-
-        /*
-        * \N/--*--^----
-        * W+E----------
-        * /S\----------
-        * -------------
-        *
-        * * = where it should be
-        * ^ = where its currently offset
-        *
-        * */
-
-
         Object2ObjectMap<String, String> fList = new Object2ObjectOpenHashMap<>();
         int charIdx = 0;
         for (int y = 0; y < height; y++) {
@@ -393,7 +349,6 @@ public abstract class MemoryBoard extends Board {
                     row.append(compass.get(y));
                     continue;
                 }
-                //append the line like "-" or whatever
                 FLocation relative = start.getRelative(x, y);
                 if (relative.equals(flocation)) {
                     row.append(TextComponent.of("+").color(TextColor.AQUA).hoverEvent(HoverEvent.showText(TL.CLAIM_YOUAREHERE.toComponent())));
@@ -416,10 +371,10 @@ public abstract class MemoryBoard extends Board {
                 if (fplayer.getFactionIdRaw() == found.getIdRaw() || relation.isAtLeast(Relation.ALLY) || (FactionsPlugin.getInstance().conf().map().isShowNeutralFactionsOnMap() && relation == Relation.NEUTRAL) || (FactionsPlugin.getInstance().conf().map().isShowEnemyFactions() && relation == Relation.ENEMY) || (FactionsPlugin.getInstance().conf().map().isShowTruceFactions() && relation == Relation.TRUCE)) {
                     int incremented = charIdx++;
                     TextColor relationColor = TextUtil.kyoriColor(relation.getColor());
-                    row.append(TextComponent.of(fList.computeIfAbsent(found.getTag(), c -> String.valueOf(MAP_FACTION_ICONS[(incremented) % MAP_FACTION_ICONS.length]))).color(relationColor).hoverEvent(HoverEvent.showText(TextComponent.of(found.getTag()).color(relationColor))).clickEvent(ClickEvent.runCommand("/f show " + found.getTag())));
+                    row.append(TextComponent.of(fList.computeIfAbsent(found.getTag(), c -> String.valueOf(MAP_FACTION_ICONS[(incremented) % MAP_FACTION_ICONS.length]))).color(relationColor).hoverEvent(HoverEvent.showText(TextComponent.of(found.getTag()).color(relationColor))).clickEvent(ClickEvent.runCommand("/" + FactionsPlugin.getInstance().conf().getCommandBase().get(0) + " show " + found.getTag())));
                     continue;
                 }
-                row.append(TextComponent.of("-").color(TextColor.GRAY).hoverEvent(HoverEvent.showText(TextComponent.of(found.getTag()).color(TextColor.GRAY))).clickEvent(ClickEvent.runCommand("/f show " + found.getTag())));
+                row.append(TextComponent.of("-").color(TextColor.GRAY).hoverEvent(HoverEvent.showText(TextComponent.of(found.getTag()).color(TextColor.GRAY))).clickEvent(ClickEvent.runCommand("/f " + FactionsPlugin.getInstance().conf().getCommandBase().get(0) + " show " + found.getTag())));
             }
             lines.add(row.build());
 

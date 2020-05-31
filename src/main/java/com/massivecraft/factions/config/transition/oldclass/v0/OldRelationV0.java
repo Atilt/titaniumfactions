@@ -6,17 +6,17 @@ import com.massivecraft.factions.util.TL;
 
 
 public enum OldRelationV0 implements OldPermissableV0 {
-    MEMBER(4, TL.RELATION_MEMBER_SINGULAR.toString(), Relation.MEMBER),
-    ALLY(3, TL.RELATION_ALLY_SINGULAR.toString(), Relation.ALLY),
-    TRUCE(2, TL.RELATION_TRUCE_SINGULAR.toString(), Relation.TRUCE),
-    NEUTRAL(1, TL.RELATION_NEUTRAL_SINGULAR.toString(), Relation.NEUTRAL),
-    ENEMY(0, TL.RELATION_ENEMY_SINGULAR.toString(), Relation.ENEMY);
+    MEMBER(4, TL.RELATION_MEMBER_SINGULAR, Relation.MEMBER),
+    ALLY(3, TL.RELATION_ALLY_SINGULAR, Relation.ALLY),
+    TRUCE(2, TL.RELATION_TRUCE_SINGULAR, Relation.TRUCE),
+    NEUTRAL(1, TL.RELATION_NEUTRAL_SINGULAR, Relation.NEUTRAL),
+    ENEMY(0, TL.RELATION_ENEMY_SINGULAR, Relation.ENEMY);
 
     public final int value;
-    public final String nicename;
+    public final TL nicename;
     public final Relation replacement;
 
-    OldRelationV0(final int value, final String nicename, final Relation replacement) {
+    OldRelationV0(final int value, final TL nicename, final Relation replacement) {
         this.value = value;
         this.nicename = nicename;
         this.replacement = replacement;
@@ -42,6 +42,6 @@ public enum OldRelationV0 implements OldPermissableV0 {
 
     @Override
     public String toString() {
-        return this.nicename;
+        return this.nicename.toString();
     }
 }

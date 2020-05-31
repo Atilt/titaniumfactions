@@ -62,6 +62,9 @@ public abstract class CompactSpiralTask extends BukkitRunnable implements MultiC
 
     @Override
     public void appendFailure(String failure) {
+        if (this.task == -1) {
+            return;
+        }
         this.failures.add(failure);
         this.failedAttempts++;
         if (this.failedAttempts >= FactionsPlugin.getInstance().conf().factions().claims().getRadiusClaimFailureLimit() - 1) {
@@ -179,6 +182,7 @@ public abstract class CompactSpiralTask extends BukkitRunnable implements MultiC
     public void finish() {
         this.cancel();
         this.ready = false;
+        this.task = -1;
         this.onFinish();
     }
 }

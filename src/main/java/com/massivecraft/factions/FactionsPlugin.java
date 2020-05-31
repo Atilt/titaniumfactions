@@ -9,32 +9,14 @@ import com.massivecraft.factions.cmd.FCmdRoot;
 import com.massivecraft.factions.config.ConfigManager;
 import com.massivecraft.factions.config.file.MainConfig;
 import com.massivecraft.factions.data.SaveTask;
-import com.massivecraft.factions.data.json.adapters.EnumTypeTypeAdapter;
-import com.massivecraft.factions.data.json.adapters.FactionMaterialTypeAdapter;
-import com.massivecraft.factions.data.json.adapters.MapFLocToStringSetTypeAdapter;
-import com.massivecraft.factions.data.json.adapters.MaterialTypeAdapter;
-import com.massivecraft.factions.data.json.adapters.MyLocationTypeAdapter;
-import com.massivecraft.factions.data.json.adapters.PermissionsMapTypeAdapter;
-import com.massivecraft.factions.data.json.adapters.UUIDTypeAdapter;
+import com.massivecraft.factions.data.json.adapters.*;
 import com.massivecraft.factions.event.FactionCreateEvent;
 import com.massivecraft.factions.event.FactionEvent;
 import com.massivecraft.factions.event.FactionRelationEvent;
-import com.massivecraft.factions.integration.ClipPlaceholderAPIManager;
-import com.massivecraft.factions.integration.Econ;
-import com.massivecraft.factions.integration.Essentials;
-import com.massivecraft.factions.integration.IWorldguard;
-import com.massivecraft.factions.integration.LWC;
-import com.massivecraft.factions.integration.Worldguard6;
-import com.massivecraft.factions.integration.Worldguard7;
+import com.massivecraft.factions.integration.*;
 import com.massivecraft.factions.integration.dynmap.EngineDynmap;
 import com.massivecraft.factions.landraidcontrol.LandRaidControl;
-import com.massivecraft.factions.listeners.EssentialsListener;
-import com.massivecraft.factions.listeners.FactionsBlockListener;
-import com.massivecraft.factions.listeners.FactionsChatListener;
-import com.massivecraft.factions.listeners.FactionsDataListener;
-import com.massivecraft.factions.listeners.FactionsEntityListener;
-import com.massivecraft.factions.listeners.FactionsExploitListener;
-import com.massivecraft.factions.listeners.FactionsPlayerListener;
+import com.massivecraft.factions.listeners.*;
 import com.massivecraft.factions.listeners.versionspecific.PortalHandler;
 import com.massivecraft.factions.listeners.versionspecific.PortalListenerLegacy;
 import com.massivecraft.factions.listeners.versionspecific.PortalListener_114;
@@ -44,28 +26,13 @@ import com.massivecraft.factions.perms.Permissible;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.scoreboards.SidebarProvider;
 import com.massivecraft.factions.struct.ChatMode;
-import com.massivecraft.factions.util.AutoLeaveTask;
-import com.massivecraft.factions.util.BlockVisualizer;
-import com.massivecraft.factions.util.FlightTask;
-import com.massivecraft.factions.util.FormatTransitioner;
-import com.massivecraft.factions.util.LazyLocation;
-import com.massivecraft.factions.util.PermUtil;
-import com.massivecraft.factions.util.Persist;
-import com.massivecraft.factions.util.SeeChunkTask;
-import com.massivecraft.factions.util.TL;
-import com.massivecraft.factions.util.TextUtil;
+import com.massivecraft.factions.util.*;
 import com.massivecraft.factions.util.material.FactionMaterial;
 import com.massivecraft.factions.util.material.MaterialDb;
 import com.massivecraft.factions.util.particle.BukkitParticleProvider;
 import com.massivecraft.factions.util.particle.PacketParticleProvider;
 import com.massivecraft.factions.util.particle.ParticleProvider;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2LongMap;
-import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
-import it.unimi.dsi.fastutil.objects.ObjectSets;
+import it.unimi.dsi.fastutil.objects.*;
 import me.lucko.helper.reflect.MinecraftVersion;
 import me.lucko.helper.reflect.MinecraftVersions;
 import net.milkbowl.vault.permission.Permission;
@@ -88,13 +55,7 @@ import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
@@ -111,7 +72,7 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     private Permission perms = null;
 
-    private ConfigManager configManager = new ConfigManager();
+    private final ConfigManager configManager = new ConfigManager();
 
     private boolean autoSave = true;
 
@@ -125,10 +86,10 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     private Gson gson;
 
     // holds f stuck start times
-    private Object2LongMap<UUID> timers = new Object2LongOpenHashMap<>();
+    private final Object2LongMap<UUID> timers = new Object2LongOpenHashMap<>();
 
     //holds f stuck taskids
-    private Object2IntMap<UUID> stuckMap = new Object2IntOpenHashMap<>();
+    private final Object2IntMap<UUID> stuckMap = new Object2IntOpenHashMap<>();
 
     // Persistence related
     private boolean locked = false;
@@ -140,7 +101,7 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     private boolean mvdwPlaceholderAPIManager = false;
     private IWorldguard worldguard;
 
-    private ObjectSet<String> pluginsHandlingChat = new ObjectOpenHashSet<>();
+    private final ObjectSet<String> pluginsHandlingChat = new ObjectOpenHashSet<>();
 
     private ParticleProvider<?> particleProvider;
     private BlockVisualizer blockVisualizer;
@@ -215,7 +176,9 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             return;
         }
 
-        Bukkit.getPluginManager().registerEvents(new FactionsDataListener(), this);
+        if (Bukkit.getOnlineMode()) {
+            Bukkit.getPluginManager().registerEvents(new FactionsDataListener(), this);
+        }
 
         long settingsStart = System.nanoTime();
 
@@ -237,16 +200,6 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
             TextUtil.init();
             PermUtil.init();
-
-            // attempt to get first command defined in plugin.yml as reference command, if any commands are defined in there
-            // reference command will be used to prevent "unknown command" console messages
-            String refCommand = "";
-            try {
-                Map<String, Map<String, Object>> refCmd = this.getDescription().getCommands();
-                if (!refCmd.isEmpty()) {
-                    refCommand = (String) (refCmd.keySet().toArray()[0]);
-                }
-            } catch (ClassCastException ignored) {}
 
             // Register recurring tasks
             if (this.conf().factions().other().getSaveToFileEveryXMinutes() > 0.0) {
@@ -280,8 +233,6 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                     //board needs to be loaded after factions in order for cleaning to work correctly.
                     Board.getInstance().load(loadedClaims -> {
                         Board.getInstance().clean();
-                        //TODO: F Admin is null when converting from Saber to Titanium
-                        //NPE on Scoreboard Title (PAPI?)
 
 
                         this.logger.info("== Claims: &7" + loadedClaims + "&b loaded");
@@ -334,7 +285,7 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             }
 
             // since some other plugins execute commands directly through this command interface, provide it
-            this.getCommand(refCommand).setExecutor(new FCmdRoot());
+            this.getCommand("factions").setExecutor(new FCmdRoot());
 
             if (conf().commands().fly().isEnable()) {
                 FlightTask.get().start();
@@ -564,9 +515,14 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             try {
                 if (!this.conf().lang().isLangTransitioned()) {
                     Files.copy(lang, this.getDataFolder().toPath().resolve("old_lang.yml"), StandardCopyOption.REPLACE_EXISTING);
-                    FormatTransitioner.get().toIndexed(lang);
-                    TL.setTransition(true);
-                    this.logger.info("Translation file successfully converted.");
+                    if (FormatTransitioner.get().toIndexed(lang)) {
+                        TL.setTransition(true);
+                        this.logger.info("Translation file successfully converted.");
+                    } else {
+                        this.logger.severe("Unable to convert index translation file.");
+                        Bukkit.getPluginManager().disablePlugin(this);
+                        return false;
+                    }
                 }
             } catch (IOException exception) {
                 this.logger.severe("Unable to convert translation file.");
@@ -841,7 +797,7 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     public String getPlayerFactionTagRelation(Player speaker, Player listener) {
         String tag = "~";
 
-        if (speaker == null) {
+        if (speaker == null) { 
             return tag;
         }
 
@@ -852,21 +808,18 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
         // if listener isn't set, or config option is disabled, give back uncolored tag
         if (listener == null || !this.conf().factions().chat().isTagRelationColored()) {
-            tag = me.getChatTag().trim();
+            tag = me.getChatTag();
         } else {
             FPlayer you = FPlayers.getInstance().getByPlayer(listener);
             if (you == null) {
-                tag = me.getChatTag().trim();
+                tag = me.getChatTag();
             }
             else { // everything checks out, give the colored tag
-                tag = me.getChatTag(you).trim();
+                tag = me.getChatTag(you);
             }
         }
-        if (tag.isEmpty()) {
-            tag = "~";
-        }
 
-        return tag;
+        return tag.isEmpty() ? "~" : tag.trim();
     }
 
     // Get a player's title within their faction, mainly for usage by chat plugins for local/channel chat

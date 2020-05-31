@@ -17,9 +17,9 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public enum FactionTag implements Tag {
-    HOME_X("x", (fac) -> fac.hasHome() ? String.valueOf(fac.getHome().getBlockX()) : Tag.isMinimalShow() ? null : "{ig}"),
-    HOME_Y("y", (fac) -> fac.hasHome() ? String.valueOf(fac.getHome().getBlockY()) : Tag.isMinimalShow() ? null : "{ig}"),
-    HOME_Z("z", (fac) -> fac.hasHome() ? String.valueOf(fac.getHome().getBlockZ()) : Tag.isMinimalShow() ? null : "{ig}"),
+    HOME_X("x", (fac) -> fac.hasHome() ? Integer.toString(FastMath.floor(fac.getHome().getX())) : Tag.isMinimalShow() ? null : "{ig}"),
+    HOME_Y("y", (fac) -> fac.hasHome() ? Integer.toString(FastMath.floor(fac.getHome().getY())) : Tag.isMinimalShow() ? null : "{ig}"),
+    HOME_Z("z", (fac) -> fac.hasHome() ? Integer.toString(FastMath.floor(fac.getHome().getZ())) : Tag.isMinimalShow() ? null : "{ig}"),
     CHUNKS("chunks", (fac) -> Integer.toString(fac.getLandRounded())),
     WARPS("warps", (fac) -> Integer.toString(fac.getWarps().size())),
     HEADER("header", (fac, fp) -> TextUtil.titleize(fac.getTag(fp))),

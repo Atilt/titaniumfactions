@@ -70,7 +70,7 @@ public class CmdWarpOther extends FCommand {
                 if (!transact(context.fPlayer, context)) {
                     return;
                 }
-                final FPlayer fPlayer = context.fPlayer;
+                FPlayer fPlayer = context.fPlayer;
                 Player player = context.fPlayer.getPlayer();
                 context.doWarmUp(WarmUpUtil.Warmup.WARP, TL.WARMUPS_NOTIFY_TELEPORT, warpName, () -> {
                     if (player.isOnline()) {

@@ -46,9 +46,8 @@ public class JSONFactions extends MemoryFactions {
         saveCore(entitiesThatShouldBeSaved, sync, finish);
     }
 
-    private boolean saveCore(Map<Integer, JSONFaction> entities, boolean sync, BooleanConsumer finish) {
+    private void saveCore(Map<Integer, JSONFaction> entities, boolean sync, BooleanConsumer finish) {
         DiscUtil.write(FACTIONS_PATH, FactionsPlugin.getInstance().getGson(), entities, sync, finish);
-        return true;
     }
 
     @Override

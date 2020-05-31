@@ -6,16 +6,8 @@ import com.google.common.cache.LoadingCache;
 import com.massivecraft.factions.util.FastMath;
 import com.massivecraft.factions.util.MiscUtil;
 import com.massivecraft.factions.util.WorldUtil;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.WorldBorder;
+import it.unimi.dsi.fastutil.objects.*;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
@@ -194,27 +186,7 @@ public final class FLocation implements Serializable {
      * @return whether this location is outside of the border
      */
     public boolean isOutsideWorldBorder(int buffer) {
-        if (!WORLD_BORDER_SUPPORT) {
-            return false;
-        }
-        WorldBorder border = getWorld().getWorldBorder();
-        Location center = border.getCenter();
-
-        double size = border.getSize() / 2.0D;
-
-        int bufferBlocks = buffer << 4;
-
-        double borderMinX = (center.getX() - size) + bufferBlocks;
-        double borderMinZ = (center.getZ() - size) + bufferBlocks;
-        double borderMaxX = (center.getX() + size) - bufferBlocks;
-        double borderMaxZ = (center.getZ() + size) - bufferBlocks;
-
-        int chunkMinX = this.x << 4;
-        int chunkMaxX = chunkMinX | 15;
-        int chunkMinZ = this.z << 4;
-        int chunkMaxZ = chunkMinZ | 15;
-
-        return (chunkMinX >= borderMaxX) || (chunkMinZ >= borderMaxZ) || (chunkMaxX <= borderMinX) || (chunkMaxZ <= borderMinZ);
+        return isOutsideWorldBorder(getWorld(), buffer);
     }
 
     public boolean isOutsideWorldBorder(World world, int buffer) {
@@ -247,11 +219,10 @@ public final class FLocation implements Serializable {
     // Some Geometry
     //----------------------------------------------//
     public Set<FLocation> getCircle(double radius) {
-        double radiusSquared = radius * radius;
-
         if (radius <= 0) {
             return new HashSet<>(0);
         }
+        double radiusSquared = radius * radius;
 
         int total = FastMath.ceil(radius * 2);
         ObjectSet<FLocation> ret = new ObjectLinkedOpenHashSet<>((total * total) + 1);

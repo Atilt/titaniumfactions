@@ -38,6 +38,8 @@ public enum GeneralTag implements Tag {
     private final String tag;
     private final Supplier<String> supplier;
 
+    private static final GeneralTag[] VALUES = GeneralTag.values();
+
     private static String getRelation(Relation relation) {
         if (FactionsPlugin.getInstance().conf().factions().maxRelations().isEnabled()) {
             return Integer.toString(relation.getMax());
@@ -46,7 +48,7 @@ public enum GeneralTag implements Tag {
     }
 
     public static String parse(String text) {
-        for (GeneralTag tag : GeneralTag.values()) {
+        for (GeneralTag tag : VALUES) {
             text = tag.replace(text);
         }
         return text;

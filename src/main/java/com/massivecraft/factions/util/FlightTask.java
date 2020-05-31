@@ -124,11 +124,12 @@ public final class FlightTask {
         }
 
         public boolean enemiesNearby(FPlayer target, int radius) {
-            if (!WorldUtil.isEnabled(target.getPlayer().getWorld())) {
+            Player player = target.getPlayer();
+            if (!WorldUtil.isEnabled(player.getWorld())) {
                 return false;
             }
-            for (Entity entity : target.getPlayer().getNearbyEntities(radius, radius, radius)) {
-                if (entity.getType() != EntityType.PLAYER) {
+            for (Entity entity : player.getNearbyEntities(radius, radius, radius)) {
+                if (entity.getType() != EntityType.PLAYER || entity == player) {
                     continue;
                 }
                 FPlayer playerNearby = FPlayers.getInstance().getByPlayer((Player) entity);

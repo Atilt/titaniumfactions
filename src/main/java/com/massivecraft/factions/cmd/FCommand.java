@@ -65,15 +65,12 @@ public abstract class FCommand {
                 }
             }
         }
-
-        if (!validCall(context)) {
-            return;
-        }
-
         if (!this.isEnabled(context)) {
             return;
         }
-
+        if (!validCall(context)) {
+            return;
+        }
         perform(context);
     }
 

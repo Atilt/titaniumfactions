@@ -25,7 +25,7 @@ public final class FormatTransitioner {
         return instance;
     }
 
-    public static ObjectList<String> OLD_FORMATS = new ObjectArrayList<>(23);
+    private static final ObjectList<String> OLD_FORMATS = new ObjectArrayList<>(23);
 
     static {
         OLD_FORMATS.add("%1$s");

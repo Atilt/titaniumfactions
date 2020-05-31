@@ -95,7 +95,7 @@ public final class FastUUID {
     }
 
     private FastUUID() {
-        // A private constructor prevents callers from accidentally instantiating FastUUID instances
+        throw new UnsupportedOperationException("This class cannot be instantiated");
     }
 
     /**
@@ -157,14 +157,6 @@ public final class FastUUID {
         leastSignificantBits |= getHexValueForChar(uuidSequence.charAt(35));
 
         return new UUID(mostSignificantBits, leastSignificantBits);
-    }
-
-    public static UUID parseUUIDNullable(final CharSequence sequence) {
-        try {
-            return parseUUID(sequence);
-        } catch (IllegalArgumentException exception) {
-            return null;
-        }
     }
 
     /**

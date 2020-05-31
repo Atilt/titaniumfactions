@@ -32,10 +32,7 @@ public class CmdTop extends FCommand {
 
     @Override
     public void perform(CommandContext context) {
-        List<Faction> factionList = Factions.getInstance().getAllFactions();
-        factionList.remove(Factions.getInstance().getWilderness());
-        factionList.remove(Factions.getInstance().getSafeZone());
-        factionList.remove(Factions.getInstance().getWarZone());
+        List<Faction> factionList = Factions.getInstance().getAllNormalFactions();
 
         String criteria = context.argAsString(0);
 

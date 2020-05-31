@@ -102,10 +102,6 @@ public enum FancyTag implements Tag {
         return ObjectLists.emptyList(); // We really shouldn't be here.
     }
 
-    public static boolean anyMatch(String text) {
-        return getMatch(text) != null;
-    }
-
     public static FancyTag getMatch(String text) {
         for (FancyTag tag : VALUES) {
             if (tag.foundInString(text)) {

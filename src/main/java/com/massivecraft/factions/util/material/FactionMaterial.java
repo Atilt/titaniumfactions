@@ -5,7 +5,7 @@ import org.bukkit.Material;
 
 public class FactionMaterial {
 
-    private String name;
+    private final String name;
 
     private FactionMaterial(String name) {
         if (MaterialDb.get().getProvider().isLegacy(name)) {

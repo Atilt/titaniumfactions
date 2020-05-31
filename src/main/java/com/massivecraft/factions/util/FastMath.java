@@ -19,7 +19,7 @@ public final class FastMath {
     }
 
     public static int ceil(float x) {
-        return BIG_ENOUGH_INT - (int)(BIG_ENOUGH_FLOOR - x);
+        return BIG_ENOUGH_INT - (int) (BIG_ENOUGH_FLOOR - x);
     }
 
     public static int floor(double x) {
@@ -31,6 +31,6 @@ public final class FastMath {
     }
 
     public static int ceil(double x) {
-        return BIG_ENOUGH_INT - (int)(BIG_ENOUGH_FLOOR - x);
+        return BIG_ENOUGH_INT - (int) (BIG_ENOUGH_FLOOR - x);
     }
 }

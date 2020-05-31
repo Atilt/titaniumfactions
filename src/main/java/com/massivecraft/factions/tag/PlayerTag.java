@@ -24,7 +24,7 @@ public enum PlayerTag implements Tag {
     }),
     LAST_SEEN("lastSeen", (fp) -> {
         String humanized = DurationFormatUtils.formatDurationWords(Instant.now().toEpochMilli() - fp.getLastLoginTime(), true, true) + TL.COMMAND_STATUS_AGOSUFFIX;
-        return fp.isOnline() ? ChatColor.GREEN + TL.COMMAND_STATUS_ONLINE.toString() : (Instant.now().toEpochMilli() - fp.getLastLoginTime() < 432000000 ? ChatColor.YELLOW + humanized : ChatColor.RED + humanized);
+        return fp.isOnline() ? ChatColor.GREEN + TL.COMMAND_STATUS_ONLINE.toString() : (Instant.now().toEpochMilli() - fp.getLastLoginTime() < 432_000_000 ? ChatColor.YELLOW + humanized : ChatColor.RED + humanized);
     }),
     PLAYER_BALANCE("balance", (fp) -> Econ.isSetup() ? Econ.getFriendlyBalance(fp) : (Tag.isMinimalShow() ? null : TL.ECON_OFF.format("balance"))),
     PLAYER_POWER("player-power", (fp) -> Integer.toString(fp.getPowerRounded())),

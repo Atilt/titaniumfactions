@@ -34,7 +34,7 @@ public class CmdClaimLine extends FCommand {
         NORTH(BlockFace.NORTH),
         EAST(BlockFace.EAST);
 
-        private BlockFace face;
+        private final BlockFace face;
 
         public static final ValidCardinal[] VALUES = values();
 
@@ -73,7 +73,6 @@ public class CmdClaimLine extends FCommand {
         Faction forFaction = context.argAsFaction(2, context.faction);
         Location location = context.player.getLocation();
 
-        // TODO: make this a task like claiming a radius?
         int relativeX = blockFace.getModX() << 4;
         int relativeZ = blockFace.getModZ() << 4;
         for (int i = 0; i < amount; i++) {
