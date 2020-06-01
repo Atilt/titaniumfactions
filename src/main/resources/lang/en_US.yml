@@ -21,13 +21,13 @@ root:
     STATE: complete
 COMMAND:
   ADMIN:
-    NOTMEMBER: '[]<i> is not a member in your faction.'
+    NOTMEMBER: '{0}<i> is not a member in your faction.'
     NOTADMIN: <b>You are not the faction admin.
     TARGETSELF: <b>The target player musn't be yourself.
-    DEMOTES: <i>You have demoted []<i> from the position of faction admin.
-    DEMOTED: <i>You have been demoted from the position of faction admin by []<i>.
-    PROMOTES: <i>You have promoted []<i> to the position of faction admin.
-    PROMOTED: '[]<i> gave []<i> the leadership of []<i>.'
+    DEMOTES: <i>You have demoted {0}<i> from the position of faction admin.
+    DEMOTED: <i>You have been demoted from the position of faction admin by {1}<i>.
+    PROMOTES: <i>You have promoted {0}<i> to the position of faction admin.
+    PROMOTED: '{0}<i> gave {1}<i> the leadership of {2}<i>.'
   AUTOCLAIM:
     ENABLED: <i>Now auto-claiming land for <h>[]<i>.
     DISABLED: <i>Auto-claiming of land disabled.

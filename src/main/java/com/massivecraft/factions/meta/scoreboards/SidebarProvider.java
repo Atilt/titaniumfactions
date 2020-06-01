@@ -1,14 +1,15 @@
-package com.massivecraft.factions.scoreboards;
+package com.massivecraft.factions.meta.scoreboards;
 
 import com.massivecraft.factions.FPlayer;
+import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.FactionsPlugin;
-import com.massivecraft.factions.scoreboards.sidebar.DefaultSidebar;
+import com.massivecraft.factions.meta.scoreboards.sidebar.DefaultSidebar;
 import me.lucko.helper.bucket.Bucket;
 import me.lucko.helper.bucket.factory.BucketFactory;
 import me.lucko.helper.bucket.partitioning.PartitioningStrategies;
 import org.bukkit.Bukkit;
 
-public class SidebarProvider implements AutoCloseable {
+public final class SidebarProvider implements AutoCloseable {
 
     private static SidebarProvider instance;
 
@@ -32,6 +33,9 @@ public class SidebarProvider implements AutoCloseable {
 
     public void start() {
         this.task = Bukkit.getScheduler().runTaskTimer(FactionsPlugin.getInstance(), () -> {
+            if (!FactionsPlugin.getInstance().conf().scoreboard().constant().isEnabled()) {
+                return;
+            }
 
             for (FPlayer fPlayer : players.asCycle().next()) {
                 FastBoard fastBoard = fPlayer.getScoreboard();
@@ -46,6 +50,18 @@ public class SidebarProvider implements AutoCloseable {
 
     public boolean track(FPlayer fPlayer) {
         return this.players.add(fPlayer);
+    }
+
+    public void trackAll() {
+        boolean enabled = FactionsPlugin.getInstance().conf().scoreboard().info().isEnabled();
+        for (FPlayer onlinePlayer : FPlayers.getInstance().getOnlinePlayers()) {
+            if (onlinePlayer.showScoreboard()) {
+                onlinePlayer.setShowScoreboard(false);
+                if (enabled) {
+                    onlinePlayer.setShowScoreboard(true);
+                }
+            }
+        }
     }
 
     public boolean untrack(FPlayer fPlayer) {

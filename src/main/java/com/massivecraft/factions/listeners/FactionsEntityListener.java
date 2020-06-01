@@ -1,11 +1,6 @@
 package com.massivecraft.factions.listeners;
 
-import com.massivecraft.factions.Board;
-import com.massivecraft.factions.FLocation;
-import com.massivecraft.factions.FPlayer;
-import com.massivecraft.factions.FPlayers;
-import com.massivecraft.factions.Faction;
-import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.*;
 import com.massivecraft.factions.config.file.MainConfig;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.perms.Relation;
@@ -19,29 +14,13 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Creeper;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Fireball;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
-import org.bukkit.entity.TNTPrimed;
-import org.bukkit.entity.Wither;
+import org.bukkit.entity.*;
 import org.bukkit.entity.minecart.ExplosiveMinecart;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockExplodeEvent;
-import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.EntityChangeBlockEvent;
-import org.bukkit.event.entity.EntityCombustByEntityEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.EntityTargetEvent;
-import org.bukkit.event.entity.PotionSplashEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingBreakEvent.RemoveCause;
@@ -101,8 +80,7 @@ public class FactionsEntityListener extends AbstractListener {
             // Players can not take any damage in a Safe Zone
             event.setCancelled(true);
         } else if (event.getCause() == EntityDamageEvent.DamageCause.FALL && event.getEntity().getType() == EntityType.PLAYER) {
-            Player player = (Player) event.getEntity();
-            FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
+            FPlayer fPlayer = FPlayers.getInstance().getByPlayer((Player) event.getEntity());
             if (fPlayer != null && !fPlayer.shouldTakeFallDamage()) {
                 event.setCancelled(true); // Falling after /f fly
             }
@@ -143,7 +121,7 @@ public class FactionsEntityListener extends AbstractListener {
             return;
         }
         if (FactionsPlugin.getInstance().getStuckMap().remove(player.getUniqueId()) != null) {
-            FPlayers.getInstance().getByPlayer(player).msg(TL.COMMAND_STUCK_CANCELLED);
+           player.sendMessage(TL.COMMAND_STUCK_CANCELLED.toString());
         }
     }
 
@@ -178,20 +156,21 @@ public class FactionsEntityListener extends AbstractListener {
 
         blockList.removeIf(block -> explosionDisallowed(boomer, block.getLocation()));
 
-        if ((boomer.getType() == EntityType.PRIMED_TNT|| boomer.getType() == EntityType.MINECART_TNT) && FactionsPlugin.getInstance().conf().exploits().isTntWaterlog()) {
+        if ((boomer.getType() == EntityType.PRIMED_TNT || boomer.getType() == EntityType.MINECART_TNT) && FactionsPlugin.getInstance().conf().exploits().isTntWaterlog()) {
             // TNT in water/lava doesn't normally destroy any surrounding blocks, which is usually desired behavior, but...
             // this change below provides workaround for waterwalling providing perfect protection,
             // and makes cheap (non-obsidian) TNT cannons require minor maintenance between shots
             Block center = loc.getBlock();
-            if (center.isLiquid()) {
-                // a single surrounding block in all 6 directions is broken if the material is weak enough
-                for (BlockFace target : FACES) {
-                    Block relative = center.getRelative(target);
-                    if (explosionDisallowed(boomer, relative.getLocation()) || MaterialDb.get().getProvider().isExplosiveResistant(relative.getType())) {
-                        continue;
-                    }
-                    relative.breakNaturally();
+            if (!center.isLiquid()) {
+                return;
+            }
+            // a single surrounding block in all 6 directions is broken if the material is weak enough
+            for (BlockFace target : FACES) {
+                Block relative = center.getRelative(target);
+                if (MaterialDb.get().getProvider().isExplosiveResistant(relative.getType()) || explosionDisallowed(boomer, relative.getLocation())) {
+                    continue;
                 }
+                relative.breakNaturally();
             }
         }
     }

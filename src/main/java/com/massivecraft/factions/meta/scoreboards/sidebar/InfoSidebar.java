@@ -1,9 +1,9 @@
-package com.massivecraft.factions.scoreboards.sidebar;
+package com.massivecraft.factions.meta.scoreboards.sidebar;
 
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.FactionsPlugin;
-import com.massivecraft.factions.scoreboards.SidebarTextProvider;
+import com.massivecraft.factions.meta.scoreboards.SidebarTextProvider;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 

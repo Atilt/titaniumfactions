@@ -1,7 +1,7 @@
 package com.massivecraft.factions.cmd;
 
 import com.massivecraft.factions.FactionsPlugin;
-import com.massivecraft.factions.scoreboards.SidebarProvider;
+import com.massivecraft.factions.meta.scoreboards.SidebarProvider;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
@@ -23,6 +23,7 @@ public class CmdSB extends FCommand {
     public void perform(CommandContext context) {
         if (!FactionsPlugin.getInstance().conf().scoreboard().constant().isEnabled()) {
             context.player.sendMessage(TL.COMMAND_TOGGLESB_DISABLED.toString());
+            SidebarProvider.get().untrack(context.fPlayer);
             return;
         }
         if (context.fPlayer.showScoreboard()) {

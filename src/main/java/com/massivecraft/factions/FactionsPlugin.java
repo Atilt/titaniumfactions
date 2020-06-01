@@ -21,10 +21,11 @@ import com.massivecraft.factions.listeners.versionspecific.PortalHandler;
 import com.massivecraft.factions.listeners.versionspecific.PortalListenerLegacy;
 import com.massivecraft.factions.listeners.versionspecific.PortalListener_114;
 import com.massivecraft.factions.logging.FactionsLogger;
+import com.massivecraft.factions.meta.scoreboards.SidebarProvider;
+import com.massivecraft.factions.meta.tablist.TablistProvider;
 import com.massivecraft.factions.metrics.Metrics;
 import com.massivecraft.factions.perms.Permissible;
 import com.massivecraft.factions.perms.PermissibleAction;
-import com.massivecraft.factions.scoreboards.SidebarProvider;
 import com.massivecraft.factions.struct.ChatMode;
 import com.massivecraft.factions.util.*;
 import com.massivecraft.factions.util.material.FactionMaterial;
@@ -269,7 +270,13 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
             this.blockVisualizer = new BlockVisualizer();
 
-            SidebarProvider.get().start();
+            if (this.conf().scoreboard().info().isEnabled()) { //implement a toggle for reload command that enables/disables this
+                SidebarProvider.get().start();
+            }
+
+            if (this.conf().tablist().isEnabled()) { //implement a toggle for reload command that enables/disables this
+                TablistProvider.get().start();
+            }
 
             if (conf().commands().seeChunk().isParticles()) {
                 SeeChunkTask.get().start();
@@ -510,7 +517,6 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     public boolean loadLang() {
         Path lang = this.getDataFolder().toPath().resolve("lang.yml");
-
         if (Files.exists(lang)) {
             try {
                 if (!this.conf().lang().isLangTransitioned()) {
@@ -519,7 +525,7 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                         TL.setTransition(true);
                         this.logger.info("Translation file successfully converted.");
                     } else {
-                        this.logger.severe("Unable to convert index translation file.");
+                        this.logger.severe("Unable to apply INDEX format to translation file.");
                         Bukkit.getPluginManager().disablePlugin(this);
                         return false;
                     }

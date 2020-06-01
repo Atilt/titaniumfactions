@@ -17,7 +17,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.util.UnknownFormatConversionException;
-import java.util.logging.Level;
 
 public class FactionsChatListener implements Listener {
 
@@ -125,7 +124,7 @@ public class FactionsChatListener implements Listener {
         String msg = event.getMessage();
         String eventFormat = event.getFormat();
         FPlayer me = FPlayers.getInstance().getByPlayer(talkingPlayer);
-        int InsertIndex = FactionsPlugin.getInstance().conf().factions().chat().getTagInsertIndex();
+        int insertIndex = FactionsPlugin.getInstance().conf().factions().chat().getTagInsertIndex();
 
         boolean padBefore = FactionsPlugin.getInstance().conf().factions().chat().isTagPadBefore();
         boolean padAfter = FactionsPlugin.getInstance().conf().factions().chat().isTagPadAfter();
@@ -133,22 +132,22 @@ public class FactionsChatListener implements Listener {
         if (!FactionsPlugin.getInstance().conf().factions().chat().getTagReplaceString().isEmpty() && eventFormat.contains(FactionsPlugin.getInstance().conf().factions().chat().getTagReplaceString())) {
             // we're using the "replace" method of inserting the faction tags
             eventFormat = TextUtil.replace(eventFormat, "[FACTION_TITLE]", me.getTitle());
-            InsertIndex = eventFormat.indexOf(FactionsPlugin.getInstance().conf().factions().chat().getTagReplaceString());
+            insertIndex = eventFormat.indexOf(FactionsPlugin.getInstance().conf().factions().chat().getTagReplaceString());
             eventFormat = TextUtil.replace(eventFormat, FactionsPlugin.getInstance().conf().factions().chat().getTagReplaceString(), "");
             padBefore = false;
             padAfter = false;
         } else if (!FactionsPlugin.getInstance().conf().factions().chat().getTagInsertAfterString().isEmpty() && eventFormat.contains(FactionsPlugin.getInstance().conf().factions().chat().getTagInsertAfterString())) {
             // we're using the "insert after string" method
-            InsertIndex = eventFormat.indexOf(FactionsPlugin.getInstance().conf().factions().chat().getTagInsertAfterString()) + FactionsPlugin.getInstance().conf().factions().chat().getTagInsertAfterString().length();
+            insertIndex = eventFormat.indexOf(FactionsPlugin.getInstance().conf().factions().chat().getTagInsertAfterString()) + FactionsPlugin.getInstance().conf().factions().chat().getTagInsertAfterString().length();
         } else if (!FactionsPlugin.getInstance().conf().factions().chat().getTagInsertBeforeString().isEmpty() && eventFormat.contains(FactionsPlugin.getInstance().conf().factions().chat().getTagInsertBeforeString())) {
             // we're using the "insert before string" method
-            InsertIndex = eventFormat.indexOf(FactionsPlugin.getInstance().conf().factions().chat().getTagInsertBeforeString());
+            insertIndex = eventFormat.indexOf(FactionsPlugin.getInstance().conf().factions().chat().getTagInsertBeforeString());
         } else if (!FactionsPlugin.getInstance().conf().factions().chat().isAlwaysShowChatTag()) {
             return;
         }
 
-        String formatStart = eventFormat.substring(0, InsertIndex) + ((padBefore && !me.getChatTag().isEmpty()) ? " " : "");
-        String formatEnd = ((padAfter && !me.getChatTag().isEmpty()) ? " " : "") + eventFormat.substring(InsertIndex);
+        String formatStart = eventFormat.substring(0, insertIndex) + ((padBefore && !me.getChatTag().isEmpty()) ? " " : "");
+        String formatEnd = ((padAfter && !me.getChatTag().isEmpty()) ? " " : "") + eventFormat.substring(insertIndex);
 
         String nonColoredMsgFormat = formatStart + me.getChatTag().trim() + formatEnd;
 

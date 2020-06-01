@@ -4,7 +4,6 @@ import com.massivecraft.factions.protocol.Protocol;
 import me.lucko.helper.reflect.ServerReflection;
 import org.bukkit.entity.Player;
 
-import java.lang.invoke.LambdaConversionException;
 import java.lang.invoke.LambdaMetafactory;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -17,7 +16,7 @@ public final class TitleAPI {
 
     private static boolean SUPPORTED = false;
 
-    private static Function<String, Object> STRING_TO_COMPONENT;
+    public static Function<String, Object> STRING_TO_COMPONENT;
     private static Constructor<?> PACKET_TITLE;
     private static Field TITLE;
     private static Field SUBTITLE;

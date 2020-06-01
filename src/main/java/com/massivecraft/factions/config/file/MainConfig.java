@@ -4,6 +4,7 @@ import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.config.annotation.Comment;
 import com.massivecraft.factions.config.annotation.WipeOnReload;
 import com.massivecraft.factions.perms.Role;
+import com.massivecraft.factions.util.TextUtil;
 import com.massivecraft.factions.util.material.FactionMaterial;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSets;
@@ -12,15 +13,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @SuppressWarnings({"FieldCanBeLocal", "InnerClassMayBeStatic", "BooleanMethodIsAlwaysInverted"})
 public class MainConfig {
@@ -62,6 +55,33 @@ public class MainConfig {
 
         public String getFormatType() {
             return formatType;
+        }
+    }
+
+    public class Tablist {
+        private boolean enabled = false;
+
+        private String header = "&f&lA Factions Server Header";
+        private String footer = "&7&lA Factions Server Footer";
+
+        public boolean isEnabled() {
+            return this.enabled;
+        }
+
+        public String getHeader() {
+            return this.header;
+        }
+
+        public String getFooter() {
+            return this.footer;
+        }
+
+        public String getHeaderColored() {
+            return TextUtil.parseColorBukkit(this.header);
+        }
+
+        public String getFooterColored() {
+            return TextUtil.parseColorBukkit(this.footer);
         }
     }
 
@@ -2355,7 +2375,8 @@ public class MainConfig {
             "\n" +
             "Made with love <3")
     private AVeryFriendlyFactionsConfig aVeryFriendlyFactionsConfig = new AVeryFriendlyFactionsConfig();
-
+    @Comment("Tablist settings")
+    private Tablist tablist = new Tablist();
     @Comment("Language file settings")
     private Lang lang = new Lang();
     @Comment("Colors for relationships and default factions")
@@ -2394,6 +2415,10 @@ public class MainConfig {
 
     public AVeryFriendlyFactionsConfig getaVeryFriendlyFactionsConfig() {
         return aVeryFriendlyFactionsConfig;
+    }
+
+    public Tablist tablist() {
+        return tablist;
     }
 
     public Lang lang() {

@@ -14,7 +14,6 @@ import org.bukkit.ChatColor;
 
 import java.util.List;
 import java.util.Set;
-import java.util.function.IntConsumer;
 
 public abstract class MemoryFactions extends Factions {
 
@@ -153,21 +152,6 @@ public abstract class MemoryFactions extends Factions {
             factions.add(value);
         }
         return factions;
-    }
-
-    @Override
-    public void forceSave(BooleanConsumer finish) {
-
-    }
-
-    @Override
-    public void forceSave(boolean sync, BooleanConsumer finish) {
-
-    }
-
-    @Override
-    public void load(IntConsumer loaded) {
-
     }
 
     @Override

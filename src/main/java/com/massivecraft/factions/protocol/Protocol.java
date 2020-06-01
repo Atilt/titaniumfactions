@@ -33,7 +33,6 @@ public final class Protocol {
                     lookup.findVirtual(craftPlayerClass, "getHandle", MethodType.methodType(entityPlayerClass)),
                     MethodType.methodType(entityPlayerClass, craftPlayerClass)).getTarget().invokeExact();
 
-
             //playerConnection -> sendPacket
             SEND_PACKET = (BiConsumer<Object, Object>) LambdaMetafactory.metafactory(lookup,
                     "accept",
@@ -45,8 +44,8 @@ public final class Protocol {
             PLAYER_CONNECTION = entityPlayerClass.getField("playerConnection");
             PLAYER_CONNECTION.setAccessible(true);
 
-        } catch (Throwable e) {
-            e.printStackTrace();
+        } catch (Throwable exception) {
+            exception.printStackTrace();
         }
     }
 

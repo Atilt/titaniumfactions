@@ -1,10 +1,10 @@
 package com.massivecraft.factions;
 
 import com.massivecraft.factions.iface.EconomyParticipator;
+import com.massivecraft.factions.meta.scoreboards.FastBoard;
+import com.massivecraft.factions.meta.scoreboards.SidebarTextProvider;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
-import com.massivecraft.factions.scoreboards.FastBoard;
-import com.massivecraft.factions.scoreboards.SidebarTextProvider;
 import com.massivecraft.factions.struct.ChatMode;
 import com.massivecraft.factions.util.MultiClaim;
 import com.massivecraft.factions.util.WarmUpUtil;

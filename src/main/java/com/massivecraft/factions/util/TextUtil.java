@@ -235,7 +235,7 @@ public final class TextUtil {
     }
     
     public static String replace(String string, String search, String replacement) {
-        return StringUtils.replace(string, search, replacement);
+        return FastUUID.JDK_9 ? string.replace(search, replacement) : StringUtils.replace(string, search, replacement);
     }
 
     // -------------------------------------------- //

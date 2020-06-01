@@ -43,7 +43,7 @@ import java.util.UUID;
  */
 public final class FastUUID {
 
-    private static final boolean USE_JDK_UUID_TO_STRING;
+    public static final boolean JDK_9;
 
     static {
         int majorVersion = 0;
@@ -55,7 +55,7 @@ public final class FastUUID {
             // just "8".
         }
 
-        USE_JDK_UUID_TO_STRING = majorVersion >= 9;
+        JDK_9 = majorVersion >= 9;
     }
 
     private static final int UUID_STRING_LENGTH = 36;
@@ -168,7 +168,7 @@ public final class FastUUID {
      * @return a string representation of the given UUID
      */
     public static String toString(final UUID uuid) {
-        if (USE_JDK_UUID_TO_STRING) {
+        if (JDK_9) {
             // OpenJDK 9 and newer use a fancy native approach to converting UUIDs to strings and we're better off using
             // that if it's available.
             return uuid.toString();

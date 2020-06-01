@@ -1,4 +1,4 @@
-package com.massivecraft.factions.scoreboards;
+package com.massivecraft.factions.meta.scoreboards;
 
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.Faction;

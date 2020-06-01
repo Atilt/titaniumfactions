@@ -1,6 +1,8 @@
 package com.massivecraft.factions.cmd;
 
 import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.meta.scoreboards.SidebarProvider;
+import com.massivecraft.factions.meta.tablist.TablistProvider;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
 
@@ -20,6 +22,8 @@ public class CmdReload extends FCommand {
         FactionsPlugin.getInstance().getConfigManager().loadConfigs();
         FactionsPlugin.getInstance().reloadConfig();
         FactionsPlugin.getInstance().loadLang();
+        SidebarProvider.get().trackAll();
+        TablistProvider.get().trackAll();
         context.msg(TL.COMMAND_RELOAD_TIME, Double.toString((System.nanoTime() - start) / 1_000_000.0D));
     }
 

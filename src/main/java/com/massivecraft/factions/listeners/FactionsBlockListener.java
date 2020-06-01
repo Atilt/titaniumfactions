@@ -139,11 +139,12 @@ public class FactionsBlockListener implements Listener {
         }
     }
 
+
     private boolean canPistonMoveBlock(Faction pistonFaction, List<Block> blocks, BlockFace direction) {
-        String world = blocks.get(0).getWorld().getName();
         if (direction == null) {
             return true;
         }
+        String world = blocks.get(0).getWorld().getName();
         for (Block block : blocks) {
             Faction otherFaction = Board.getInstance().getFactionAt(FLocation.wrap(block.getLocation().add(direction.getModX(), direction.getModY(), direction.getModZ())));
             if (pistonFaction == otherFaction) {

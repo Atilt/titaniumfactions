@@ -1,4 +1,4 @@
-package com.massivecraft.factions.scoreboards;
+package com.massivecraft.factions.meta.scoreboards;
 
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FactionsPlugin;
@@ -16,12 +16,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Simple Bukkit ScoreBoard API with 1.7 to 1.15 support.

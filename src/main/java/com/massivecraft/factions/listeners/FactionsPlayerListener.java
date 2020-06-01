@@ -1,25 +1,15 @@
 package com.massivecraft.factions.listeners;
 
-import com.massivecraft.factions.Board;
-import com.massivecraft.factions.FLocation;
-import com.massivecraft.factions.FPlayer;
-import com.massivecraft.factions.FPlayers;
-import com.massivecraft.factions.Faction;
-import com.massivecraft.factions.Factions;
-import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.*;
 import com.massivecraft.factions.data.MemoryFPlayer;
 import com.massivecraft.factions.gui.GUI;
+import com.massivecraft.factions.meta.scoreboards.SidebarProvider;
+import com.massivecraft.factions.meta.tablist.TablistProvider;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
-import com.massivecraft.factions.scoreboards.SidebarProvider;
 import com.massivecraft.factions.struct.Permission;
-import com.massivecraft.factions.util.FastMath;
-import com.massivecraft.factions.util.FlightTask;
-import com.massivecraft.factions.util.SeeChunkTask;
-import com.massivecraft.factions.util.TL;
-import com.massivecraft.factions.util.TextUtil;
-import com.massivecraft.factions.util.WorldUtil;
+import com.massivecraft.factions.util.*;
 import com.massivecraft.factions.util.material.MaterialDb;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
@@ -37,21 +27,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
-import org.bukkit.event.player.PlayerBucketEmptyEvent;
-import org.bukkit.event.player.PlayerBucketFillEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.NumberConversions;
 
 import java.time.Instant;
 import java.util.EnumSet;
@@ -81,14 +59,14 @@ public class FactionsPlayerListener extends AbstractListener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
+        if (!Bukkit.getOnlineMode() && !FactionsPlugin.getInstance().isFinishedLoading()) {
+            Bukkit.getScheduler().runTaskLater(FactionsPlugin.getInstance(), () -> event.getPlayer().kickPlayer(TL.FACTIONS_DATA_LOADING.toString()), 2L);
+            return;
+        }
         initPlayer(event.getPlayer());
     }
 
     private void initPlayer(Player player) {
-        if (!Bukkit.getOnlineMode() && !FactionsPlugin.getInstance().isFinishedLoading()) {
-            Bukkit.getScheduler().runTaskLater(FactionsPlugin.getInstance(), () -> player.kickPlayer(TL.FACTIONS_DATA_LOADING.toString()), 2L);
-            return;
-        }
         // Make sure that all online players do have a fplayer.
         FPlayer me = FPlayers.getInstance().getByPlayer(player);
         ((MemoryFPlayer) me).setName(player.getName());
@@ -134,6 +112,10 @@ public class FactionsPlayerListener extends AbstractListener {
         if (FactionsPlugin.getInstance().conf().scoreboard().constant().isEnabled() && me.showScoreboard()) {
             me.setTextProvider(SidebarProvider.DEFAULT_SIDEBAR);
             me.setShowScoreboard(true);
+        }
+
+        if (FactionsPlugin.getInstance().conf().tablist().isEnabled()) {
+            TablistProvider.get().track(player);
         }
 
         if (!faction.isWilderness()) {
@@ -359,9 +341,8 @@ public class FactionsPlayerListener extends AbstractListener {
                 InteractAttemptSpam attempt = interactSpammers.computeIfAbsent(player.getName(), s -> new InteractAttemptSpam());
                 int count = attempt.increment();
                 if (count >= 10) {
-                    FPlayer me = FPlayers.getInstance().getByPlayer(player);
-                    me.msg(TL.PLAYER_OUCH);
-                    player.damage(NumberConversions.floor((double) count / 10));
+                    player.sendMessage(TL.PLAYER_OUCH.toString());
+                    player.damage(FastMath.floor(count / 10.0D));
                 }
             }
             return;
