@@ -1,11 +1,6 @@
 package com.massivecraft.factions.cmd;
 
-import com.massivecraft.factions.Board;
-import com.massivecraft.factions.FLocation;
-import com.massivecraft.factions.FPlayer;
-import com.massivecraft.factions.FPlayers;
-import com.massivecraft.factions.Faction;
-import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.*;
 import com.massivecraft.factions.event.FPlayerTeleportEvent;
 import com.massivecraft.factions.integration.Essentials;
 import com.massivecraft.factions.perms.PermissibleAction;
@@ -93,7 +88,7 @@ public class CmdHome extends FCommand {
         }
 
         Faction faction = Board.getInstance().getFactionAt(FLocation.wrap(context.player.getLocation()));
-        final Location loc = context.player.getLocation().clone();
+        final Location loc = context.player.getLocation();
 
         // if player is not in a safe zone or their own faction territory, only allow teleport if no enemies are nearby
         if (FactionsPlugin.getInstance().conf().factions().homes().getTeleportAllowedEnemyDistance() > 0 &&
@@ -104,8 +99,8 @@ public class CmdHome extends FCommand {
             double y = loc.getY();
             double z = loc.getZ();
 
-            for (Player p : context.player.getServer().getOnlinePlayers()) {
-                if (p == null || !p.isOnline() || p.isDead() || p == context.player || p.getWorld() != w) {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                if (p.isDead() || p == context.player || !context.player.canSee(p) || p.getWorld() != w) {
                     continue;
                 }
 
@@ -150,7 +145,7 @@ public class CmdHome extends FCommand {
         context.doWarmUp(WarmUpUtil.Warmup.HOME, TL.WARMUPS_NOTIFY_TELEPORT, "Home", () -> {
             // Create a smoke effect
             if (FactionsPlugin.getInstance().conf().factions().homes().isTeleportCommandSmokeEffectEnabled()) {
-                ObjectList<Location> smokeLocations = new ObjectArrayList<>();
+                ObjectList<Location> smokeLocations = new ObjectArrayList<>(4);
                 smokeLocations.add(loc);
                 smokeLocations.add(loc.add(0, 1, 0));
                 smokeLocations.add(destination);
