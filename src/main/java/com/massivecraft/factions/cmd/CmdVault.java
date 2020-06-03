@@ -8,7 +8,6 @@ import com.drtshock.playervaults.vaultmanagement.VaultViewInfo;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.FastUUID;
-import com.massivecraft.factions.util.StringFormat;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -17,7 +16,12 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
+import java.text.MessageFormat;
+import java.util.Set;
+
 public class CmdVault extends FCommand {
+
+    private static MessageFormat VAULT_PREFIX = new MessageFormat(FactionsPlugin.getInstance().conf().playerVaults().getVaultPrefix());
 
     public CmdVault() {
         super();
@@ -54,7 +58,7 @@ public class CmdVault extends FCommand {
         }
 
         //pre-compile
-        String vaultName = StringFormat.compile(FactionsPlugin.getInstance().conf().playerVaults().getVaultPrefix()).formatInts(context.faction.getIdRaw());
+        String vaultName = VAULT_PREFIX.format(Integer.toString(context.faction.getIdRaw()));
 
         if (number < 1) {
             // Message about which vaults that Faction has.
@@ -63,8 +67,9 @@ public class CmdVault extends FCommand {
             if (file == null) {
                 context.sender.sendMessage(Lang.TITLE.toString() + Lang.VAULT_DOES_NOT_EXIST.toString());
             } else {
-                StringBuilder sb = new StringBuilder();
-                for (String key : file.getKeys(false)) {
+                Set<String> keys = file.getKeys(false);
+                StringBuilder sb = new StringBuilder(keys.size() * 2);
+                for (String key : keys) {
                     sb.append(TextUtil.replace(key, "vault", "")).append(" ");
                 }
 
@@ -90,5 +95,9 @@ public class CmdVault extends FCommand {
         public ArgumentBuilder<Object, ?> get(ArgumentBuilder<Object, ?> parent) {
             return parent.then(RequiredArgumentBuilder.argument("number", IntegerArgumentType.integer(0, 99)));
         }
+    }
+
+    public static void reload() {
+        VAULT_PREFIX = new MessageFormat(FactionsPlugin.getInstance().conf().playerVaults().getVaultPrefix());
     }
 }

@@ -194,6 +194,9 @@ public final class FLocation implements Serializable {
             return false;
         }
         WorldBorder border = world.getWorldBorder();
+        if (border.getSize() == 0) {
+            return false;
+        }
         Location center = border.getCenter();
 
         double size = border.getSize() / 2.0D;
@@ -205,9 +208,9 @@ public final class FLocation implements Serializable {
         double borderMaxX = (center.getX() + size) - bufferBlocks;
         double borderMaxZ = (center.getZ() + size) - bufferBlocks;
 
-        int chunkMinX = this.x << 4;
+        int chunkMinX = WorldUtil.chunkToBlock(this.x);
         int chunkMaxX = chunkMinX | 15;
-        int chunkMinZ = this.z << 4;
+        int chunkMinZ = WorldUtil.chunkToBlock(this.z);
         int chunkMaxZ = chunkMinZ | 15;
 
         return (chunkMinX >= borderMaxX) || (chunkMinZ >= borderMaxZ) || (chunkMaxX <= borderMinX) || (chunkMaxZ <= borderMinZ);

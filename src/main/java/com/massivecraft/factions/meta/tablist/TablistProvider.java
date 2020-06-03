@@ -15,7 +15,6 @@ import java.lang.invoke.LambdaMetafactory;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
-import java.util.Collection;
 import java.util.function.Supplier;
 
 public final class TablistProvider implements AutoCloseable {
@@ -74,11 +73,24 @@ public final class TablistProvider implements AutoCloseable {
 
     public void start() {
         this.task = Bukkit.getScheduler().runTaskTimer(FactionsPlugin.getInstance(), () -> {
-
+            if (!FactionsPlugin.getInstance().conf().tablist().isEnabled()) {
+                return;
+            }
             for (Player player : this.players.asCycle().next()) {
                 this.sendTab(player, FactionsPlugin.getInstance().conf().tablist().getHeaderColored(), FactionsPlugin.getInstance().conf().tablist().getFooterColored());
             }
         }, 1L, 1L).getTaskId();
+    }
+
+    private Object constructPacket(String header, String footer) {
+        Object packet = PACKET_INSTANCE.get();
+        try {
+            HEADER_FIELD.set(packet, TitleAPI.STRING_TO_COMPONENT.apply("{\"text\": \"" + header + "\"}"));
+            FOOTER_FIELD.set(packet, TitleAPI.STRING_TO_COMPONENT.apply("{\"text\": \"" + footer + "\"}"));
+        } catch (IllegalAccessException exception) {
+            exception.printStackTrace();
+        }
+        return packet;
     }
 
     private void sendTab(Player player, String header, String footer) {
@@ -86,31 +98,7 @@ public final class TablistProvider implements AutoCloseable {
             player.setPlayerListHeaderFooter(header, footer);
             return;
         }
-        Object packet = PACKET_INSTANCE.get();
-
-        try {
-            HEADER_FIELD.set(packet, TitleAPI.STRING_TO_COMPONENT.apply("{\"text\": \"" + header + "\"}"));
-            FOOTER_FIELD.set(packet, TitleAPI.STRING_TO_COMPONENT.apply("{\"text\": \"" + footer + "\"}"));
-
-            Protocol.sendPacket(player, packet);
-        } catch (IllegalAccessException exception) {
-            exception.printStackTrace();
-        }
-    }
-
-    private void sendTab(Collection<? extends Player> players, String header, String footer) {
-        Object packet = PACKET_INSTANCE.get();
-
-        try {
-            HEADER_FIELD.set(packet, TitleAPI.STRING_TO_COMPONENT.apply("{\"text\": \"" + header + "\"}"));
-            FOOTER_FIELD.set(packet, TitleAPI.STRING_TO_COMPONENT.apply("{\"text\": \"" + footer + "\"}"));
-
-            for (Player player : players) {
-                Protocol.sendPacket(player, packet);
-            }
-        } catch (IllegalAccessException exception) {
-            exception.printStackTrace();
-        }
+        Protocol.sendPacket(player, this.constructPacket(header, footer));
     }
 
     public boolean track(Player player) {
@@ -120,7 +108,11 @@ public final class TablistProvider implements AutoCloseable {
     public void trackAll() {
         boolean enabled = FactionsPlugin.getInstance().conf().tablist().isEnabled();
         if (!enabled) {
-            this.sendTab(Bukkit.getOnlinePlayers(), "", "");
+            this.players.clear();
+            Object packet = this.constructPacket("", "");
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                Protocol.sendPacket(player, packet);
+            }
         }
     }
 

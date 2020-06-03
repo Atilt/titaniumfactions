@@ -54,7 +54,7 @@ public class AsciiCompass {
 
         @Override
         public String toString() {
-            return String.valueOf(this.asciiChar);
+            return Character.toString(this.asciiChar);
         }
 
         public String getTranslation() {
@@ -91,7 +91,7 @@ public class AsciiCompass {
         for (Point point : Point.VALUES) {
             ObjectList<TextComponent> ret = new ObjectArrayList<>(3);
 
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new StringBuilder(4);
 
             builder.append(Point.NW.toString(Point.NW == point, ACTIVE_COLOR, DEFAULT_COLOR))
                     .append(Point.N.toString(Point.N == point, ACTIVE_COLOR, DEFAULT_COLOR))

@@ -54,6 +54,9 @@ public final class SidebarProvider implements AutoCloseable {
 
     public void trackAll() {
         boolean enabled = FactionsPlugin.getInstance().conf().scoreboard().info().isEnabled();
+        if (!enabled) {
+            this.players.clear();
+        }
         for (FPlayer onlinePlayer : FPlayers.getInstance().getOnlinePlayers()) {
             if (onlinePlayer.showScoreboard()) {
                 onlinePlayer.setShowScoreboard(false);

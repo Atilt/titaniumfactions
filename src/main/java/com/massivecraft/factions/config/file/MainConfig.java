@@ -2323,8 +2323,8 @@ public class MainConfig {
     }
 
     public class PlayerVaults {
-        @Comment("The [] is for the faction id")
-        private String vaultPrefix = "faction-[]";
+        @Comment("The {0} is for the faction id")
+        private String vaultPrefix = "faction-{0}";
         private int defaultMaxVaults = 0;
 
         public String getVaultPrefix() {
