@@ -52,4 +52,22 @@ public final class CompiledStringFormat {
 		}
 		return builder.append(messageParts[argCount]);
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		CompiledStringFormat that = (CompiledStringFormat) o;
+
+		if (length != that.length) return false;
+		return Arrays.equals(messageParts, that.messageParts);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = Arrays.hashCode(messageParts);
+		result = 31 * result + length;
+		return result;
+	}
 }

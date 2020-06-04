@@ -1,11 +1,6 @@
 package com.massivecraft.factions.landraidcontrol;
 
-import com.massivecraft.factions.Board;
-import com.massivecraft.factions.FLocation;
-import com.massivecraft.factions.FPlayer;
-import com.massivecraft.factions.FPlayers;
-import com.massivecraft.factions.Faction;
-import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.*;
 import com.massivecraft.factions.cmd.CommandContext;
 import com.massivecraft.factions.event.PowerLossEvent;
 import com.massivecraft.factions.util.StringFormat;
@@ -14,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class PowerControl implements LandRaidControl {
+
     @Override
     public boolean isRaidable(Faction faction) {
         return FactionsPlugin.getInstance().conf().factions().landRaidControl().power().isRaidability() && !faction.isPeaceful() && faction.getLandRounded() >= faction.getPowerRounded();
@@ -123,7 +119,7 @@ public class PowerControl implements LandRaidControl {
         final String msg = powerLossEvent.getMessage();
         if (msg != null && !msg.isEmpty()) {
             //TODO kind of hacky, fix this later
-            fplayer.msg(StringFormat.compile(msg).format(fplayer.getPowerRounded(), fplayer.getPowerMaxRounded()));
+            fplayer.msg(StringFormat.compile(msg).formatStrings(Double.toString(fplayer.getPowerRounded()), Integer.toString(fplayer.getPowerMaxRounded())));
         }
     }
 }

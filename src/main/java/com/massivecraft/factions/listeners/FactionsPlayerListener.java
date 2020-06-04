@@ -161,6 +161,7 @@ public class FactionsPlayerListener extends AbstractListener {
         FPlayers.getInstance().removeOnline(me);
         FlightTask.get().untrack(me);
         SidebarProvider.get().untrack(me);
+        TablistProvider.get().untrack(event.getPlayer());
         SeeChunkTask.get().untrack(me, false);
 
         if (!myFaction.isWilderness()) {

@@ -12,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.lang.invoke.LambdaMetafactory;
+import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
@@ -43,13 +44,14 @@ public final class TablistProvider implements AutoCloseable {
                 FOOTER_FIELD.setAccessible(true);
 
                 MethodHandles.Lookup lookup = MethodHandles.lookup();
+                MethodHandle handle = lookup.findConstructor(packetHeaderFooter, MethodType.methodType(void.class));
 
                 PACKET_INSTANCE = (Supplier<Object>) LambdaMetafactory.metafactory(lookup,
                         "get",
                         MethodType.methodType(Supplier.class),
-                        MethodType.methodType(Object.class, void.class),
-                        lookup.findConstructor(packetHeaderFooter, MethodType.methodType(void.class)),
-                        MethodType.methodType(void.class))
+                        handle.type().generic(),
+                        handle,
+                        handle.type())
                         .getTarget().invokeExact();
             } catch (Throwable exception) {
                 exception.printStackTrace();
@@ -107,7 +109,7 @@ public final class TablistProvider implements AutoCloseable {
 
     public void trackAll() {
         boolean enabled = FactionsPlugin.getInstance().conf().tablist().isEnabled();
-        if (!enabled) {
+        if (!enabled && !this.players.isEmpty()) {
             this.players.clear();
             Object packet = this.constructPacket("", "");
             for (Player player : Bukkit.getOnlinePlayers()) {
