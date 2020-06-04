@@ -10,11 +10,7 @@ import com.massivecraft.factions.util.LazyLocation;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public interface Faction extends EconomyParticipator {
     Map<UUID, List<String>> getAnnouncements();
@@ -45,7 +41,10 @@ public interface Faction extends EconomyParticipator {
 
     boolean hasUnreadAnnouncements(FPlayer fPlayer);
 
+    @Deprecated
     void sendUnreadAnnouncements(FPlayer fPlayer);
+
+    void sendUnreadAnnouncements(Player player);
 
     void removeAnnouncements(FPlayer fPlayer);
 

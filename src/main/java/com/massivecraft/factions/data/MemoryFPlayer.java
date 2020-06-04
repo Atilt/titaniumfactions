@@ -393,6 +393,7 @@ public abstract class MemoryFPlayer implements FPlayer {
         return name;
     }
 
+    @Override
     public void setName(String name) {
         this.name = name;
     }
@@ -400,8 +401,6 @@ public abstract class MemoryFPlayer implements FPlayer {
     public String getTag() {
         return this.hasFaction() ? this.getFaction().getTag() : "";
     }
-
-    // Base concatenations:
 
     public String getNameAndSomething(String something) {
         StringBuilder builder = new StringBuilder(this.role.getPrefix());
@@ -489,10 +488,8 @@ public abstract class MemoryFPlayer implements FPlayer {
         return RelationUtil.getColorOfThatToMe(this, rp);
     }
 
-    //----------------------------------------------//
-    // Health
-    //----------------------------------------------//
-    public void heal(int amnt) {
+    @Override
+    public void heal(double amnt) {
         Player player = this.getPlayer();
         if (player != null) {
             player.setHealth(player.getHealth() + amnt);
@@ -1012,13 +1009,6 @@ public abstract class MemoryFPlayer implements FPlayer {
             LWC.clearOtherLocks(flocation, this.getFaction());
         }
 
-        // announce success
-/*        ObjectSet<FPlayer> informTheseFPlayers = new ObjectOpenHashSet<>();
-        informTheseFPlayers.add(this);
-        informTheseFPlayers.addAll(forFaction.getFPlayersWhereOnline(true));
-        for (FPlayer fp : informTheseFPlayers) {
-            fp.msg(TL.CLAIM_CLAIMED, this.describeTo(fp, true), forFaction.describeTo(fp), currentFaction.describeTo(fp));
-        }*/
         if (this.getFaction().isNormal() && Board.getInstance().getFactionAt(flocation) == forFaction) {
             return;
         }
@@ -1261,17 +1251,21 @@ public abstract class MemoryFPlayer implements FPlayer {
 
     private static final transient Pattern MESSAGE_LINES = Pattern.compile("/n/");
 
-    public void sendMessage(String msg) {
-        if (msg.contains("{null}")) {
-            return; // user wants this message to not send
-        }
-        Player player = this.getPlayer();
+    @Override
+    public void sendMessage(Player player, String msg) {
         if (player == null) {
             return;
+        }
+        if (msg.contains("{null}")) {
+            return; // user wants this message to not send
         }
         for (String s : MESSAGE_LINES.split(msg)) {
             player.sendMessage(s);
         }
+    }
+
+    public void sendMessage(String msg) {
+        this.sendMessage(this.getPlayer(), msg);
     }
 
     public void sendMessage(List<String> msgs) {

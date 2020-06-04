@@ -1,7 +1,6 @@
 package com.massivecraft.factions.listeners;
 
 import com.massivecraft.factions.*;
-import com.massivecraft.factions.data.MemoryFPlayer;
 import com.massivecraft.factions.gui.GUI;
 import com.massivecraft.factions.meta.scoreboards.SidebarProvider;
 import com.massivecraft.factions.meta.tablist.TablistProvider;
@@ -69,7 +68,7 @@ public class FactionsPlayerListener extends AbstractListener {
     private void initPlayer(Player player) {
         // Make sure that all online players do have a fplayer.
         FPlayer me = FPlayers.getInstance().getByPlayer(player);
-        ((MemoryFPlayer) me).setName(player.getName());
+        me.setName(player.getName());
 
         FactionsPlugin.getInstance().getLandRaidControl().onJoin(me);
         // Update the lastLoginTime for this fplayer
@@ -102,8 +101,8 @@ public class FactionsPlayerListener extends AbstractListener {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    if (me.isOnline() && faction == me.getFaction()) {
-                        faction.sendUnreadAnnouncements(me);
+                    if (player.isOnline() && faction == me.getFaction()) {
+                        faction.sendUnreadAnnouncements(player);
                     }
                 }
             }.runTaskLater(FactionsPlugin.getInstance(), 33L); // Due to essentials being an MOTD hog.

@@ -1,12 +1,6 @@
 package com.massivecraft.factions.data;
 
-import com.massivecraft.factions.Board;
-import com.massivecraft.factions.FLocation;
-import com.massivecraft.factions.FPlayer;
-import com.massivecraft.factions.FPlayers;
-import com.massivecraft.factions.Faction;
-import com.massivecraft.factions.Factions;
-import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.*;
 import com.massivecraft.factions.config.file.DefaultPermissionsConfig;
 import com.massivecraft.factions.iface.EconomyParticipator;
 import com.massivecraft.factions.iface.RelationParticipator;
@@ -20,22 +14,9 @@ import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.struct.BanInfo;
 import com.massivecraft.factions.struct.Permission;
-import com.massivecraft.factions.util.FastMath;
-import com.massivecraft.factions.util.FastUUID;
-import com.massivecraft.factions.util.LazyLocation;
-import com.massivecraft.factions.util.MiscUtil;
-import com.massivecraft.factions.util.RelationUtil;
-import com.massivecraft.factions.util.TL;
-import com.massivecraft.factions.util.TextUtil;
+import com.massivecraft.factions.util.*;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectLists;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
-import it.unimi.dsi.fastutil.objects.ObjectSets;
+import it.unimi.dsi.fastutil.objects.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -43,13 +24,8 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.time.Instant;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.UUID;
 
 public abstract class MemoryFaction implements Faction, EconomyParticipator {
     protected int id = -10;
@@ -97,6 +73,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         return this.announcements.containsKey(fPlayer.getId());
     }
 
+    @Deprecated
     @Override
     public void sendUnreadAnnouncements(FPlayer fPlayer) {
         Collection<String> messages = announcements.remove(fPlayer.getId());
@@ -104,10 +81,24 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
             return;
         }
         fPlayer.msg(TL.FACTIONS_ANNOUNCEMENT_TOP);
+        Player player = fPlayer.getPlayer();
         for (String s : messages) {
-            fPlayer.sendMessage(s);
+            fPlayer.sendMessage(player, s);
         }
         fPlayer.msg(TL.FACTIONS_ANNOUNCEMENT_BOTTOM);
+    }
+
+    @Override
+    public void sendUnreadAnnouncements(Player player) {
+        Collection<String> messages = announcements.remove(player.getUniqueId());
+        if (messages == null) {
+            return;
+        }
+        player.sendMessage(TL.FACTIONS_ANNOUNCEMENT_TOP.toString());
+        for (String s : messages) {
+            player.sendMessage(s);
+        }
+        player.sendMessage(TL.FACTIONS_ANNOUNCEMENT_BOTTOM.toString());
     }
 
     public void removeAnnouncements(FPlayer fPlayer) {
@@ -1147,7 +1138,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
             return "";
         }
 
-        StringBuilder ownerList = new StringBuilder();
+        StringBuilder ownerList = new StringBuilder(ownerData.size() * 2);
 
         for (UUID anOwnerData : ownerData) {
             if (ownerList.length() > 0) {

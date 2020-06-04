@@ -135,6 +135,8 @@ public interface FPlayer extends EconomyParticipator, Comparable<FPlayer> {
 
     String getName();
 
+    void setName(String name);
+
     String getTag();
 
     // Base concatenations:
@@ -176,7 +178,7 @@ public interface FPlayer extends EconomyParticipator, Comparable<FPlayer> {
     //----------------------------------------------//
     // Health
     //----------------------------------------------//
-    void heal(int amnt);
+    void heal(double amnt);
 
 
     //----------------------------------------------//
@@ -242,6 +244,8 @@ public interface FPlayer extends EconomyParticipator, Comparable<FPlayer> {
     Player getPlayer();
 
     boolean isOnline();
+
+    void sendMessage(Player player, String message);
 
     void sendMessage(String message);
 

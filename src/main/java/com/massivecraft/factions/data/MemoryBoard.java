@@ -325,7 +325,6 @@ public abstract class MemoryBoard extends Board {
      */
     public List<TextComponent> getMap(FPlayer fplayer, FLocation flocation, double degrees) {
         ObjectList<TextComponent> lines = new ObjectArrayList<>(3);
-
         lines.add(TextComponent.of(TextUtil.titleize("(" + flocation.getCoordString() + ") " + this.getFactionAt(flocation).getTag(fplayer))));
 
         List<TextComponent> compass = AsciiCompass.get(degrees);
@@ -371,7 +370,7 @@ public abstract class MemoryBoard extends Board {
                 if (fplayer.getFactionIdRaw() == found.getIdRaw() || relation.isAtLeast(Relation.ALLY) || (FactionsPlugin.getInstance().conf().map().isShowNeutralFactionsOnMap() && relation == Relation.NEUTRAL) || (FactionsPlugin.getInstance().conf().map().isShowEnemyFactions() && relation == Relation.ENEMY) || (FactionsPlugin.getInstance().conf().map().isShowTruceFactions() && relation == Relation.TRUCE)) {
                     int incremented = charIdx++;
                     TextColor relationColor = TextUtil.kyoriColor(relation.getColor());
-                    row.append(TextComponent.of(fList.computeIfAbsent(found.getTag(), c -> String.valueOf(MAP_FACTION_ICONS[(incremented) % MAP_FACTION_ICONS.length]))).color(relationColor).hoverEvent(HoverEvent.showText(TextComponent.of(found.getTag()).color(relationColor))).clickEvent(ClickEvent.runCommand("/" + FactionsPlugin.getInstance().conf().getCommandBase().get(0) + " show " + found.getTag())));
+                    row.append(TextComponent.of(fList.computeIfAbsent(found.getTag(), c -> Character.toString(MAP_FACTION_ICONS[(incremented) % MAP_FACTION_ICONS.length]))).color(relationColor).hoverEvent(HoverEvent.showText(TextComponent.of(found.getTag()).color(relationColor))).clickEvent(ClickEvent.runCommand("/" + FactionsPlugin.getInstance().conf().getCommandBase().get(0) + " show " + found.getTag())));
                     continue;
                 }
                 row.append(TextComponent.of("-").color(TextColor.GRAY).hoverEvent(HoverEvent.showText(TextComponent.of(found.getTag()).color(TextColor.GRAY))).clickEvent(ClickEvent.runCommand("/f " + FactionsPlugin.getInstance().conf().getCommandBase().get(0) + " show " + found.getTag())));
