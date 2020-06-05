@@ -858,12 +858,13 @@ public class MainConfig {
             private int tagInsertIndex = 0;
             private boolean tagPadBefore = false;
             private boolean tagPadAfter = true;
-            private String tagFormat = "[]\u00A7f";
+            private String tagFormat = "%s\u00A7f";
             private boolean alwaysShowChatTag = true;
-            private String factionChatFormat = "[]:\u00A7f []";
-            private String allianceChatFormat = "\u00A7d[]:\u00A7f []";
-            private String truceChatFormat = "\u00A75[]:\u00A7f []";
-            private String modChatFormat = "\u00A7c[]:\u00A7f []";
+            private String factionChatFormat = "%s:\u00A7f %s";
+            private String allianceChatFormat = "\u00A7d%s:\u00A7f %s";
+            private String truceChatFormat = "\u00A75%s:\u00A7f %s";
+            private String modChatFormat = "\u00A7a%s:\u00A7f %s";
+            private String coleaderChatFormat = "\u00A7c%s:\u00A7f %s";
             private boolean broadcastDescriptionChanges = false;
             private boolean broadcastTagChanges = false;
 
@@ -925,6 +926,10 @@ public class MainConfig {
 
             public String getModChatFormat() {
                 return modChatFormat;
+            }
+
+            public String getColeaderChatFormat() {
+                return coleaderChatFormat;
             }
 
             public boolean isBroadcastDescriptionChanges() {
@@ -1591,6 +1596,9 @@ public class MainConfig {
                     "if they have homes set in that Faction's territory?")
             private boolean deleteEssentialsHomes = true;
 
+            @Comment("Should the player be teleported to spawn if they attempt to logout on enemy territory?")
+            private boolean spawnTeleportIfEnemyTerritory = false;
+
             @Comment("Default Relation allows you to change the default relation for Factions.\n" +
                     "Example usage would be so people can't leave then make a new Faction while Raiding\n" +
                     "  in order to be able to execute commands if the default relation is neutral.")
@@ -1625,6 +1633,10 @@ public class MainConfig {
 
             public boolean isDeleteEssentialsHomes() {
                 return deleteEssentialsHomes;
+            }
+
+            public boolean isSpawnTeleportIfEnemyTerritory() {
+                return spawnTeleportIfEnemyTerritory;
             }
 
             public String getDefaultRelation() {

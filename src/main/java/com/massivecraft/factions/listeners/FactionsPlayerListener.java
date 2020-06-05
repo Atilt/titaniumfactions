@@ -10,6 +10,7 @@ import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.*;
 import com.massivecraft.factions.util.material.MaterialDb;
+import io.papermc.lib.PaperLib;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
@@ -139,7 +140,8 @@ public class FactionsPlayerListener extends AbstractListener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerQuit(PlayerQuitEvent event) {
-        FPlayer me = FPlayers.getInstance().getByPlayer(event.getPlayer());
+        Player player = event.getPlayer();
+        FPlayer me = FPlayers.getInstance().getByPlayer(player);
 
         FactionsPlugin.getInstance().getLandRaidControl().onQuit(me);
         // and update their last login time to point to when the logged off, for auto-remove routine
@@ -149,29 +151,32 @@ public class FactionsPlayerListener extends AbstractListener {
 
         // if player is waiting for fstuck teleport but leaves, remove
         if (FactionsPlugin.getInstance().getStuckMap().remove(me.getId()) != null) {
-            me.msg(TL.COMMAND_STUCK_CANCELLED);
+            player.sendMessage(TL.COMMAND_STUCK_CANCELLED.toString());
             FactionsPlugin.getInstance().getTimers().remove(me.getId());
         }
 
-        Faction myFaction = me.getFaction();
-        if (!myFaction.isWilderness()) {
+        if (me.hasFaction()) {
+            Faction myFaction = me.getFaction();
+
             myFaction.memberLoggedOff();
+
+            if (FactionsPlugin.getInstance().conf().factions().other().isSpawnTeleportIfEnemyTerritory() && myFaction.getRelationTo(Board.getInstance().getFactionAt(me.getLastStoodAt())).isEnemy()) {
+                PaperLib.teleportAsync(player, player.getWorld().getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+            }
+
+            for (FPlayer other : myFaction.getFPlayersWhereOnline(true)) {
+                if (other != me && other.isMonitoringJoins()) {
+                    other.msg(TL.FACTION_LOGOUT, me.getName());
+                }
+            }
         }
 
         FPlayers.getInstance().removeOnline(me);
         FlightTask.get().untrack(me);
         SidebarProvider.get().untrack(me);
-        TablistProvider.get().untrack(event.getPlayer());
+        TablistProvider.get().untrack(player);
         SeeChunkTask.get().untrack(me, false);
-
-        if (!myFaction.isWilderness()) {
-            for (FPlayer player : myFaction.getFPlayersWhereOnline(true)) {
-                if (player != me && player.isMonitoringJoins()) {
-                    player.msg(TL.FACTION_LOGOUT, me.getName());
-                }
-            }
-        }
-        interactSpammers.remove(event.getPlayer().getName());
+        this.interactSpammers.remove(player.getName());
     }
 
     // Holds the next time a player can have a map shown.

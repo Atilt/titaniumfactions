@@ -3,6 +3,7 @@ package com.massivecraft.factions.struct;
 import com.massivecraft.factions.util.TL;
 
 public enum ChatMode {
+    COLEADER(5, TL.CHAT_COLEADER),
     MOD(4, TL.CHAT_MOD),
     FACTION(3, TL.CHAT_FACTION),
     ALLIANCE(2, TL.CHAT_ALLIANCE),
@@ -12,9 +13,9 @@ public enum ChatMode {
     public final int value;
     public final TL nicename;
 
-    private static final ChatMode[] MODES = ChatMode.values();
+    private static final ChatMode[] VALUES = ChatMode.values();
 
-    ChatMode(final int value, final TL nicename) {
+    ChatMode(int value, final TL nicename) {
         this.value = value;
         this.nicename = nicename;
     }
@@ -33,6 +34,6 @@ public enum ChatMode {
     }
 
     public ChatMode getNext() {
-        return MODES[(this.ordinal() == 0 ? MODES.length : this.ordinal()) - 1];
+        return VALUES[(this.ordinal() + 1) % VALUES.length];
     }
 }

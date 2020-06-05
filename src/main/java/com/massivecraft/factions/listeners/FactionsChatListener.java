@@ -20,6 +20,16 @@ import java.util.UnknownFormatConversionException;
 
 public class FactionsChatListener implements Listener {
 
+    private void sendMessageTo(Faction faction, FPlayer sender, Role atleast, String message) {
+        for (FPlayer fplayer : FPlayers.getInstance().getOnlinePlayers()) {
+            if (fplayer.getFaction() == faction && fplayer.getRole().isAtLeast(atleast)) {
+                fplayer.sendMessage(message);
+            } else if (fplayer.isSpyingChat() && sender != fplayer) {
+                fplayer.sendMessage("[MCspy]: " + message);
+            }
+        }
+    }
+
     // this is for handling slashless command usage and faction/alliance chat, set at lowest priority so Factions gets to them first
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onPlayerEarlyChat(AsyncPlayerChatEvent event) {
@@ -31,43 +41,39 @@ public class FactionsChatListener implements Listener {
         String msg = event.getMessage();
         FPlayer me = FPlayers.getInstance().getByPlayer(talkingPlayer);
         ChatMode chat = me.getChatMode();
+
+        Faction myFaction = me.getFaction();
+
+        if (chat == ChatMode.COLEADER) {
+            String message = String.format(FactionsPlugin.getInstance().conf().factions().chat().getColeaderChatFormat(), ChatColor.stripColor(me.getNameAndTag()), msg);
+
+            //Send to all mods
+            this.sendMessageTo(myFaction, me, Role.COLEADER, message);
+            FactionsPlugin.getInstance().getPluginLogger().info(ChatColor.stripColor("[ColeaderChat] " + myFaction.getTag() + ": " + message));
+
+            event.setCancelled(true);
+        }
+
         //Is it a MOD chat
         if (chat == ChatMode.MOD) {
-            Faction myFaction = me.getFaction();
-
             String message = String.format(FactionsPlugin.getInstance().conf().factions().chat().getModChatFormat(), ChatColor.stripColor(me.getNameAndTag()), msg);
 
             //Send to all mods
-            for (FPlayer fplayer : FPlayers.getInstance().getOnlinePlayers()) {
-                if (myFaction == fplayer.getFaction() && fplayer.getRole().isAtLeast(Role.MODERATOR)) {
-                    fplayer.sendMessage(message);
-                } else if (fplayer.isSpyingChat() && me != fplayer) {
-                    fplayer.sendMessage("[MCspy]: " + message);
-                }
-            }
+            this.sendMessageTo(myFaction, me, Role.MODERATOR, message);
 
             FactionsPlugin.getInstance().getPluginLogger().info(ChatColor.stripColor("[ModChat] " + myFaction.getTag() + ": " + message));
 
             event.setCancelled(true);
         } else if (chat == ChatMode.FACTION) {
-            Faction myFaction = me.getFaction();
-
             String message = String.format(FactionsPlugin.getInstance().conf().factions().chat().getFactionChatFormat(), me.describeTo(myFaction), msg);
-            myFaction.sendMessage(message);
+
+            //Send to any players who are spying chat
+            this.sendMessageTo(myFaction, me, Role.RECRUIT, message);
 
             FactionsPlugin.getInstance().getPluginLogger().info(ChatColor.stripColor("[FactionChat] " + myFaction.getTag() + ": " + message));
 
-            //Send to any players who are spying chat
-            for (FPlayer fplayer : FPlayers.getInstance().getOnlinePlayers()) {
-                if (fplayer.isSpyingChat() && fplayer.getFaction() != myFaction && me != fplayer) {
-                    fplayer.sendMessage("[FCspy] " + myFaction.getTag() + ": " + message);
-                }
-            }
-
             event.setCancelled(true);
         } else if (chat == ChatMode.ALLIANCE) {
-            Faction myFaction = me.getFaction();
-
             String message = String.format(FactionsPlugin.getInstance().conf().factions().chat().getAllianceChatFormat(), ChatColor.stripColor(me.getNameAndTag()), msg);
 
             //Send message to our own faction
@@ -86,8 +92,6 @@ public class FactionsChatListener implements Listener {
 
             event.setCancelled(true);
         } else if (chat == ChatMode.TRUCE) {
-            Faction myFaction = me.getFaction();
-
             String message = String.format(FactionsPlugin.getInstance().conf().factions().chat().getTruceChatFormat(), ChatColor.stripColor(me.getNameAndTag()), msg);
 
             //Send message to our own faction

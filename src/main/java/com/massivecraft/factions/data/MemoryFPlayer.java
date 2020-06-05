@@ -240,10 +240,10 @@ public abstract class MemoryFPlayer implements FPlayer {
     }
 
     public ChatMode getChatMode() {
-        if (this.chatMode == null || this.factionId == -10 || this.factionId == MemoryBoard.NO_ID || !FactionsPlugin.getInstance().conf().factions().chat().isFactionOnlyChat()) {
+        if (this.chatMode == null | !this.hasFaction() || !FactionsPlugin.getInstance().conf().factions().chat().isFactionOnlyChat()) {
             this.chatMode = ChatMode.PUBLIC;
         }
-        return chatMode;
+        return this.chatMode;
     }
 
     public void setIgnoreAllianceChat(boolean ignore) {

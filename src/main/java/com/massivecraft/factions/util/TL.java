@@ -121,6 +121,7 @@ public enum TL implements Formattable<TL> {
     COMMAND_CHAT_MODE_TRUCE("&eTruce only chat mode."),
     COMMAND_CHAT_MODE_FACTION("&eFaction only chat mode."),
     COMMAND_CHAT_MODE_MOD("&eMod only chat mode."),
+    COMMAND_CHAT_MODE_COLEADER("&cColeader only chat mode."),
 
     COMMAND_CHATSPY_ENABLE("&eYou have enabled chat spying mode."),
     COMMAND_CHATSPY_ENABLELOG(" has ENABLED chat spying mode."),
@@ -771,6 +772,7 @@ public enum TL implements Formattable<TL> {
     /**
      * Chat modes
      */
+    CHAT_COLEADER("coleader chat"),
     CHAT_MOD("mod chat"),
     CHAT_FACTION("faction chat"),
     CHAT_ALLIANCE("alliance chat"),

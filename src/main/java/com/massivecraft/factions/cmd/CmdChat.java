@@ -36,48 +36,56 @@ public class CmdChat extends FCommand {
         ChatMode modeTarget = context.fPlayer.getChatMode().getNext();
 
         // If player is cycling through chat modes
-        // and he is not atleast a moderator get next one
-        if (modeString == null && modeTarget == ChatMode.MOD) {
-            if (!context.fPlayer.getRole().isAtLeast(Role.MODERATOR)) {
+        // and he is not atleast a coleader get next one, same for moderator.
+        if (modeString == null && modeTarget == ChatMode.COLEADER && !context.fPlayer.getRole().isAtLeast(Role.COLEADER)) {
+            modeTarget = modeTarget.getNext();
+            if (modeTarget == ChatMode.MOD && !context.fPlayer.getRole().isAtLeast(Role.MODERATOR)) {
                 modeTarget = modeTarget.getNext();
             }
         }
 
         if (modeString != null) {
-            modeString = modeString.toLowerCase();
-            if (modeString.startsWith("m")) {
-                modeTarget = ChatMode.MOD;
-                if (!context.fPlayer.getRole().isAtLeast(Role.MODERATOR)) {
-                    context.msg(TL.COMMAND_CHAT_INSUFFICIENTRANK);
+            char attempt = Character.toLowerCase(modeString.charAt(0));
+
+            switch (attempt) {
+                case 'c':
+                    if (!context.fPlayer.getRole().isAtLeast(Role.COLEADER)) {
+                        context.msg(TL.COMMAND_CHAT_INSUFFICIENTRANK);
+                        return;
+                    }
+                    modeTarget = ChatMode.COLEADER;
+                    context.msg(TL.COMMAND_CHAT_MODE_COLEADER);
+                    break;
+                case 'm':
+                    if (!context.fPlayer.getRole().isAtLeast(Role.MODERATOR)) {
+                        context.msg(TL.COMMAND_CHAT_INSUFFICIENTRANK);
+                        return;
+                    }
+                    modeTarget = ChatMode.MOD;
+                    context.msg(TL.COMMAND_CHAT_MODE_MOD);
+                    break;
+                case 'p':
+                    modeTarget = ChatMode.PUBLIC;
+                    context.msg(TL.COMMAND_CHAT_MODE_PUBLIC);
+                    break;
+                case 'a':
+                    modeTarget = ChatMode.ALLIANCE;
+                    context.msg(TL.COMMAND_CHAT_MODE_ALLIANCE);
+                    break;
+                case 'f':
+                    modeTarget = ChatMode.FACTION;
+                    context.msg(TL.COMMAND_CHAT_MODE_FACTION);
+                    break;
+                case 't':
+                    modeTarget = ChatMode.TRUCE;
+                    context.msg(TL.COMMAND_CHAT_MODE_TRUCE);
+                    break;
+                default:
+                    context.msg(TL.COMMAND_CHAT_INVALIDMODE);
                     return;
-                }
-            } else if (modeString.startsWith("p")) {
-                modeTarget = ChatMode.PUBLIC;
-            } else if (modeString.startsWith("a")) {
-                modeTarget = ChatMode.ALLIANCE;
-            } else if (modeString.startsWith("f")) {
-                modeTarget = ChatMode.FACTION;
-            } else if (modeString.startsWith("t")) {
-                modeTarget = ChatMode.TRUCE;
-            } else {
-                context.msg(TL.COMMAND_CHAT_INVALIDMODE);
-                return;
             }
         }
-
         context.fPlayer.setChatMode(modeTarget);
-
-        if (context.fPlayer.getChatMode() == ChatMode.MOD) {
-            context.msg(TL.COMMAND_CHAT_MODE_MOD);
-        } else if (context.fPlayer.getChatMode() == ChatMode.PUBLIC) {
-            context.msg(TL.COMMAND_CHAT_MODE_PUBLIC);
-        } else if (context.fPlayer.getChatMode() == ChatMode.ALLIANCE) {
-            context.msg(TL.COMMAND_CHAT_MODE_ALLIANCE);
-        } else if (context.fPlayer.getChatMode() == ChatMode.TRUCE) {
-            context.msg(TL.COMMAND_CHAT_MODE_TRUCE);
-        } else {
-            context.msg(TL.COMMAND_CHAT_MODE_FACTION);
-        }
     }
 
     @Override
@@ -90,6 +98,7 @@ public class CmdChat extends FCommand {
         public ArgumentBuilder<Object, ?> get(ArgumentBuilder<Object, ?> parent) {
             return parent.then(LiteralArgumentBuilder.literal("public"))
                     .then(LiteralArgumentBuilder.literal("mod"))
+                    .then(LiteralArgumentBuilder.literal("coleader"))
                     .then(LiteralArgumentBuilder.literal("alliance"))
                     .then(LiteralArgumentBuilder.literal("faction"))
                     .then(LiteralArgumentBuilder.literal("truce"));
