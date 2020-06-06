@@ -18,7 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class PermissibleRelationGUI extends GUI<Permissible> {
-    private static Map<Permissible, SimpleItem> ITEMS = new LinkedHashMap<>(8);
+    private static final Map<Permissible, SimpleItem> ITEMS = new LinkedHashMap<>(8);
     public static final SimpleItem OFFLINE_SWITCH = SimpleItem.builder().setName(TL.GUI_PERMS_TOGGLE.toString()).setMaterial(FactionMaterial.from("LEVER").get()).build();
 
     static {
@@ -65,7 +65,7 @@ public class PermissibleRelationGUI extends GUI<Permissible> {
         ITEMS.put(Relation.ENEMY, enemy);
     }
 
-    private boolean online;
+    private final boolean online;
 
     public PermissibleRelationGUI(boolean online, FPlayer user) {
         super(user, FactionsPlugin.getInstance().conf().factions().other().isSeparateOfflinePerms() ? 2 : 1);

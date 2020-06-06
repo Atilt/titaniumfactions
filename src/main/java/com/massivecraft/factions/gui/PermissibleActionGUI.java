@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 public class PermissibleActionGUI extends GUI<PermissibleAction> implements GUI.Backable {
-    private static SimpleItem backItem = SimpleItem.builder().setMaterial(FactionMaterial.from("ARROW").get()).setName(TL.GUI_BUTTON_BACK.toString()).build();
+    private static final SimpleItem BACK_ITEM = SimpleItem.builder().setMaterial(FactionMaterial.from("ARROW").get()).setName(TL.GUI_BUTTON_BACK.toString()).build();
     private static final SimpleItem BASE;
 
     static {
@@ -33,8 +33,8 @@ public class PermissibleActionGUI extends GUI<PermissibleAction> implements GUI.
         BASE = SimpleItem.builder().setLore(lore).setName("&8[{action-access-color}{action}&8]").build();
     }
 
-    private Permissible permissible;
-    private boolean online;
+    private final Permissible permissible;
+    private final boolean online;
 
     public PermissibleActionGUI(boolean online, FPlayer user, Permissible permissible) {
         super(user, FastMath.ceil(((double) PermissibleAction.VALUES.length) / 9.0D) + 1);
@@ -118,7 +118,7 @@ public class PermissibleActionGUI extends GUI<PermissibleAction> implements GUI.
 
     @Override
     protected Map<Integer, SimpleItem> createDummyItems() {
-        ImmutableMap.Builder<Integer, SimpleItem> builder = ImmutableMap.<Integer, SimpleItem>builder().put(this.back = ((PermissibleAction.VALUES.length / 9) + 1) * 9, backItem);
+        ImmutableMap.Builder<Integer, SimpleItem> builder = ImmutableMap.<Integer, SimpleItem>builder().put(this.back = ((PermissibleAction.VALUES.length / 9) + 1) * 9, BACK_ITEM);
         if (FactionsPlugin.getInstance().conf().factions().other().isSeparateOfflinePerms() && permissible instanceof Relation) {
             builder.put(this.back + 4, PermissibleRelationGUI.OFFLINE_SWITCH);
         }

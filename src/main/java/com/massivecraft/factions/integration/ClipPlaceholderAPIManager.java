@@ -1,11 +1,6 @@
 package com.massivecraft.factions.integration;
 
-import com.massivecraft.factions.Board;
-import com.massivecraft.factions.FPlayer;
-import com.massivecraft.factions.FPlayers;
-import com.massivecraft.factions.Faction;
-import com.massivecraft.factions.Factions;
-import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.*;
 import com.massivecraft.factions.landraidcontrol.DTRControl;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.tag.FactionTag;
@@ -104,13 +99,13 @@ public class ClipPlaceholderAPIManager extends PlaceholderExpansion implements R
             case "player_balance":
                 return Econ.isSetup() ? Econ.getFriendlyBalance(fPlayer) : TL.ECON_OFF.format("balance");
             case "player_power":
-                return String.valueOf(fPlayer.getPowerRounded());
+                return Integer.toString(fPlayer.getPowerRounded());
             case "player_maxpower":
-                return String.valueOf(fPlayer.getPowerMaxRounded());
+                return Integer.toString(fPlayer.getPowerMaxRounded());
             case "player_kills":
-                return String.valueOf(fPlayer.getKills());
+                return Integer.toString(fPlayer.getKills());
             case "player_deaths":
-                return String.valueOf(fPlayer.getDeaths());
+                return Integer.toString(fPlayer.getDeaths());
             case "player_role":
                 return fPlayer.hasFaction() ? fPlayer.getRole().getPrefix() : "";
             case "player_role_name":
@@ -123,9 +118,9 @@ public class ClipPlaceholderAPIManager extends PlaceholderExpansion implements R
             case "faction_only_space":
                 return (fPlayer.hasFaction() || territory) ? " " : "";
             case "faction_power":
-                return String.valueOf(faction.getPowerRounded());
+                return Integer.toString(faction.getPowerRounded());
             case "faction_powermax":
-                return String.valueOf(faction.getPowerMaxRounded());
+                return Integer.toString(faction.getPowerMaxRounded());
             case "faction_dtr":
                 return (fPlayer.hasFaction() || territory) ? DTRControl.round(faction.getDTR()) : "";
             case "faction_dtrmax":
@@ -185,13 +180,13 @@ public class ClipPlaceholderAPIManager extends PlaceholderExpansion implements R
             case "faction_tnt_max_balance":
                 return FactionTag.TNT_MAX.replace(FactionTag.TNT_MAX.getTag(), faction);
             case "faction_allies":
-                return String.valueOf(faction.getRelationCount(Relation.ALLY));
+                return Integer.toString(faction.getRelationCount(Relation.ALLY));
             case "faction_allies_players":
-                return String.valueOf(this.countOn(faction, Relation.ALLY, null, fPlayer));
+                return Integer.toString(this.countOn(faction, Relation.ALLY, null, fPlayer));
             case "faction_allies_players_online":
-                return String.valueOf(this.countOn(faction, Relation.ALLY, true, fPlayer));
+                return Integer.toString(this.countOn(faction, Relation.ALLY, true, fPlayer));
             case "faction_allies_players_offline":
-                return String.valueOf(this.countOn(faction, Relation.ALLY, false, fPlayer));
+                return Integer.toString(this.countOn(faction, Relation.ALLY, false, fPlayer));
             case "faction_enemies":
                 return String.valueOf(faction.getRelationCount(Relation.ENEMY));
             case "faction_enemies_players":
@@ -203,23 +198,23 @@ public class ClipPlaceholderAPIManager extends PlaceholderExpansion implements R
             case "faction_truces":
                 return String.valueOf(faction.getRelationCount(Relation.TRUCE));
             case "faction_truces_players":
-                return String.valueOf(this.countOn(faction, Relation.TRUCE, null, fPlayer));
+                return Integer.toString(this.countOn(faction, Relation.TRUCE, null, fPlayer));
             case "faction_truces_players_online":
-                return String.valueOf(this.countOn(faction, Relation.TRUCE, true, fPlayer));
+                return Integer.toString(this.countOn(faction, Relation.TRUCE, true, fPlayer));
             case "faction_truces_players_offline":
-                return String.valueOf(this.countOn(faction, Relation.TRUCE, false, fPlayer));
+                return Integer.toString(this.countOn(faction, Relation.TRUCE, false, fPlayer));
             case "faction_online":
-                return String.valueOf(faction.getOnlinePlayers().size());
+                return Integer.toString(faction.getOnlinePlayers().size());
             case "faction_offline":
-                return String.valueOf(faction.getSize() - faction.getOnlinePlayers().size());
+                return Integer.toString(faction.getTotalFPlayersWhereOnline(false, null));
             case "faction_size":
-                return String.valueOf(faction.getSize());
+                return Integer.toString(faction.getSize());
             case "faction_kills":
-                return String.valueOf(faction.getKills());
+                return Integer.toString(faction.getKills());
             case "faction_deaths":
-                return String.valueOf(faction.getDeaths());
+                return Integer.toString(faction.getDeaths());
             case "faction_maxvaults":
-                return String.valueOf(faction.getMaxVaults());
+                return Integer.toString(faction.getMaxVaults());
             case "faction_relation_color":
                 return fPlayer.getColorTo(faction).toString();
         }
@@ -234,7 +229,7 @@ public class ClipPlaceholderAPIManager extends PlaceholderExpansion implements R
                 if (status == null) {
                     count += faction.getSize();
                 } else {
-                    count += faction.getFPlayersWhereOnline(status, player).size();
+                    count += faction.getTotalFPlayersWhereOnline(status, player);
                 }
             }
         }

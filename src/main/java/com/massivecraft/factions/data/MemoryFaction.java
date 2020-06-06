@@ -872,6 +872,27 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         return ret;
     }
 
+    @Override
+    public int getTotalFPlayersWhereOnline(boolean online, FPlayer viewer) {
+        if (!this.isNormal()) {
+            return 0;
+        }
+        if (!online) {
+            return this.getSize() - this.getTotalOnline();
+        }
+        int count = 0;
+        for (FPlayer viewed : FPlayers.getInstance().getOnlinePlayers()) {
+            if (viewed.getFaction() != this) {
+                continue;
+            }
+            Player viewerPlayer = viewer.getPlayer();
+            if (viewerPlayer != null && viewerPlayer.canSee(viewed.getPlayer())) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     public FPlayer getFPlayerAdmin() {
         if (!this.isNormal()) {
             return null;
