@@ -9,9 +9,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
@@ -37,37 +34,6 @@ public final class BlockVisualizer {
     public void addLocations(Player player, Material material, Location... locations) {
         for (Location location : locations) {
             addLocation(player, location, material);
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    public void addLocations(Player player, Map<Location, Material> locations) {
-        Set<Location> tracked = getPlayerLocations(player);
-        for (Entry<Location, Material> entry : locations.entrySet()) {
-            if (tracked.add(entry.getKey())) {
-                player.sendBlockChange(entry.getKey(), entry.getValue(), (byte) 0);
-            }
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    public void addLocations(Player player, Collection<Location> locations, Material material) {
-        Set<Location> tracked = getPlayerLocations(player);
-        for (Location location : tracked) {
-            if (tracked.add(location)) {
-                player.sendBlockChange(location, material, (byte) 0);
-            }
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    public void addBlocks(Player player, Collection<Block> blocks, Material material) {
-        Set<Location> tracked = getPlayerLocations(player);
-        for (Block block : blocks) {
-            Location location = block.getLocation();
-            if (tracked.add(location)) {
-                player.sendBlockChange(location, material, (byte) 0);
-            }
         }
     }
 

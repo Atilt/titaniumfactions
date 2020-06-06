@@ -176,7 +176,7 @@ public class Econ {
         }
 
         // Check if the new balance is over Essential's money cap.
-        if (Essentials.isOverBalCap(to, econ.getBalance(toAcc) + amount)) {
+        if (Essentials.isOverBalCap(econ.getBalance(toAcc) + amount)) {
             invoker.msg(TL.ECON_OVER_BAL_CAP, Double.toString(amount));
             return false;
         }
@@ -273,10 +273,8 @@ public class Econ {
         OfflinePlayer offline = Bukkit.getOfflinePlayer(ep.getAccountId());
         double currentBalance = offline.getName() == null ? 0 : econ.getBalance(offline);
 
-        if (currentBalance >= delta) { //affordable
-            return false;
-        }
-        return true;
+        //affordable
+        return !(currentBalance >= delta);
     }
 
     public static boolean modifyMoneyV2(EconomyParticipator ep, double delta) {
@@ -289,6 +287,10 @@ public class Econ {
             return false;
         }
 
+        return nulledTransaction(delta, acc);
+    }
+
+    private static boolean nulledTransaction(double delta, OfflinePlayer acc) {
         if (delta == 0) {
             // no money actually transferred?
 //			ep.msg("<h>[]<i> didn't have to pay anything [].", You, forDoingThis);  // might be for gains, might be for losses
@@ -391,35 +393,7 @@ public class Econ {
 
         String You = ep.describeTo(ep, true);
 
-        if (delta == 0) {
-            // no money actually transferred?
-//			ep.msg("<h>[]<i> didn't have to pay anything [].", You, forDoingThis);  // might be for gains, might be for losses
-            return true;
-        }
-
-        if (delta > 0) {
-            // The player should gain money
-            // The account might not have enough space
-            EconomyResponse er = econ.depositPlayer(acc, delta);
-            if (er.transactionSuccess()) {
-                modifyUniverseMoney(-delta);
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            // The player should loose money
-            // The player might not have enough.
-
-            if (econ.has(acc, -delta) && econ.withdrawPlayer(acc, -delta).transactionSuccess()) {
-                // There is enough money to pay
-                modifyUniverseMoney(-delta);
-                return true;
-            } else {
-                // There was not enough money to pay
-                return false;
-            }
-        }
+        return nulledTransaction(delta, acc);
     }
 
     public static String moneyString(double amount) {
@@ -482,13 +456,13 @@ public class Econ {
         return getFriendlyBalance(player.getId());
     }
 
-    public static boolean setBalance(UUID id, double amount) {
+    public static void setBalance(UUID id, double amount) {
         OfflinePlayer account = Bukkit.getOfflinePlayer(id);
         double current = econ.getBalance(account);
         if (current > amount) {
-            return econ.withdrawPlayer(account, current - amount).transactionSuccess();
+            econ.withdrawPlayer(account, current - amount).transactionSuccess();
         } else {
-            return econ.depositPlayer(account, amount - current).transactionSuccess();
+            econ.depositPlayer(account, amount - current).transactionSuccess();
         }
     }
 

@@ -3,10 +3,11 @@ package com.massivecraft.factions.landraidcontrol;
 import com.massivecraft.factions.*;
 import com.massivecraft.factions.cmd.CommandContext;
 import com.massivecraft.factions.event.PowerLossEvent;
-import com.massivecraft.factions.util.StringFormat;
-import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+
+import java.text.MessageFormat;
 
 public class PowerControl implements LandRaidControl {
 
@@ -116,10 +117,19 @@ public class PowerControl implements LandRaidControl {
             fplayer.alterPower(-FactionsPlugin.getInstance().conf().factions().landRaidControl().power().getLossPerDeath());
         }
         // Send the message from the powerLossEvent
-        final String msg = powerLossEvent.getMessage();
+        String msg = powerLossEvent.getMessage();
         if (msg != null && !msg.isEmpty()) {
-            //TODO kind of hacky, fix this later
-            fplayer.msg(StringFormat.compile(msg).formatStrings(Double.toString(fplayer.getPowerRounded()), Integer.toString(fplayer.getPowerMaxRounded())));
+            if (!TL.formatContains(msg)) {
+                return;
+            }
+            Formattable<TL> formattable = TL.getParent();
+            if (formattable instanceof IndexedFormatter) {
+                fplayer.msg(new MessageFormat(msg).format(Double.toString(fplayer.getPowerRounded()), Integer.toString(fplayer.getPowerMaxRounded())));
+                return;
+            }
+            if (formattable instanceof LooseFormatter) {
+                fplayer.msg(StringFormat.compile(msg).formatStrings(Double.toString(fplayer.getPowerRounded()), Integer.toString(fplayer.getPowerMaxRounded())));
+            }
         }
     }
 }

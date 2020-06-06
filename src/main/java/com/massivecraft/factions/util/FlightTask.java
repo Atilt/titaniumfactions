@@ -133,7 +133,7 @@ public final class FlightTask {
                     continue;
                 }
                 FPlayer playerNearby = FPlayers.getInstance().getByPlayer((Player) entity);
-                if (playerNearby.isAdminBypassing() || playerNearby.isVanished()) {
+                if (playerNearby.isAdminBypassing() || playerNearby.isVanished((Player) entity)) {
                     continue;
                 }
                 if (playerNearby.getRelationTo(target) == Relation.ENEMY) {

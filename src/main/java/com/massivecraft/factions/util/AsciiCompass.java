@@ -78,7 +78,7 @@ public class AsciiCompass {
         }
 
         public static Point fromAngle(double degrees) {
-            return VALUES[FastMath.round(degrees / 45.0d) & 0x7].getOppositePoint();
+            return VALUES[FastMath.round(degrees / 45.0D) & 0x7].getOppositePoint();
         }
     }
 

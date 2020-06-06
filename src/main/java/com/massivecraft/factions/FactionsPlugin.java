@@ -116,7 +116,7 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     private Metrics metrics;
 
     private static final Function<FactionsPlugin, String> ENABLE_BANNER = plugin -> TextUtil.parseAnsi(
-            "&f\n" +
+            "&f" +
             "                  _____ ___ _____ _   _  _ ___ _   _ __  __ \n" +
             "                 |_   _|_ _|_   _/_\\ | \\| |_ _| | | |  \\/  |\n" +
             "                   | |  | |  | |/ _ \\| .` || || |_| | |\\/| |\n" +
@@ -818,14 +818,14 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         } else {
             FPlayer you = FPlayers.getInstance().getByPlayer(listener);
             if (you == null) {
-                tag = me.getChatTag();
+                tag = me.getChatTag().trim();
             }
             else { // everything checks out, give the colored tag
-                tag = me.getChatTag(you);
+                tag = me.getChatTag(you).trim();
             }
         }
 
-        return tag.isEmpty() ? "~" : tag.trim();
+        return tag.isEmpty() ? "~" : tag;
     }
 
     // Get a player's title within their faction, mainly for usage by chat plugins for local/channel chat
@@ -895,6 +895,15 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     public String getPrimaryGroup(OfflinePlayer player) {
         return perms == null || !perms.hasGroupSupport() ? " " : perms.getPrimaryGroup(Bukkit.getWorlds().get(0).toString(), player);
+    }
+
+    public Path getStartupLog() {
+        Path logs = Bukkit.getWorldContainer().toPath().resolve("logs");
+        if (Files.notExists(logs)) {
+            return null;
+        }
+        return logs.resolve("latest.log");
+
     }
 
     public boolean isFinishedLoading() {

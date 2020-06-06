@@ -13,7 +13,7 @@ public final class WarmUpUtil {
      * @param runnable       The task to run after the delay. If the delay is 0, the task is instantly ran.
      * @param delay          The time used, in seconds, for the delay.
      *                       <p/>
-     *                       note: for translations: [] = action, [] = delay
+     *                       note: for translations: {0}/[] = action, {1}/[] = delay
      */
     public static void process(final FPlayer player, Warmup warmup, TL translationKey, String action, Runnable runnable, long delay) {
         if (delay > 0) {

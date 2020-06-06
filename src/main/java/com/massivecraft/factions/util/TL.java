@@ -179,6 +179,7 @@ public enum TL implements Formattable<TL> {
     COMMAND_CREATE_CREATEDLOG(" created a new faction: "),
     COMMAND_CREATE_DESCRIPTION("Create a new faction"),
 
+    COMMAND_DEBUG_ALREADY_RUNNING("Debug is already running..."),
     COMMAND_DEBUG_RUNNING("&eNow running..."),
     COMMAND_DEBUG_COMPLETE("&eDebug generated! Share this URL: {0}"),
     COMMAND_DEBUG_DESCRIPTION("Create a debug paste"),
@@ -1128,6 +1129,14 @@ public enum TL implements Formattable<TL> {
         } catch (IOException exception) {
             exception.printStackTrace();
         }
+    }
+
+    public static boolean formatContains(String string) {
+        return DELEGATE.contains(string);
+    }
+
+    public static Formattable<TL> getParent() {
+        return DELEGATE;
     }
 
 

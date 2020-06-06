@@ -112,8 +112,8 @@ public enum FancyTag implements Tag {
     }
 
     private static String tipFaction(Faction faction, FPlayer player) {
-        StringBuilder builder = new StringBuilder();
         List<String> tips = FactionsPlugin.getInstance().conf().commands().toolTips().getFaction();
+        StringBuilder builder = new StringBuilder(tips.size() * 2);
         for (int i = 0; i < tips.size(); i++) {
             String string = Tag.parsePlain(faction, player, tips.get(i));
             if (string == null) {
@@ -121,15 +121,15 @@ public enum FancyTag implements Tag {
             }
             builder.append(TextUtil.parseColorBukkit(string));
             if (i != tips.size() - 1) {
-                builder.append('\n');
+                builder.append(System.lineSeparator());
             }
         }
         return builder.toString();
     }
 
     private static String tipPlayer(FPlayer fplayer, Map<UUID, String> groupMap) {
-        StringBuilder builder = new StringBuilder();
         List<String> tips = FactionsPlugin.getInstance().conf().commands().toolTips().getPlayer();
+        StringBuilder builder = new StringBuilder(tips.size() * 2);
         for (int i = 0; i < tips.size(); i++) {
             String line = tips.get(i);
             String newLine = line;
@@ -138,7 +138,7 @@ public enum FancyTag implements Tag {
                 if (groupMap != null) {
                     String group = groupMap.get(fplayer.getId());
                     if (!group.trim().isEmpty()) {
-                        newLine = newLine.replace("{group}", group);
+                        newLine = TextUtil.replace(newLine,"{group}", group);
                         break everythingOnYourWayOut;
                     }
                 }
@@ -150,7 +150,7 @@ public enum FancyTag implements Tag {
             }
             builder.append(TextUtil.parseColorBukkit(string));
             if (i != tips.size() - 1) {
-                builder.append('\n');
+                builder.append(System.lineSeparator());
             }
         }
         return builder.toString();
@@ -173,7 +173,7 @@ public enum FancyTag implements Tag {
 
     public List<TextComponent> getMessage(String text, Faction faction, FPlayer player, Map<UUID, String> groupMap) {
         if (!this.foundInString(text)) {
-            return ObjectLists.emptyList(); // We really, really shouldn't be here.
+            return ObjectLists.emptyList();
         }
         return this.function.apply(faction, player, TextUtil.replace(text, this.getTag(), ""), groupMap);
     }

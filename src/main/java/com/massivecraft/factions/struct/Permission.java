@@ -113,7 +113,9 @@ public enum Permission {
 
     public final String node;
 
-    Permission(final String node) {
+    public static final Permission[] VALUES = values();
+
+    Permission(String node) {
         this.node = "factions." + node;
     }
 

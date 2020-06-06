@@ -20,11 +20,7 @@ public class FactionMaterial {
     }
 
     private FactionMaterial(Material material) {
-        if (MaterialDb.get().isLegacy()) {
-            this.name = MaterialDb.get().getProvider().fromLegacy(material.name());
-        } else {
-            this.name = material.name();
-        }
+        this.name = MaterialDb.get().isLegacy() ? MaterialDb.get().getProvider().fromLegacy(material.name()) : material.name();
     }
 
     // Build FactionMaterial with 1.13 or 1.12 name

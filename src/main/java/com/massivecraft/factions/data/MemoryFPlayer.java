@@ -99,10 +99,7 @@ public abstract class MemoryFPlayer implements FPlayer {
     }
 
     public Faction getFaction() {
-        if (this.factionId == -10) {
-            this.factionId = MemoryBoard.NO_ID;
-        }
-        return Factions.getInstance().getFactionById(this.factionId);
+        return Factions.getInstance().getFactionById(this.factionId == -10 ? MemoryBoard.NO_ID : this.factionId);
     }
 
     @Deprecated
@@ -216,16 +213,15 @@ public abstract class MemoryFPlayer implements FPlayer {
         return this.isAdminBypassing;
     }
 
-    public boolean isVanished() {
+    @Override
+    public boolean isVanished(Player viewer) {
         Player player = this.getPlayer();
-        if (Essentials.isVanished(player)) {
+        if (Essentials.isVanished(player) || !viewer.canSee(player)) {
             return true;
         }
-        if (player != null) {
-            for (MetadataValue metadataValue : player.getMetadata("vanished")) {
-                if (metadataValue != null && metadataValue.asBoolean()) {
-                    return true;
-                }
+        for (MetadataValue metadataValue : player.getMetadata("vanished")) {
+            if (metadataValue != null && metadataValue.asBoolean()) {
+                return true;
             }
         }
         return false;

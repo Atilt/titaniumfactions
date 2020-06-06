@@ -6,7 +6,6 @@ import me.lucko.helper.reflect.MinecraftVersions;
 import org.bukkit.Material;
 
 import java.io.InputStreamReader;
-import java.lang.reflect.Type;
 import java.util.Map;
 
 public class MaterialDb {
@@ -58,8 +57,7 @@ public class MaterialDb {
     public int load() {
         this.legacy = FactionsPlugin.getInstance().getMCVersion().isBefore(MinecraftVersions.v1_13);
         InputStreamReader reader = new InputStreamReader(FactionsPlugin.getInstance().getResource("materials.json"));
-        Type typeToken = new TypeToken<Map<String, MaterialProvider.MaterialData>>(){}.getType();
-        Map<String, MaterialProvider.MaterialData> materialData = FactionsPlugin.getInstance().getGson().fromJson(reader, typeToken);
+        Map<String, MaterialProvider.MaterialData> materialData = FactionsPlugin.getInstance().getGson().fromJson(reader, new TypeToken<Map<String, MaterialProvider.MaterialData>>(){}.getType());
         this.provider = new MaterialProvider(materialData);
         return materialData.size();
     }

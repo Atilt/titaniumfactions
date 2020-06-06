@@ -83,7 +83,7 @@ public interface FPlayer extends EconomyParticipator, Comparable<FPlayer> {
 
     boolean isAdminBypassing();
 
-    boolean isVanished();
+    boolean isVanished(Player viewer);
 
     void setIsAdminBypassing(boolean val);
 
