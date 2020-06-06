@@ -864,7 +864,7 @@ public class MainConfig {
             private String allianceChatFormat = "\u00A7d%s:\u00A7f %s";
             private String truceChatFormat = "\u00A75%s:\u00A7f %s";
             private String modChatFormat = "\u00A7a%s:\u00A7f %s";
-            private String coleaderChatFormat = "\u00A7c%s:\u00A7f %s";
+            private String coleaderChatFormat = "\u00A7b%s:\u00A7f %s";
             private boolean broadcastDescriptionChanges = false;
             private boolean broadcastTagChanges = false;
 

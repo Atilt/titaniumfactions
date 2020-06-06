@@ -37,6 +37,7 @@ public class CmdChat extends FCommand {
 
         // If player is cycling through chat modes
         // and he is not atleast a coleader get next one, same for moderator.
+
         if (modeString == null && modeTarget == ChatMode.COLEADER && !context.fPlayer.getRole().isAtLeast(Role.COLEADER)) {
             modeTarget = modeTarget.getNext();
             if (modeTarget == ChatMode.MOD && !context.fPlayer.getRole().isAtLeast(Role.MODERATOR)) {
@@ -44,46 +45,44 @@ public class CmdChat extends FCommand {
             }
         }
 
-        if (modeString != null) {
-            char attempt = Character.toLowerCase(modeString.charAt(0));
+        char attempt = Character.toLowerCase(modeString == null ? modeTarget.name().charAt(0) : modeString.charAt(0));
 
-            switch (attempt) {
-                case 'c':
-                    if (!context.fPlayer.getRole().isAtLeast(Role.COLEADER)) {
-                        context.msg(TL.COMMAND_CHAT_INSUFFICIENTRANK);
-                        return;
-                    }
-                    modeTarget = ChatMode.COLEADER;
-                    context.msg(TL.COMMAND_CHAT_MODE_COLEADER);
-                    break;
-                case 'm':
-                    if (!context.fPlayer.getRole().isAtLeast(Role.MODERATOR)) {
-                        context.msg(TL.COMMAND_CHAT_INSUFFICIENTRANK);
-                        return;
-                    }
-                    modeTarget = ChatMode.MOD;
-                    context.msg(TL.COMMAND_CHAT_MODE_MOD);
-                    break;
-                case 'p':
-                    modeTarget = ChatMode.PUBLIC;
-                    context.msg(TL.COMMAND_CHAT_MODE_PUBLIC);
-                    break;
-                case 'a':
-                    modeTarget = ChatMode.ALLIANCE;
-                    context.msg(TL.COMMAND_CHAT_MODE_ALLIANCE);
-                    break;
-                case 'f':
-                    modeTarget = ChatMode.FACTION;
-                    context.msg(TL.COMMAND_CHAT_MODE_FACTION);
-                    break;
-                case 't':
-                    modeTarget = ChatMode.TRUCE;
-                    context.msg(TL.COMMAND_CHAT_MODE_TRUCE);
-                    break;
-                default:
-                    context.msg(TL.COMMAND_CHAT_INVALIDMODE);
+        switch (attempt) {
+            case 'c':
+                if (!context.fPlayer.getRole().isAtLeast(Role.COLEADER)) {
+                    context.msg(TL.COMMAND_CHAT_INSUFFICIENTRANK);
                     return;
-            }
+                }
+                modeTarget = ChatMode.COLEADER;
+                context.msg(TL.COMMAND_CHAT_MODE_COLEADER);
+                break;
+            case 'm':
+                if (!context.fPlayer.getRole().isAtLeast(Role.MODERATOR)) {
+                    context.msg(TL.COMMAND_CHAT_INSUFFICIENTRANK);
+                    return;
+                }
+                modeTarget = ChatMode.MOD;
+                context.msg(TL.COMMAND_CHAT_MODE_MOD);
+                break;
+            case 'p':
+                modeTarget = ChatMode.PUBLIC;
+                context.msg(TL.COMMAND_CHAT_MODE_PUBLIC);
+                break;
+            case 'a':
+                modeTarget = ChatMode.ALLIANCE;
+                context.msg(TL.COMMAND_CHAT_MODE_ALLIANCE);
+                break;
+            case 'f':
+                modeTarget = ChatMode.FACTION;
+                context.msg(TL.COMMAND_CHAT_MODE_FACTION);
+                break;
+            case 't':
+                modeTarget = ChatMode.TRUCE;
+                context.msg(TL.COMMAND_CHAT_MODE_TRUCE);
+                break;
+            default:
+                context.msg(TL.COMMAND_CHAT_INVALIDMODE);
+                return;
         }
         context.fPlayer.setChatMode(modeTarget);
     }

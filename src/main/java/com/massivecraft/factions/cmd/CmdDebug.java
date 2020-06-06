@@ -119,7 +119,7 @@ public class CmdDebug extends FCommand {
 
                             context.msg(complete);
                             context.msg(deletionKey);
-                            if (context.sender instanceof Player) {
+                            if (context.player != null) {
                                 plugin.getLogger().info(complete);
                                 plugin.getLogger().info(deletionKey);
                             }

@@ -5,6 +5,7 @@ import com.massivecraft.factions.config.file.MainConfig;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.util.MiscUtil;
+import com.massivecraft.factions.util.StuckSession;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.WorldUtil;
 import com.massivecraft.factions.util.material.MaterialDb;
@@ -120,8 +121,10 @@ public class FactionsEntityListener extends AbstractListener {
         if (player == null) {
             return;
         }
-        if (FactionsPlugin.getInstance().getStuckMap().remove(player.getUniqueId()) != null) {
-           player.sendMessage(TL.COMMAND_STUCK_CANCELLED.toString());
+        StuckSession stuckSession = FactionsPlugin.getInstance().getStuckSessions().remove(player.getUniqueId());
+        if (stuckSession != null) {
+            stuckSession.close();
+            player.sendMessage(TL.COMMAND_STUCK_CANCELLED.toString());
         }
     }
 

@@ -150,9 +150,8 @@ public class FactionsPlayerListener extends AbstractListener {
         me.logout(); // cache kills / deaths
 
         // if player is waiting for fstuck teleport but leaves, remove
-        if (FactionsPlugin.getInstance().getStuckMap().remove(me.getId()) != null) {
+        if (FactionsPlugin.getInstance().getStuckSessions().remove(me.getId()) != null) {
             player.sendMessage(TL.COMMAND_STUCK_CANCELLED.toString());
-            FactionsPlugin.getInstance().getTimers().remove(me.getId());
         }
 
         if (me.hasFaction()) {

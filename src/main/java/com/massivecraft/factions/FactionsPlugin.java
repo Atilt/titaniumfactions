@@ -86,11 +86,7 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     // Persist related
     private Gson gson;
 
-    // holds f stuck start times
-    private final Object2LongMap<UUID> timers = new Object2LongOpenHashMap<>();
-
-    //holds f stuck taskids
-    private final Object2IntMap<UUID> stuckMap = new Object2IntOpenHashMap<>();
+    private final Object2ObjectMap<UUID, StuckSession> stuckSessions = new Object2ObjectOpenHashMap<>();
 
     // Persistence related
     private boolean locked = false;
@@ -181,9 +177,9 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             Bukkit.getPluginManager().registerEvents(new FactionsDataListener(), this);
         }
 
-        long settingsStart = System.nanoTime();
-
         this.gson = this.getGsonBuilder().create();
+
+        long settingsStart = System.nanoTime();
 
         this.loadMaterials(amount -> {
             this.logger.info("Material database updated with &7" + amount + " &bmaterials.");
@@ -209,10 +205,8 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             // Check for Essentials
             IEssentials ess = Essentials.setup();
 
-            if (ess != null) {
-                if (conf().factions().other().isDeleteEssentialsHomes()) {
-                    Bukkit.getPluginManager().registerEvents(new EssentialsListener(ess), this);
-                }
+            if (ess != null && conf().factions().other().isDeleteEssentialsHomes()) {
+                Bukkit.getPluginManager().registerEvents(new EssentialsListener(ess), this);
             }
 
             hookedPlayervaults = setupPlayervaults();
@@ -590,12 +584,8 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         return this.blockVisualizer;
     }
 
-    public Map<UUID, Integer> getStuckMap() {
-        return this.stuckMap;
-    }
-
-    public Map<UUID, Long> getTimers() {
-        return this.timers;
+    public Object2ObjectMap<UUID, StuckSession> getStuckSessions() {
+        return stuckSessions;
     }
 
     public boolean getLocked() {
