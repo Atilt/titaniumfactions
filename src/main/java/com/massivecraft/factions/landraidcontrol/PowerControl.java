@@ -128,7 +128,7 @@ public class PowerControl implements LandRaidControl {
                 return;
             }
             if (formattable instanceof LooseFormatter) {
-                fplayer.msg(StringFormat.compile(msg).formatStrings(Double.toString(fplayer.getPowerRounded()), Integer.toString(fplayer.getPowerMaxRounded())));
+                fplayer.msg(StringFormat.compile(msg).format(Double.toString(fplayer.getPowerRounded()), Integer.toString(fplayer.getPowerMaxRounded())));
             }
         }
     }

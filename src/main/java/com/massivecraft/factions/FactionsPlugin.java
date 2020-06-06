@@ -116,7 +116,7 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     private Metrics metrics;
 
     private static final Function<FactionsPlugin, String> ENABLE_BANNER = plugin -> TextUtil.parseAnsi(
-            "&f" +
+            "&f\n" +
             "                  _____ ___ _____ _   _  _ ___ _   _ __  __ \n" +
             "                 |_   _|_ _|_   _/_\\ | \\| |_ _| | | |  \\/  |\n" +
             "                   | |  | |  | |/ _ \\| .` || || |_| | |\\/| |\n" +

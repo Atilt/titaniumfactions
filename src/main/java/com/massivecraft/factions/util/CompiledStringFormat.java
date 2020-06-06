@@ -29,7 +29,6 @@ public final class CompiledStringFormat {
 	private static final int OBJECT_LENGTH_GUESS = 20;
 
 	private final String[] messageParts;
-
 	private final int length;
 
 	CompiledStringFormat(String[] messageParts, int length) {
@@ -37,11 +36,11 @@ public final class CompiledStringFormat {
 		this.length = length;
 	}
 
-	public String formatStrings(String... args) {
+	public String format(String... args) {
 		return appendStringsTo(new StringBuilder(this.length + args.length * OBJECT_LENGTH_GUESS), args).toString();
 	}
 
-	public StringBuilder appendStringsTo(StringBuilder builder, String... args) {
+	private StringBuilder appendStringsTo(StringBuilder builder, String... args) {
 		int argCount = args.length;
 		if (messageParts.length != (argCount + 1)) {
 			throw new IllegalArgumentException("Incorrect number of arguments, message parts: " + Arrays.toString(messageParts) + ", args: " + Arrays.toString(args));

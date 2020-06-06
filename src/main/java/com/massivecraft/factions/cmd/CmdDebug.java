@@ -1,7 +1,7 @@
 package com.massivecraft.factions.cmd;
 
 import com.google.common.base.Charsets;
-import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -23,6 +23,8 @@ import java.util.regex.Pattern;
 
 public class CmdDebug extends FCommand {
 
+    private static final String BASE = "https://paste.gg/anonymous/";
+
     private static final Pattern SERVER_PROPERTIES_EXEMPTION_PATTERN = Pattern.compile("(?:(?:server-ip=)|(?:server-port=)|(?:rcon\\.port=)|(?:rcon\\.password=)|(?:query.port=))[^\n]*[\r\n]*");
     private static final Pattern NEW_LINE_PATTERN = Pattern.compile(System.lineSeparator());
 
@@ -41,8 +43,8 @@ public class CmdDebug extends FCommand {
     public void perform(CommandContext context) {
         String newLine = System.lineSeparator();
         StringBuilder mainInfo = new StringBuilder();
-        mainInfo.append(Bukkit.getName()).append(" version: ").append(Bukkit.getServer().getVersion()).append(newLine);
-        mainInfo.append("Plugin version: ").append(FactionsPlugin.getInstance().getDescription().getVersion()).append(newLine);
+        mainInfo.append(Bukkit.getName()).append(" version: ").append(Bukkit.getVersion()).append(newLine);
+        mainInfo.append("Plugin version: ").append(this.plugin.getDescription().getVersion()).append(newLine);
         mainInfo.append("Java version: ").append(System.getProperty("java.version")).append(newLine);
         if (!context.args.isEmpty() && context.argAsString(0).equalsIgnoreCase("mini")) {
             for (String string : NEW_LINE_PATTERN.split(mainInfo.toString())) {
@@ -61,7 +63,7 @@ public class CmdDebug extends FCommand {
             mainInfo.append(' ').append(plugin.getName()).append(" - ").append(plugin.getDescription().getVersion()).append(newLine);
             mainInfo.append("  ").append(plugin.getDescription().getAuthors()).append(newLine);
         }
-        StringBuilder permInfo = new StringBuilder();
+        StringBuilder permInfo = new StringBuilder(FPlayers.getInstance().onlineSize() * Permission.VALUES.length * 2);
         for (Player player : Bukkit.getOnlinePlayers()) {
             permInfo.append(player.getName()).append(newLine);
             for (Permission permission : Permission.VALUES) {
@@ -76,28 +78,28 @@ public class CmdDebug extends FCommand {
             permInfo.append(newLine);
         }
 
-        Bukkit.getScheduler().runTaskAsynchronously(FactionsPlugin.getInstance(), new Runnable() {
-            private final PasteBuilder builder = new PasteBuilder().name("TitaniumFactions - Debug Report")
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+            private final PasteBuilder builder = new PasteBuilder()
+                    .name("TitaniumFactions (" + plugin.getDescription().getVersion() + ") - Debug Report")
                     .visibility(Visibility.UNLISTED)
                     .expires(ZonedDateTime.now(ZoneOffset.UTC).plusDays(3));
-            private int count = 0;
 
             private void add(String name, String content) {
-                this.builder.addFile(new PasteFile(count++ + name, new PasteContent(PasteContent.ContentType.TEXT, content)));
+                this.builder.addFile(new PasteFile(name, new PasteContent(PasteContent.ContentType.TEXT, content)));
             }
 
             private String getFile(Path file) {
                 try {
                     return new String(Files.readAllBytes(file), Charsets.UTF_8);
-                } catch (IOException e) {
-                    return ExceptionUtils.getFullStackTrace(e);
+                } catch (IOException exception) {
+                    return ExceptionUtils.getFullStackTrace(exception);
                 }
             }
 
             @Override
             public void run() {
                 try {
-                    Path dataPath = FactionsPlugin.getInstance().getDataFolder().toPath();
+                    Path dataPath = plugin.getDataFolder().toPath();
                     add("info.txt", mainInfo.toString());
                     Path latestLog = plugin.getStartupLog();
                     if (latestLog != null && Files.exists(latestLog)) {
@@ -112,22 +114,25 @@ public class CmdDebug extends FCommand {
                     PasteBuilder.PasteResult result = builder.build();
                     Bukkit.getScheduler().runTask(plugin, () -> {
                         if (result.getPaste().isPresent()) {
-                            String delKey = result.getPaste().get().getDeletionKey().orElse("No deletion key");
-                            context.msg(TL.COMMAND_DEBUG_COMPLETE, "https://paste.gg/anonymous/" + result.getPaste().get().getId());
-                            context.msg(TL.COMMAND_DEBUG_DELETIONKEY, delKey);
+                            String complete = TL.COMMAND_DEBUG_COMPLETE.format(BASE + result.getPaste().get().getId());
+                            String deletionKey = TL.COMMAND_DEBUG_DELETIONKEY.format(result.getPaste().get().getDeletionKey().orElse("No deletion key"));
+
+                            context.msg(complete);
+                            context.msg(deletionKey);
                             if (context.sender instanceof Player) {
-                                FactionsPlugin.getInstance().getLogger().info(TL.COMMAND_DEBUG_COMPLETE.format("https://paste.gg/anonymous/" + result.getPaste().get().getId()));
-                                FactionsPlugin.getInstance().getLogger().info(TL.COMMAND_DEBUG_DELETIONKEY.format(delKey));
+                                plugin.getLogger().info(complete);
+                                plugin.getLogger().info(deletionKey);
                             }
                         } else {
                             context.msg(TL.COMMAND_DEBUG_FAIL);
-                            FactionsPlugin.getInstance().getLogger().warning("Received: " + result.getMessage());
+                            plugin.getLogger().warning("Received: " + result.getMessage());
                         }
                         running = false;
                     });
                 } catch (Exception e) {
                     running = false;
-                    FactionsPlugin.getInstance().getPluginLogger().severe("Failed to execute debug command\n" + ExceptionUtils.getFullStackTrace(e));
+
+                    plugin.getPluginLogger().severe("Failed to execute debug command\n" + ExceptionUtils.getFullStackTrace(e));
                     context.msg(TL.COMMAND_DEBUG_FAIL);
                 }
             }

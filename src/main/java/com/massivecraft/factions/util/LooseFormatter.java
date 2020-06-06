@@ -17,7 +17,7 @@ public final class LooseFormatter implements Formattable<TL> {
 
     @Override
     public String format(TL tl, String... values) {
-        return this.cache.get(tl).formatStrings(values);
+        return this.cache.get(tl).format(values);
     }
 
     @Override

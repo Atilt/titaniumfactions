@@ -179,8 +179,8 @@ public enum TL implements Formattable<TL> {
     COMMAND_CREATE_CREATEDLOG(" created a new faction: "),
     COMMAND_CREATE_DESCRIPTION("Create a new faction"),
 
-    COMMAND_DEBUG_ALREADY_RUNNING("Debug is already running..."),
-    COMMAND_DEBUG_RUNNING("&eNow running..."),
+    COMMAND_DEBUG_ALREADY_RUNNING("&eDebug is already running..."),
+    COMMAND_DEBUG_RUNNING("&eDebug is now being generated..."),
     COMMAND_DEBUG_COMPLETE("&eDebug generated! Share this URL: {0}"),
     COMMAND_DEBUG_DESCRIPTION("Create a debug paste"),
     COMMAND_DEBUG_DELETIONKEY("&eDeletion key: {0}"),
