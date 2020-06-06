@@ -29,7 +29,7 @@ import java.util.*;
 public class FastBoard {
 
     // Chat components
-    private static final Class<?> CHAT_COMPONENT_CLASS;
+    public static final Class<?> CHAT_COMPONENT_CLASS;
     private static final Method MESSAGE_FROM_STRING;
 
     // Scoreboard packets

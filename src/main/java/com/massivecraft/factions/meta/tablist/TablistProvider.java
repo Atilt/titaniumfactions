@@ -31,7 +31,6 @@ public final class TablistProvider implements AutoCloseable {
     private static Field FOOTER_FIELD;
     private static Supplier<Object> PACKET_INSTANCE;
 
-
     static {
         if (!TAB_SUPPORTED) {
             try {
@@ -79,7 +78,7 @@ public final class TablistProvider implements AutoCloseable {
                 return;
             }
             for (Player player : this.players.asCycle().next()) {
-                this.sendTab(player, FactionsPlugin.getInstance().conf().tablist().getHeaderColored(), FactionsPlugin.getInstance().conf().tablist().getFooterColored());
+                this.send(player, FactionsPlugin.getInstance().conf().tablist().getHeaderColored(), FactionsPlugin.getInstance().conf().tablist().getFooterColored());
             }
         }, 1L, 1L).getTaskId();
     }
@@ -95,7 +94,7 @@ public final class TablistProvider implements AutoCloseable {
         return packet;
     }
 
-    private void sendTab(Player player, String header, String footer) {
+    public void send(Player player, String header, String footer) {
         if (TAB_SUPPORTED) {
             player.setPlayerListHeaderFooter(header, footer);
             return;

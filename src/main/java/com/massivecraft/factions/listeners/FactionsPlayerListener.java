@@ -2,6 +2,7 @@ package com.massivecraft.factions.listeners;
 
 import com.massivecraft.factions.*;
 import com.massivecraft.factions.gui.GUI;
+import com.massivecraft.factions.meta.actionbar.ActionBarProvider;
 import com.massivecraft.factions.meta.scoreboards.SidebarProvider;
 import com.massivecraft.factions.meta.tablist.TablistProvider;
 import com.massivecraft.factions.perms.PermissibleAction;
@@ -149,9 +150,6 @@ public class FactionsPlayerListener extends AbstractListener {
 
         me.logout(); // cache kills / deaths
 
-        // if player is waiting for fstuck teleport but leaves, remove
-        FactionsPlugin.getInstance().getStuckSessions().remove(me.getId());
-
         if (me.hasFaction()) {
             Faction myFaction = me.getFaction();
 
@@ -167,11 +165,12 @@ public class FactionsPlayerListener extends AbstractListener {
                 }
             }
         }
-
+        FactionsPlugin.getInstance().getStuckSessions().remove(me.getId());
         FPlayers.getInstance().removeOnline(me);
         FlightTask.get().untrack(me);
         SidebarProvider.get().untrack(me);
         TablistProvider.get().untrack(player);
+        ActionBarProvider.get().untrack(player);
         SeeChunkTask.get().untrack(me, false);
         this.interactSpammers.remove(player.getName());
     }

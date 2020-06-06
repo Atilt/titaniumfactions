@@ -10,6 +10,7 @@ import com.massivecraft.factions.integration.Essentials;
 import com.massivecraft.factions.integration.LWC;
 import com.massivecraft.factions.landraidcontrol.DTRControl;
 import com.massivecraft.factions.landraidcontrol.PowerControl;
+import com.massivecraft.factions.meta.actionbar.ActionBarProvider;
 import com.massivecraft.factions.meta.scoreboards.FastBoard;
 import com.massivecraft.factions.meta.scoreboards.SidebarProvider;
 import com.massivecraft.factions.meta.scoreboards.SidebarTextProvider;
@@ -613,6 +614,10 @@ public abstract class MemoryFPlayer implements FPlayer {
             // We're just trying to be as unintrusive as possible.
             TitleAPI.send(player, title, sub, in, stay, out);
         }
+        if (FactionsPlugin.getInstance().conf().factions().enterActionBars().isEnabled()) {
+            int stay = FactionsPlugin.getInstance().conf().factions().enterActionBars().getStay();
+            ActionBarProvider.get().send(player, Tag.parsePlain(toShow, TextUtil.parseColorBukkit(FactionsPlugin.getInstance().conf().factions().enterActionBars().getMessage())), stay);
+        }
 
         if (canSeeBoardFor(toShow)) {
             if (this.provider == SidebarProvider.DEFAULT_SIDEBAR) {
@@ -623,7 +628,7 @@ public abstract class MemoryFPlayer implements FPlayer {
         } else if (this.provider != SidebarProvider.DEFAULT_SIDEBAR) {
             this.defaultTextProvider();
         }
-        if (FactionsPlugin.getInstance().conf().factions().enterTitles().isAlsoShowChat()) {
+        if (FactionsPlugin.getInstance().conf().factions().enterTitles().isAlsoShowChat() || FactionsPlugin.getInstance().conf().factions().enterActionBars().isAlsoShowChat()) {
             this.sendMessage(TextUtil.parse(TL.FACTION_LEAVE.format(from.getTag(this), toShow.getTag(this))));
         }
     }

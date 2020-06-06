@@ -1755,6 +1755,29 @@ public class MainConfig {
             }
         }
 
+        public class EnterActionBars {
+            private boolean enabled = true;
+            private int stay = 70;
+            private boolean alsoShowChat = false;
+            private String message = "&eNow entering: {faction-relation-color}{faction} - &7{description}";
+
+            public boolean isEnabled() {
+                return enabled;
+            }
+
+            public int getStay() {
+                return stay;
+            }
+
+            public boolean isAlsoShowChat() {
+                return alsoShowChat;
+            }
+
+            public String getMessage() {
+                return message;
+            }
+        }
+
         private Chat chat = new Chat();
         private Homes homes = new Homes();
         @Comment("Limits factions to having a max number of each relation.\n" +
@@ -1778,9 +1801,15 @@ public class MainConfig {
         private Other other = new Other();
         @Comment("Should we send titles when players enter Factions? Durations are in ticks (20 ticks every second)")
         private EnterTitles enterTitles = new EnterTitles();
+        @Comment("Should we send actionbars when players enter Factions? Durations are in ticks (20 ticks every second)")
+        private EnterActionBars enterActionBars = new EnterActionBars();
 
         public EnterTitles enterTitles() {
             return enterTitles;
+        }
+
+        public EnterActionBars enterActionBars() {
+            return enterActionBars;
         }
 
         public Chat chat() {
