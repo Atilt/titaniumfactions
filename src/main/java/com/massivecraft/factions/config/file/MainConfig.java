@@ -162,13 +162,11 @@ public class MainConfig {
             if (current != null) {
                 return current;
             }
-            ChatColor ret;
             try {
-                ret = ChatColor.valueOf(name);
+                return ChatColor.valueOf(name);
             } catch (IllegalArgumentException e) {
-                ret = defaultColor;
+                return defaultColor;
             }
-            return ret;
         }
 
         public Factions factions() {

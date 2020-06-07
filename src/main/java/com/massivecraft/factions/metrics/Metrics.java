@@ -4,33 +4,34 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
+import com.massivecraft.factions.Factions;
 import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.event.FactionCreateEvent;
+import com.massivecraft.factions.event.FactionEvent;
+import com.massivecraft.factions.event.FactionRelationEvent;
+import com.massivecraft.factions.integration.Econ;
+import com.massivecraft.factions.integration.Essentials;
+import com.massivecraft.factions.integration.IWorldguard;
+import com.massivecraft.factions.integration.LWC;
+import com.massivecraft.factions.integration.dynmap.EngineDynmap;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.ServicePriority;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.zip.GZIPOutputStream;
 
@@ -712,4 +713,131 @@ public class Metrics {
         }
     }
 
+    public void setup(FactionsPlugin plugin) {
+        this.metricsDrillPie("fuuid_version", () -> {
+            Map<String, Map<String, Integer>> map = new HashMap<>(1);
+            Map<String, Integer> entry = new HashMap<>(1);
+            entry.put(plugin.getDescription().getVersion(), 1);
+            map.put(plugin.getDescription().getVersion(), entry);
+            return map;
+        });
+
+        // Essentials
+        Plugin ess = Essentials.getEssentials();
+        this.metricsDrillPie("essentials", () -> this.metricsPluginInfo(ess));
+        if (ess != null) {
+            this.metricsSimplePie("essentials_delete_homes", () -> "" + plugin.conf().factions().other().isDeleteEssentialsHomes());
+            this.metricsSimplePie("essentials_home_teleport", () -> "" + plugin.conf().factions().homes().isTeleportCommandEssentialsIntegration());
+        }
+
+        // LWC
+        Plugin lwc = LWC.getLWC();
+        this.metricsDrillPie("lwc", () -> this.metricsPluginInfo(lwc));
+        if (lwc != null) {
+            boolean enabled = plugin.conf().lwc().isEnabled();
+            this.metricsSimplePie("lwc_integration", () -> "" + enabled);
+            if (enabled) {
+                this.metricsSimplePie("lwc_reset_locks_unclaim", () -> "" + plugin.conf().lwc().isResetLocksOnUnclaim());
+                this.metricsSimplePie("lwc_reset_locks_capture", () -> "" + plugin.conf().lwc().isResetLocksOnCapture());
+            }
+        }
+
+        // Vault
+        Plugin vault = Bukkit.getPluginManager().getPlugin("Vault");
+        this.metricsDrillPie("vault", () -> this.metricsPluginInfo(vault));
+        if (vault != null) {
+            this.metricsDrillPie("vault_perms", () -> this.metricsInfo(plugin.getPerms(), plugin.getPerms()::getName));
+            this.metricsDrillPie("vault_econ", () -> {
+                Map<String, Map<String, Integer>> map = new HashMap<>(1);
+                Map<String, Integer> entry = new HashMap<>(1);
+                entry.put(Econ.getEcon() == null ? "none" : Econ.getEcon().getName(), 1);
+                map.put((plugin.conf().economy().isEnabled() && Econ.getEcon() != null) ? "enabled" : "disabled", entry);
+                return map;
+            });
+        }
+
+        // WorldGuard
+        IWorldguard wg = plugin.getWorldguard();
+        String wgVersion = wg == null ? "nope" : wg.getVersion();
+        this.metricsDrillPie("worldguard", () -> this.metricsInfo(wg, () -> wgVersion));
+
+        // Dynmap
+        String dynmapVersion = EngineDynmap.getInstance().getVersion();
+        boolean dynmapEnabled = EngineDynmap.getInstance().isRunning();
+        this.metricsDrillPie("dynmap", () -> {
+            Map<String, Map<String, Integer>> map = new HashMap<>(1);
+            Map<String, Integer> entry = new HashMap<>(1);
+            entry.put(dynmapVersion == null ? "none" : dynmapVersion, 1);
+            map.put(dynmapEnabled ? "enabled" : "disabled", entry);
+            return map;
+        });
+
+        // Clip Placeholder
+        Plugin clipPlugin = Bukkit.getPluginManager().getPlugin("PlaceholderAPI");
+        this.metricsDrillPie("clipplaceholder", () -> this.metricsPluginInfo(clipPlugin));
+
+        // MVdW Placeholder
+        Plugin mvdw = Bukkit.getPluginManager().getPlugin("MVdWPlaceholderAPI");
+        this.metricsDrillPie("mvdwplaceholder", () -> this.metricsPluginInfo(mvdw));
+
+        // Overall stats
+        this.metricsLine("factions", () -> Factions.getInstance().getAllFactions().size() - 3);
+        this.metricsSimplePie("scoreboard", () -> "" + plugin.conf().scoreboard().constant().isEnabled());
+
+        // Event listeners
+        this.metricsDrillPie("event_listeners", () -> {
+            Set<Plugin> pluginsListening = this.getPlugins(FactionEvent.getHandlerList(), FactionCreateEvent.getHandlerList(), FactionRelationEvent.getHandlerList());
+            Map<String, Map<String, Integer>> map = new HashMap<>();
+            for (Plugin listening : pluginsListening) {
+                if (listening == plugin) {
+                    continue;
+                }
+                Map<String, Integer> entry = new HashMap<>(1);
+                entry.put(listening.getDescription().getVersion(), 1);
+                map.put(listening.getName(), entry);
+            }
+            return map;
+        });
+    }
+
+    private Set<Plugin> getPlugins(HandlerList... handlerLists) {
+        Set<Plugin> plugins = new HashSet<>(handlerLists.length);
+        for (HandlerList handlerList : handlerLists) {
+            plugins.addAll(this.getPlugins(handlerList));
+        }
+        return plugins;
+    }
+
+    private Set<Plugin> getPlugins(HandlerList handlerList) {
+        RegisteredListener[] listeners = handlerList.getRegisteredListeners();
+        Set<Plugin> plugins = new HashSet<>(listeners.length);
+        for (RegisteredListener registeredListener : listeners) {
+            plugins.add(registeredListener.getPlugin());
+        }
+        return plugins;
+    }
+
+    private void metricsLine(String name, Callable<Integer> callable) {
+        this.addCustomChart(new Metrics.SingleLineChart(name, callable));
+    }
+
+    private void metricsDrillPie(String name, Callable<Map<String, Map<String, Integer>>> callable) {
+        this.addCustomChart(new Metrics.DrilldownPie(name, callable));
+    }
+
+    private void metricsSimplePie(String name, Callable<String> callable) {
+        this.addCustomChart(new Metrics.SimplePie(name, callable));
+    }
+
+    private Map<String, Map<String, Integer>> metricsPluginInfo(Plugin plugin) {
+        return this.metricsInfo(plugin, () -> plugin.getDescription().getVersion());
+    }
+
+    private Map<String, Map<String, Integer>> metricsInfo(Object plugin, Supplier<String> versionGetter) {
+        Map<String, Map<String, Integer>> map = new HashMap<>(1);
+        Map<String, Integer> entry = new HashMap<>(1);
+        entry.put(plugin == null ? "nope" : versionGetter.get(), 1);
+        map.put(plugin == null ? "absent" : "present", entry);
+        return map;
+    }
 }

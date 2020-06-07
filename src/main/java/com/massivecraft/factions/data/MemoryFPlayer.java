@@ -402,7 +402,7 @@ public abstract class MemoryFPlayer implements FPlayer {
     public String getNameAndSomething(String something) {
         StringBuilder builder = new StringBuilder(this.role.getPrefix());
         if (something != null && !something.isEmpty()) {
-            builder.append(something).append(" ");
+            builder.append(something).append(' ');
         }
         return builder.append(this.getName()).toString();
     }
@@ -545,7 +545,7 @@ public abstract class MemoryFPlayer implements FPlayer {
             return;  // don't let dead players regain power until they respawn
         }
 
-        this.alterPower((now - this.lastPowerUpdateTime) * FactionsPlugin.getInstance().conf().factions().landRaidControl().power().getPowerPerMinute() / 60000);
+        this.alterPower((now - this.lastPowerUpdateTime) * FactionsPlugin.getInstance().conf().factions().landRaidControl().power().getPowerPerMinute() / 60_000);
     }
 
     public void losePowerFromBeingOffline() {

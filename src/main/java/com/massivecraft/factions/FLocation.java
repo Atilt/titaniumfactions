@@ -4,18 +4,16 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.massivecraft.factions.util.FastMath;
-import com.massivecraft.factions.util.MiscUtil;
 import com.massivecraft.factions.util.WorldUtil;
-import it.unimi.dsi.fastutil.objects.*;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -151,7 +149,7 @@ public final class FLocation implements Serializable {
 
     @Override
     public String toString() {
-        return "[" + this.getWorldName() + "," + this.readable + "]";
+        return "[" + this.worldName + "," + this.readable + "]";
     }
 
     public FLocation getRelative(int dx, int dz) {
@@ -215,52 +213,6 @@ public final class FLocation implements Serializable {
 
         return (chunkMinX >= borderMaxX) || (chunkMinZ >= borderMaxZ) || (chunkMaxX <= borderMinX) || (chunkMaxZ <= borderMinZ);
     }
-
-
-
-    //----------------------------------------------//
-    // Some Geometry
-    //----------------------------------------------//
-    public Set<FLocation> getCircle(double radius) {
-        if (radius <= 0) {
-            return new HashSet<>(0);
-        }
-        double radiusSquared = radius * radius;
-
-        int total = FastMath.ceil(radius * 2);
-        ObjectSet<FLocation> ret = new ObjectLinkedOpenHashSet<>((total * total) + 1);
-
-        int xfrom = FastMath.floor(this.x - radius);
-        int xto = FastMath.ceil(this.x + radius);
-        int zfrom = FastMath.floor(this.z - radius);
-        int zto = FastMath.ceil(this.z + radius);
-
-        for (int x = xfrom; x <= xto; x++) {
-            for (int z = zfrom; z <= zto; z++) {
-                if (this.getDistanceSquaredTo(x, z) <= radiusSquared) {
-                    ret.add(FLocation.wrap(this.worldName, x, z));
-                }
-            }
-        }
-        return ret;
-    }
-
-    public static Set<FLocation> getArea(FLocation from, FLocation to) {
-        ObjectSet<FLocation> ret = new ObjectOpenHashSet<>();
-
-        for (long x : MiscUtil.range(from.getX(), to.getX())) {
-            for (long z : MiscUtil.range(from.getZ(), to.getZ())) {
-                ret.add(FLocation.wrap(from.getWorldName(), (int) x, (int) z));
-            }
-        }
-
-        return ret;
-    }
-
-    //----------------------------------------------//
-    // Comparison
-    //----------------------------------------------/
-
 
     @Override
     public boolean equals(Object o) {

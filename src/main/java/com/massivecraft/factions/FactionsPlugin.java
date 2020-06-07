@@ -10,9 +10,6 @@ import com.massivecraft.factions.config.ConfigManager;
 import com.massivecraft.factions.config.file.MainConfig;
 import com.massivecraft.factions.data.SaveTask;
 import com.massivecraft.factions.data.json.adapters.*;
-import com.massivecraft.factions.event.FactionCreateEvent;
-import com.massivecraft.factions.event.FactionEvent;
-import com.massivecraft.factions.event.FactionRelationEvent;
 import com.massivecraft.factions.integration.*;
 import com.massivecraft.factions.integration.dynmap.EngineDynmap;
 import com.massivecraft.factions.landraidcontrol.LandRaidControl;
@@ -44,10 +41,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -57,10 +52,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
-import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
@@ -249,7 +242,6 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                 });
             });
             // Add Base Commands
-
             Bukkit.getPluginManager().registerEvents(new FactionsPlayerListener(), this);
             Bukkit.getPluginManager().registerEvents(new FactionsChatListener(), this);
             Bukkit.getPluginManager().registerEvents(new FactionsEntityListener(), this);
@@ -299,7 +291,8 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
             Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
                 if (Bukkit.getPluginManager().isPluginEnabled(this)) {
-                    this.setupMetrics();
+                    this.metrics = new Metrics();
+                    this.metrics.setup(this);
                 }
             }, 20L);
         });
@@ -314,136 +307,6 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             int loaded = MaterialDb.get().load();
             Bukkit.getScheduler().runTask(this, () -> result.accept(loaded));
         });
-    }
-
-    private void setupMetrics() {
-        this.metrics = new Metrics();
-
-        this.metricsDrillPie("fuuid_version", () -> {
-            Map<String, Map<String, Integer>> map = new HashMap<>(1);
-            Map<String, Integer> entry = new HashMap<>(1);
-            entry.put(this.getDescription().getVersion(), 1);
-            map.put(this.getDescription().getVersion(), entry);
-            return map;
-        });
-
-        // Essentials
-        Plugin ess = Essentials.getEssentials();
-        this.metricsDrillPie("essentials", () -> this.metricsPluginInfo(ess));
-        if (ess != null) {
-            this.metricsSimplePie("essentials_delete_homes", () -> "" + conf().factions().other().isDeleteEssentialsHomes());
-            this.metricsSimplePie("essentials_home_teleport", () -> "" + this.conf().factions().homes().isTeleportCommandEssentialsIntegration());
-        }
-
-        // LWC
-        Plugin lwc = LWC.getLWC();
-        this.metricsDrillPie("lwc", () -> this.metricsPluginInfo(lwc));
-        if (lwc != null) {
-            boolean enabled = conf().lwc().isEnabled();
-            this.metricsSimplePie("lwc_integration", () -> "" + enabled);
-            if (enabled) {
-                this.metricsSimplePie("lwc_reset_locks_unclaim", () -> "" + conf().lwc().isResetLocksOnUnclaim());
-                this.metricsSimplePie("lwc_reset_locks_capture", () -> "" + conf().lwc().isResetLocksOnCapture());
-            }
-        }
-
-        // Vault
-        Plugin vault = Bukkit.getPluginManager().getPlugin("Vault");
-        this.metricsDrillPie("vault", () -> this.metricsPluginInfo(vault));
-        if (vault != null) {
-            this.metricsDrillPie("vault_perms", () -> this.metricsInfo(perms, perms::getName));
-            this.metricsDrillPie("vault_econ", () -> {
-                Map<String, Map<String, Integer>> map = new HashMap<>(1);
-                Map<String, Integer> entry = new HashMap<>(1);
-                entry.put(Econ.getEcon() == null ? "none" : Econ.getEcon().getName(), 1);
-                map.put((this.conf().economy().isEnabled() && Econ.getEcon() != null) ? "enabled" : "disabled", entry);
-                return map;
-            });
-        }
-
-        // WorldGuard
-        IWorldguard wg = this.getWorldguard();
-        String wgVersion = wg == null ? "nope" : wg.getVersion();
-        this.metricsDrillPie("worldguard", () -> this.metricsInfo(wg, () -> wgVersion));
-
-        // Dynmap
-        String dynmapVersion = EngineDynmap.getInstance().getVersion();
-        boolean dynmapEnabled = EngineDynmap.getInstance().isRunning();
-        this.metricsDrillPie("dynmap", () -> {
-            Map<String, Map<String, Integer>> map = new HashMap<>(1);
-            Map<String, Integer> entry = new HashMap<>(1);
-            entry.put(dynmapVersion == null ? "none" : dynmapVersion, 1);
-            map.put(dynmapEnabled ? "enabled" : "disabled", entry);
-            return map;
-        });
-
-        // Clip Placeholder
-        Plugin clipPlugin = Bukkit.getPluginManager().getPlugin("PlaceholderAPI");
-        this.metricsDrillPie("clipplaceholder", () -> this.metricsPluginInfo(clipPlugin));
-
-        // MVdW Placeholder
-        Plugin mvdw = Bukkit.getPluginManager().getPlugin("MVdWPlaceholderAPI");
-        this.metricsDrillPie("mvdwplaceholder", () -> this.metricsPluginInfo(mvdw));
-
-        // Overall stats
-        this.metricsLine("factions", () -> Factions.getInstance().getAllFactions().size() - 3);
-        this.metricsSimplePie("scoreboard", () -> "" + conf().scoreboard().constant().isEnabled());
-
-        // Event listeners
-        this.metricsDrillPie("event_listeners", () -> {
-            Set<Plugin> pluginsListening = this.getPlugins(FactionEvent.getHandlerList(), FactionCreateEvent.getHandlerList(), FactionRelationEvent.getHandlerList());
-            Map<String, Map<String, Integer>> map = new HashMap<>();
-            for (Plugin plugin : pluginsListening) {
-                if (plugin == this) {
-                    continue;
-                }
-                Map<String, Integer> entry = new HashMap<>(1);
-                entry.put(plugin.getDescription().getVersion(), 1);
-                map.put(plugin.getName(), entry);
-            }
-            return map;
-        });
-    }
-
-    private Set<Plugin> getPlugins(HandlerList... handlerLists) {
-        Set<Plugin> plugins = new HashSet<>(handlerLists.length);
-        for (HandlerList handlerList : handlerLists) {
-            plugins.addAll(this.getPlugins(handlerList));
-        }
-        return plugins;
-    }
-
-    private Set<Plugin> getPlugins(HandlerList handlerList) {
-        RegisteredListener[] listeners = handlerList.getRegisteredListeners();
-        Set<Plugin> plugins = new HashSet<>(listeners.length);
-        for (RegisteredListener registeredListener : listeners) {
-            plugins.add(registeredListener.getPlugin());
-        }
-        return plugins;
-    }
-
-    private void metricsLine(String name, Callable<Integer> callable) {
-        this.metrics.addCustomChart(new Metrics.SingleLineChart(name, callable));
-    }
-
-    private void metricsDrillPie(String name, Callable<Map<String, Map<String, Integer>>> callable) {
-        this.metrics.addCustomChart(new Metrics.DrilldownPie(name, callable));
-    }
-
-    private void metricsSimplePie(String name, Callable<String> callable) {
-        this.metrics.addCustomChart(new Metrics.SimplePie(name, callable));
-    }
-
-    private Map<String, Map<String, Integer>> metricsPluginInfo(Plugin plugin) {
-        return this.metricsInfo(plugin, () -> plugin.getDescription().getVersion());
-    }
-
-    private Map<String, Map<String, Integer>> metricsInfo(Object plugin, Supplier<String> versionGetter) {
-        Map<String, Map<String, Integer>> map = new HashMap<>(1);
-        Map<String, Integer> entry = new HashMap<>(1);
-        entry.put(plugin == null ? "nope" : versionGetter.get(), 1);
-        map.put(plugin == null ? "absent" : "present", entry);
-        return map;
     }
 
     private void setNerfedEntities() {
@@ -879,8 +742,12 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         return new ObjectOpenHashSet<>(faction.getOnlinePlayers());
     }
 
-    public boolean isHookedPlayervaults() {
+    public boolean hasPlayerVaults() {
         return hookedPlayervaults;
+    }
+
+    public Permission getPerms() {
+        return perms;
     }
 
     public String getPrimaryGroup(OfflinePlayer player) {
