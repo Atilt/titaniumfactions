@@ -29,6 +29,7 @@ import java.util.Map.Entry;
 
 public abstract class MemoryFaction implements Faction, EconomyParticipator {
     protected int id = -10;
+    protected transient UUID econId;
     protected boolean peacefulExplosionsEnabled;
     protected boolean permanent;
     protected String tag;
@@ -318,17 +319,18 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         this.home = null;
     }
 
+    @Override
     public UUID getAccountId() {
-        String attempt = "faction-" + this.getId();
-        UUID aid = UUID.nameUUIDFromBytes(attempt.substring(0, Math.min(32, attempt.length())).getBytes()); //cant use FastUUID because it only accepts real ids
-
-        // We need to override the default money given to players.
-        if (!Econ.hasAccount(aid)) {
-            Econ.createAccount(aid);
-            Econ.setBalance(aid, 0);
+        if (this.econId == null) {
+            String attempt = "faction-" + this.getId();
+            this.econId = UUID.nameUUIDFromBytes(attempt.substring(0, Math.min(32, attempt.length())).getBytes());
         }
-
-        return aid;
+        // We need to override the default money given to players.
+        if (!Econ.hasAccount(this.econId)) {
+            Econ.createAccount(this.econId);
+            Econ.setBalance(this.econId, 0);
+        }
+        return this.econId;
     }
 
     public void setLastDeath(long time) {

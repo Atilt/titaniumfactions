@@ -22,7 +22,7 @@ import java.util.Set;
 
 public abstract class MemoryBoard extends Board {
 
-    private static final int NONE = -82102;
+    private static final int NONE = -8210;
 
     public static class MemoryBoardMap extends Object2IntOpenHashMap<FLocation> {
         private static final long serialVersionUID = -6689617828610585368L;
@@ -31,11 +31,11 @@ public abstract class MemoryBoard extends Board {
 
         @Override
         public int put(FLocation fLocation, int factionId) {
-            if (factionId == NONE) {
+            if (factionId == this.defaultReturnValue()) {
                 throw new IllegalArgumentException("illegal faction set");
             }
             int previousValue = super.put(fLocation, factionId);
-            if (previousValue != NONE) {
+            if (previousValue != this.defaultReturnValue()) {
                 ObjectSet<FLocation> fLocations = factionToLandMap.remove(previousValue);
                 if (fLocations != null) {
                     fLocations.remove(fLocation);
@@ -53,7 +53,7 @@ public abstract class MemoryBoard extends Board {
         @Override
         public int removeInt(Object key) {
             int result = super.removeInt(key);
-            if (result != NONE) {
+            if (result != this.defaultReturnValue()) {
                 ObjectSet<FLocation> locations = this.factionToLandMap.get(result);
                 locations.remove(key);
             }
