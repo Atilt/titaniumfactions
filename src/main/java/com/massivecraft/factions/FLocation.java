@@ -3,7 +3,7 @@ package com.massivecraft.factions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.massivecraft.factions.util.FastMath;
+import com.massivecraft.factions.math.FastMath;
 import com.massivecraft.factions.util.WorldUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;

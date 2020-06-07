@@ -1,4 +1,4 @@
-package com.massivecraft.factions.util;
+package com.massivecraft.factions.io;
 
 import com.google.common.base.Charsets;
 import com.google.gson.Gson;
@@ -17,15 +17,11 @@ import java.nio.file.Path;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public final class DiscUtil {
+public final class IOController {
 
     private static final Object2ObjectMap<String, Lock> LOCKS = new Object2ObjectOpenHashMap<>();
 
-    private DiscUtil() {
-        throw new UnsupportedOperationException("This class cannot be instantiated");
-    }
-
-    public static <T> T read(Path path, Gson gson, Type type) {
+    public <T> T read(Path path, Gson gson, Type type) {
         Lock lock = LOCKS.computeIfAbsent(path.getFileName().toString(), s -> new ReentrantReadWriteLock().readLock());
         lock.lock();
         try (Reader reader = Files.newBufferedReader(path, Charsets.UTF_8)) {
@@ -38,7 +34,7 @@ public final class DiscUtil {
         return null;
     }
 
-    public static <T> void write(Path path, Gson gson, T data, boolean sync, BooleanConsumer finish) {
+    public <T> void write(Path path, Gson gson, T data, boolean sync, BooleanConsumer finish) {
         Lock lock = LOCKS.computeIfAbsent(path.getFileName().toString(), s -> new ReentrantReadWriteLock().writeLock());
         if (sync) {
             lock.lock();

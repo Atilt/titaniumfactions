@@ -2,33 +2,16 @@ package com.massivecraft.factions.config.transition;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.massivecraft.factions.FLocation;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.config.Loader;
-import com.massivecraft.factions.config.transition.oldclass.v0.NewMemoryFaction;
-import com.massivecraft.factions.config.transition.oldclass.v0.OldAccessV0;
-import com.massivecraft.factions.config.transition.oldclass.v0.OldConfV0;
-import com.massivecraft.factions.config.transition.oldclass.v0.OldMemoryFactionV0;
-import com.massivecraft.factions.config.transition.oldclass.v0.OldPermissableActionV0;
-import com.massivecraft.factions.config.transition.oldclass.v0.OldPermissableV0;
-import com.massivecraft.factions.config.transition.oldclass.v0.OldPermissionsMapTypeAdapterV0;
-import com.massivecraft.factions.config.transition.oldclass.v0.TransitionConfigV0;
+import com.massivecraft.factions.config.transition.oldclass.v0.*;
 import com.massivecraft.factions.config.transition.oldclass.v1.OldMainConfigV1;
 import com.massivecraft.factions.config.transition.oldclass.v1.TransitionConfigV1;
-import com.massivecraft.factions.data.json.adapters.EnumTypeTypeAdapter;
-import com.massivecraft.factions.data.json.adapters.FactionMaterialTypeAdapter;
-import com.massivecraft.factions.data.json.adapters.MapFLocToStringSetTypeAdapter;
-import com.massivecraft.factions.data.json.adapters.MaterialTypeAdapter;
-import com.massivecraft.factions.data.json.adapters.MyLocationTypeAdapter;
-import com.massivecraft.factions.data.json.adapters.UUIDTypeAdapter;
+import com.massivecraft.factions.data.json.adapters.*;
 import com.massivecraft.factions.perms.Role;
-import com.massivecraft.factions.util.DiscUtil;
 import com.massivecraft.factions.util.LazyLocation;
 import com.massivecraft.factions.util.material.FactionMaterial;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -117,16 +100,16 @@ public class Transitioner {
             Files.move(pluginFolder.resolve("players.json"), newPlayers);
             Files.move(pluginFolder.resolve("board.json"), dataFolder.resolve("board.json"));
 
-            DiscUtil.write(newPlayers, this.gsonV0, transitionRoles(PARSER.parse(Files.newBufferedReader(newPlayers, Charsets.UTF_8))), true, null);
+            FactionsPlugin.getInstance().getIOController().write(newPlayers, this.gsonV0, transitionRoles(PARSER.parse(Files.newBufferedReader(newPlayers, Charsets.UTF_8))), true, null);
 
             Path oldFactions = pluginFolder.resolve("factions.json");
-            Map<String, OldMemoryFactionV0> data = DiscUtil.read(oldFactions, this.gsonV0, new TypeToken<Map<String, OldMemoryFactionV0>>(){}.getType());
+            Map<String, OldMemoryFactionV0> data = FactionsPlugin.getInstance().getIOController().read(oldFactions, this.gsonV0, new TypeToken<Map<String, OldMemoryFactionV0>>(){}.getType());
             Map<String, NewMemoryFaction> newData = Maps.transformValues(data, NewMemoryFaction::new);
 
             Files.move(oldFactions, oldConfigFolder.resolve("factions.json"));
             Files.move(oldConf, oldConfigFolder.resolve("conf.json"));
 
-            DiscUtil.write(dataFolder.resolve("factions.json"), this.gsonV0, newData, true, null);
+            FactionsPlugin.getInstance().getIOController().write(dataFolder.resolve("factions.json"), this.gsonV0, newData, true, null);
             FactionsPlugin.getInstance().getPluginLogger().info("Transition complete!");
         } catch (IOException | IllegalAccessException exception) {
             FactionsPlugin.getInstance().getPluginLogger().log(Level.SEVERE, "Could not convert old conf.json", exception);

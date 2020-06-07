@@ -6,7 +6,6 @@ import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.data.MemoryFPlayer;
 import com.massivecraft.factions.data.MemoryFPlayers;
-import com.massivecraft.factions.util.DiscUtil;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -41,7 +40,7 @@ public class JSONFPlayers extends MemoryFPlayers {
                 entitiesThatShouldBeSaved.put(entity.getId(), entity);
             }
         }
-        DiscUtil.write(PLAYERS_PATH, FactionsPlugin.getInstance().getGson(), entitiesThatShouldBeSaved, sync, finish);
+        FactionsPlugin.getInstance().getIOController().write(PLAYERS_PATH, FactionsPlugin.getInstance().getGson(), entitiesThatShouldBeSaved, sync, finish);
     }
 
     @Override
@@ -51,7 +50,7 @@ public class JSONFPlayers extends MemoryFPlayers {
             return;
         }
         Bukkit.getScheduler().runTaskAsynchronously(FactionsPlugin.getInstance(), () -> {
-            Map<UUID, JSONFPlayer> data = DiscUtil.read(PLAYERS_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Object2ObjectOpenHashMap<UUID, JSONFPlayer>>(){}.getType());
+            Map<UUID, JSONFPlayer> data = FactionsPlugin.getInstance().getIOController().read(PLAYERS_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Object2ObjectOpenHashMap<UUID, JSONFPlayer>>(){}.getType());
             int amount = data == null ? 0 : data.size();
             Bukkit.getScheduler().runTask(FactionsPlugin.getInstance(), () -> {
                 if (amount > 0) {

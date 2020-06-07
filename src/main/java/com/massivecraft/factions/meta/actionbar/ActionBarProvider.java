@@ -3,7 +3,7 @@ package com.massivecraft.factions.meta.actionbar;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.meta.scoreboards.FastBoard;
 import com.massivecraft.factions.protocol.Protocol;
-import com.massivecraft.factions.util.TitleAPI;
+import com.massivecraft.factions.util.TitleProvider;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import me.lucko.helper.reflect.MinecraftVersions;
@@ -99,7 +99,7 @@ public final class ActionBarProvider {
     }
 
     private void sendLegacy(Player player, String message) {
-        Protocol.sendPacket(player, PACKET_INSTANCE.apply(TitleAPI.STRING_TO_COMPONENT.apply("{\"text\": \"" + message + "\"}"), (byte) 2));
+        Protocol.sendPacket(player, PACKET_INSTANCE.apply(TitleProvider.STRING_TO_COMPONENT.apply("{\"text\": \"" + message + "\"}"), (byte) 2));
     }
 
     public void untrack(Player player) {

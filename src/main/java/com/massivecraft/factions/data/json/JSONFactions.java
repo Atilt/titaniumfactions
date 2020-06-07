@@ -7,7 +7,6 @@ import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.data.MemoryFaction;
 import com.massivecraft.factions.data.MemoryFactions;
-import com.massivecraft.factions.util.DiscUtil;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -47,7 +46,7 @@ public class JSONFactions extends MemoryFactions {
     }
 
     private void saveCore(Map<Integer, JSONFaction> entities, boolean sync, BooleanConsumer finish) {
-        DiscUtil.write(FACTIONS_PATH, FactionsPlugin.getInstance().getGson(), entities, sync, finish);
+        FactionsPlugin.getInstance().getIOController().write(FACTIONS_PATH, FactionsPlugin.getInstance().getGson(), entities, sync, finish);
     }
 
     @Override
@@ -57,7 +56,7 @@ public class JSONFactions extends MemoryFactions {
             return;
         }
         Bukkit.getScheduler().runTaskAsynchronously(FactionsPlugin.getInstance(), () -> {
-            Int2ObjectMap<JSONFaction> factions = DiscUtil.read(FACTIONS_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Int2ObjectOpenHashMap<JSONFaction>>(){}.getType());
+            Int2ObjectMap<JSONFaction> factions = FactionsPlugin.getInstance().getIOController().read(FACTIONS_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Int2ObjectOpenHashMap<JSONFaction>>(){}.getType());
             int amount = factions == null ? 0 : factions.size();
             Bukkit.getScheduler().runTask(FactionsPlugin.getInstance(), () -> {
                 if (amount > 0) {

@@ -2,9 +2,9 @@ package com.massivecraft.factions.cmd;
 
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.math.FastMath;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.tag.Tag;
-import com.massivecraft.factions.util.FastMath;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;

@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.logging.Level;
 
 // TODO: Give better name and place to differentiate from the entity-orm-ish system in "com.massivecraft.core.persist".
 
@@ -96,7 +95,7 @@ public class Persist {
     }
 
     public boolean save(Object instance, Path path, BooleanConsumer finish) {
-        DiscUtil.write(path, FactionsPlugin.getInstance().getGson(), instance, true, finish);
+        FactionsPlugin.getInstance().getIOController().write(path, FactionsPlugin.getInstance().getGson(), instance, true, finish);
         return true;
     }
 
@@ -113,7 +112,7 @@ public class Persist {
     }
 
     public <T> T load(Class<T> clazz, Path path) {
-        return DiscUtil.read(path, FactionsPlugin.getInstance().getGson(), clazz);
+        return FactionsPlugin.getInstance().getIOController().read(path, FactionsPlugin.getInstance().getGson(), clazz);
     }
 
 
@@ -123,6 +122,6 @@ public class Persist {
     }
 
     public <T> T load(Type typeOfT, Path path) {
-        return DiscUtil.read(path, FactionsPlugin.getInstance().getGson(), typeOfT);
+        return FactionsPlugin.getInstance().getIOController().read(path, FactionsPlugin.getInstance().getGson(), typeOfT);
     }
 }

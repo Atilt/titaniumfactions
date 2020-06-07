@@ -3,7 +3,7 @@ package com.massivecraft.factions.data.json;
 import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.data.MemoryFPlayer;
-import com.massivecraft.factions.util.FastMath;
+import com.massivecraft.factions.math.FastMath;
 
 import java.util.Objects;
 import java.util.UUID;

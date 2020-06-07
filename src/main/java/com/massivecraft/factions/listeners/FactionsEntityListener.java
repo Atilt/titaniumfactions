@@ -2,10 +2,10 @@ package com.massivecraft.factions.listeners;
 
 import com.massivecraft.factions.*;
 import com.massivecraft.factions.config.file.MainConfig;
+import com.massivecraft.factions.cooldown.StuckCooldown;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.util.MiscUtil;
-import com.massivecraft.factions.util.StuckSession;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.WorldUtil;
 import com.massivecraft.factions.util.material.MaterialDb;
@@ -121,9 +121,9 @@ public class FactionsEntityListener extends AbstractListener {
         if (player == null) {
             return;
         }
-        StuckSession stuckSession = FactionsPlugin.getInstance().getStuckSessions().remove(player.getUniqueId());
-        if (stuckSession != null) {
-            stuckSession.close();
+        StuckCooldown stuckCooldown = FactionsPlugin.getInstance().getStuckSessions().remove(player.getUniqueId());
+        if (stuckCooldown != null) {
+            stuckCooldown.close();
             player.sendMessage(TL.COMMAND_STUCK_CANCELLED.toString());
         }
     }

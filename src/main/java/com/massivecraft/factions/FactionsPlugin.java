@@ -8,22 +8,27 @@ import com.google.gson.reflect.TypeToken;
 import com.massivecraft.factions.cmd.FCmdRoot;
 import com.massivecraft.factions.config.ConfigManager;
 import com.massivecraft.factions.config.file.MainConfig;
+import com.massivecraft.factions.cooldown.StuckCooldown;
 import com.massivecraft.factions.data.SaveTask;
 import com.massivecraft.factions.data.json.adapters.*;
 import com.massivecraft.factions.integration.*;
 import com.massivecraft.factions.integration.dynmap.EngineDynmap;
+import com.massivecraft.factions.io.IOController;
 import com.massivecraft.factions.landraidcontrol.LandRaidControl;
 import com.massivecraft.factions.listeners.*;
 import com.massivecraft.factions.listeners.versionspecific.PortalHandler;
 import com.massivecraft.factions.listeners.versionspecific.PortalListenerLegacy;
 import com.massivecraft.factions.listeners.versionspecific.PortalListener_114;
 import com.massivecraft.factions.logging.FactionsLogger;
+import com.massivecraft.factions.meta.BlockVisualizer;
 import com.massivecraft.factions.meta.scoreboards.SidebarProvider;
 import com.massivecraft.factions.meta.tablist.TablistProvider;
 import com.massivecraft.factions.metrics.Metrics;
 import com.massivecraft.factions.perms.Permissible;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.struct.ChatMode;
+import com.massivecraft.factions.tasks.FlightTask;
+import com.massivecraft.factions.tasks.SeeChunkTask;
 import com.massivecraft.factions.util.*;
 import com.massivecraft.factions.util.material.FactionMaterial;
 import com.massivecraft.factions.util.material.MaterialDb;
@@ -66,6 +71,7 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     private Permission perms = null;
 
+    private final IOController ioController = new IOController();
     private final ConfigManager configManager = new ConfigManager();
 
     private boolean autoSave = true;
@@ -79,7 +85,7 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     // Persist related
     private Gson gson;
 
-    private final Object2ObjectMap<UUID, StuckSession> stuckSessions = new Object2ObjectOpenHashMap<>();
+    private final Object2ObjectMap<UUID, StuckCooldown> stuckSessions = new Object2ObjectOpenHashMap<>();
 
     // Persistence related
     private boolean locked = false;
@@ -447,7 +453,7 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         return this.blockVisualizer;
     }
 
-    public Object2ObjectMap<UUID, StuckSession> getStuckSessions() {
+    public Object2ObjectMap<UUID, StuckCooldown> getStuckSessions() {
         return stuckSessions;
     }
 
@@ -466,6 +472,10 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     public void setAutoSave(boolean val) {
         this.autoSave = val;
+    }
+
+    public IOController getIOController() {
+        return ioController;
     }
 
     public ConfigManager getConfigManager() {

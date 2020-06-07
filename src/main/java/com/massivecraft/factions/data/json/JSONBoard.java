@@ -5,13 +5,8 @@ import com.massivecraft.factions.FLocation;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.data.MemoryBoard;
 import com.massivecraft.factions.data.json.adapters.MapFLocToStringSetTypeAdapter;
-import com.massivecraft.factions.util.DiscUtil;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2IntRBTreeMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.*;
 import org.bukkit.Bukkit;
 
 import java.nio.file.Files;
@@ -40,7 +35,7 @@ public class JSONBoard extends MemoryBoard {
     }
 
     public void forceSave(boolean sync, BooleanConsumer finish) {
-        DiscUtil.write(BOARD_PATH, FactionsPlugin.getInstance().getGson(), dumpAsSaveFormat(), sync, finish);
+        FactionsPlugin.getInstance().getIOController().write(BOARD_PATH, FactionsPlugin.getInstance().getGson(), dumpAsSaveFormat(), sync, finish);
     }
 
     @Override
@@ -51,7 +46,7 @@ public class JSONBoard extends MemoryBoard {
         }
         Bukkit.getScheduler().runTaskAsynchronously(FactionsPlugin.getInstance(), () -> {
             try {
-                Object2ObjectMap<String, Object2IntMap<String>> worldCoordIds = DiscUtil.read(BOARD_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Object2ObjectOpenHashMap<String, Object2IntOpenHashMap<String>>>(){}.getType());
+                Object2ObjectMap<String, Object2IntMap<String>> worldCoordIds = FactionsPlugin.getInstance().getIOController().read(BOARD_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Object2ObjectOpenHashMap<String, Object2IntOpenHashMap<String>>>(){}.getType());
 
                 Bukkit.getScheduler().runTask(FactionsPlugin.getInstance(), () -> {
                     if (worldCoordIds != null) {

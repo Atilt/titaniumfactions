@@ -1,7 +1,8 @@
-package com.massivecraft.factions.util;
+package com.massivecraft.factions.tasks;
 
 import com.massivecraft.factions.FLocation;
 import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.util.WorldUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;

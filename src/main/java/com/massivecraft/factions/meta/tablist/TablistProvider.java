@@ -2,7 +2,7 @@ package com.massivecraft.factions.meta.tablist;
 
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.protocol.Protocol;
-import com.massivecraft.factions.util.TitleAPI;
+import com.massivecraft.factions.util.TitleProvider;
 import me.lucko.helper.bucket.Bucket;
 import me.lucko.helper.bucket.factory.BucketFactory;
 import me.lucko.helper.bucket.partitioning.PartitioningStrategies;
@@ -86,8 +86,8 @@ public final class TablistProvider implements AutoCloseable {
     private Object constructPacket(String header, String footer) {
         Object packet = PACKET_INSTANCE.get();
         try {
-            HEADER_FIELD.set(packet, TitleAPI.STRING_TO_COMPONENT.apply("{\"text\": \"" + header + "\"}"));
-            FOOTER_FIELD.set(packet, TitleAPI.STRING_TO_COMPONENT.apply("{\"text\": \"" + footer + "\"}"));
+            HEADER_FIELD.set(packet, TitleProvider.STRING_TO_COMPONENT.apply("{\"text\": \"" + header + "\"}"));
+            FOOTER_FIELD.set(packet, TitleProvider.STRING_TO_COMPONENT.apply("{\"text\": \"" + footer + "\"}"));
         } catch (IllegalAccessException exception) {
             exception.printStackTrace();
         }

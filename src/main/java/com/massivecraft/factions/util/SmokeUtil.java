@@ -1,5 +1,6 @@
 package com.massivecraft.factions.util;
 
+import com.massivecraft.factions.math.FastMath;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 

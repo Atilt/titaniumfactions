@@ -1,9 +1,10 @@
-package com.massivecraft.factions.util;
+package com.massivecraft.factions.tasks;
 
 import com.massivecraft.factions.FLocation;
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.struct.MultiClaim;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.bukkit.World;
@@ -14,7 +15,7 @@ import java.util.List;
 
 public abstract class CompactSpiralTask extends BukkitRunnable implements MultiClaim {
 
-    public static final int MAX_DEBUG = 34; //exclusive value
+    public static final int MAX_DEBUG = 34;
 
     private final World world;
 

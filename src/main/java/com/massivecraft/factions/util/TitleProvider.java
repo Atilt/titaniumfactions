@@ -12,7 +12,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.function.Function;
 
-public final class TitleAPI {
+public final class TitleProvider {
 
     private static boolean SUPPORTED = false;
 

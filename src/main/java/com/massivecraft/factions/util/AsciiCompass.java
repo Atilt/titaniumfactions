@@ -1,5 +1,6 @@
 package com.massivecraft.factions.util;
 
+import com.massivecraft.factions.math.FastMath;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;

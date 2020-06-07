@@ -1,9 +1,10 @@
-package com.massivecraft.factions.util;
+package com.massivecraft.factions.tasks;
 
 import com.massivecraft.factions.Board;
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.listeners.FactionsExploitListener;
+import com.massivecraft.factions.util.WorldUtil;
 import com.massivecraft.factions.util.material.FactionMaterial;
 import com.massivecraft.factions.util.particle.ParticleColor;
 import me.lucko.helper.bucket.Bucket;

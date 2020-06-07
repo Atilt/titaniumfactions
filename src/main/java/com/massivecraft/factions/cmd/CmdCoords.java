@@ -1,8 +1,8 @@
 package com.massivecraft.factions.cmd;
 
 import com.massivecraft.factions.FPlayer;
+import com.massivecraft.factions.math.FastMath;
 import com.massivecraft.factions.struct.Permission;
-import com.massivecraft.factions.util.FastMath;
 import com.massivecraft.factions.util.TL;
 import org.bukkit.Location;
 

@@ -2,10 +2,10 @@ package com.massivecraft.factions.integration;
 
 import com.massivecraft.factions.*;
 import com.massivecraft.factions.landraidcontrol.DTRControl;
+import com.massivecraft.factions.math.FastMath;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.tag.FactionTag;
 import com.massivecraft.factions.tag.Tag;
-import com.massivecraft.factions.util.FastMath;
 import com.massivecraft.factions.util.TL;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;

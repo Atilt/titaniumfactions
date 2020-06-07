@@ -15,7 +15,7 @@ public final class WarmUpUtil {
      *                       <p/>
      *                       note: for translations: {0}/[] = action, {1}/[] = delay
      */
-    public static void process(final FPlayer player, Warmup warmup, TL translationKey, String action, Runnable runnable, long delay) {
+    public static void process(FPlayer player, Warmup warmup, TL translationKey, String action, Runnable runnable, long delay) {
         if (delay > 0) {
             if (player.isWarmingUp()) {
                 player.msg(TL.WARMUPS_ALREADY);

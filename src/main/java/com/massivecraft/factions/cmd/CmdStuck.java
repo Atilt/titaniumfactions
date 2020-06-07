@@ -4,10 +4,14 @@ import com.massivecraft.factions.Board;
 import com.massivecraft.factions.FLocation;
 import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.cooldown.StuckCooldown;
 import com.massivecraft.factions.event.FPlayerTeleportEvent;
 import com.massivecraft.factions.integration.Essentials;
+import com.massivecraft.factions.math.FastMath;
 import com.massivecraft.factions.struct.Permission;
-import com.massivecraft.factions.util.*;
+import com.massivecraft.factions.tasks.SpiralTask;
+import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.WorldUtil;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -37,10 +41,10 @@ public class CmdStuck extends FCommand {
         long delay = FactionsPlugin.getInstance().conf().commands().stuck().getDelay();
         int radius = FactionsPlugin.getInstance().conf().commands().stuck().getRadius();
 
-        StuckSession stuckSession = FactionsPlugin.getInstance().getStuckSessions().get(player.getUniqueId());
+        StuckCooldown stuckCooldown = FactionsPlugin.getInstance().getStuckSessions().get(player.getUniqueId());
 
-        if (stuckSession != null) {
-            context.msg(TL.COMMAND_STUCK_EXISTS, stuckSession.getRemainingReadable());
+        if (stuckCooldown != null) {
+            context.msg(TL.COMMAND_STUCK_EXISTS, stuckCooldown.getRemainingReadable());
         } else {
             FPlayerTeleportEvent tpEvent = new FPlayerTeleportEvent(context.fPlayer, null, FPlayerTeleportEvent.PlayerTeleportReason.STUCK);
             Bukkit.getPluginManager().callEvent(tpEvent);
@@ -93,12 +97,12 @@ public class CmdStuck extends FCommand {
                    }
                };
             }, delay * 20L).getTaskId();
-            stuckSession = new StuckSession(Instant.now(), Duration.ofSeconds(delay));
-            stuckSession.setTaskId(id);
+            stuckCooldown = new StuckCooldown(Instant.now(), Duration.ofSeconds(delay));
+            stuckCooldown.setTaskId(id);
 
-            FactionsPlugin.getInstance().getStuckSessions().put(player.getUniqueId(), stuckSession);
+            FactionsPlugin.getInstance().getStuckSessions().put(player.getUniqueId(), stuckCooldown);
 
-            context.msg(TL.COMMAND_STUCK_START, stuckSession.getDurationReadable());
+            context.msg(TL.COMMAND_STUCK_START, stuckCooldown.getDurationReadable());
         }
     }
 

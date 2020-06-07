@@ -10,6 +10,7 @@ import com.massivecraft.factions.integration.Essentials;
 import com.massivecraft.factions.integration.LWC;
 import com.massivecraft.factions.landraidcontrol.DTRControl;
 import com.massivecraft.factions.landraidcontrol.PowerControl;
+import com.massivecraft.factions.math.FastMath;
 import com.massivecraft.factions.meta.actionbar.ActionBarProvider;
 import com.massivecraft.factions.meta.scoreboards.FastBoard;
 import com.massivecraft.factions.meta.scoreboards.SidebarProvider;
@@ -19,8 +20,10 @@ import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.struct.ChatMode;
+import com.massivecraft.factions.struct.MultiClaim;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.tag.Tag;
+import com.massivecraft.factions.tasks.SeeChunkTask;
 import com.massivecraft.factions.util.*;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
@@ -612,7 +615,7 @@ public abstract class MemoryFPlayer implements FPlayer {
 
             // We send null instead of empty because Spigot won't touch the title if it's null, but clears if empty.
             // We're just trying to be as unintrusive as possible.
-            TitleAPI.send(player, title, sub, in, stay, out);
+            TitleProvider.send(player, title, sub, in, stay, out);
         }
         if (FactionsPlugin.getInstance().conf().factions().enterActionBars().isEnabled()) {
             int stay = FactionsPlugin.getInstance().conf().factions().enterActionBars().getStay();
