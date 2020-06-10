@@ -12,6 +12,7 @@ import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.tag.FactionTag;
 import com.massivecraft.factions.tag.Tag;
 import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.TextUtil;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.clip.placeholderapi.expansion.Relational;
@@ -61,8 +62,11 @@ public class ClipPlaceholderAPIManager extends PlaceholderExpansion implements R
         }
 
         FPlayer fp1 = FPlayers.getInstance().getByPlayer(p1);
+        if (fp1 == null) {
+            return "";
+        }
         FPlayer fp2 = FPlayers.getInstance().getByPlayer(p2);
-        if (fp1 == null || fp2 == null) {
+        if (fp2 == null) {
             return "";
         }
 
@@ -89,7 +93,7 @@ public class ClipPlaceholderAPIManager extends PlaceholderExpansion implements R
         boolean territory = false;
         if (placeholder.contains("faction_territory")) {
             faction = Board.getInstance().getFactionAt(fPlayer.getLastStoodAt());
-            placeholder = placeholder.replace("_territory", "");
+            placeholder = TextUtil.replace(placeholder, "_territory", "");
             territory = true;
         }
         switch (placeholder) {
@@ -193,15 +197,15 @@ public class ClipPlaceholderAPIManager extends PlaceholderExpansion implements R
             case "faction_allies_players_offline":
                 return Integer.toString(this.countOn(faction, Relation.ALLY, false, fPlayer));
             case "faction_enemies":
-                return String.valueOf(faction.getRelationCount(Relation.ENEMY));
+                return Integer.toString(faction.getRelationCount(Relation.ENEMY));
             case "faction_enemies_players":
-                return String.valueOf(this.countOn(faction, Relation.ENEMY, null, fPlayer));
+                return Integer.toString(this.countOn(faction, Relation.ENEMY, null, fPlayer));
             case "faction_enemies_players_online":
-                return String.valueOf(this.countOn(faction, Relation.ENEMY, true, fPlayer));
+                return Integer.toString(this.countOn(faction, Relation.ENEMY, true, fPlayer));
             case "faction_enemies_players_offline":
-                return String.valueOf(this.countOn(faction, Relation.ENEMY, false, fPlayer));
+                return Integer.toString(this.countOn(faction, Relation.ENEMY, false, fPlayer));
             case "faction_truces":
-                return String.valueOf(faction.getRelationCount(Relation.TRUCE));
+                return Integer.toString(faction.getRelationCount(Relation.TRUCE));
             case "faction_truces_players":
                 return Integer.toString(this.countOn(faction, Relation.TRUCE, null, fPlayer));
             case "faction_truces_players_online":

@@ -6,6 +6,7 @@ import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.cmd.CommandContext;
 import com.massivecraft.factions.cmd.CommandRequirements;
 import com.massivecraft.factions.cmd.FCommand;
+import com.massivecraft.factions.math.FastMath;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
@@ -90,7 +91,7 @@ public class CmdTNTFill extends FCommand {
         if (count < 65) {
             return new ItemStack[]{new ItemStack(Material.TNT, count)};
         } else {
-            List<ItemStack> stack = new ArrayList<>();
+            List<ItemStack> stack = new ArrayList<>(FastMath.ceil(count / 64.0D));
             while (count > 0) {
                 stack.add(new ItemStack(Material.TNT, Math.min(64, count)));
                 count -= Math.min(64, count);
@@ -123,10 +124,11 @@ public class CmdTNTFill extends FCommand {
     }
 
     static List<DistancedDispenser> getDispensers(Location location, int radius, int id) {
-        List<DistancedDispenser> dispensers = new ArrayList<>();
-        for (int x = -radius; x < radius; x++) {
-            for (int y = -radius; y < radius; y++) {
-                for (int z = -radius; z < radius; z++) {
+        int size = (radius * 2) + 1;
+        List<DistancedDispenser> dispensers = new ArrayList<>(size * size * size);
+        for (int x = -radius; x <= radius; x++) {
+            for (int y = -radius; y <= radius; y++) {
+                for (int z = -radius; z <= radius; z++) {
                     Block block = location.getBlock().getRelative(x, y, z);
                     if (block.getType() != Material.DISPENSER || Board.getInstance().getIdRawAt(FLocation.wrap(block)) != id) {
                         continue;

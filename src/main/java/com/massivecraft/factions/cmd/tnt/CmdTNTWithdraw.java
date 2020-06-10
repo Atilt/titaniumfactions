@@ -14,7 +14,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class CmdTNTWithdraw extends FCommand {
     public CmdTNTWithdraw() {
@@ -53,11 +52,10 @@ public class CmdTNTWithdraw extends FCommand {
             stacks.add(new ItemStack(Material.TNT, giving));
             toGive -= giving;
         }
-        Map<Integer, ItemStack> remaining = player.getInventory().addItem(stacks.toArray(new ItemStack[0]));
 
         int notTaken = 0;
 
-        for (ItemStack stack : remaining.values()) {
+        for (ItemStack stack : player.getInventory().addItem(stacks.toArray(new ItemStack[0])).values()) {
             notTaken += stack.getAmount();
         }
 
