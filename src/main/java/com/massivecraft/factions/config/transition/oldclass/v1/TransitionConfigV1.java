@@ -3,8 +3,6 @@ package com.massivecraft.factions.config.transition.oldclass.v1;
 import com.google.common.collect.ImmutableList;
 import com.massivecraft.factions.config.annotation.Comment;
 import com.massivecraft.factions.util.material.FactionMaterial;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSets;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -895,7 +893,7 @@ public class TransitionConfigV1 {
             private int lineClaimLimit = 5;
             @Comment("If someone is doing a radius claim and the process fails to claim land this many times in a row, it will exit")
             private int radiusClaimFailureLimit = 9;
-            private Set<String> worldsNoClaiming = new ObjectOpenHashSet<>();
+            private Set<String> worldsNoClaiming = new HashSet<>();
             @Comment("Buffer Zone is an chunk area required between claims of different Factions.\n" +
                     "This is default to 0 and has always been that way. Meaning Factions can have\n" +
                     "  claims that border each other.\n" +
@@ -943,7 +941,7 @@ public class TransitionConfigV1 {
             }
 
             public Set<String> getWorldsNoClaiming() {
-                return worldsNoClaiming == null ? ObjectSets.emptySet() : worldsNoClaiming;
+                return worldsNoClaiming == null ? Collections.emptySet() : worldsNoClaiming;
             }
         }
 

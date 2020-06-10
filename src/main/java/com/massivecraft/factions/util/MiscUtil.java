@@ -4,12 +4,11 @@ import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FactionsPlugin;
 import it.unimi.dsi.fastutil.chars.CharOpenHashSet;
 import it.unimi.dsi.fastutil.chars.CharSet;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -50,7 +49,7 @@ public final class MiscUtil {
     }
 
     public static List<String> validateTag(String str) {
-        ObjectList<String> errors = new ObjectArrayList<>();
+        List<String> errors = new ArrayList<>();
         String match = str.toLowerCase();
 
         for (String blacklistItem : FactionsPlugin.getInstance().conf().factions().other().getNameBlacklist()) {
@@ -78,7 +77,7 @@ public final class MiscUtil {
     }
 
     public static List<FPlayer> rankOrder(Collection<FPlayer> players) {
-        ObjectList<FPlayer> ret = new ObjectArrayList<>(players);
+        List<FPlayer> ret = new ArrayList<>(players);
         Collections.sort(ret);
         return ret;
     }

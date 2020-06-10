@@ -12,11 +12,6 @@ import com.massivecraft.factions.tag.Tag;
 import com.massivecraft.factions.util.MiscUtil;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.kyori.text.TextComponent;
 import net.kyori.text.adapter.bukkit.TextAdapter;
 import org.bukkit.Bukkit;
@@ -25,6 +20,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +30,7 @@ import java.util.UUID;
 
 public class CmdShow extends FCommand {
 
-    private final ObjectList<String> defaults = new ObjectArrayList<>();
+    private final List<String> defaults = new ArrayList<>();
 
     public CmdShow() {
         this.aliases.add("show");
@@ -98,7 +96,7 @@ public class CmdShow extends FCommand {
             return; // we only show header for non-normal factions
         }
 
-        ObjectList<String> messageList = new ObjectArrayList<>();
+        List<String> messageList = new ArrayList<>();
         for (String raw : show) {
             String parsed = Tag.parsePlain(faction, context.fPlayer, raw); // use relations
             if (parsed == null) {
@@ -211,7 +209,7 @@ public class CmdShow extends FCommand {
             this.faction = faction;
 
             Set<FPlayer> players = faction.getFPlayers();
-            this.players = new ObjectOpenHashSet<>(players.size());
+            this.players = new HashSet<>(players.size());
             for (FPlayer player : players) {
                 this.players.add(Bukkit.getOfflinePlayer(player.getId()));
             }
@@ -219,7 +217,7 @@ public class CmdShow extends FCommand {
 
         @Override
         public void run() {
-            Object2ObjectMap<UUID, String> map = new Object2ObjectOpenHashMap<>(this.players.size());
+            Map<UUID, String> map = new HashMap<>(this.players.size());
             for (OfflinePlayer player : this.players) {
                 map.put(player.getUniqueId(), FactionsPlugin.getInstance().getPrimaryGroup(player));
             }

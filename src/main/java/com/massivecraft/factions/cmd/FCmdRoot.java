@@ -1,7 +1,15 @@
 package com.massivecraft.factions.cmd;
 
 import com.massivecraft.factions.FactionsPlugin;
-import com.massivecraft.factions.cmd.claim.*;
+import com.massivecraft.factions.cmd.claim.CmdAutoClaim;
+import com.massivecraft.factions.cmd.claim.CmdClaim;
+import com.massivecraft.factions.cmd.claim.CmdClaimAt;
+import com.massivecraft.factions.cmd.claim.CmdClaimFill;
+import com.massivecraft.factions.cmd.claim.CmdClaimLine;
+import com.massivecraft.factions.cmd.claim.CmdSafeunclaimall;
+import com.massivecraft.factions.cmd.claim.CmdUnclaim;
+import com.massivecraft.factions.cmd.claim.CmdUnclaimall;
+import com.massivecraft.factions.cmd.claim.CmdWarunclaimall;
 import com.massivecraft.factions.cmd.money.CmdMoney;
 import com.massivecraft.factions.cmd.relations.CmdRelationAlly;
 import com.massivecraft.factions.cmd.relations.CmdRelationEnemy;
@@ -14,12 +22,15 @@ import com.massivecraft.factions.landraidcontrol.PowerControl;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
 import com.massivecraft.factions.util.WorldUtil;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import me.lucko.commodore.CommodoreProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class FCmdRoot extends FCommand implements CommandExecutor {
 
@@ -93,6 +104,7 @@ public class FCmdRoot extends FCommand implements CommandExecutor {
     public CmdWarpOther cmdWarpOther = new CmdWarpOther();
     public CmdSetWarp cmdSetWarp = new CmdSetWarp();
     public CmdDelWarp cmdDelWarp = new CmdDelWarp();
+    public CmdWild cmdWild = new CmdWild();
     public CmdModifyPower cmdModifyPower = new CmdModifyPower();
     public CmdLogins cmdLogins = new CmdLogins();
     public CmdClaimLine cmdClaimLine = new CmdClaimLine();
@@ -188,6 +200,7 @@ public class FCmdRoot extends FCommand implements CommandExecutor {
         this.addSubCommand(this.cmdWarpOther);
         this.addSubCommand(this.cmdSetWarp);
         this.addSubCommand(this.cmdDelWarp);
+        this.addSubCommand(this.cmdWild);
         this.addSubCommand(this.cmdLogins);
         this.addSubCommand(this.cmdClaimLine);
         this.addSubCommand(this.cmdClaimFill);
@@ -248,8 +261,9 @@ public class FCmdRoot extends FCommand implements CommandExecutor {
             sender.sendMessage(TL.GENERIC_DISABLEDWORLD.toString());
             return false;
         }
-
-        this.execute(new CommandContext(sender, new ObjectArrayList<>(args), label));
+        List<String> fixedArgs = new ArrayList<>(args.length);
+        Collections.addAll(fixedArgs, args);
+        this.execute(new CommandContext(sender, fixedArgs, label));
         return true;
     }
 

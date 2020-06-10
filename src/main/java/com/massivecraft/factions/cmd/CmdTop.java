@@ -6,10 +6,9 @@ import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.landraidcontrol.PowerControl;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -65,7 +64,7 @@ public class CmdTop extends FCommand {
         int end = Math.min(start + PAGE_HEIGHT, factionList.size());
 
         List<Faction> factions = factionList.subList(start, end);
-        ObjectList<String> lines = new ObjectArrayList<>(factionList.size() + 1);
+        List<String> lines = new ArrayList<>(factionList.size() + 1);
 
         lines.add(TL.COMMAND_TOP_TOP.format(criteria.toUpperCase(), Integer.toString(pagenumber), Integer.toString(pagecount)));
 

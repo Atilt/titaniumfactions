@@ -1,12 +1,11 @@
 package com.massivecraft.factions.util;
 
 import com.google.common.base.Charsets;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -25,7 +24,7 @@ public final class FormatTransitioner {
         return instance;
     }
 
-    private static final ObjectList<String> OLD_FORMATS = new ObjectArrayList<>(23);
+    private static final List<String> OLD_FORMATS = new ArrayList<>(23);
 
     static {
         OLD_FORMATS.add("%1$s");

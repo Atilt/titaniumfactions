@@ -9,8 +9,6 @@ import com.massivecraft.factions.cmd.FCommand;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -18,6 +16,7 @@ import org.bukkit.block.Dispenser;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -91,7 +90,7 @@ public class CmdTNTFill extends FCommand {
         if (count < 65) {
             return new ItemStack[]{new ItemStack(Material.TNT, count)};
         } else {
-            ObjectList<ItemStack> stack = new ObjectArrayList<>();
+            List<ItemStack> stack = new ArrayList<>();
             while (count > 0) {
                 stack.add(new ItemStack(Material.TNT, Math.min(64, count)));
                 count -= Math.min(64, count);
@@ -124,7 +123,7 @@ public class CmdTNTFill extends FCommand {
     }
 
     static List<DistancedDispenser> getDispensers(Location location, int radius, int id) {
-        ObjectList<DistancedDispenser> dispensers = new ObjectArrayList<>();
+        List<DistancedDispenser> dispensers = new ArrayList<>();
         for (int x = -radius; x < radius; x++) {
             for (int y = -radius; y < radius; y++) {
                 for (int z = -radius; z < radius; z++) {

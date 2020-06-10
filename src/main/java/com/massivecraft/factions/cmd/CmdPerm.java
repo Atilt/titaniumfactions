@@ -9,10 +9,10 @@ import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class CmdPerm extends FCommand {
 
@@ -50,8 +50,8 @@ public class CmdPerm extends FCommand {
             return;
         }
 
-        ObjectSet<Permissible> permissibles = new ObjectOpenHashSet<>();
-        ObjectSet<PermissibleAction> permissibleActions = new ObjectOpenHashSet<>();
+        Set<Permissible> permissibles = new HashSet<>();
+        Set<PermissibleAction> permissibleActions = new HashSet<>();
 
         boolean allRelations = context.argAsString(0).equalsIgnoreCase("all");
         boolean allActions = context.argAsString(1).equalsIgnoreCase("all");

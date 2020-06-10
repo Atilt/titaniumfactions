@@ -4,9 +4,8 @@ import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.meta.scoreboards.SidebarTextProvider;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class InfoSidebar implements SidebarTextProvider {
@@ -25,7 +24,7 @@ public final class InfoSidebar implements SidebarTextProvider {
     @Override
     public List<String> getText(FPlayer fPlayer) {
         List<String> content = FactionsPlugin.getInstance().conf().scoreboard().info().getContent();
-        ObjectList<String> lines = new ObjectArrayList<>(content.size());
+        List<String> lines = new ArrayList<>(content.size());
         for (String line : content) {
             String replaced = SidebarTextProvider.replaceTags(this.faction, fPlayer, line);
             if (replaced == null) {

@@ -13,9 +13,9 @@ import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.util.TL;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -30,7 +30,7 @@ public class PermissionsMapTypeAdapter implements JsonDeserializer<Map<Permissib
                 return null;
             }
 
-            Map<Permissible, Map<PermissibleAction, Boolean>> permissionsMap = new Object2ObjectOpenHashMap<>();
+            Map<Permissible, Map<PermissibleAction, Boolean>> permissionsMap = new HashMap<>();
 
             // Top level is Relation
             for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {

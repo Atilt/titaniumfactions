@@ -1,7 +1,6 @@
 package com.massivecraft.factions.util.particle;
 
 import com.darkblade12.particleeffect.ParticleEffect;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -10,10 +9,11 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class PacketParticleProvider implements ParticleProvider<ParticleEffect> {
 
-    private final Object2ObjectMap<String, ParticleEffect> cache = new Object2ObjectRBTreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    private final Map<String, ParticleEffect> cache = new Object2ObjectRBTreeMap<>(String.CASE_INSENSITIVE_ORDER);
     private static final ParticleEffect[] VALUES = ParticleEffect.values();
 
     @Override

@@ -1,15 +1,16 @@
 package com.massivecraft.factions.util;
 
 import com.massivecraft.factions.FactionsPlugin;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.Permission;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 public final class PermUtil {
 
-    private static final Object2ObjectMap<String, String> PERMISSION_DESCRIPTIONS = new Object2ObjectOpenHashMap<>();
+    private static final Map<String, String> PERMISSION_DESCRIPTIONS = new HashMap<>();
 
     private PermUtil() {
         throw new UnsupportedOperationException("This class cannot be instantiated");

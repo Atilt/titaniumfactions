@@ -10,12 +10,30 @@ import com.massivecraft.factions.config.ConfigManager;
 import com.massivecraft.factions.config.file.MainConfig;
 import com.massivecraft.factions.cooldown.StuckCooldown;
 import com.massivecraft.factions.data.SaveTask;
-import com.massivecraft.factions.data.json.adapters.*;
-import com.massivecraft.factions.integration.*;
+import com.massivecraft.factions.data.json.adapters.EnumTypeTypeAdapter;
+import com.massivecraft.factions.data.json.adapters.FactionMaterialTypeAdapter;
+import com.massivecraft.factions.data.json.adapters.MapFLocToStringSetTypeAdapter;
+import com.massivecraft.factions.data.json.adapters.MaterialTypeAdapter;
+import com.massivecraft.factions.data.json.adapters.MyLocationTypeAdapter;
+import com.massivecraft.factions.data.json.adapters.PermissionsMapTypeAdapter;
+import com.massivecraft.factions.data.json.adapters.UUIDTypeAdapter;
+import com.massivecraft.factions.integration.ClipPlaceholderAPIManager;
+import com.massivecraft.factions.integration.Econ;
+import com.massivecraft.factions.integration.Essentials;
+import com.massivecraft.factions.integration.IWorldguard;
+import com.massivecraft.factions.integration.LWC;
+import com.massivecraft.factions.integration.Worldguard6;
+import com.massivecraft.factions.integration.Worldguard7;
 import com.massivecraft.factions.integration.dynmap.EngineDynmap;
 import com.massivecraft.factions.io.IOController;
 import com.massivecraft.factions.landraidcontrol.LandRaidControl;
-import com.massivecraft.factions.listeners.*;
+import com.massivecraft.factions.listeners.EssentialsListener;
+import com.massivecraft.factions.listeners.FactionsBlockListener;
+import com.massivecraft.factions.listeners.FactionsChatListener;
+import com.massivecraft.factions.listeners.FactionsDataListener;
+import com.massivecraft.factions.listeners.FactionsEntityListener;
+import com.massivecraft.factions.listeners.FactionsExploitListener;
+import com.massivecraft.factions.listeners.FactionsPlayerListener;
 import com.massivecraft.factions.listeners.versionspecific.PortalHandler;
 import com.massivecraft.factions.listeners.versionspecific.PortalListenerLegacy;
 import com.massivecraft.factions.listeners.versionspecific.PortalListener_114;
@@ -27,15 +45,21 @@ import com.massivecraft.factions.metrics.Metrics;
 import com.massivecraft.factions.perms.Permissible;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.struct.ChatMode;
+import com.massivecraft.factions.struct.wild.WildManager;
 import com.massivecraft.factions.tasks.FlightTask;
 import com.massivecraft.factions.tasks.SeeChunkTask;
-import com.massivecraft.factions.util.*;
+import com.massivecraft.factions.util.AutoLeaveTask;
+import com.massivecraft.factions.util.FormatTransitioner;
+import com.massivecraft.factions.util.LazyLocation;
+import com.massivecraft.factions.util.PermUtil;
+import com.massivecraft.factions.util.Persist;
+import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.TextUtil;
 import com.massivecraft.factions.util.material.FactionMaterial;
 import com.massivecraft.factions.util.material.MaterialDb;
 import com.massivecraft.factions.util.particle.BukkitParticleProvider;
 import com.massivecraft.factions.util.particle.PacketParticleProvider;
 import com.massivecraft.factions.util.particle.ParticleProvider;
-import it.unimi.dsi.fastutil.objects.*;
 import me.lucko.helper.reflect.MinecraftVersion;
 import me.lucko.helper.reflect.MinecraftVersions;
 import net.milkbowl.vault.permission.Permission;
@@ -56,7 +80,14 @@ import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
 import java.util.logging.Logger;
@@ -65,9 +96,10 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     private static FactionsPlugin instance;
 
-    private static final MinecraftVersion MINECRAFT_VERSION = MinecraftVersion.getRuntimeVersion();
-
     private Logger logger;
+    private Path path;
+
+    private static final MinecraftVersion MINECRAFT_VERSION = MinecraftVersion.getRuntimeVersion();
 
     private Permission perms = null;
 
@@ -85,7 +117,7 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     // Persist related
     private Gson gson;
 
-    private final Object2ObjectMap<UUID, StuckCooldown> stuckSessions = new Object2ObjectOpenHashMap<>();
+    private final Map<UUID, StuckCooldown> stuckSessions = new HashMap<>();
 
     // Persistence related
     private boolean locked = false;
@@ -97,11 +129,11 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     private boolean mvdwPlaceholderAPIManager = false;
     private IWorldguard worldguard;
 
-    private final ObjectSet<String> pluginsHandlingChat = new ObjectOpenHashSet<>();
+    private final Set<String> pluginsHandlingChat = new HashSet<>();
 
     private ParticleProvider<?> particleProvider;
     private BlockVisualizer blockVisualizer;
-
+    private WildManager wildManager;
 
     private final Set<EntityType> safeZoneNerfedCreatureTypes = EnumSet.noneOf(EntityType.class);
     private LandRaidControl landRaidControl;
@@ -158,6 +190,7 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             this.logger.severe("Server version is incompatible with &fTitaniumFactions&b. (1.8+)");
             return;
         }
+        this.path = this.getDataFolder().toPath();
         this.configManager.startup();
 
         if (!this.loadLang()) {
@@ -243,7 +276,11 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                         //this.setupMetrics();
 
                         this.logger.info("Faction data has been loaded successfully. (&7" + TextUtil.formatDecimal((System.nanoTime() - dataStart) / 1_000_000.0D) + "ms&b)");
-                        loadDataSuccessful = true; //1st checkpoint for proper saving when plugin disables
+                        this.wildManager = new WildManager();
+                        this.wildManager.deserialize(this.path.resolve("config").resolve("wild.conf"), loadedWorlds -> {
+                            this.logger.info("== Wild Worlds: &7" + loadedWorlds + "&b loaded");
+                            this.loadDataSuccessful = true;
+                        });
                     });
                 });
             });
@@ -437,6 +474,10 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         return true;
     }
 
+    public Path getPath() {
+        return path;
+    }
+
     public Persist getPersist() {
         return persist;
     }
@@ -453,7 +494,7 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
         return this.blockVisualizer;
     }
 
-    public Object2ObjectMap<UUID, StuckCooldown> getStuckSessions() {
+    public Map<UUID, StuckCooldown> getStuckSessions() {
         return stuckSessions;
     }
 
@@ -574,6 +615,7 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             FPlayers.getInstance().forceSave(result -> this.logger.info(" == Players: Successfully saved all data."));
             Factions.getInstance().forceSave(result -> this.logger.info(" == Factions: Successfully saved all data."));
             Board.getInstance().forceSave(result -> this.logger.info(" == Claims: Successfully saved all data."));
+            this.wildManager.serialize(this.path.resolve("config").resolve("wild.conf"), result -> this.logger.info("== Wild: Successfully saved all data."));
         }
     }
 
@@ -588,6 +630,10 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             this.autoLeaveTask = new AutoLeaveTask();
             this.autoLeaveTask.start();
         }
+    }
+
+    public WildManager getWildManager() {
+        return wildManager;
     }
 
     public boolean logPlayerCommands() {
@@ -717,10 +763,10 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     public Set<String> getPlayersInFaction(String factionTag) {
         Faction faction = Factions.getInstance().getByTag(factionTag);
         if (faction == null) {
-            return ObjectSets.emptySet();
+            return Collections.emptySet();
         }
         Set<FPlayer> fPlayers = faction.getFPlayers();
-        ObjectSet<String> players = new ObjectOpenHashSet<>(fPlayers.size());
+        Set<String> players = new HashSet<>(fPlayers.size());
         for (FPlayer fplayer : fPlayers) {
             players.add(fplayer.getName());
         }
@@ -733,10 +779,10 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     public Set<String> getOnlinePlayersInFaction(String factionTag) {
         Faction faction = Factions.getInstance().getByTag(factionTag);
         if (faction == null) {
-            return ObjectSets.emptySet();
+            return Collections.emptySet();
         }
         Set<FPlayer> fPlayers = faction.getFPlayersWhereOnline(true);
-        ObjectSet<String> players = new ObjectOpenHashSet<>(fPlayers.size());
+        Set<String> players = new HashSet<>(fPlayers.size());
         for (FPlayer fplayer : fPlayers) {
             players.add(fplayer.getName());
         }
@@ -747,9 +793,9 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
     public Set<Player> getRawOnlinePlayersInFaction(String factionTag) {
         Faction faction = Factions.getInstance().getByTag(factionTag);
         if (faction == null) {
-            return ObjectSets.emptySet();
+            return Collections.emptySet();
         }
-        return new ObjectOpenHashSet<>(faction.getOnlinePlayers());
+        return new HashSet<>(faction.getOnlinePlayers());
     }
 
     public boolean hasPlayerVaults() {

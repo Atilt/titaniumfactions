@@ -7,8 +7,9 @@ import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.tag.Tag;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CmdNear extends FCommand {
 
@@ -25,7 +26,7 @@ public class CmdNear extends FCommand {
     @Override
     public void perform(CommandContext context) {
         int radius = FactionsPlugin.getInstance().conf().commands().near().getRadius();
-        ObjectList<FPlayer> nearbyMembers = new ObjectArrayList<>();
+        List<FPlayer> nearbyMembers = new ArrayList<>();
         String world = context.fPlayer.getLastStoodAt().getWorldName();
         for (FPlayer fPlayer : context.fPlayer.getFaction().getFPlayersWhereOnline(true)) {
             if (fPlayer == context.fPlayer) {

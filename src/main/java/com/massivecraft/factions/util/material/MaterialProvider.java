@@ -22,6 +22,7 @@ public class MaterialProvider {
     private static final Set<Material> SHULKER_BOXES = EnumSet.noneOf(Material.class);
     private static final Set<Material> POTTED_FLOWERS = EnumSet.noneOf(Material.class);
     private static final Set<Material> FENCES = EnumSet.noneOf(Material.class);
+    private static final Set<Material> UNSAFE = EnumSet.noneOf(Material.class);
 
     protected Map<String, MaterialData> materialData;
 
@@ -154,6 +155,11 @@ public class MaterialProvider {
             POTTED_FLOWERS.add(resolve("POTTED_RED_TULIP"));
             POTTED_FLOWERS.add(resolve("POTTED_WHITE_TULIP"));
         }
+        UNSAFE.add(resolve("LAVA"));
+        UNSAFE.add(resolve("STATIONARY_LAVA"));
+        UNSAFE.add(resolve("WATER"));
+        UNSAFE.add(resolve("STATIONARY_WATER"));
+        UNSAFE.add(resolve("COBWEB"));
     }
 
     public Material resolve(String name) {
@@ -231,6 +237,10 @@ public class MaterialProvider {
     
     public boolean isPottedFlower(Material material) {
         return POTTED_FLOWERS.contains(material);
+    }
+
+    public boolean isUnsafe(Material material) {
+        return UNSAFE.contains(material);
     }
 
     public class MaterialData {

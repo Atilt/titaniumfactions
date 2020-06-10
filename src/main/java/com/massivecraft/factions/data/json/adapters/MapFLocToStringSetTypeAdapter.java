@@ -10,10 +10,10 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.massivecraft.factions.FLocation;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -30,7 +30,7 @@ public final class MapFLocToStringSetTypeAdapter implements JsonDeserializer<Map
         if (obj == null) {
             return null;
         }
-        Map<FLocation, Set<String>> locationMap = new Object2ObjectOpenHashMap<>();
+        Map<FLocation, Set<String>> locationMap = new HashMap<>(obj.entrySet().size());
 
         for (Entry<String, JsonElement> entry : obj.entrySet()) {
             String worldName = entry.getKey();
@@ -41,7 +41,7 @@ public final class MapFLocToStringSetTypeAdapter implements JsonDeserializer<Map
                 int z = Integer.parseInt(coords[1]);
 
                 JsonArray array = entry2.getValue().getAsJsonArray();
-                Set<String> nameSet = new ObjectOpenHashSet<>(array.size());
+                Set<String> nameSet = new HashSet<>(array.size());
 
                 for (JsonElement jsonElement : array) {
                     nameSet.add(jsonElement.getAsString());
@@ -57,7 +57,6 @@ public final class MapFLocToStringSetTypeAdapter implements JsonDeserializer<Map
     public JsonElement serialize(Map<FLocation, Set<String>> src, Type typeOfSrc, JsonSerializationContext context) {
         JsonObject obj = new JsonObject();
         if (src != null) {
-
             for (Entry<FLocation, Set<String>> entry : src.entrySet()) {
                 Set<String> nameSet = entry.getValue();
 
@@ -75,7 +74,6 @@ public final class MapFLocToStringSetTypeAdapter implements JsonDeserializer<Map
                 if (!obj.has(locWorld)) {
                     obj.add(locWorld, new JsonObject());
                 }
-
                 obj.get(locWorld).getAsJsonObject().add(loc.getCoordString(), nameArray);
             }
         }

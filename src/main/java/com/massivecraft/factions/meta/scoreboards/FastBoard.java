@@ -4,9 +4,6 @@ import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.protocol.Protocol;
 import com.massivecraft.factions.util.TextUtil;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectLists;
 import me.lucko.helper.reflect.MinecraftVersions;
 import me.lucko.helper.reflect.ServerReflection;
 import org.bukkit.ChatColor;
@@ -16,7 +13,13 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Objects;
 
 /**
  * Simple Bukkit ScoreBoard API with 1.7 to 1.15 support.
@@ -86,7 +89,7 @@ public class FastBoard {
     private final String id;
 
     private String title = ChatColor.RESET.toString();
-    private ObjectList<String> lines = new ObjectArrayList<>();
+    private List<String> lines = new ArrayList<>();
 
     private boolean deleted = false;
 
@@ -166,7 +169,7 @@ public class FastBoard {
      * @return the scoreboard lines
      */
     public List<String> getLines() {
-        return ObjectLists.unmodifiable(this.lines);
+        return Collections.unmodifiableList(this.lines);
     }
 
     /**
@@ -200,7 +203,7 @@ public class FastBoard {
                 return;
             }
 
-            ObjectList<String> newLines = new ObjectArrayList<>(this.lines);
+            List<String> newLines = new ArrayList<>(this.lines);
             int total = this.size();
 
             if (line > total) {
@@ -229,7 +232,7 @@ public class FastBoard {
             return; // The line don't exists
         }
 
-        ObjectList<String> lines = new ObjectArrayList<>(this.lines);
+        List<String> lines = new ArrayList<>(this.lines);
         lines.remove(line);
         updateLines(lines);
     }
@@ -266,7 +269,7 @@ public class FastBoard {
             }
         }
 
-        ObjectList<String> oldLines = new ObjectArrayList<>(this.lines);
+        List<String> oldLines = new ArrayList<>(this.lines);
         this.lines.clear();
         this.lines.addAll(lines);
 
@@ -274,7 +277,7 @@ public class FastBoard {
 
         try {
             if (oldLines.size() != linesSize) {
-                ObjectList<String> oldLinesCopy = new ObjectArrayList<>(oldLines);
+                List<String> oldLinesCopy = new ArrayList<>(oldLines);
 
                 if (oldLines.size() > linesSize) {
                     for (int i = oldLinesCopy.size(); i > linesSize; i--) {
@@ -319,7 +322,7 @@ public class FastBoard {
             }
         }
 
-        ObjectList<String> oldLines = new ObjectArrayList<>(this.lines);
+        List<String> oldLines = new ArrayList<>(this.lines);
         this.lines.clear();
         this.lines.addAll(lines);
 
@@ -327,7 +330,7 @@ public class FastBoard {
 
         try {
             if (oldLines.size() != linesSize) {
-                ObjectList<String> oldLinesCopy = new ObjectArrayList<>(oldLines);
+                List<String> oldLinesCopy = new ArrayList<>(oldLines);
 
                 if (oldLines.size() > linesSize) {
                     for (int i = oldLinesCopy.size(); i > linesSize; i--) {
@@ -432,7 +435,7 @@ public class FastBoard {
         return getLineByScore(lines, score);
     }
 
-    private String getLineByScore(ObjectList<String> lines, int score) {
+    private String getLineByScore(List<String> lines, int score) {
         return lines.get(lines.size() - score - 1);
     }
 

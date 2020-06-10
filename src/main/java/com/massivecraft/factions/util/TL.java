@@ -149,6 +149,8 @@ public enum TL implements Formattable<TL> {
     COMMAND_CLAIMLINE_ABOVEMAX("&cThe maximum limit for claim line is &c{0}&c."),
     COMMAND_CLAIMLINE_NOTVALID("{0}&c is not a cardinal direction. You may use &dnorth&c, &deast&c, &dsouth &cor &dwest&c."),
 
+    COMMAND_CLAIMAT_INVALID_WORLD("&cYou have speicifed an invalid world."),
+
     COMMAND_COLEADER_CANDIDATES("Players you can promote: "),
     COMMAND_COLEADER_CLICKTOPROMOTE("Click to promote "),
     COMMAND_COLEADER_NOTMEMBER("{0}&c is not a member in your faction."),
@@ -253,6 +255,13 @@ public enum TL implements Formattable<TL> {
     COMMAND_FWARP_NOACCESS("&cYou do not have permission to use {0} &cwarps"),
 
     COMMAND_WARPOTHER_COMMANDFORMAT("&e/f warpother <faction> <warpname> [password]"),
+
+    COMMAND_WILD_DESCRIPTION("Teleport to a random location in the wilderness"),
+    COMMAND_WILD_WORLD_NO_SUPPORT("&cWild teleportation is not supported in this world."),
+    COMMAND_WILD_NO_LOCATION_FOUND("&cNo suitable location could be found. Please try again."),
+    COMMAND_WILD_TIMEFORMAT("m 'minutes', s 'seconds.'"),
+    COMMAND_WILD_ALREADY_TELEPORTING("&cYou are already teleporting."),
+    COMMAND_WILD_TELEPORT_COMMENCING("&cYou will be teleported in {0}. Taking damage will cancel the teleport."),
 
     COMMAND_HELP_404("&cThis page does not exist"),
     COMMAND_HELP_NEXTCREATE("&eLearn how to create a faction on the next page."),
@@ -894,6 +903,7 @@ public enum TL implements Formattable<TL> {
     PERM_TNTDEPOSIT("Deposit TNT into faction bank"),
     PERM_TNTWITHDRAW("Withdraw TNT from faction bank"),
     PERM_WARP("Using faction warps"),
+    PERM_WILD("Using faction wild teleport"),
     PERM_FLY("Flying in faction territory"),
     PERM_OWNER("Set ownership of land using /f owner in faction territory"),
 
@@ -920,6 +930,7 @@ public enum TL implements Formattable<TL> {
     PERM_SHORT_TNTDEPOSIT("deposit TNT"),
     PERM_SHORT_TNTWITHDRAW("withdraw TNT"),
     PERM_SHORT_WARP("use warps"),
+    PERM_SHORT_WILD("use wild teleportation"),
     PERM_SHORT_FLY("fly"),
     PERM_SHORT_OWNER("set ownership"),
 

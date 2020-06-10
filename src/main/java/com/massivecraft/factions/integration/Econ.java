@@ -8,8 +8,6 @@ import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.RelationUtil;
 import com.massivecraft.factions.util.TL;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
@@ -20,6 +18,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 import java.text.DecimalFormat;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -206,7 +205,7 @@ public class Econ {
     }
 
     public static Set<FPlayer> getFplayers(EconomyParticipator ep) {
-        ObjectSet<FPlayer> fplayers = new ObjectOpenHashSet<>();
+        Set<FPlayer> fplayers = new HashSet<>();
 
         if (ep != null) {
             if (ep instanceof FPlayer) {
@@ -220,7 +219,7 @@ public class Econ {
     }
 
     public static void sendTransferInfo(EconomyParticipator invoker, EconomyParticipator from, EconomyParticipator to, double amount) {
-        ObjectSet<FPlayer> recipients = new ObjectOpenHashSet<>();
+        Set<FPlayer> recipients = new HashSet<>();
         recipients.addAll(getFplayers(invoker));
         recipients.addAll(getFplayers(from));
         recipients.addAll(getFplayers(to));

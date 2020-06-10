@@ -95,7 +95,7 @@ public final class ActionBarProvider {
     }
 
     private void sendProvisional(Player player, String message) {
-        player.sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
     }
 
     private void sendLegacy(Player player, String message) {

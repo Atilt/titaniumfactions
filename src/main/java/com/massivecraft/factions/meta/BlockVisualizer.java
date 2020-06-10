@@ -1,23 +1,22 @@
 package com.massivecraft.factions.meta;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 public final class BlockVisualizer {
 
-    private final Object2ObjectMap<UUID, ObjectSet<Location>> trackedLocations = new Object2ObjectOpenHashMap<>();
+    private final Map<UUID, Set<Location>> trackedLocations = new HashMap<>();
 
     public Set<Location> getPlayerLocations(UUID uuid) {
-        return this.trackedLocations.computeIfAbsent(uuid, id -> new ObjectOpenHashSet<>());
+        return this.trackedLocations.computeIfAbsent(uuid, id -> new HashSet<>());
     }
 
     public Set<Location> getPlayerLocations(Player player) {

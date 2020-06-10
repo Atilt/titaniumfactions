@@ -6,9 +6,8 @@ import com.massivecraft.factions.integration.Econ;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -61,7 +60,7 @@ public class CmdHelp extends FCommand {
     }
 
     public void updateHelp(CommandContext context) {
-        ObjectList<String> pageLines = new ObjectArrayList<>(93);
+        List<String> pageLines = new ArrayList<>(93);
 
         pageLines.add(FCmdRoot.getInstance().cmdHelp.getUsageTemplate(context, true));
         pageLines.add(FCmdRoot.getInstance().cmdList.getUsageTemplate(context, true));

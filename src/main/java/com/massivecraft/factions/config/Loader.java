@@ -7,8 +7,6 @@ import com.massivecraft.factions.config.annotation.ConfigName;
 import com.massivecraft.factions.config.annotation.DefinedType;
 import com.massivecraft.factions.config.annotation.WipeOnReload;
 import com.typesafe.config.ConfigRenderOptions;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
@@ -63,7 +61,7 @@ public class Loader {
         loadNode(node, loader.createEmptyNode(), config);
     }
 
-    private static final ObjectSet<Class<?>> TYPES = new ObjectOpenHashSet<>();
+    private static final Set<Class<?>> TYPES = new HashSet<>();
 
     static {
         TYPES.add(Boolean.TYPE);

@@ -11,13 +11,13 @@ import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
 import com.massivecraft.factions.util.WarmUpUtil;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.kyori.text.TextComponent;
 import net.kyori.text.adapter.bukkit.TextAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -35,7 +35,7 @@ public class CommandContext {
     public List<String> args;
     public String alias;
 
-    public List<FCommand> commandChain = new ObjectArrayList<>(); // The command chain used to execute this command
+    public List<FCommand> commandChain = new ArrayList<>(); // The command chain used to execute this command
 
     public CommandContext(CommandSender sender, List<String> args, String alias) {
         this.sender = sender;

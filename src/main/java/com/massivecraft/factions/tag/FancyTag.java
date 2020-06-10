@@ -8,14 +8,12 @@ import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.util.MiscUtil;
 import com.massivecraft.factions.util.QuadFunction;
 import com.massivecraft.factions.util.TextUtil;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectLists;
 import net.kyori.text.TextComponent;
 import net.kyori.text.event.HoverEvent;
 import net.kyori.text.serializer.gson.GsonComponentSerializer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -70,7 +68,7 @@ public enum FancyTag implements Tag {
     private final QuadFunction<Faction, FPlayer, String, Map<UUID, String>, List<TextComponent>> function;
 
     private static List<TextComponent> processRelation(String prefix, Faction faction, FPlayer fPlayer, Relation relation) {
-        ObjectList<TextComponent> fancyMessages = new ObjectArrayList<>();
+        List<TextComponent> fancyMessages = new ArrayList<>();
         TextComponent.Builder message = TextUtil.parseFancy(prefix);
         boolean first = true;
         for (Faction otherFaction : Factions.getInstance().getAllFactions()) {
@@ -99,7 +97,7 @@ public enum FancyTag implements Tag {
                 return tag.getMessage(text, faction, player, groupMap);
             }
         }
-        return ObjectLists.emptyList(); // We really shouldn't be here.
+        return Collections.emptyList(); // We really shouldn't be here.
     }
 
     public static FancyTag getMatch(String text) {
@@ -173,7 +171,7 @@ public enum FancyTag implements Tag {
 
     public List<TextComponent> getMessage(String text, Faction faction, FPlayer player, Map<UUID, String> groupMap) {
         if (!this.foundInString(text)) {
-            return ObjectLists.emptyList();
+            return Collections.emptyList();
         }
         return this.function.apply(faction, player, TextUtil.replace(text, this.getTag(), ""), groupMap);
     }

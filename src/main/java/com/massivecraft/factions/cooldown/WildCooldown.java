@@ -2,19 +2,16 @@ package com.massivecraft.factions.cooldown;
 
 import com.massivecraft.factions.util.TL;
 import org.apache.commons.lang.time.DurationFormatUtils;
-import org.bukkit.Bukkit;
 
 import java.time.Duration;
 import java.time.Instant;
 
-public final class StuckCooldown implements Cooldown, AutoCloseable {
+public final class WildCooldown implements Cooldown {
 
     private final Instant start;
     private final Duration duration;
 
-    private int taskId = -1;
-
-    public StuckCooldown(Instant start, Duration duration) {
+    public WildCooldown(Instant start, Duration duration) {
         this.start = start;
         this.duration = duration;
     }
@@ -31,7 +28,7 @@ public final class StuckCooldown implements Cooldown, AutoCloseable {
 
     @Override
     public String getDurationReadable() {
-        return DurationFormatUtils.formatDuration(this.duration.toMillis(), TL.COMMAND_STUCK_TIMEFORMAT.toString(), true);
+        return DurationFormatUtils.formatDuration(this.duration.toMillis(), TL.COMMAND_WILD_TIMEFORMAT.toString(), true);
     }
 
     @Override
@@ -42,23 +39,11 @@ public final class StuckCooldown implements Cooldown, AutoCloseable {
 
     @Override
     public String getRemainingReadable() {
-        return DurationFormatUtils.formatDuration(this.getRemaining().toMillis(), TL.COMMAND_STUCK_TIMEFORMAT.toString(), true);
+        return DurationFormatUtils.formatDuration(this.getRemaining().toMillis(), TL.COMMAND_WILD_TIMEFORMAT.toString(), true);
     }
 
     @Override
     public boolean isFinished() {
         return getRemaining() == Duration.ZERO;
-    }
-
-    @Override
-    public void close() {
-        if (this.taskId != -1) {
-            Bukkit.getScheduler().cancelTask(this.taskId);
-            this.taskId = -1;
-        }
-    }
-
-    public void setTaskId(int taskId) {
-        this.taskId = taskId;
     }
 }

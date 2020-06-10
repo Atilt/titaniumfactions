@@ -108,6 +108,7 @@ public enum Permission {
     SETMAXVAULTS("setmaxvaults"),
     NEAR("near"),
     WARP("warp"),
+    WILD("wild"),
     UPDATES("updates"),
     DEBUG("debug");
 

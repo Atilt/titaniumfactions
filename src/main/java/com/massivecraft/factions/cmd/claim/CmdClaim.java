@@ -11,20 +11,20 @@ import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.tasks.CompactSpiralTask;
 import com.massivecraft.factions.tasks.SpiralTask;
 import com.massivecraft.factions.util.TL;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import net.kyori.text.TextComponent;
 import net.kyori.text.adapter.bukkit.TextAdapter;
 import net.kyori.text.event.HoverEvent;
 import org.bukkit.entity.Player;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 
 public class CmdClaim extends FCommand {
 
-    private final ObjectSet<UUID> claiming = new ObjectOpenHashSet<>();
+    private final Set<UUID> claiming = new HashSet<>();
 
     private static final int MAX_RADIUS = 100;
 

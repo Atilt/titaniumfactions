@@ -63,7 +63,7 @@ public class CmdStuck extends FCommand {
                }
 
                // check for world difference or radius exceeding
-               final World world = chunk.getWorld();
+               World world = chunk.getWorld();
                if (!world.equals(player.getWorld()) || sentAt.distanceSquared(player.getLocation()) > radius * radius) {
                    context.msg(TL.COMMAND_STUCK_OUTSIDE.format(Integer.toString(radius)));
                    FactionsPlugin.getInstance().getStuckSessions().remove(player.getUniqueId());

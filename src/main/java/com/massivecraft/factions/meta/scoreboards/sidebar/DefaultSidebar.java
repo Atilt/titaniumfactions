@@ -3,10 +3,9 @@ package com.massivecraft.factions.meta.scoreboards.sidebar;
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.meta.scoreboards.SidebarTextProvider;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectLists;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public final class DefaultSidebar implements SidebarTextProvider {
@@ -29,9 +28,9 @@ public final class DefaultSidebar implements SidebarTextProvider {
 
     private List<String> format(FPlayer fPlayer, List<String> lines) {
         if (lines == null || lines.isEmpty()) {
-            return ObjectLists.emptyList();
+            return Collections.emptyList();
         }
-        ObjectList<String> formatted = new ObjectArrayList<>(lines.size());
+        List<String> formatted = new ArrayList<>(lines.size());
         for (String line : lines) {
             String replaced = SidebarTextProvider.replaceTags(fPlayer, line);
             if (replaced == null) {

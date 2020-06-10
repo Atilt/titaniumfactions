@@ -111,6 +111,9 @@ public final class FlightTask {
 
         @Override
         public void run() {
+            if (FPlayers.getInstance().onlineSize() == 1) {
+                return;
+            }
             for (FPlayer pilot : this.players.asCycle().next()) {
                 if (!pilot.isFlying() || pilot.isAdminBypassing()) {
                     continue;
@@ -126,6 +129,9 @@ public final class FlightTask {
         }
 
         public boolean enemiesNearby(FPlayer target, int radius) {
+            if (FPlayers.getInstance().onlineSize() == 1) {
+                return false;
+            }
             Player player = target.getPlayer();
             if (!WorldUtil.isEnabled(player.getWorld())) {
                 return false;
@@ -203,9 +209,6 @@ public final class FlightTask {
 
         @Override
         public void run() {
-            if (FPlayers.getInstance().onlineSize() == 1) {
-                return;
-            }
             for (FPlayer pilot : this.players.asCycle().next()) {
                 if (!pilot.isFlying()) {
                     continue;

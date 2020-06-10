@@ -7,12 +7,11 @@ import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.data.MemoryFPlayer;
 import com.massivecraft.factions.data.MemoryFPlayers;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.bukkit.Bukkit;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.IntConsumer;
@@ -34,7 +33,7 @@ public class JSONFPlayers extends MemoryFPlayers {
 
     @Override
     public void forceSave(boolean sync, BooleanConsumer finish) {
-        Object2ObjectMap<UUID, FPlayer> entitiesThatShouldBeSaved = new Object2ObjectOpenHashMap<>(this.fPlayers.size());
+        Map<UUID, FPlayer> entitiesThatShouldBeSaved = new HashMap<>(this.fPlayers.size());
         for (FPlayer entity : this.fPlayers.values()) {
             if (((MemoryFPlayer) entity).shouldBeSaved()) {
                 entitiesThatShouldBeSaved.put(entity.getId(), entity);
@@ -50,7 +49,7 @@ public class JSONFPlayers extends MemoryFPlayers {
             return;
         }
         Bukkit.getScheduler().runTaskAsynchronously(FactionsPlugin.getInstance(), () -> {
-            Map<UUID, JSONFPlayer> data = FactionsPlugin.getInstance().getIOController().read(PLAYERS_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Object2ObjectOpenHashMap<UUID, JSONFPlayer>>(){}.getType());
+            Map<UUID, JSONFPlayer> data = FactionsPlugin.getInstance().getIOController().read(PLAYERS_PATH, FactionsPlugin.getInstance().getGson(), new TypeToken<Map<UUID, JSONFPlayer>>(){}.getType());
             int amount = data == null ? 0 : data.size();
             Bukkit.getScheduler().runTask(FactionsPlugin.getInstance(), () -> {
                 if (amount > 0) {

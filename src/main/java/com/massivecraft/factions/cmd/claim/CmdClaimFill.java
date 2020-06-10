@@ -11,10 +11,9 @@ import com.massivecraft.factions.math.FastMath;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.bukkit.Location;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
@@ -69,7 +68,7 @@ public class CmdClaimFill extends FCommand {
         long startX = loc.getX();
         long startZ = loc.getZ();
 
-        ObjectSet<FLocation> toClaim = new ObjectOpenHashSet<>();
+        Set<FLocation> toClaim = new HashSet<>();
         Queue<FLocation> queue = new LinkedList<>();
         queue.add(loc);
         toClaim.add(loc);

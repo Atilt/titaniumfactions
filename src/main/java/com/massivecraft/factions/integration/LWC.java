@@ -6,15 +6,14 @@ import com.massivecraft.factions.FLocation;
 import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.FactionsPlugin;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
-import it.unimi.dsi.fastutil.objects.ObjectSets;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.plugin.Plugin;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 public class LWC {
@@ -59,9 +58,10 @@ public class LWC {
     private static Set<Block> findBlocks(FLocation flocation) {
         World world = Bukkit.getWorld(flocation.getWorldName());
         if (world == null) {
-            return ObjectSets.emptySet(); // world not loaded or something? cancel out to prevent error
+            return Collections.emptySet(); // world not loaded or something? cancel out to prevent error
         }
-        ObjectSet<Block> blocks = new ObjectOpenHashSet<>();
+        BlockState[] blockStates = world.getChunkAt(flocation.getX(), flocation.getZ()).getTileEntities();
+        Set<Block> blocks = new HashSet<>(blockStates.length);
         for (BlockState tileEntity : world.getChunkAt(flocation.getX(), flocation.getZ()).getTileEntities()) {
             if (!lwc.isProtectable(tileEntity)) {
                 continue;

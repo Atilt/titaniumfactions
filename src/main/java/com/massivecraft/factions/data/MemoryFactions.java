@@ -6,12 +6,10 @@ import com.massivecraft.factions.util.MiscUtil;
 import com.massivecraft.factions.util.TL;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.bukkit.ChatColor;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -117,7 +115,7 @@ public abstract class MemoryFactions extends Factions {
 
     @Override
     public Set<String> getFactionTags() {
-        ObjectSet<String> tags = new ObjectOpenHashSet<>(factions.size());
+        Set<String> tags = new HashSet<>(factions.size());
         for (Faction faction : factions.values()) {
             tags.add(faction.getTag());
         }
@@ -139,12 +137,12 @@ public abstract class MemoryFactions extends Factions {
 
     @Override
     public List<Faction> getAllFactions() {
-        return new ObjectArrayList<>(factions.values());
+        return new ArrayList<>(factions.values());
     }
 
     @Override
     public List<Faction> getAllNormalFactions() {
-        ObjectList<Faction> factions = new ObjectArrayList<>(this.factions.size() - 3);
+        List<Faction> factions = new ArrayList<>(this.factions.size() - 3);
         for (Faction value : this.factions.values()) {
             if (value.getIdRaw() < 1) {
                 continue;

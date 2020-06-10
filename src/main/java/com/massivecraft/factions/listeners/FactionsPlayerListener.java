@@ -1,6 +1,13 @@
 package com.massivecraft.factions.listeners;
 
-import com.massivecraft.factions.*;
+import com.massivecraft.factions.Board;
+import com.massivecraft.factions.FLocation;
+import com.massivecraft.factions.FPlayer;
+import com.massivecraft.factions.FPlayers;
+import com.massivecraft.factions.Faction;
+import com.massivecraft.factions.Factions;
+import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.cmd.FCmdRoot;
 import com.massivecraft.factions.gui.GUI;
 import com.massivecraft.factions.math.FastMath;
 import com.massivecraft.factions.meta.actionbar.ActionBarProvider;
@@ -19,8 +26,6 @@ import com.massivecraft.factions.util.material.MaterialDb;
 import io.papermc.lib.PaperLib;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import me.lucko.helper.reflect.MinecraftVersions;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -33,12 +38,25 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerBucketFillEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.time.Instant;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -177,6 +195,7 @@ public class FactionsPlayerListener extends AbstractListener {
         TablistProvider.get().untrack(player);
         ActionBarProvider.get().untrack(player);
         SeeChunkTask.get().untrack(me, false);
+        FCmdRoot.getInstance().cmdWild.untrack(me.getId());
         this.interactSpammers.remove(player.getName());
     }
 
@@ -372,7 +391,7 @@ public class FactionsPlayerListener extends AbstractListener {
 
 
     // for handling people who repeatedly spam attempts to open a door (or similar) in another faction's territory
-    private final Object2ObjectMap<String, InteractAttemptSpam> interactSpammers = new Object2ObjectOpenHashMap<>();
+    private final Map<String, InteractAttemptSpam> interactSpammers = new HashMap<>();
 
     private static class InteractAttemptSpam {
         private int attempts = 0;

@@ -5,23 +5,22 @@ import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.Factions;
 import com.massivecraft.factions.FactionsPlugin;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public abstract class MemoryFPlayers extends FPlayers {
-    protected final Object2ObjectMap<UUID, FPlayer> fPlayers = new Object2ObjectOpenHashMap<>();
-    private final transient ObjectSet<FPlayer> online = new ObjectOpenHashSet<>();
+    protected final Map<UUID, FPlayer> fPlayers = new HashMap<>();
+    private final transient Set<FPlayer> online = new HashSet<>();
 
     public Map<UUID, FPlayer> getFPlayers() {
         return fPlayers;
@@ -62,7 +61,7 @@ public abstract class MemoryFPlayers extends FPlayers {
     }
 
     public Collection<FPlayer> getOnlinePlayers() {
-        return new ObjectOpenHashSet<>(this.online);
+        return new HashSet<>(this.online);
     }
 
     @Override
@@ -72,7 +71,7 @@ public abstract class MemoryFPlayers extends FPlayers {
 
     @Override
     public List<FPlayer> getAllFPlayers() {
-        return new ObjectArrayList<>(fPlayers.values());
+        return new ArrayList<>(fPlayers.values());
     }
 
     @Override

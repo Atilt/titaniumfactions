@@ -12,7 +12,6 @@ import com.massivecraft.factions.integration.Econ;
 import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.util.FastUUID;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -522,7 +521,7 @@ public class EngineDynmap {
         if (faction.isWilderness()) {
             return null;
         }
-        Set<String> ret = new ObjectOpenHashSet<>(faction.getSize());
+        Set<String> ret = new HashSet<>(faction.getSize());
         for (FPlayer fplayer : faction.getFPlayers()) {
             // NOTE: We add both UUID and name. This might be a good idea for future proofing.
             ret.add(FastUUID.toString(fplayer.getId()));

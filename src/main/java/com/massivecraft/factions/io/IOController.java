@@ -4,8 +4,6 @@ import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import com.massivecraft.factions.FactionsPlugin;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.bukkit.Bukkit;
 
 import java.io.IOException;
@@ -14,12 +12,14 @@ import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public final class IOController {
 
-    private static final Object2ObjectMap<String, Lock> LOCKS = new Object2ObjectOpenHashMap<>();
+    private static final Map<String, Lock> LOCKS = new HashMap<>();
 
     public <T> T read(Path path, Gson gson, Type type) {
         Lock lock = LOCKS.computeIfAbsent(path.getFileName().toString(), s -> new ReentrantReadWriteLock().readLock());

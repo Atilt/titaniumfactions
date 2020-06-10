@@ -1,12 +1,11 @@
 package com.massivecraft.factions.util;
 
 import com.massivecraft.factions.math.FastMath;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectLists;
 import net.kyori.text.TextComponent;
 import org.bukkit.ChatColor;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -90,7 +89,7 @@ public class AsciiCompass {
     
     static {
         for (Point point : Point.VALUES) {
-            ObjectList<TextComponent> ret = new ObjectArrayList<>(3);
+            List<TextComponent> ret = new ArrayList<>(3);
 
             StringBuilder builder = new StringBuilder(4);
 
@@ -116,7 +115,7 @@ public class AsciiCompass {
     }
 
     private static List<TextComponent> get(Point point) {
-        return point == null ? ObjectLists.emptyList() : COMPASSES.get(point);
+        return point == null ? Collections.emptyList() : COMPASSES.get(point);
     }
 
     public static List<TextComponent> get(double degrees) {

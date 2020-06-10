@@ -1,6 +1,12 @@
 package com.massivecraft.factions.data;
 
-import com.massivecraft.factions.*;
+import com.massivecraft.factions.Board;
+import com.massivecraft.factions.FLocation;
+import com.massivecraft.factions.FPlayer;
+import com.massivecraft.factions.FPlayers;
+import com.massivecraft.factions.Faction;
+import com.massivecraft.factions.Factions;
+import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.event.FPlayerLeaveEvent;
 import com.massivecraft.factions.event.LandClaimEvent;
 import com.massivecraft.factions.iface.EconomyParticipator;
@@ -24,19 +30,30 @@ import com.massivecraft.factions.struct.MultiClaim;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.tag.Tag;
 import com.massivecraft.factions.tasks.SeeChunkTask;
-import com.massivecraft.factions.util.*;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
+import com.massivecraft.factions.util.FastUUID;
+import com.massivecraft.factions.util.RelationUtil;
+import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.TextUtil;
+import com.massivecraft.factions.util.TitleProvider;
+import com.massivecraft.factions.util.WarmUpUtil;
+import com.massivecraft.factions.util.WorldUtil;
 import net.kyori.text.TextComponent;
 import net.kyori.text.adapter.bukkit.TextAdapter;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.Statistic;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -1081,7 +1098,7 @@ public abstract class MemoryFPlayer implements FPlayer {
         }
 
         // announce success
-        ObjectSet<FPlayer> informTheseFPlayers = new ObjectOpenHashSet<>();
+        Set<FPlayer> informTheseFPlayers = new HashSet<>();
         informTheseFPlayers.add(this);
         informTheseFPlayers.addAll(forFaction.getFPlayersWhereOnline(true));
         for (FPlayer fp : informTheseFPlayers) {

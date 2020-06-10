@@ -1,6 +1,12 @@
 package com.massivecraft.factions.data;
 
-import com.massivecraft.factions.*;
+import com.massivecraft.factions.Board;
+import com.massivecraft.factions.FLocation;
+import com.massivecraft.factions.FPlayer;
+import com.massivecraft.factions.FPlayers;
+import com.massivecraft.factions.Faction;
+import com.massivecraft.factions.Factions;
+import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.integration.LWC;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.util.AsciiCompass;
@@ -9,14 +15,21 @@ import com.massivecraft.factions.util.TextUtil;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.*;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import net.kyori.text.TextComponent;
 import net.kyori.text.event.ClickEvent;
 import net.kyori.text.event.HoverEvent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.World;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -27,7 +40,7 @@ public abstract class MemoryBoard extends Board {
     public static class MemoryBoardMap extends Object2IntOpenHashMap<FLocation> {
         private static final long serialVersionUID = -6689617828610585368L;
 
-        private final Int2ObjectMap<ObjectSet<FLocation>> factionToLandMap = new Int2ObjectOpenHashMap<>();
+        private final Int2ObjectMap<Set<FLocation>> factionToLandMap = new Int2ObjectOpenHashMap<>();
 
         @Override
         public int put(FLocation fLocation, int factionId) {
@@ -36,12 +49,12 @@ public abstract class MemoryBoard extends Board {
             }
             int previousValue = super.put(fLocation, factionId);
             if (previousValue != this.defaultReturnValue()) {
-                ObjectSet<FLocation> fLocations = factionToLandMap.remove(previousValue);
+                Set<FLocation> fLocations = factionToLandMap.remove(previousValue);
                 if (fLocations != null) {
                     fLocations.remove(fLocation);
                 }
             }
-            factionToLandMap.computeIfAbsent(factionId, id -> new ObjectOpenHashSet<>()).add(fLocation);
+            factionToLandMap.computeIfAbsent(factionId, id -> new HashSet<>()).add(fLocation);
             return previousValue;
         }
 
@@ -54,7 +67,7 @@ public abstract class MemoryBoard extends Board {
         public int removeInt(Object key) {
             int result = super.removeInt(key);
             if (result != this.defaultReturnValue()) {
-                ObjectSet<FLocation> locations = this.factionToLandMap.get(result);
+                Set<FLocation> locations = this.factionToLandMap.get(result);
                 locations.remove(key);
             }
             return result;
@@ -72,7 +85,7 @@ public abstract class MemoryBoard extends Board {
         }
 
         public int getOwnedLandCount(int factionId) {
-            return factionToLandMap.getOrDefault(factionId, ObjectSets.emptySet()).size();
+            return factionToLandMap.getOrDefault(factionId, Collections.emptySet()).size();
         }
 
         @Deprecated
@@ -81,7 +94,7 @@ public abstract class MemoryBoard extends Board {
         }
 
         public void removeFaction(int factionId) {
-            ObjectSet<FLocation> fLocations = factionToLandMap.remove(factionId);
+            Set<FLocation> fLocations = factionToLandMap.remove(factionId);
             if (fLocations == null) {
                 return;
             }
@@ -178,7 +191,7 @@ public abstract class MemoryBoard extends Board {
 
     @Override
     public Set<FLocation> getAllClaims(int factionId) {
-        return this.flocationIds.factionToLandMap.getOrDefault(factionId, ObjectSets.emptySet());
+        return this.flocationIds.factionToLandMap.getOrDefault(factionId, Collections.emptySet());
     }
 
     @Override
@@ -235,7 +248,7 @@ public abstract class MemoryBoard extends Board {
 
     public void clean(int factionId) {
         if (LWC.getEnabled() && FactionsPlugin.getInstance().conf().lwc().isResetLocksOnUnclaim()) {
-            for (FLocation fLocation : flocationIds.factionToLandMap.getOrDefault(factionId, ObjectSets.emptySet())) {
+            for (FLocation fLocation : flocationIds.factionToLandMap.getOrDefault(factionId, Collections.emptySet())) {
                 LWC.clearAllLocks(fLocation);
             }
         }
@@ -324,7 +337,7 @@ public abstract class MemoryBoard extends Board {
      * of decreasing z
      */
     public List<TextComponent> getMap(FPlayer fplayer, FLocation flocation, double degrees) {
-        ObjectList<TextComponent> lines = new ObjectArrayList<>(3);
+        List<TextComponent> lines = new ArrayList<>(3);
         lines.add(TextComponent.of(TextUtil.titleize("(" + flocation.getCoordString() + ") " + this.getFactionAt(flocation).getTag(fplayer))));
 
         List<TextComponent> compass = AsciiCompass.get(degrees);
@@ -338,7 +351,7 @@ public abstract class MemoryBoard extends Board {
             height--;
         }
 
-        Object2ObjectMap<String, String> fList = new Object2ObjectOpenHashMap<>();
+        Map<String, String> fList = new HashMap<>();
         int charIdx = 0;
         for (int y = 0; y < height; y++) {
             TextComponent.Builder row = TextComponent.builder();
@@ -379,7 +392,7 @@ public abstract class MemoryBoard extends Board {
 
             if (FactionsPlugin.getInstance().conf().map().isShowFactionKey() && y == height - 1) {
                 TextComponent.Builder fRow = TextComponent.builder();
-                for (Object2ObjectMap.Entry<String, String> entry : fList.object2ObjectEntrySet()) {
+                for (Map.Entry<String, String> entry : fList.entrySet()) {
                     fRow.append(TextComponent.builder().content(entry.getValue() + ": " + entry.getKey() + " ").color(TextUtil.kyoriColor(fplayer.getRelationTo(Factions.getInstance().getByTag(entry.getKey())).getColor())).build());
                 }
                 lines.add(fRow.build());

@@ -5,12 +5,12 @@ import com.massivecraft.factions.tag.Tag;
 import com.massivecraft.factions.util.TextUtil;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -102,7 +102,7 @@ public abstract class GUI<T> implements InventoryHolder {
     }
 
     protected List<String> parseList(List<String> stringList, T type) {
-        List<String> newList = new ObjectArrayList<>(stringList.size());
+        List<String> newList = new ArrayList<>(stringList.size());
         for (String toParse : stringList) {
             String parsed = toParse;
             if (type != null) {

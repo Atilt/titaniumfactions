@@ -16,15 +16,21 @@ import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.bukkit.DyeColor;
-import org.bukkit.conversations.*;
+import org.bukkit.conversations.ConversationAbandonedEvent;
+import org.bukkit.conversations.ConversationAbandonedListener;
+import org.bukkit.conversations.ConversationContext;
+import org.bukkit.conversations.ConversationFactory;
+import org.bukkit.conversations.InactivityConversationCanceller;
+import org.bukkit.conversations.ManuallyAbandonedConversationCanceller;
+import org.bukkit.conversations.Prompt;
+import org.bukkit.conversations.StringPrompt;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -57,7 +63,7 @@ public class WarpGUI extends GUI<Integer> {
     private WarpGUI(FPlayer user, int page, Faction faction) {
         super(user, getRows(faction));
         this.faction = faction;
-        warps = new ObjectArrayList<>(faction.getWarps().keySet());
+        warps = new ArrayList<>(faction.getWarps().keySet());
         if (page == -1 && warps.size() > (5 * 9)) {
             page = 0;
         }
@@ -115,7 +121,7 @@ public class WarpGUI extends GUI<Integer> {
                     doWarmup(warp);
                 }
             } else {
-                Object2ObjectMap<Object, Object> sessionData = new Object2ObjectOpenHashMap<>(1);
+                Map<Object, Object> sessionData = new HashMap<>(1);
                 sessionData.put("warp", warp);
                 PasswordPrompt passwordPrompt = new PasswordPrompt();
                 ConversationFactory inputFactory = new ConversationFactory(FactionsPlugin.getInstance())

@@ -3,10 +3,10 @@ package com.massivecraft.factions.perms;
 import com.massivecraft.factions.config.file.DefaultPermissionsConfig;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.material.FactionMaterial;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.bukkit.Material;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 public enum PermissibleAction {
@@ -29,11 +29,12 @@ public enum PermissibleAction {
     TERRITORY(true, DefaultPermissionsConfig.Permissions::getTerritory, TL.PERM_TERRITORY, TL.PERM_SHORT_TERRITORY, "GRASS_BLOCK"),
     OWNER(true, DefaultPermissionsConfig.Permissions::getOwner, TL.PERM_OWNER, TL.PERM_SHORT_OWNER, "FENCE_GATE"),
     HOME(DefaultPermissionsConfig.Permissions::getHome, TL.PERM_HOME, TL.PERM_SHORT_HOME, "TORCH"),
-    SETHOME(true, DefaultPermissionsConfig.Permissions::getSetHome, TL.PERM_SETHOME, TL.PERM_SHORT_SETHOME, "COMPASS"),
+    SETHOME(true, DefaultPermissionsConfig.Permissions::getSetHome, TL.PERM_SETHOME, TL.PERM_SHORT_SETHOME, "RED_BED"),
     SETWARP(true, DefaultPermissionsConfig.Permissions::getSetWarp, TL.PERM_SETWARP, TL.PERM_SHORT_SETWARP, "END_PORTAL_FRAME"),
     TNTDEPOSIT(true, DefaultPermissionsConfig.Permissions::getTNTDeposit, TL.PERM_TNTDEPOSIT, TL.PERM_SHORT_TNTDEPOSIT, "TNT"),
     TNTWITHDRAW(true, DefaultPermissionsConfig.Permissions::getTNTWithdraw, TL.PERM_TNTWITHDRAW, TL.PERM_SHORT_TNTWITHDRAW, "TNT"),
     WARP(DefaultPermissionsConfig.Permissions::getWarp, TL.PERM_WARP, TL.PERM_SHORT_WARP, "ENDER_PEARL"),
+    WILD(DefaultPermissionsConfig.Permissions::getWild, TL.PERM_WILD, TL.PERM_SHORT_WILD, "COMPASS"),
     FLY(DefaultPermissionsConfig.Permissions::getFly, TL.PERM_FLY, TL.PERM_SHORT_FLY, "FEATHER"),
     ;
 
@@ -65,7 +66,7 @@ public enum PermissibleAction {
         this.materialName = materialName;
     }
 
-    private static final Object2ObjectMap<String, PermissibleAction> map = new Object2ObjectOpenHashMap<>();
+    private static final Map<String, PermissibleAction> map = new HashMap<>();
     public static final PermissibleAction[] VALUES = PermissibleAction.values();
 
     static {

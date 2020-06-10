@@ -6,14 +6,20 @@ import com.massivecraft.factions.config.annotation.WipeOnReload;
 import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.util.TextUtil;
 import com.massivecraft.factions.util.material.FactionMaterial;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSets;
 import me.lucko.helper.reflect.MinecraftVersions;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @SuppressWarnings({"FieldCanBeLocal", "InnerClassMayBeStatic", "BooleanMethodIsAlwaysInverted"})
 public class MainConfig {
@@ -706,7 +712,7 @@ public class MainConfig {
                 @Comment("If greater than 0, used as a cap for how much power a faction can have\nAdditional power from players beyond this acts as a \"buffer\" of sorts")
                 private double factionMax = 0.0;
                 private boolean respawnHomeFromNoPowerLossWorlds = true;
-                private Set<String> worldsNoPowerLoss = new ObjectOpenHashSet<String>() {
+                private Set<String> worldsNoPowerLoss = new HashSet<String>() {
                     {
                         this.add("exampleWorld");
                     }
@@ -787,7 +793,7 @@ public class MainConfig {
                 }
 
                 public Set<String> getWorldsNoPowerLoss() {
-                    return worldsNoPowerLoss == null ? ObjectSets.emptySet() : Collections.unmodifiableSet(worldsNoPowerLoss);
+                    return worldsNoPowerLoss == null ? Collections.emptySet() : Collections.unmodifiableSet(worldsNoPowerLoss);
                 }
 
                 public boolean isPeacefulMembersDisablePowerLoss() {
@@ -1031,7 +1037,7 @@ public class MainConfig {
             private boolean enablePVPAgainstFactionlessInAttackersLand = false;
             private boolean disablePeacefulPVPInWarzone = true;
             private int noPVPDamageToOthersForXSecondsAfterLogin = 3;
-            private Set<String> worldsIgnorePvP = new ObjectOpenHashSet<String>() {
+            private Set<String> worldsIgnorePvP = new HashSet<String>() {
                 {
                     this.add("exampleWorldName");
                 }
@@ -1058,7 +1064,7 @@ public class MainConfig {
             }
 
             public Set<String> getWorldsIgnorePvP() {
-                return worldsIgnorePvP == null ? ObjectSets.emptySet() : Collections.unmodifiableSet(worldsIgnorePvP);
+                return worldsIgnorePvP == null ? Collections.emptySet() : Collections.unmodifiableSet(worldsIgnorePvP);
             }
         }
 
@@ -1068,7 +1074,7 @@ public class MainConfig {
             private boolean peacefulTerritoryDisableBoom = false;
             private boolean permanentFactionsDisableLeaderPromotion = false;
             @Comment("Material names of things whose placement is ignored in faction territory")
-            private Set<String> ignoreBuildMaterials = new ObjectOpenHashSet<String>() {
+            private Set<String> ignoreBuildMaterials = new HashSet<String>() {
                 {
                     this.add("exampleMaterial");
                 }
@@ -1133,7 +1139,7 @@ public class MainConfig {
             private int fillClaimMaxDistance = 5;
             @Comment("If someone is doing a radius claim and the process fails to claim land this many times in a row, it will exit")
             private int radiusClaimFailureLimit = 9;
-            private Set<String> worldsNoClaiming = new ObjectOpenHashSet<String>() {
+            private Set<String> worldsNoClaiming = new HashSet<String>() {
                 {
                     this.add("exampleWorldName");
                 }
@@ -1297,12 +1303,12 @@ public class MainConfig {
             private transient Set<Material> territoryDenyUsageMaterialsWhenOfflineMat;
 
             @Comment("Mainly for other plugins/mods that use a fake player to take actions, which shouldn't be subject to our protections")
-            private Set<String> playersWhoBypassAllProtection = new ObjectOpenHashSet<String>() {
+            private Set<String> playersWhoBypassAllProtection = new HashSet<String>() {
                 {
                     this.add("example-player-name");
                 }
             };
-            private Set<String> worldsNoWildernessProtection = new ObjectOpenHashSet<String>() {
+            private Set<String> worldsNoWildernessProtection = new HashSet<String>() {
                 {
                     this.add("exampleWorld");
                 }
@@ -1322,27 +1328,27 @@ public class MainConfig {
             }
 
             public Set<String> getPermanentFactionMemberDenyCommands() {
-                return permanentFactionMemberDenyCommands == null ? ObjectSets.emptySet() : Collections.unmodifiableSet(permanentFactionMemberDenyCommands);
+                return permanentFactionMemberDenyCommands == null ? Collections.emptySet() : Collections.unmodifiableSet(permanentFactionMemberDenyCommands);
             }
 
             public Set<String> getTerritoryNeutralDenyCommands() {
-                return territoryNeutralDenyCommands == null ? ObjectSets.emptySet() : Collections.unmodifiableSet(territoryNeutralDenyCommands);
+                return territoryNeutralDenyCommands == null ? Collections.emptySet() : Collections.unmodifiableSet(territoryNeutralDenyCommands);
             }
 
             public Set<String> getTerritoryEnemyDenyCommands() {
-                return territoryEnemyDenyCommands == null ? ObjectSets.emptySet() : Collections.unmodifiableSet(territoryEnemyDenyCommands);
+                return territoryEnemyDenyCommands == null ? Collections.emptySet() : Collections.unmodifiableSet(territoryEnemyDenyCommands);
             }
 
             public Set<String> getTerritoryAllyDenyCommands() {
-                return territoryAllyDenyCommands == null ? ObjectSets.emptySet() : Collections.unmodifiableSet(territoryAllyDenyCommands);
+                return territoryAllyDenyCommands == null ? Collections.emptySet() : Collections.unmodifiableSet(territoryAllyDenyCommands);
             }
 
             public Set<String> getWarzoneDenyCommands() {
-                return warzoneDenyCommands == null ? ObjectSets.emptySet() : Collections.unmodifiableSet(warzoneDenyCommands);
+                return warzoneDenyCommands == null ? Collections.emptySet() : Collections.unmodifiableSet(warzoneDenyCommands);
             }
 
             public Set<String> getWildernessDenyCommands() {
-                return wildernessDenyCommands == null ? ObjectSets.emptySet() : Collections.unmodifiableSet(wildernessDenyCommands);
+                return wildernessDenyCommands == null ? Collections.emptySet() : Collections.unmodifiableSet(wildernessDenyCommands);
             }
 
             public boolean isTerritoryBlockCreepers() {
@@ -1498,11 +1504,11 @@ public class MainConfig {
             }
 
             public Set<String> getPlayersWhoBypassAllProtection() {
-                return playersWhoBypassAllProtection == null ? ObjectSets.emptySet() : this.playersWhoBypassAllProtection;
+                return playersWhoBypassAllProtection == null ? Collections.emptySet() : this.playersWhoBypassAllProtection;
             }
 
             public Set<String> getWorldsNoWildernessProtection() {
-                return worldsNoWildernessProtection == null ? ObjectSets.emptySet() : this.worldsNoWildernessProtection;
+                return worldsNoWildernessProtection == null ? Collections.emptySet() : this.worldsNoWildernessProtection;
             }
         }
 
@@ -2219,7 +2225,7 @@ public class MainConfig {
         }
 
         public Set<String> getWorldList() {
-            return worldList == null ? ObjectSets.emptySet() : Collections.unmodifiableSet(worldList);
+            return worldList == null ? Collections.emptySet() : Collections.unmodifiableSet(worldList);
         }
     }
 

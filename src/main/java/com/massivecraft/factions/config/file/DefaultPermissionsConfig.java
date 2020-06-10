@@ -165,6 +165,10 @@ public class DefaultPermissionsConfig {
             return this.warp;
         }
 
+        public FullPermInfo getWild() {
+            return this.wild;
+        }
+
         public FullPermInfo getFly() {
             return this.fly;
         }
@@ -339,6 +343,15 @@ public class DefaultPermissionsConfig {
         };
         @Comment("Can use faction warps")
         private FullPermInfo warp = new FullPermInfo() {
+            {
+                this.coleader.value = true;
+                this.moderator.value = true;
+                this.normal.value = true;
+                this.recruit.value = true;
+            }
+        };
+        @Comment("Can use faction wild teleport")
+        private FullPermInfo wild = new FullPermInfo() {
             {
                 this.coleader.value = true;
                 this.moderator.value = true;

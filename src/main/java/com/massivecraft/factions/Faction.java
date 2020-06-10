@@ -10,7 +10,11 @@ import com.massivecraft.factions.util.LazyLocation;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 public interface Faction extends EconomyParticipator {
     Map<UUID, List<String>> getAnnouncements();

@@ -5,12 +5,11 @@ import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.struct.MultiClaim;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class CompactSpiralTask extends BukkitRunnable implements MultiClaim {
@@ -36,8 +35,8 @@ public abstract class CompactSpiralTask extends BukkitRunnable implements MultiC
 
     private int failedAttempts;
 
-    private final ObjectList<String> successes = new ObjectArrayList<>();
-    private final ObjectList<String> failures = new ObjectArrayList<>();
+    private final List<String> successes = new ArrayList<>();
+    private final List<String> failures = new ArrayList<>();
 
     private int task = -1;
 

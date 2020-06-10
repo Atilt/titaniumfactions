@@ -6,10 +6,9 @@ import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.tag.Tag;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.bukkit.ChatColor;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,14 +39,14 @@ public abstract class FCommand {
 
         requirements = new CommandRequirements.Builder(null).build();
 
-        this.subCommands = new ObjectArrayList<>();
-        this.aliases = new ObjectArrayList<>();
+        this.subCommands = new ArrayList<>();
+        this.aliases = new ArrayList<>();
 
-        this.requiredArgs = new ObjectArrayList<>();
+        this.requiredArgs = new ArrayList<>();
         this.optionalArgs = new LinkedHashMap<>();
 
         this.helpShort = null;
-        this.helpLong = new ObjectArrayList<>();
+        this.helpLong = new ArrayList<>();
         this.visibility = CommandVisibility.VISIBLE;
     }
 
@@ -143,7 +142,7 @@ public abstract class FCommand {
      */
     public List<String> getToolTips(FPlayer player) {
         List<String> tips = FactionsPlugin.getInstance().conf().commands().toolTips().getPlayer();
-        ObjectList<String> lines = new ObjectArrayList<>(tips.size());
+        List<String> lines = new ArrayList<>(tips.size());
         for (String s : tips) {
             lines.add(ChatColor.translateAlternateColorCodes('&', Tag.parsePlain(player, s)));
         }
@@ -152,7 +151,7 @@ public abstract class FCommand {
 
     public List<String> getToolTips(Faction faction) {
         List<String> tips = FactionsPlugin.getInstance().conf().commands().toolTips().getFaction();
-        ObjectList<String> lines = new ObjectArrayList<>(tips.size());
+        List<String> lines = new ArrayList<>(tips.size());
         for (String s : tips) {
             lines.add(ChatColor.translateAlternateColorCodes('&', Tag.parsePlain(faction, s)));
         }
@@ -174,7 +173,7 @@ public abstract class FCommand {
 
         ret.append(TextUtil.implode(this.aliases, ","));
 
-        ObjectList<String> args = new ObjectArrayList<>(this.requiredArgs.size() + this.optionalArgs.size());
+        List<String> args = new ArrayList<>(this.requiredArgs.size() + this.optionalArgs.size());
 
         for (String requiredArg : this.requiredArgs) {
             args.add("<" + requiredArg + ">");

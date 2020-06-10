@@ -20,7 +20,7 @@ public class CmdReload extends FCommand {
     public void perform(CommandContext context) {
         long start = System.nanoTime();
         FactionsPlugin.getInstance().getConfigManager().loadConfigs();
-        FactionsPlugin.getInstance().reloadConfig();
+        FactionsPlugin.getInstance().getWildManager().deserialize(FactionsPlugin.getInstance().getPath().resolve("config").resolve("wild.conf"), amount -> {});
         FactionsPlugin.getInstance().loadLang();
         SidebarProvider.get().trackAll();
         TablistProvider.get().trackAll();

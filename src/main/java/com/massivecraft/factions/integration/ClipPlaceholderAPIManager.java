@@ -1,6 +1,11 @@
 package com.massivecraft.factions.integration;
 
-import com.massivecraft.factions.*;
+import com.massivecraft.factions.Board;
+import com.massivecraft.factions.FPlayer;
+import com.massivecraft.factions.FPlayers;
+import com.massivecraft.factions.Faction;
+import com.massivecraft.factions.Factions;
+import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.landraidcontrol.DTRControl;
 import com.massivecraft.factions.math.FastMath;
 import com.massivecraft.factions.perms.Relation;

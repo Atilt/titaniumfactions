@@ -7,9 +7,8 @@ import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.tag.Tag;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -53,7 +52,7 @@ public class CmdList extends FCommand {
         // Then sort by how many members are online now
         factionList.sort(this.compare(f -> f.getFPlayersWhereOnline(true)));
 
-        ObjectList<String> lines = new ObjectArrayList<>();
+        List<String> lines = new ArrayList<>();
 
         factionList.add(0, Factions.getInstance().getWilderness());
 

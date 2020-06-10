@@ -2,10 +2,6 @@ package com.massivecraft.factions.util;
 
 import com.google.gson.reflect.TypeToken;
 import com.massivecraft.factions.FactionsPlugin;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
@@ -15,7 +11,9 @@ import org.bukkit.Material;
 import org.fusesource.jansi.Ansi;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +24,7 @@ public final class TextUtil {
 
     public static final ChatColor[] BUKKIT_COLORS = ChatColor.values();
 
-    private static final Object2ObjectMap<String, String> TAGS = new Object2ObjectOpenHashMap<>();
+    private static final Map<String, String> TAGS = new HashMap<>();
     private static final Map<String, String> RAW_TAGS = new LinkedHashMap<>();
     private static final Map<ChatColor, String> ANSI = new EnumMap<>(ChatColor.class);
     private static final Map<ChatColor, TextColor> BUKKIT_TO_KYORI = new EnumMap<>(ChatColor.class);
@@ -287,7 +285,7 @@ public final class TextUtil {
         int pageZeroBased = pageHumanBased - 1;
         int pagecount = (lines.size() / 9) + 1;
 
-        ObjectList<String> ret = new ObjectArrayList<>(pagecount);
+        List<String> ret = new ArrayList<>(pagecount);
 
         ret.add(titleize(title + " " + pageHumanBased + "/" + pagecount));
 

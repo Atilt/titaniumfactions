@@ -1,6 +1,12 @@
 package com.massivecraft.factions.data;
 
-import com.massivecraft.factions.*;
+import com.massivecraft.factions.Board;
+import com.massivecraft.factions.FLocation;
+import com.massivecraft.factions.FPlayer;
+import com.massivecraft.factions.FPlayers;
+import com.massivecraft.factions.Faction;
+import com.massivecraft.factions.Factions;
+import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.config.file.DefaultPermissionsConfig;
 import com.massivecraft.factions.iface.EconomyParticipator;
 import com.massivecraft.factions.iface.RelationParticipator;
@@ -15,9 +21,14 @@ import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.struct.BanInfo;
 import com.massivecraft.factions.struct.Permission;
-import com.massivecraft.factions.util.*;
+import com.massivecraft.factions.util.FastUUID;
+import com.massivecraft.factions.util.LazyLocation;
+import com.massivecraft.factions.util.MiscUtil;
+import com.massivecraft.factions.util.RelationUtil;
+import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.TextUtil;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.*;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -25,8 +36,16 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.UUID;
 
 public abstract class MemoryFaction implements Faction, EconomyParticipator {
     protected int id = -10;
@@ -43,18 +62,18 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     protected transient long lastPlayerLoggedOffTime;
     protected double powerBoost;
     protected Map<Integer, Relation> relationWish = new Int2ObjectOpenHashMap<>();
-    protected Map<FLocation, Set<UUID>> claimOwnership = new Object2ObjectOpenHashMap<>();
-    protected transient ObjectSet<FPlayer> fplayers = new ObjectOpenHashSet<>();
-    protected Set<UUID> invites = new ObjectOpenHashSet<>();
-    protected Map<UUID, List<String>> announcements = new Object2ObjectOpenHashMap<>();
-    protected Map<String, LazyLocation> warps = new Object2ObjectOpenHashMap<>();
-    protected Map<String, String> warpPasswords = new Object2ObjectOpenHashMap<>();
+    protected Map<FLocation, Set<UUID>> claimOwnership = new HashMap<>();
+    protected transient Set<FPlayer> fplayers = new HashSet<>();
+    protected Set<UUID> invites = new HashSet<>();
+    protected Map<UUID, List<String>> announcements = new HashMap<>();
+    protected Map<String, LazyLocation> warps = new HashMap<>();
+    protected Map<String, String> warpPasswords = new HashMap<>();
     private long lastDeath;
     protected int maxVaults;
     protected Role defaultRole;
-    protected Map<Permissible, Map<PermissibleAction, Boolean>> permissions = new Object2ObjectOpenHashMap<>();
-    protected Map<Permissible, Map<PermissibleAction, Boolean>> permissionsOffline = new Object2ObjectOpenHashMap<>();
-    protected Set<BanInfo> bans = new ObjectOpenHashSet<>();
+    protected Map<Permissible, Map<PermissibleAction, Boolean>> permissions = new HashMap<>();
+    protected Map<Permissible, Map<PermissibleAction, Boolean>> permissionsOffline = new HashMap<>();
+    protected Set<BanInfo> bans = new HashSet<>();
     protected double dtr;
     protected long lastDTRUpdateTime;
     protected long frozenDTRUntilTime;
@@ -67,7 +86,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
 
     @Override
     public void addAnnouncement(FPlayer fPlayer, String msg) {
-        announcements.computeIfAbsent(fPlayer.getId(), id -> new ObjectArrayList<>()).add(msg);
+        announcements.computeIfAbsent(fPlayer.getId(), id -> new ArrayList<>()).add(msg);
     }
 
     @Override
@@ -559,7 +578,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         powerBoost = old.powerBoost;
         relationWish = old.relationWish;
         claimOwnership = old.claimOwnership;
-        fplayers = new ObjectOpenHashSet<>();
+        fplayers = new HashSet<>();
         invites = old.invites;
         announcements = old.announcements;
         this.defaultRole = old.defaultRole;
@@ -828,15 +847,15 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
 
     @Override
     public Set<FPlayer> getFPlayers() {
-        return ObjectSets.unmodifiable(this.fplayers);
+        return Collections.unmodifiableSet(this.fplayers);
     }
 
     @Override
     public Set<FPlayer> getFPlayersWhereOnline(boolean online) {
         if (!this.isNormal()) {
-            return ObjectSets.emptySet();
+            return Collections.emptySet();
         }
-        ObjectSet<FPlayer> ret = new ObjectOpenHashSet<>();
+        Set<FPlayer> ret = new HashSet<>();
         if (online) {
             for (FPlayer onlinePlayer : FPlayers.getInstance().getOnlinePlayers()) {
                 if (onlinePlayer.getFaction() == this) {
@@ -856,9 +875,9 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     @Override
     public Set<FPlayer> getFPlayersWhereOnline(boolean online, FPlayer viewer) {
         if (!this.isNormal()) {
-            return ObjectSets.emptySet();
+            return Collections.emptySet();
         }
-        ObjectSet<FPlayer> ret = new ObjectOpenHashSet<>();
+        Set<FPlayer> ret = new HashSet<>();
         for (FPlayer viewed : FPlayers.getInstance().getOnlinePlayers()) {
             if (viewed.getFaction() != this) {
                 continue;
@@ -912,9 +931,9 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     @Override
     public List<FPlayer> getFPlayersWhereRole(Role role) {
         if (!this.isNormal()) {
-            return ObjectLists.emptyList();
+            return Collections.emptyList();
         }
-        ObjectList<FPlayer> ret = new ObjectArrayList<>();
+        List<FPlayer> ret = new ArrayList<>();
 
         for (FPlayer fplayer : this.fplayers) {
             if (fplayer.getRole() == role) {
@@ -942,9 +961,9 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     @Override
     public List<Player> getOnlinePlayers() {
         if (this.isPlayerFreeType()) {
-            return ObjectLists.emptyList();
+            return Collections.emptyList();
         }
-        ObjectList<Player> ret = new ObjectArrayList<>();
+        List<Player> ret = new ArrayList<>();
 
         for (FPlayer onlinePlayer : FPlayers.getInstance().getOnlinePlayers()) {
             if (onlinePlayer.getFaction() != this) {
@@ -1140,7 +1159,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     }
 
     public void setPlayerAsOwner(FPlayer player, FLocation loc) {
-        claimOwnership.computeIfAbsent(loc, fLocation -> new ObjectOpenHashSet<>()).add(player.getId());
+        claimOwnership.computeIfAbsent(loc, fLocation -> new HashSet<>()).add(player.getId());
     }
 
     public void removePlayerAsOwner(FPlayer player, FLocation loc) {
@@ -1203,7 +1222,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
         }
 
         // Clean the board
-        ((MemoryBoard) Board.getInstance()).clean(id);
+        ((MemoryBoard) Board.getInstance()).clean(this.id);
 
         for (FPlayer fPlayer : fplayers) {
             fPlayer.resetFactionData(false);
