@@ -13,19 +13,22 @@ public class CmdReload extends FCommand {
 
         this.aliases.add("reload");
 
-        this.requirements = new CommandRequirements.Builder(Permission.RELOAD).noDisableOnLock().build();
+        this.requirements = new CommandRequirements.Builder(Permission.RELOAD)
+                .noDisableOnLock()
+                .build();
     }
 
     @Override
     public void perform(CommandContext context) {
         long start = System.nanoTime();
         FactionsPlugin.getInstance().getConfigManager().loadConfigs();
-        FactionsPlugin.getInstance().getWildManager().deserialize(FactionsPlugin.getInstance().getPath().resolve("config").resolve("wild.conf"), amount -> {});
-        FactionsPlugin.getInstance().loadLang();
-        SidebarProvider.get().trackAll();
-        TablistProvider.get().trackAll();
-        CmdVault.reload();
-        context.msg(TL.COMMAND_RELOAD_TIME, Double.toString((System.nanoTime() - start) / 1_000_000.0D));
+        FactionsPlugin.getInstance().getWildManager().deserialize(FactionsPlugin.getInstance().getPath().resolve("config").resolve("wild.conf"), amount -> {
+            FactionsPlugin.getInstance().loadLang();
+            SidebarProvider.get().trackAll();
+            TablistProvider.get().trackAll();
+            CmdVault.reload();
+            context.msg(TL.COMMAND_RELOAD_TIME, Double.toString((System.nanoTime() - start) / 1_000_000.0D));
+        });
     }
 
     @Override

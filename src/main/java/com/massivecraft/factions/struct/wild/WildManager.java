@@ -58,7 +58,7 @@ public final class WildManager implements Trackable<Player> {
         return teleportDelay;
     }
 
-    public String getTeleportDelayRedable() {
+    public String getTeleportDelayReadable() {
         return DurationFormatUtils.formatDuration(this.teleportDelay * 1000, TL.COMMAND_WILD_TIMEFORMAT.toString(), true);
     }
 

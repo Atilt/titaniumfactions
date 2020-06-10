@@ -2,8 +2,8 @@ package com.massivecraft.factions.meta.tablist;
 
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.Trackable;
+import com.massivecraft.factions.meta.titles.TitleProvider;
 import com.massivecraft.factions.protocol.Protocol;
-import com.massivecraft.factions.util.TitleProvider;
 import me.lucko.helper.bucket.Bucket;
 import me.lucko.helper.bucket.factory.BucketFactory;
 import me.lucko.helper.bucket.partitioning.PartitioningStrategies;

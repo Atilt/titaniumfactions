@@ -1,10 +1,10 @@
-package com.massivecraft.factions.meta.actionbar;
+package com.massivecraft.factions.meta.actionbars;
 
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.Trackable;
 import com.massivecraft.factions.meta.scoreboards.FastBoard;
+import com.massivecraft.factions.meta.titles.TitleProvider;
 import com.massivecraft.factions.protocol.Protocol;
-import com.massivecraft.factions.util.TitleProvider;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import me.lucko.helper.reflect.MinecraftVersions;

@@ -9,7 +9,7 @@ import com.massivecraft.factions.Factions;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.gui.GUI;
 import com.massivecraft.factions.math.FastMath;
-import com.massivecraft.factions.meta.actionbar.ActionBarProvider;
+import com.massivecraft.factions.meta.actionbars.ActionBarProvider;
 import com.massivecraft.factions.meta.scoreboards.SidebarProvider;
 import com.massivecraft.factions.meta.tablist.TablistProvider;
 import com.massivecraft.factions.perms.PermissibleAction;

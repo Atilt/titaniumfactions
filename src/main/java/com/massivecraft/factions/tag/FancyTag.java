@@ -92,12 +92,11 @@ public enum FancyTag implements Tag {
     }
 
     public static List<TextComponent> parse(String text, Faction faction, FPlayer player, Map<UUID, String> groupMap) {
-        for (FancyTag tag : VALUES) {
-            if (tag.foundInString(text)) {
-                return tag.getMessage(text, faction, player, groupMap);
-            }
+        FancyTag tag = getMatch(text);
+        if (tag == null) {
+            return Collections.emptyList();
         }
-        return Collections.emptyList(); // We really shouldn't be here.
+        return tag.getMessage(text, faction, player, groupMap);
     }
 
     public static FancyTag getMatch(String text) {

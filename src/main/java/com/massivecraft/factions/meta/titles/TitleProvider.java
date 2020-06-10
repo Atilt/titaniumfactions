@@ -1,4 +1,4 @@
-package com.massivecraft.factions.util;
+package com.massivecraft.factions.meta.titles;
 
 import com.massivecraft.factions.protocol.Protocol;
 import me.lucko.helper.reflect.ServerReflection;

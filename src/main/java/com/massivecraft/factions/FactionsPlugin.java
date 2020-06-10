@@ -275,10 +275,10 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
                         //metrics needs to be instantiated after all the data in order for proper data collection
                         //this.setupMetrics();
 
-                        this.logger.info("Faction data has been loaded successfully. (&7" + TextUtil.formatDecimal((System.nanoTime() - dataStart) / 1_000_000.0D) + "ms&b)");
                         this.wildManager = new WildManager();
                         this.wildManager.deserialize(this.path.resolve("config").resolve("wild.conf"), loadedWorlds -> {
                             this.logger.info("== Wild Worlds: &7" + loadedWorlds + "&b loaded");
+                            this.logger.info("Faction data has been loaded successfully. (&7" + TextUtil.formatDecimal((System.nanoTime() - dataStart) / 1_000_000.0D) + "ms&b)");
                             this.loadDataSuccessful = true;
                         });
                     });
@@ -615,7 +615,7 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             FPlayers.getInstance().forceSave(result -> this.logger.info(" == Players: Successfully saved all data."));
             Factions.getInstance().forceSave(result -> this.logger.info(" == Factions: Successfully saved all data."));
             Board.getInstance().forceSave(result -> this.logger.info(" == Claims: Successfully saved all data."));
-            this.wildManager.serialize(this.path.resolve("config").resolve("wild.conf"), result -> this.logger.info("== Wild: Successfully saved all data."));
+            this.wildManager.serialize(this.path.resolve("config").resolve("wild.conf"), result -> this.logger.info(" == Wild: Successfully saved all data."));
         }
     }
 
