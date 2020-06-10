@@ -63,7 +63,7 @@ public class BrigadierManager {
                 RequiredArgumentBuilder<Object, ?> previous = null;
                 if (subCommand.subCommands.isEmpty()) {
                     // We create an orderly stack of all args, required and optional, format them differently
-                    List<RequiredArgumentBuilder<Object, ?>> stack = new ArrayList<>();
+                    List<RequiredArgumentBuilder<Object, ?>> stack = new ArrayList<>(subCommand.requiredArgs.size() + subCommand.optionalArgs.size());
                     for (String required : subCommand.requiredArgs) {
                         // Simply add the arg name as required
                         stack.add(RequiredArgumentBuilder.argument(required, StringArgumentType.word()));

@@ -1,6 +1,7 @@
 package com.massivecraft.factions.struct.wild;
 
 import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.Trackable;
 import com.massivecraft.factions.cooldown.Cooldown;
 import com.massivecraft.factions.cooldown.WildCooldown;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
@@ -8,6 +9,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,7 +20,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.IntConsumer;
 
-public final class WildManager {
+public final class WildManager implements Trackable<Player> {
 
     private final Map<String, WildWorld> worlds = new HashMap<String, WildWorld>(){{
         put("example_world", new WildWorld(10000, 10000, 10000, 10000));
@@ -30,6 +32,21 @@ public final class WildManager {
 
     private final transient Map<UUID, Cooldown> cooldowns = new HashMap<>();
     private final transient Object2IntMap<UUID> delays = new Object2IntOpenHashMap<>();
+
+    @Override
+    public boolean track(Player player) {
+        return false;
+    }
+
+    @Override
+    public boolean untrack(Player player) {
+        int task = this.purgeDelay(player.getUniqueId());
+        if (task != -1) {
+            Bukkit.getScheduler().cancelTask(task);
+        }
+        this.cooldowns.remove(player.getUniqueId());
+        return true;
+    }
 
     public long getTeleportCooldown() {
         return teleportCooldown;
@@ -95,13 +112,5 @@ public final class WildManager {
 
     public int purgeDelay(UUID uuid) {
         return this.delays.removeInt(uuid);
-    }
-
-    public void untrack(UUID uuid) {
-        int task = this.purgeDelay(uuid);
-        if (task != -1) {
-            Bukkit.getScheduler().cancelTask(task);
-        }
-        this.cooldowns.remove(uuid);
     }
 }

@@ -1,6 +1,7 @@
 package com.massivecraft.factions.meta.actionbar;
 
 import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.Trackable;
 import com.massivecraft.factions.meta.scoreboards.FastBoard;
 import com.massivecraft.factions.protocol.Protocol;
 import com.massivecraft.factions.util.TitleProvider;
@@ -21,7 +22,7 @@ import java.lang.invoke.MethodType;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
-public final class ActionBarProvider {
+public final class ActionBarProvider implements Trackable<Player> {
 
     private static final boolean ACTION_BAR_SUPPORTED = FactionsPlugin.getInstance().getMCVersion().isAfterOrEq(MinecraftVersions.v1_12);
 
@@ -102,10 +103,17 @@ public final class ActionBarProvider {
         Protocol.sendPacket(player, PACKET_INSTANCE.apply(TitleProvider.STRING_TO_COMPONENT.apply("{\"text\": \"" + message + "\"}"), (byte) 2));
     }
 
-    public void untrack(Player player) {
+    @Override
+    public boolean track(Player player) {
+        return false;
+    }
+
+    public boolean untrack(Player player) {
         int task = this.tasks.removeInt(player.getUniqueId());
         if (task != this.tasks.defaultReturnValue()) {
             Bukkit.getScheduler().cancelTask(task);
+            return true;
         }
+        return false;
     }
 }

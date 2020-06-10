@@ -1248,7 +1248,8 @@ public abstract class MemoryFPlayer implements FPlayer {
         if (this.seeingChunk) {
             SeeChunkTask.get().track(this);
         } else {
-            SeeChunkTask.get().untrack(this, true);
+            SeeChunkTask.get().untrack(this);
+            SeeChunkTask.get().removeBlocks(this, true);
         }
     }
 

@@ -3,6 +3,7 @@ package com.massivecraft.factions.tasks;
 import com.massivecraft.factions.Board;
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.Trackable;
 import com.massivecraft.factions.listeners.FactionsExploitListener;
 import com.massivecraft.factions.util.WorldUtil;
 import com.massivecraft.factions.util.material.FactionMaterial;
@@ -16,7 +17,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public final class SeeChunkTask extends BukkitRunnable implements AutoCloseable {
+public final class SeeChunkTask extends BukkitRunnable implements Trackable<FPlayer>, AutoCloseable {
 
     private static SeeChunkTask instance;
 
@@ -53,16 +54,18 @@ public final class SeeChunkTask extends BukkitRunnable implements AutoCloseable 
         this.task = this.runTaskTimer(FactionsPlugin.getInstance(), 1L, 1L).getTaskId();
     }
 
+    @Override
     public boolean track(FPlayer fPlayer) {
         return this.players.add(fPlayer);
     }
 
-    public boolean untrack(FPlayer fPlayer, boolean deep) {
-        boolean removed = this.players.remove(fPlayer);
-        if (removed) {
-            FactionsPlugin.getInstance().getBlockVisualizer().clear(fPlayer.getPlayer(), deep);
-        }
-        return removed;
+    @Override
+    public boolean untrack(FPlayer fPlayer) {
+        return this.players.remove(fPlayer);
+    }
+
+    public void removeBlocks(FPlayer fPlayer, boolean deep) {
+        FactionsPlugin.getInstance().getBlockVisualizer().clear(fPlayer.getPlayer(), deep);
     }
 
     @Override

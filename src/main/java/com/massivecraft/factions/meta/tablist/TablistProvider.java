@@ -1,6 +1,7 @@
 package com.massivecraft.factions.meta.tablist;
 
 import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.Trackable;
 import com.massivecraft.factions.protocol.Protocol;
 import com.massivecraft.factions.util.TitleProvider;
 import me.lucko.helper.bucket.Bucket;
@@ -18,7 +19,7 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.util.function.Supplier;
 
-public final class TablistProvider implements AutoCloseable {
+public final class TablistProvider implements Trackable<Player>, AutoCloseable {
     
     private static TablistProvider instance;
 
@@ -30,6 +31,8 @@ public final class TablistProvider implements AutoCloseable {
     private static Field HEADER_FIELD;
     private static Field FOOTER_FIELD;
     private static Supplier<Object> PACKET_INSTANCE;
+
+    private static Object EMPTY_TITLE;
 
     static {
         if (!TAB_SUPPORTED) {
@@ -102,23 +105,24 @@ public final class TablistProvider implements AutoCloseable {
         Protocol.sendPacket(player, this.constructPacket(header, footer));
     }
 
+    @Override
     public boolean track(Player player) {
         return this.players.add(player);
+    }
+
+    @Override
+    public boolean untrack(Player player) {
+        return this.players.remove(player);
     }
 
     public void trackAll() {
         boolean enabled = FactionsPlugin.getInstance().conf().tablist().isEnabled();
         if (!enabled && !this.players.isEmpty()) {
             this.players.clear();
-            Object packet = this.constructPacket("", "");
             for (Player player : Bukkit.getOnlinePlayers()) {
-                Protocol.sendPacket(player, packet);
+                Protocol.sendPacket(player, EMPTY_TITLE == null ? EMPTY_TITLE = constructPacket("", "") : EMPTY_TITLE);
             }
         }
-    }
-
-    public boolean untrack(Player player) {
-        return this.players.remove(player);
     }
 
     @Override

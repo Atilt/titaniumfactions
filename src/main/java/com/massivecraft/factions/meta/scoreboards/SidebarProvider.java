@@ -3,13 +3,14 @@ package com.massivecraft.factions.meta.scoreboards;
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.Trackable;
 import com.massivecraft.factions.meta.scoreboards.sidebar.DefaultSidebar;
 import me.lucko.helper.bucket.Bucket;
 import me.lucko.helper.bucket.factory.BucketFactory;
 import me.lucko.helper.bucket.partitioning.PartitioningStrategies;
 import org.bukkit.Bukkit;
 
-public final class SidebarProvider implements AutoCloseable {
+public final class SidebarProvider implements Trackable<FPlayer>, AutoCloseable {
 
     private static SidebarProvider instance;
 
@@ -48,6 +49,7 @@ public final class SidebarProvider implements AutoCloseable {
         }, 1L, 1L).getTaskId();
     }
 
+    @Override
     public boolean track(FPlayer fPlayer) {
         return this.players.add(fPlayer);
     }
@@ -67,6 +69,7 @@ public final class SidebarProvider implements AutoCloseable {
         }
     }
 
+    @Override
     public boolean untrack(FPlayer fPlayer) {
         return this.players.remove(fPlayer);
     }

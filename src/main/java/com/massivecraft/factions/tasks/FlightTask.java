@@ -3,6 +3,7 @@ package com.massivecraft.factions.tasks;
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.Trackable;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
@@ -16,7 +17,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public final class FlightTask {
+public final class FlightTask implements Trackable<FPlayer> {
 
     private static FlightTask instance;
 
@@ -45,10 +46,12 @@ public final class FlightTask {
         }
     }
 
+    @Override
     public boolean track(FPlayer fPlayer) {
         return EnemiesTask.get().track(fPlayer) && ParticleTrailsTask.get().track(fPlayer);
     }
 
+    @Override
     public boolean untrack(FPlayer fPlayer) {
         return EnemiesTask.get().untrack(fPlayer) && ParticleTrailsTask.get().untrack(fPlayer);
     }

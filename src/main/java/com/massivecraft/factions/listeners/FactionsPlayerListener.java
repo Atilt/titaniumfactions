@@ -120,16 +120,23 @@ public class FactionsPlayerListener extends AbstractListener {
 
     private void initFactionWorld(FPlayer me, Player player) {
         // Check for Faction announcements. Let's delay this so they actually see it.
-        Faction faction = me.getFaction();
-        if (faction.hasUnreadAnnouncements(me)) {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (player.isOnline() && faction == me.getFaction()) {
-                        faction.sendUnreadAnnouncements(player);
+        if (me.hasFaction()) {
+            Faction faction = me.getFaction();
+            if (faction.hasUnreadAnnouncements(me)) {
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        if (player.isOnline() && faction == me.getFaction()) {
+                            faction.sendUnreadAnnouncements(player);
+                        }
                     }
+                }.runTaskLater(FactionsPlugin.getInstance(), 33L); // Due to essentials being an MOTD hog.
+            }
+            for (FPlayer other : faction.getFPlayersWhereOnline(true)) {
+                if (other != me && other.isMonitoringJoins()) {
+                    other.msg(TL.FACTION_LOGIN, me.getName());
                 }
-            }.runTaskLater(FactionsPlugin.getInstance(), 33L); // Due to essentials being an MOTD hog.
+            }
         }
 
         if (FactionsPlugin.getInstance().conf().scoreboard().constant().isEnabled() && me.showScoreboard()) {
@@ -139,14 +146,6 @@ public class FactionsPlayerListener extends AbstractListener {
 
         if (FactionsPlugin.getInstance().conf().tablist().isEnabled()) {
             TablistProvider.get().track(player);
-        }
-
-        if (!faction.isWilderness()) {
-            for (FPlayer other : faction.getFPlayersWhereOnline(true)) {
-                if (other != me && other.isMonitoringJoins()) {
-                    other.msg(TL.FACTION_LOGIN, me.getName());
-                }
-            }
         }
 
         // If they have the permission, don't let them autoleave. Bad inverted setter :\
@@ -188,13 +187,14 @@ public class FactionsPlayerListener extends AbstractListener {
             }
         }
         FactionsPlugin.getInstance().getStuckSessions().remove(me.getId());
-        FactionsPlugin.getInstance().getWildManager().untrack(me.getId());
+        FactionsPlugin.getInstance().getWildManager().untrack(player);
         FPlayers.getInstance().removeOnline(me);
         FlightTask.get().untrack(me);
         SidebarProvider.get().untrack(me);
         TablistProvider.get().untrack(player);
         ActionBarProvider.get().untrack(player);
-        SeeChunkTask.get().untrack(me, false);
+        SeeChunkTask.get().untrack(me);
+        SeeChunkTask.get().removeBlocks(me, false);
         this.interactSpammers.remove(player.getName());
     }
 
