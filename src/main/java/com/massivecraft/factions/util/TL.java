@@ -261,7 +261,8 @@ public enum TL implements Formattable<TL> {
     COMMAND_WILD_NO_LOCATION_FOUND("&cNo suitable location could be found. Please try again."),
     COMMAND_WILD_TIMEFORMAT("m 'minutes', s 'seconds.'"),
     COMMAND_WILD_ALREADY_TELEPORTING("&cYou are already teleporting."),
-    COMMAND_WILD_TELEPORT_COMMENCING("&cYou will be teleported in {0}. Taking damage will cancel the teleport."),
+    COMMAND_WILD_ON_COOLDOWN("&cYou cannot use wild teleportation for another &e{0}."),
+    COMMAND_WILD_TELEPORT_COMMENCING("&cYou will be teleported in &e{0}&c. Taking damage will cancel the teleport."),
 
     COMMAND_HELP_404("&cThis page does not exist"),
     COMMAND_HELP_NEXTCREATE("&eLearn how to create a faction on the next page."),

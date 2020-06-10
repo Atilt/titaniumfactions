@@ -4,9 +4,11 @@ import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.Trackable;
 import com.massivecraft.factions.cooldown.Cooldown;
 import com.massivecraft.factions.cooldown.WildCooldown;
+import com.massivecraft.factions.util.TL;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import org.apache.commons.lang.time.DurationFormatUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -54,6 +56,10 @@ public final class WildManager implements Trackable<Player> {
 
     public long getTeleportDelay() {
         return teleportDelay;
+    }
+
+    public String getTeleportDelayRedable() {
+        return DurationFormatUtils.formatDuration(this.teleportDelay * 1000, TL.COMMAND_WILD_TIMEFORMAT.toString(), true);
     }
 
     public void serialize(Path path, BooleanConsumer result) {

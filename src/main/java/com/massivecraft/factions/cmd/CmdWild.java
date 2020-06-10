@@ -70,7 +70,7 @@ public class CmdWild extends FCommand {
                 context.msg(TL.COMMAND_WILD_NO_LOCATION_FOUND);
                 return;
             }
-            context.msg(TL.COMMAND_WILD_TELEPORT_COMMENCING.format(Long.toString(FactionsPlugin.getInstance().getWildManager().getTeleportDelay())));
+            context.msg(TL.COMMAND_WILD_TELEPORT_COMMENCING.format(wildManager.getTeleportDelayRedable()));
             wildManager.markCooldown(context.player.getUniqueId());
             wildManager.markDelay(context.player.getUniqueId(), Bukkit.getScheduler().runTaskLater(FactionsPlugin.getInstance(), () -> {
                 PaperLib.teleportAsync(context.player, location, PlayerTeleportEvent.TeleportCause.PLUGIN);
@@ -78,7 +78,7 @@ public class CmdWild extends FCommand {
             }, 60L).getTaskId());
             return;
         }
-        context.msg(cooldown.getRemainingReadable());
+        context.msg(TL.COMMAND_WILD_ON_COOLDOWN.format(cooldown.getRemainingReadable()));
     }
 
     public static class LocationFinder {

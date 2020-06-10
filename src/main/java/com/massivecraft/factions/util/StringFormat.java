@@ -26,13 +26,10 @@ import java.util.List;
 
 public class StringFormat {
 
-	// no: <> {}
-	// yes: []
 	public static final String DELIMITER = "[]";
     private static final char DELIMITER_START = '[';
     private static final char ESCAPE_CHAR = '\\';
-    
-    static final int NUMBER_LENGTH_GUESS = 10;
+
     static final int OBJECT_LENGTH_GUESS = 20;
     
     public static String format(String messagePattern, Object... args) {

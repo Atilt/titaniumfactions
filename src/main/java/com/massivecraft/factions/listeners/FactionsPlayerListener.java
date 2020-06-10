@@ -362,8 +362,7 @@ public class FactionsPlayerListener extends AbstractListener {
                 return;
             }
             if (FactionsPlugin.getInstance().conf().exploits().isInteractionSpam()) {
-                InteractAttemptSpam attempt = interactSpammers.computeIfAbsent(player.getName(), s -> new InteractAttemptSpam());
-                int count = attempt.increment();
+                int count = interactSpammers.computeIfAbsent(player.getName(), s -> new InteractAttemptSpam()).increment();
                 if (count >= 10) {
                     player.sendMessage(TL.PLAYER_OUCH.toString());
                     player.damage(FastMath.floor(count / 10.0D));
