@@ -2402,8 +2402,15 @@ public class MainConfig {
                 "the border of the world and what can be claimed to factions")
         private int buffer = 0;
 
+        @Comment("Prevents liquids from flowing outside the world's border.")
+        private boolean preventLiquidFlow = true;
+
         public int getBuffer() {
             return buffer;
+        }
+
+        public boolean isPreventLiquidFlow() {
+            return preventLiquidFlow;
         }
     }
 

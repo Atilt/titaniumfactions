@@ -351,7 +351,7 @@ public abstract class MemoryBoard extends Board {
             height--;
         }
 
-        Map<String, String> fList = new HashMap<>(Factions.getInstance().getAllFactions().size());
+        Map<String, String> fList = new HashMap<>(height * width);
         int charIdx = 0;
         for (int y = 0; y < height; y++) {
             TextComponent.Builder row = TextComponent.builder();

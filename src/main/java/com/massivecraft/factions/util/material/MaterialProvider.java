@@ -18,6 +18,7 @@ public class MaterialProvider {
     private static final Set<Material> EXPLOITABLE = EnumSet.noneOf(Material.class);
     private static final Set<Material> PRESSURE_PLATES = EnumSet.noneOf(Material.class);
     private static final Set<Material> MINECARTS = EnumSet.noneOf(Material.class);
+    private static final Set<Material> LIQUIDS = EnumSet.noneOf(Material.class);
     private static final Set<Material> EXPLOSIVE_RESISTANT = EnumSet.noneOf(Material.class);
     private static final Set<Material> SHULKER_BOXES = EnumSet.noneOf(Material.class);
     private static final Set<Material> POTTED_FLOWERS = EnumSet.noneOf(Material.class);
@@ -90,14 +91,16 @@ public class MaterialProvider {
         MINECARTS.add(resolve("HOPPER_MINECART"));
         MINECARTS.add(resolve("TNT_MINECART"));
 
-        EXPLOSIVE_RESISTANT.add(resolve("WATER"));
-        EXPLOSIVE_RESISTANT.add(resolve("STATIONARY_WATER"));
+        LIQUIDS.add(resolve("WATER"));
+        LIQUIDS.add(resolve("STATIONARY_WATER"));
+        LIQUIDS.add(resolve("LAVA"));
+        LIQUIDS.add(resolve("STATIONARY_LAVA"));
+
+        EXPLOSIVE_RESISTANT.addAll(LIQUIDS);
         EXPLOSIVE_RESISTANT.add(resolve("AIR"));
         EXPLOSIVE_RESISTANT.add(resolve("CAVE_AIR"));
         EXPLOSIVE_RESISTANT.add(resolve("VOID_AIR"));
         EXPLOSIVE_RESISTANT.add(resolve("BEDROCK"));
-        EXPLOSIVE_RESISTANT.add(resolve("LAVA"));
-        EXPLOSIVE_RESISTANT.add(resolve("STATIONARY_LAVA"));
         EXPLOSIVE_RESISTANT.add(resolve("OBSIDIAN"));
         EXPLOSIVE_RESISTANT.add(resolve("WATER"));
         EXPLOSIVE_RESISTANT.add(resolve("END_PORTAL"));
@@ -155,10 +158,7 @@ public class MaterialProvider {
             POTTED_FLOWERS.add(resolve("POTTED_RED_TULIP"));
             POTTED_FLOWERS.add(resolve("POTTED_WHITE_TULIP"));
         }
-        UNSAFE.add(resolve("LAVA"));
-        UNSAFE.add(resolve("STATIONARY_LAVA"));
-        UNSAFE.add(resolve("WATER"));
-        UNSAFE.add(resolve("STATIONARY_WATER"));
+        UNSAFE.addAll(LIQUIDS);
         UNSAFE.add(resolve("COBWEB"));
     }
 
@@ -225,6 +225,10 @@ public class MaterialProvider {
 
     public boolean isMinecart(Material material) {
         return MINECARTS.contains(material);
+    }
+
+    public boolean isLiquid(Material material) {
+        return LIQUIDS.contains(material);
     }
 
     public boolean isExplosiveResistant(Material material) {

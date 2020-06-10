@@ -169,18 +169,9 @@ public final class FLocation implements Serializable {
     public boolean isInChunk(Location loc) {
         return loc != null && (loc.getWorld().getName().equals(getWorldName()) && FastMath.floor(loc.getX()) >> 4 == x && FastMath.floor(loc.getZ()) >> 4 == z);
     }
-
-    /**
-     * Checks if the chunk represented by this FLocation is outside the world border
-     *
-     * @param buffer the number of chunks from the border that will be treated as "outside"
-     * @return whether this location is outside of the border
-     */
-    public boolean isOutsideWorldBorder(int buffer) {
-        return isOutsideWorldBorder(getWorld(), buffer);
-    }
-
-    public boolean isOutsideWorldBorder(World world, int buffer) {
+    
+    
+    public static boolean isOutsideWorldBorder(World world, int x, int z, int buffer) {
         if (!WORLD_BORDER_SUPPORT) {
             return false;
         }
@@ -199,12 +190,20 @@ public final class FLocation implements Serializable {
         double borderMaxX = (center.getX() + size) - bufferBlocks;
         double borderMaxZ = (center.getZ() + size) - bufferBlocks;
 
-        int chunkMinX = WorldUtil.chunkToBlock(this.x);
+        int chunkMinX = WorldUtil.chunkToBlock(x);
         int chunkMaxX = chunkMinX | 15;
-        int chunkMinZ = WorldUtil.chunkToBlock(this.z);
+        int chunkMinZ = WorldUtil.chunkToBlock(z);
         int chunkMaxZ = chunkMinZ | 15;
 
         return (chunkMinX >= borderMaxX) || (chunkMinZ >= borderMaxZ) || (chunkMaxX <= borderMinX) || (chunkMaxZ <= borderMinZ);
+    }
+
+    public boolean isOutsideWorldBorder(World world, int buffer) {
+       return isOutsideWorldBorder(world, this.x, this.z, buffer);
+    }
+
+    public boolean isOutsideWorldBorder(int buffer) {
+        return isOutsideWorldBorder(getWorld(), buffer);
     }
 
     @Override

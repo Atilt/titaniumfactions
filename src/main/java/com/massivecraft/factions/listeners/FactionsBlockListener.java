@@ -10,6 +10,7 @@ import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.WorldUtil;
+import com.massivecraft.factions.util.material.MaterialDb;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -61,6 +62,13 @@ public class FactionsBlockListener implements Listener {
     public void onBlockFromTo(BlockFromToEvent event) {
         if (!WorldUtil.isEnabled(event.getBlock().getWorld())) {
             return;
+        }
+        if (FactionsPlugin.getInstance().conf().worldBorder().isPreventLiquidFlow()) {
+            Block to = event.getToBlock();
+            if (MaterialDb.get().getProvider().isLiquid(to.getType()) && FLocation.isOutsideWorldBorder(to.getWorld(), WorldUtil.blockToChunk(to.getX()), WorldUtil.blockToChunk(to.getZ()), FactionsPlugin.getInstance().conf().worldBorder().getBuffer())) {
+                event.setCancelled(true);
+                return;
+            }
         }
 
         if (!FactionsPlugin.getInstance().conf().exploits().isLiquidFlow()) {
