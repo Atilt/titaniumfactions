@@ -1,14 +1,21 @@
 package com.massivecraft.factions.struct.wild;
 
 import com.massivecraft.factions.FactionsPlugin;
+import com.massivecraft.factions.cooldown.Cooldown;
+import com.massivecraft.factions.cooldown.WildCooldown;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.IntConsumer;
 
 public final class WildManager {
@@ -20,6 +27,9 @@ public final class WildManager {
 
     private long teleportCooldown = 60;
     private long teleportDelay = 5;
+
+    private final transient Map<UUID, Cooldown> cooldowns = new HashMap<>();
+    private final transient Object2IntMap<UUID> delays = new Object2IntOpenHashMap<>();
 
     public long getTeleportCooldown() {
         return teleportCooldown;
@@ -46,6 +56,7 @@ public final class WildManager {
                 if (data) {
                     this.worlds.clear();
                     this.worlds.putAll(wildManager.worlds);
+                    this.delays.defaultReturnValue(-1);
                     this.teleportCooldown = wildManager.teleportCooldown;
                     this.teleportDelay = wildManager.teleportDelay;
                 }
@@ -64,5 +75,33 @@ public final class WildManager {
 
     public WildWorld getWildWorld(World world) {
         return this.worlds.get(world.getName());
+    }
+
+    public boolean hasDelay(UUID uuid) {
+        return this.delays.containsKey(uuid);
+    }
+
+    public Cooldown getCooldown(UUID uuid) {
+        return this.cooldowns.getOrDefault(uuid, Cooldown.EMPTY);
+    }
+
+    public void markCooldown(UUID uuid) {
+        this.cooldowns.put(uuid, new WildCooldown(Instant.now(), Duration.ofSeconds(this.teleportCooldown)));
+    }
+
+    public void markDelay(UUID uuid, int task) {
+        this.delays.put(uuid, task);
+    }
+
+    public int purgeDelay(UUID uuid) {
+        return this.delays.removeInt(uuid);
+    }
+
+    public void untrack(UUID uuid) {
+        int task = this.purgeDelay(uuid);
+        if (task != -1) {
+            Bukkit.getScheduler().cancelTask(task);
+        }
+        this.cooldowns.remove(uuid);
     }
 }

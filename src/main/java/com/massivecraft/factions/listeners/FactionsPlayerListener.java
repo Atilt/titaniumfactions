@@ -7,7 +7,6 @@ import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.Factions;
 import com.massivecraft.factions.FactionsPlugin;
-import com.massivecraft.factions.cmd.FCmdRoot;
 import com.massivecraft.factions.gui.GUI;
 import com.massivecraft.factions.math.FastMath;
 import com.massivecraft.factions.meta.actionbar.ActionBarProvider;
@@ -189,13 +188,13 @@ public class FactionsPlayerListener extends AbstractListener {
             }
         }
         FactionsPlugin.getInstance().getStuckSessions().remove(me.getId());
+        FactionsPlugin.getInstance().getWildManager().untrack(me.getId());
         FPlayers.getInstance().removeOnline(me);
         FlightTask.get().untrack(me);
         SidebarProvider.get().untrack(me);
         TablistProvider.get().untrack(player);
         ActionBarProvider.get().untrack(player);
         SeeChunkTask.get().untrack(me, false);
-        FCmdRoot.getInstance().cmdWild.untrack(me.getId());
         this.interactSpammers.remove(player.getName());
     }
 

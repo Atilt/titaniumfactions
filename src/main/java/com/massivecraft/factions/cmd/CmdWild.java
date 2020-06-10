@@ -2,14 +2,12 @@ package com.massivecraft.factions.cmd;
 
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.cooldown.Cooldown;
-import com.massivecraft.factions.cooldown.WildCooldown;
 import com.massivecraft.factions.struct.Permission;
+import com.massivecraft.factions.struct.wild.WildManager;
 import com.massivecraft.factions.struct.wild.WildWorld;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.material.MaterialDb;
 import io.papermc.lib.PaperLib;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import me.lucko.helper.reflect.MinecraftVersions;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -18,18 +16,10 @@ import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 public class CmdWild extends FCommand {
-
-    private final Map<UUID, Cooldown> cooldowns = new HashMap<>();
-    private final Object2IntMap<UUID> delays = new Object2IntOpenHashMap<>();
 
     private static final Set<Biome> OCEANS = EnumSet.noneOf(Biome.class);
 
@@ -58,22 +48,21 @@ public class CmdWild extends FCommand {
         this.requirements = new CommandRequirements.Builder(Permission.WILD)
                 .playerOnly()
                 .build();
-
-        this.delays.defaultReturnValue(-1);
     }
 
     @Override
     public void perform(CommandContext context) {
+        WildManager wildManager = FactionsPlugin.getInstance().getWildManager();
         World world = context.player.getWorld();
-        if (!FactionsPlugin.getInstance().getWildManager().hasSupport(world)) {
+        if (!wildManager.hasSupport(world)) {
             context.msg(TL.COMMAND_WILD_WORLD_NO_SUPPORT);
             return;
         }
-        if (this.delays.containsKey(context.player.getUniqueId())) {
+        if (wildManager.hasDelay(context.player.getUniqueId())) {
             context.msg(TL.COMMAND_WILD_ALREADY_TELEPORTING);
             return;
         }
-        Cooldown cooldown = this.cooldowns.getOrDefault(context.player.getUniqueId(), Cooldown.EMPTY);
+        Cooldown cooldown = wildManager.getCooldown(context.player.getUniqueId());
         if (cooldown.isFinished()) {
             LocationFinder locationFinder = new LocationFinder(FactionsPlugin.getInstance().getWildManager().getWildWorld(world));
             Location location = locationFinder.find(world);
@@ -82,10 +71,10 @@ public class CmdWild extends FCommand {
                 return;
             }
             context.msg(TL.COMMAND_WILD_TELEPORT_COMMENCING.format(Long.toString(FactionsPlugin.getInstance().getWildManager().getTeleportDelay())));
-            this.cooldowns.put(context.player.getUniqueId(), new WildCooldown(Instant.now(), Duration.ofSeconds(10)));
-            this.delays.put(context.player.getUniqueId(), Bukkit.getScheduler().runTaskLater(FactionsPlugin.getInstance(), () -> {
+            wildManager.markCooldown(context.player.getUniqueId());
+            wildManager.markDelay(context.player.getUniqueId(), Bukkit.getScheduler().runTaskLater(FactionsPlugin.getInstance(), () -> {
                 PaperLib.teleportAsync(context.player, location, PlayerTeleportEvent.TeleportCause.PLUGIN);
-                this.delays.removeInt(context.player.getUniqueId());
+                wildManager.purgeDelay(context.player.getUniqueId());
             }, 60L).getTaskId());
             return;
         }
@@ -115,13 +104,5 @@ public class CmdWild extends FCommand {
     @Override
     public TL getUsageTranslation() {
         return TL.COMMAND_WILD_DESCRIPTION;
-    }
-
-    public void untrack(UUID uuid) {
-        int task = this.delays.removeInt(uuid);
-        if (task != -1) {
-            Bukkit.getScheduler().cancelTask(task);
-        }
-        this.cooldowns.remove(uuid);
     }
 }
