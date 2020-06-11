@@ -1,3 +1,5 @@
+![](https://i.imgur.com/5OFuNpc.png "Banner")
+
 # titaniumfactions
 High performance Factions fork that prioritizes efficiency, speed, and low memory footprints.
 
@@ -12,6 +14,7 @@ High performance Factions fork that prioritizes efficiency, speed, and low memor
 - Faster math implementations for particles, chunk claiming, and block scanning
 - Faster faction data serialization & deserialization
 - Faster, less intensive land fetching and claiming
+- Faster translation parsing for less-intensive mass message sending
 - Optimized faction [player] inactivity checks
 - Optimized faction flight checks
 - Proper async implementations for local data saving
@@ -19,5 +22,7 @@ High performance Factions fork that prioritizes efficiency, speed, and low memor
 - Implements cache for faction locations
 - Replaces fanciful api with kyori-text api
 
-## Features
-- N/A
+## Features (in progress)
+- Wild teleportation
+- Better world border mechanics (liquid flow, block gravity, etc.)
+- Redstone liquid protection
