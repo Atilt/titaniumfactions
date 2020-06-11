@@ -162,7 +162,7 @@ public abstract class FCommand {
     Help and Usage information
  */
     public String getUsageTemplate(CommandContext context, boolean addShortHelp) {
-        StringBuilder ret = new StringBuilder();
+        StringBuilder ret = new StringBuilder(9);
         ret.append(TextUtil.parseTags("<c>"));
         ret.append('/');
 

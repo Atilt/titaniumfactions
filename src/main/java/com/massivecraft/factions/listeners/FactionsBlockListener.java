@@ -63,30 +63,36 @@ public class FactionsBlockListener implements Listener {
         if (!WorldUtil.isEnabled(event.getBlock().getWorld())) {
             return;
         }
-        if (FactionsPlugin.getInstance().conf().worldBorder().isPreventLiquidFlow()) {
-            Block to = event.getToBlock();
-            if (MaterialDb.get().getProvider().isLiquid(to.getType()) && FLocation.isOutsideWorldBorder(to.getWorld(), WorldUtil.blockToChunk(to.getX()), WorldUtil.blockToChunk(to.getZ()), FactionsPlugin.getInstance().conf().worldBorder().getBuffer())) {
-                event.setCancelled(true);
-                return;
-            }
-        }
-
-        if (!FactionsPlugin.getInstance().conf().exploits().isLiquidFlow()) {
-            return;
-        }
-        if (event.getBlock().isLiquid() && event.getToBlock().isEmpty()) {
-            Faction from = Board.getInstance().getFactionAt(FLocation.wrap(event.getBlock()));
-            Faction to = Board.getInstance().getFactionAt(FLocation.wrap(event.getToBlock()));
-            if (from == to) {
-                // not concerned with inter-faction events
-                return;
-            }
-            // from faction != to faction
-            if (to.isNormal()) {
-                if (from.isNormal() && from.getRelationTo(to).isAlly()) {
+        if (event.getBlock().isLiquid()) {
+            if (FactionsPlugin.getInstance().conf().worldBorder().isPreventLiquidFlow()) {
+                Block current = event.getBlock();
+                if (FLocation.isOutsideWorldBorder(current.getWorld(), WorldUtil.blockToChunk(current.getX()), WorldUtil.blockToChunk(current.getZ()), FactionsPlugin.getInstance().conf().worldBorder().getBuffer())) {
+                    event.setCancelled(true);
                     return;
                 }
+            }
+            if (FactionsPlugin.getInstance().conf().factions().other().isDisableWaterFlowOnRedstone() && MaterialDb.get().getProvider().isRedstone(event.getToBlock().getType())) {
                 event.setCancelled(true);
+                return;
+            }
+
+            if (!FactionsPlugin.getInstance().conf().exploits().isLiquidFlow()) {
+                return;
+            }
+            if (event.getToBlock().isEmpty()) {
+                Faction from = Board.getInstance().getFactionAt(FLocation.wrap(event.getBlock()));
+                Faction to = Board.getInstance().getFactionAt(FLocation.wrap(event.getToBlock()));
+                if (from == to) {
+                    // not concerned with inter-faction events
+                    return;
+                }
+                // from faction != to faction
+                if (to.isNormal()) {
+                    if (from.isNormal() && from.getRelationTo(to).isAlly()) {
+                        return;
+                    }
+                    event.setCancelled(true);
+                }
             }
         }
     }

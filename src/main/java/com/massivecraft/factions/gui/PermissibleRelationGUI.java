@@ -84,7 +84,7 @@ public class PermissibleRelationGUI extends GUI<Permissible> {
     @Override
     protected String parse(String toParse, Permissible permissible) {
         // Uppercase the first letter
-        return toParse.replace("{relation-color}", permissible.getColor().toString()).replace("{relation}", TextUtil.upperCaseFirst(permissible.toString()));
+        return TextUtil.replace(TextUtil.replace(toParse, "{relation-color}", permissible.getColor().toString()), "{relation}", TextUtil.upperCaseFirst(permissible.toString()));
     }
 
     @Override
@@ -103,7 +103,7 @@ public class PermissibleRelationGUI extends GUI<Permissible> {
 
     @Override
     protected Int2ObjectMap<Permissible> createSlotMap() {
-        Int2ObjectMap<Permissible> map = new Int2ObjectOpenHashMap<>();
+        Int2ObjectMap<Permissible> map = new Int2ObjectOpenHashMap<>(8);
         if (online) {
             map.put(0, Role.RECRUIT);
             map.put(1, Role.NORMAL);

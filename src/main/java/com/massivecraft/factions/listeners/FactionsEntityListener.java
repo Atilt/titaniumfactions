@@ -569,15 +569,18 @@ public class FactionsEntityListener extends AbstractListener {
             return;
         }
 
-        Entity entity = event.getEntity();
+        EntityType entityType = event.getEntityType();
 
-        // for now, only interested in Enderman and Wither boss tomfoolery
-        if (entity.getType() == EntityType.ENDERMAN) {
-            if (stopEndermanBlockManipulation(event.getBlock().getLocation())) {
-                event.setCancelled(true);
-            }
-        } else if (entity.getType() == EntityType.WITHER) {
-            Faction faction = Board.getInstance().getFactionAt(FLocation.wrap(event.getBlock().getLocation()));
+        if (entityType == EntityType.FALLING_BLOCK && event.getTo() == Material.AIR && FactionsPlugin.getInstance().conf().worldBorder().isPreventBlockGravity() && FLocation.isOutsideWorldBorder(event.getBlock().getWorld(), WorldUtil.blockToChunk(event.getBlock().getX()), WorldUtil.blockToChunk(event.getBlock().getZ()), FactionsPlugin.getInstance().conf().worldBorder().getBuffer())) {
+            event.setCancelled(true);
+            return;
+        }
+        if (entityType == EntityType.ENDERMAN && stopEndermanBlockManipulation(event.getBlock().getLocation())) {
+            event.setCancelled(true);
+            return;
+        }
+        if (entityType == EntityType.WITHER) {
+            Faction faction = Board.getInstance().getFactionAt(FLocation.wrap(event.getBlock()));
             // it's a bit crude just using fireball protection, but I'd rather not add in a whole new set of xxxBlockWitherExplosion or whatever
             if ((faction.isWilderness() && FactionsPlugin.getInstance().conf().factions().protection().isWildernessBlockFireballs() && !FactionsPlugin.getInstance().conf().factions().protection().getWorldsNoWildernessProtection().contains(event.getBlock().getWorld().getName())) ||
                     (faction.isNormal() && (faction.hasPlayersOnline() ? FactionsPlugin.getInstance().conf().factions().protection().isTerritoryBlockFireballs() : FactionsPlugin.getInstance().conf().factions().protection().isTerritoryBlockFireballsWhenOffline())) ||

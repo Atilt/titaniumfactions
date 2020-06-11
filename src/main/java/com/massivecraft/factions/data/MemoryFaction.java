@@ -1251,9 +1251,7 @@ public abstract class MemoryFaction implements Faction, EconomyParticipator {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         MemoryFaction that = (MemoryFaction) o;
-
         return id == that.id;
     }
 

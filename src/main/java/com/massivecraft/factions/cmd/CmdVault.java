@@ -56,7 +56,6 @@ public class CmdVault extends FCommand {
             player.sendMessage(TL.COMMAND_VAULT_TOOHIGH.format(Integer.toString(number), Integer.toString(max)));
             return;
         }
-
         //pre-compile
         String vaultName = VAULT_PREFIX.format(Integer.toString(context.faction.getIdRaw()));
 

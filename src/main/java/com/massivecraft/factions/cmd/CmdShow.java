@@ -96,7 +96,7 @@ public class CmdShow extends FCommand {
             return; // we only show header for non-normal factions
         }
 
-        List<String> messageList = new ArrayList<>();
+        List<String> messageList = new ArrayList<>(show.size());
         for (String raw : show) {
             String parsed = Tag.parsePlain(faction, context.fPlayer, raw); // use relations
             if (parsed == null) {

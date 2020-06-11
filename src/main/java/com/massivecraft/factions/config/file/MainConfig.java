@@ -1619,6 +1619,9 @@ public class MainConfig {
                     "Prevents flying piston machines in faction territory.")
             private boolean disablePistonsInTerritory = false;
 
+            @Comment("If true, water will not flow onto redstone which normally causes it to break.")
+            private boolean disableWaterFlowOnRedstone = true;
+
             @Comment("Any faction names CONTAINING any of these items will be disallowed")
             private List<String> nameBlacklist = new ArrayList<String>() {
                 {
@@ -1633,6 +1636,10 @@ public class MainConfig {
 
             public boolean isDisablePistonsInTerritory() {
                 return disablePistonsInTerritory;
+            }
+
+            public boolean isDisableWaterFlowOnRedstone() {
+                return disableWaterFlowOnRedstone;
             }
 
             public boolean isDeleteEssentialsHomes() {
@@ -2405,12 +2412,20 @@ public class MainConfig {
         @Comment("Prevents liquids from flowing outside the world's border.")
         private boolean preventLiquidFlow = true;
 
+        @Comment("Prevents blocks from having gravity (falling) if outside the world's border.\n" +
+                "This includes sand, gravel, anvils, and other physics affected blocks.")
+        private boolean preventBlockGravity = true;
+
         public int getBuffer() {
             return buffer;
         }
 
         public boolean isPreventLiquidFlow() {
             return preventLiquidFlow;
+        }
+
+        public boolean isPreventBlockGravity() {
+            return preventBlockGravity;
         }
     }
 

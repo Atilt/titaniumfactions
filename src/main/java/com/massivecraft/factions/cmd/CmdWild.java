@@ -1,11 +1,14 @@
 package com.massivecraft.factions.cmd;
 
+import com.massivecraft.factions.Board;
+import com.massivecraft.factions.FLocation;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.cooldown.Cooldown;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.struct.wild.WildManager;
 import com.massivecraft.factions.struct.wild.WildWorld;
 import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.WorldUtil;
 import com.massivecraft.factions.util.material.MaterialDb;
 import io.papermc.lib.PaperLib;
 import me.lucko.helper.reflect.MinecraftVersions;
@@ -70,7 +73,7 @@ public class CmdWild extends FCommand {
                 context.msg(TL.COMMAND_WILD_NO_LOCATION_FOUND);
                 return;
             }
-            context.msg(TL.COMMAND_WILD_TELEPORT_COMMENCING.format(wildManager.getTeleportDelayRedable()));
+            context.msg(TL.COMMAND_WILD_TELEPORT_COMMENCING.format(wildManager.getTeleportDelayReadable()));
             wildManager.markCooldown(context.player.getUniqueId());
             wildManager.markDelay(context.player.getUniqueId(), Bukkit.getScheduler().runTaskLater(FactionsPlugin.getInstance(), () -> {
                 PaperLib.teleportAsync(context.player, location, PlayerTeleportEvent.TeleportCause.PLUGIN);
@@ -93,8 +96,10 @@ public class CmdWild extends FCommand {
             if (this.tries == 5) {
                 return null;
             }
-            Block found = world.getHighestBlockAt(this.wildWorld.selectX(), this.wildWorld.selectZ());
-            if (OCEANS.contains(found.getBiome()) || MaterialDb.get().getProvider().isUnsafe(found.getType())) {
+            int x = this.wildWorld.selectX();
+            int z = this.wildWorld.selectZ();
+            Block found = world.getHighestBlockAt(x, z);
+            if (OCEANS.contains(found.getBiome()) || MaterialDb.get().getProvider().isUnsafe(found.getType()) || Board.getInstance().getFactionAt(FLocation.wrap(world.getName(), WorldUtil.blockToChunk(x), WorldUtil.blockToChunk(z))).isNormal()) {
                 this.tries++;
                 return find(world);
             }
