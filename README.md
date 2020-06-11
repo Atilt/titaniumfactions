@@ -20,7 +20,7 @@ High performance Factions fork that prioritizes efficiency, speed, and low memor
 - Implements cache for faction locations
 - Replaces fanciful api with kyori-text api
 
-## Features
+## Features (in progress)
 - Wild teleportation
 - Better WorldBorder mechanics (liquid flow, etc.)
 - Redstone liquid protection
