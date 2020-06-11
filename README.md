@@ -12,6 +12,7 @@ High performance Factions fork that prioritizes efficiency, speed, and low memor
 - Faster math implementations for particles, chunk claiming, and block scanning
 - Faster faction data serialization & deserialization
 - Faster, less intensive land fetching and claiming
+- Faster translation parsing for less-intensive mass message sending
 - Optimized faction [player] inactivity checks
 - Optimized faction flight checks
 - Proper async implementations for local data saving
@@ -20,4 +21,6 @@ High performance Factions fork that prioritizes efficiency, speed, and low memor
 - Replaces fanciful api with kyori-text api
 
 ## Features
-- N/A
+- Wild teleportation
+- Better WorldBorder mechanics (liquid flow, etc.)
+- Redstone liquid protection
