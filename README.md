@@ -1,4 +1,4 @@
-![](https://i.imgur.com/5OFuNpc.png "Banner")
+![](https://i.imgur.com/PCbrx7F.png "Banner")
 
 # titaniumfactions
 High performance Factions fork that prioritizes efficiency, speed, and low memory footprints.
