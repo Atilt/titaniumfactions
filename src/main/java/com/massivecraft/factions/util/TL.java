@@ -176,6 +176,7 @@ public enum TL implements Formattable<TL> {
 
     COMMAND_CREATE_MUSTLEAVE("&cYou must leave your current faction first."),
     COMMAND_CREATE_INUSE("&cThat tag is already in use."),
+    COMMAND_CREATE_TAG_RESERVED("&cThat tag is currently reserved."),
     COMMAND_CREATE_TOCREATE("to create a new faction"),
     COMMAND_CREATE_FORCREATE("for creating a new faction"),
     COMMAND_CREATE_ERROR("&cThere was an internal error while trying to create your faction. Please try again."),
@@ -521,6 +522,14 @@ public enum TL implements Formattable<TL> {
 
     COMMAND_RELOAD_TIME("&eReloaded &dall configuration files &efrom disk, took &d{0} ms&e."),
     COMMAND_RELOAD_DESCRIPTION("Reload data file(s) from disk"),
+
+    COMMAND_RESERVE_NO_TAG_SET("&cYou need to specify a faction tag to reserve."),
+    COMMAND_RESERVE_ALREADY_HAS_RESERVE("&cThat player already has a reserve: &e{0}"),
+    COMMAND_RESERVE_TAG_TAKEN("&cThat faction tag is already in use."),
+    COMMAND_RESERVE_RESERVED("&aYou have reserved the faction &e{0} &afor player &e{1}&a."),
+    COMMAND_RESERVE_NO_RESERVE("&cThat player does not have any reserved faction tags."),
+    COMMAND_RESERVE_UNRESERVED("You have unreserved the faction &e{0} &afrom player &e{1}&a."),
+    COMMAND_RESERVE_DESCRIPTION("Reserve a faction tag to a certain player"),
 
     COMMAND_SAFEUNCLAIMALL_DESCRIPTION("Unclaim all safe zone land"),
     COMMAND_SAFEUNCLAIMALL_UNCLAIMED("&eYou unclaimed ALL safe zone land."),

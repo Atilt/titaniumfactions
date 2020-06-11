@@ -82,6 +82,7 @@ public class FCmdRoot extends FCommand implements CommandExecutor {
     public final CmdRelationNeutral cmdRelationNeutral = new CmdRelationNeutral();
     public final CmdRelationTruce cmdRelationTruce = new CmdRelationTruce();
     public final CmdReload cmdReload = new CmdReload();
+    public final CmdReserve cmdReserve = new CmdReserve();
     public final CmdSafeunclaimall cmdSafeunclaimall = new CmdSafeunclaimall();
     public final CmdSaveAll cmdSaveAll = new CmdSaveAll();
     public final CmdSethome cmdSethome = new CmdSethome();
@@ -179,6 +180,7 @@ public class FCmdRoot extends FCommand implements CommandExecutor {
         this.addSubCommand(this.cmdRelationNeutral);
         this.addSubCommand(this.cmdRelationTruce);
         this.addSubCommand(this.cmdReload);
+        this.addSubCommand(this.cmdReserve);
         this.addSubCommand(this.cmdSafeunclaimall);
         this.addSubCommand(this.cmdSaveAll);
         this.addSubCommand(this.cmdSethome);
@@ -279,5 +281,4 @@ public class FCmdRoot extends FCommand implements CommandExecutor {
     public TL getUsageTranslation() {
         return TL.GENERIC_PLACEHOLDER;
     }
-
 }

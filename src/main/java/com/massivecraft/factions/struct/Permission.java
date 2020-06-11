@@ -81,6 +81,7 @@ public enum Permission {
     PROMOTE("promote"),
     RELATION("relation"),
     RELOAD("reload"),
+    RESERVE("reserve"),
     SAVE("save"),
     SETHOME("sethome"),
     SETHOME_ANY("sethome.any"),

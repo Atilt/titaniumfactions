@@ -1,4 +1,4 @@
-package com.massivecraft.factions.struct;
+package com.massivecraft.factions.struct.claim;
 
 import java.util.List;
 

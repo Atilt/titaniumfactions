@@ -22,12 +22,14 @@ public class CmdReload extends FCommand {
     public void perform(CommandContext context) {
         long start = System.nanoTime();
         FactionsPlugin.getInstance().getConfigManager().loadConfigs();
-        FactionsPlugin.getInstance().getWildManager().deserialize(FactionsPlugin.getInstance().getPath().resolve("config").resolve("wild.conf"), amount -> {
-            FactionsPlugin.getInstance().loadLang();
-            SidebarProvider.get().trackAll();
-            TablistProvider.get().trackAll();
-            CmdVault.reload();
-            context.msg(TL.COMMAND_RELOAD_TIME, Double.toString((System.nanoTime() - start) / 1_000_000.0D));
+        FactionsPlugin.getInstance().getWildManager().deserialize(this.plugin.getPath().resolve("config").resolve("wild.conf"), wildWorlds -> {
+            FactionsPlugin.getInstance().getReserveManager().deserialize(this.plugin.getPath().resolve("reserves.json"), reserves -> {
+                FactionsPlugin.getInstance().loadLang();
+                SidebarProvider.get().trackAll();
+                TablistProvider.get().trackAll();
+                CmdVault.reload();
+                context.msg(TL.COMMAND_RELOAD_TIME, Double.toString((System.nanoTime() - start) / 1_000_000.0D));
+            });
         });
     }
 

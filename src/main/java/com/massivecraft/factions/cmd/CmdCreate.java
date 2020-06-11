@@ -14,6 +14,7 @@ import com.massivecraft.factions.util.TL;
 import org.bukkit.Bukkit;
 
 import java.util.List;
+import java.util.UUID;
 
 
 public class CmdCreate extends FCommand {
@@ -43,6 +44,11 @@ public class CmdCreate extends FCommand {
             context.msg(TL.COMMAND_CREATE_INUSE);
             return;
         }
+        UUID owner = FactionsPlugin.getInstance().getReserveManager().getReserveOwner(tag);
+        if (owner != null && !owner.equals(context.player.getUniqueId())) {
+            context.msg(TL.COMMAND_CREATE_TAG_RESERVED);
+            return;
+        }
 
         List<String> tagValidationErrors = MiscUtil.validateTag(tag);
         if (tagValidationErrors.size() > 0) {
@@ -70,6 +76,10 @@ public class CmdCreate extends FCommand {
 
         // finish setting up the Faction
         faction.setTag(tag);
+
+        if (owner != null) {
+            FactionsPlugin.getInstance().getReserveManager().unreserve(owner);
+        }
 
         // trigger the faction join event for the creator
         FPlayerJoinEvent joinEvent = new FPlayerJoinEvent(FPlayers.getInstance().getByPlayer(context.player), faction, FPlayerJoinEvent.PlayerJoinReason.CREATE);

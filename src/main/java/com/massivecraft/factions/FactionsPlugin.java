@@ -45,6 +45,7 @@ import com.massivecraft.factions.metrics.Metrics;
 import com.massivecraft.factions.perms.Permissible;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.struct.ChatMode;
+import com.massivecraft.factions.struct.reserves.ReserveManager;
 import com.massivecraft.factions.struct.wild.WildManager;
 import com.massivecraft.factions.tasks.FlightTask;
 import com.massivecraft.factions.tasks.SeeChunkTask;
@@ -133,7 +134,9 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     private ParticleProvider<?> particleProvider;
     private BlockVisualizer blockVisualizer;
+
     private WildManager wildManager;
+    private ReserveManager reserveManager;
 
     private final Set<EntityType> safeZoneNerfedCreatureTypes = EnumSet.noneOf(EntityType.class);
     private LandRaidControl landRaidControl;
@@ -277,9 +280,11 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
                         this.wildManager = new WildManager();
                         this.wildManager.deserialize(this.path.resolve("config").resolve("wild.conf"), loadedWorlds -> {
-                            this.logger.info("== Wild Worlds: &7" + loadedWorlds + "&b loaded");
-                            this.logger.info("Faction data has been loaded successfully. (&7" + TextUtil.formatDecimal((System.nanoTime() - dataStart) / 1_000_000.0D) + "ms&b)");
-                            this.loadDataSuccessful = true;
+                            this.reserveManager = new ReserveManager();
+                            this.reserveManager.deserialize(this.path.resolve("reserves.json"), loadedReserves -> {
+                                this.logger.info("Faction data has been loaded successfully. (&7" + TextUtil.formatDecimal((System.nanoTime() - dataStart) / 1_000_000.0D) + "ms&b)");
+                                this.loadDataSuccessful = true;
+                            });
                         });
                     });
                 });
@@ -615,7 +620,8 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
             FPlayers.getInstance().forceSave(result -> this.logger.info(" == Players: Successfully saved all data."));
             Factions.getInstance().forceSave(result -> this.logger.info(" == Factions: Successfully saved all data."));
             Board.getInstance().forceSave(result -> this.logger.info(" == Claims: Successfully saved all data."));
-            this.wildManager.serialize(this.path.resolve("config").resolve("wild.conf"), result -> this.logger.info(" == Wild: Successfully saved all data."));
+            this.wildManager.serialize(this.path.resolve("config").resolve("wild.conf"), null);
+            this.reserveManager.serialize(this.path.resolve("reserves.json"), null);
         }
     }
 
@@ -634,6 +640,10 @@ public final class FactionsPlugin extends JavaPlugin implements FactionsAPI {
 
     public WildManager getWildManager() {
         return wildManager;
+    }
+
+    public ReserveManager getReserveManager() {
+        return reserveManager;
     }
 
     public boolean logPlayerCommands() {

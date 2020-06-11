@@ -4,7 +4,7 @@ import com.massivecraft.factions.FLocation;
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.FactionsPlugin;
-import com.massivecraft.factions.struct.MultiClaim;
+import com.massivecraft.factions.struct.claim.MultiClaim;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 

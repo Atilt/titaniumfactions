@@ -6,7 +6,7 @@ import com.massivecraft.factions.meta.scoreboards.SidebarTextProvider;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
 import com.massivecraft.factions.struct.ChatMode;
-import com.massivecraft.factions.struct.MultiClaim;
+import com.massivecraft.factions.struct.claim.MultiClaim;
 import com.massivecraft.factions.util.WarmUpUtil;
 import net.kyori.text.TextComponent;
 import org.bukkit.Location;
