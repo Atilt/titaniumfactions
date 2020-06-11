@@ -26,3 +26,4 @@ High performance Factions fork that prioritizes efficiency, speed, and low memor
 - Wild teleportation
 - Better world border mechanics (liquid flow, block gravity, etc.)
 - Redstone liquid protection
+- Reserve faction names
