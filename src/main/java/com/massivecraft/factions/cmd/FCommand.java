@@ -22,14 +22,14 @@ public abstract class FCommand {
     }
 
     //leaving for compat. purposes
-    public FactionsPlugin plugin;
+    public final FactionsPlugin plugin;
 
     // Command Aliases
-    public List<String> aliases;
+    public final List<String> aliases;
 
     // Information on the args
-    public List<String> requiredArgs;
-    public Map<String, String> optionalArgs;
+    public final List<String> requiredArgs;
+    public final Map<String, String> optionalArgs;
 
     // Requirements to execute this command
     public CommandRequirements requirements;
@@ -109,7 +109,7 @@ public abstract class FCommand {
     /*
         Subcommands
      */
-    public List<FCommand> subCommands;
+    public final List<FCommand> subCommands;
 
     public void addSubCommand(FCommand subCommand) {
         this.subCommands.add(subCommand);
@@ -118,8 +118,8 @@ public abstract class FCommand {
     /*
         Help
      */
-    public List<String> helpLong;
-    public CommandVisibility visibility;
+    public final List<String> helpLong;
+    public final CommandVisibility visibility;
 
     private String helpShort;
 

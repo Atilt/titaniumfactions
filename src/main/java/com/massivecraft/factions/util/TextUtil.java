@@ -136,7 +136,7 @@ public final class TextUtil {
             ANSI.put(ChatColor.RESET, Ansi.ansi().a(Ansi.Attribute.RESET).toString());
 
             ANSI_SUPPORTED = true;
-        } catch (ClassNotFoundException exception) {}
+        } catch (ClassNotFoundException ignored) {}
     }
     
     public static void init() {

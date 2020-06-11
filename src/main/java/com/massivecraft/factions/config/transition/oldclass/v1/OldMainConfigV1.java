@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 public class OldMainConfigV1 {
-    public class Colors {
+    public static class Colors {
         public class Relations {
             public String member = "GREEN";
             public String ally = "LIGHT_PURPLE";
@@ -28,7 +28,7 @@ public class OldMainConfigV1 {
         public Relations relations = new Relations();
     }
 
-    public class Factions {
+    public static class Factions {
         public class LandRaidControl {
             public class Power {
                 public double playerMin = -10.0D;
@@ -62,11 +62,11 @@ public class OldMainConfigV1 {
         }
 
         public class Prefix {
-            public String admin = "***";
-            public String coleader = "**";
-            public String mod = "*";
-            public String normal = "+";
-            public String recruit = "-";
+            public final String admin = "***";
+            public final String coleader = "**";
+            public final String mod = "*";
+            public final String normal = "+";
+            public final String recruit = "-";
 
             public String getAdmin() {
                 return admin;
@@ -210,8 +210,8 @@ public class OldMainConfigV1 {
 
             public boolean pistonProtectionThroughDenyBuild = true;
 
-            public Set<String> territoryDenyUsageMaterials = new HashSet<>();
-            public Set<String> territoryDenyUsageMaterialsWhenOffline = new HashSet<>();
+            public final Set<String> territoryDenyUsageMaterials = new HashSet<>();
+            public final Set<String> territoryDenyUsageMaterialsWhenOffline = new HashSet<>();
 
             @Comment("Mainly for other plugins/mods that use a fake player to take actions, which shouldn't be subject to our protections")
             public Set<String> playersWhoBypassAllProtection = new HashSet<>();
@@ -257,37 +257,37 @@ public class OldMainConfigV1 {
         public Prefix prefixes = new Prefix();
         public LandRaidControl landRaidControl = new LandRaidControl();
 
-        public boolean allowMultipleColeaders = false;
+        public final boolean allowMultipleColeaders = false;
 
         @Comment("Minimum faction tag length")
-        public int tagLengthMin = 3;
+        public final int tagLengthMin = 3;
         @Comment("Maximum faction tag length")
-        public int tagLengthMax = 10;
-        public boolean tagForceUpperCase = false;
+        public final int tagLengthMax = 10;
+        public final boolean tagForceUpperCase = false;
 
-        public boolean newFactionsDefaultOpen = false;
+        public final boolean newFactionsDefaultOpen = false;
 
         @Comment("When faction membership hits this limit, players will no longer be able to join using /f join; default is 0, no limit")
-        public int factionMemberLimit = 0;
+        public final int factionMemberLimit = 0;
 
         @Comment("What faction ID to start new players in when they first join the server; default is 0, \"no faction\"")
-        public String newPlayerStartingFactionID = "0";
+        public final String newPlayerStartingFactionID = "0";
 
-        public double saveToFileEveryXMinutes = 30.0;
+        public final double saveToFileEveryXMinutes = 30.0;
 
-        public double autoLeaveAfterDaysOfInactivity = 10.0;
-        public double autoLeaveRoutineRunsEveryXMinutes = 5.0;
-        public int autoLeaveRoutineMaxMillisecondsPerTick = 5;  // 1 server tick is roughly 50ms, so default max 10% of a tick
-        public boolean removePlayerDataWhenBanned = true;
-        public boolean autoLeaveDeleteFPlayerData = true; // Let them just remove player from Faction.
-        public double considerFactionsReallyOfflineAfterXMinutes = 0.0;
-        public int actionDeniedPainAmount = 1;
+        public final double autoLeaveAfterDaysOfInactivity = 10.0;
+        public final double autoLeaveRoutineRunsEveryXMinutes = 5.0;
+        public final int autoLeaveRoutineMaxMillisecondsPerTick = 5;  // 1 server tick is roughly 50ms, so default max 10% of a tick
+        public final boolean removePlayerDataWhenBanned = true;
+        public final boolean autoLeaveDeleteFPlayerData = true; // Let them just remove player from Faction.
+        public final double considerFactionsReallyOfflineAfterXMinutes = 0.0;
+        public final int actionDeniedPainAmount = 1;
 
         @Comment("If enabled, perms can be managed separately for when the faction is offline")
-        public boolean separateOfflinePerms = false;
+        public final boolean separateOfflinePerms = false;
     }
 
-    public class Logging {
+    public static class Logging {
         public boolean factionCreate = true;
         public boolean factionDisband = true;
         public boolean factionJoin = true;
@@ -299,7 +299,7 @@ public class OldMainConfigV1 {
         public boolean playerCommands = true;
     }
 
-    public class Exploits {
+    public static class Exploits {
         public boolean obsidianGenerators = true;
         public boolean enderPearlClipping = true;
         public boolean interactionSpam = true;
@@ -308,7 +308,7 @@ public class OldMainConfigV1 {
         public boolean preventDuping = true;
     }
 
-    public class Economy {
+    public static class Economy {
         public boolean enabled = false;
         public String universeAccount = "";
         public double costClaimWilderness = 30.0;
@@ -351,7 +351,7 @@ public class OldMainConfigV1 {
         public boolean bankFactionPaysLandCosts = true;
     }
 
-    public class Map {
+    public static class Map {
         public int height = 17;
         public int width = 49;
         public boolean showFactionKey = true;
@@ -360,7 +360,7 @@ public class OldMainConfigV1 {
         public boolean showTruceFactions = true;
     }
 
-    public class Data {
+    public static class Data {
         public class Json {
             @Comment("If true, data files will be stored without extra whitespace and linebreaks.\n" +
                     "This becomes less readable, but can cut storage use in half.")
@@ -372,7 +372,7 @@ public class OldMainConfigV1 {
         public Json json = new Json();
     }
 
-    public class RestrictWorlds {
+    public static class RestrictWorlds {
         @Comment("If true, Factions will only function on certain worlds")
         public boolean restrictWorlds = false;
         @Comment("If restrictWorlds is true, this setting determines if the world list below is a whitelist or blacklist.\n" +
@@ -381,13 +381,13 @@ public class OldMainConfigV1 {
         public Set<String> worldList = new HashSet<>();
     }
 
-    public class PlayerVaults {
+    public static class PlayerVaults {
         @Comment("The [] is for the faction id")
         public String vaultPrefix = "faction-[]";
         public int defaultMaxVaults = 0;
     }
 
-    public class WorldGuard {
+    public static class WorldGuard {
         public boolean checking;
         public boolean buildPriority;
     }
@@ -402,7 +402,7 @@ public class OldMainConfigV1 {
     @Comment("Colors for relationships and default factions")
     public Colors colors = new Colors();
 
-    public Factions factions = new Factions();
+    public final Factions factions = new Factions();
     @Comment("What should be logged?")
     public Logging logging = new Logging();
     @Comment("Controls certain exploit preventions")

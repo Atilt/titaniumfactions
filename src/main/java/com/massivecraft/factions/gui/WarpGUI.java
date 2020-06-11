@@ -51,7 +51,7 @@ public class WarpGUI extends GUI<Integer> {
                 .build();
     }
 
-    private List<String> warps;
+    private final List<String> warps;
     private final String name;
     private final int page;
     private final Faction faction;

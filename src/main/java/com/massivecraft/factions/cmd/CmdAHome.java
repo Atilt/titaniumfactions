@@ -5,12 +5,10 @@ import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.event.FPlayerTeleportEvent;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
-import com.massivecraft.factions.util.WorldUtil;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerTeleportEvent;
 
 public class CmdAHome extends FCommand {
 

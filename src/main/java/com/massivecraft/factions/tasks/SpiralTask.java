@@ -26,10 +26,10 @@ import java.time.Instant;
 public abstract class SpiralTask implements Runnable {
 
     // general task-related reference data
-    private transient World world;
+    private final transient World world;
     private transient boolean readyToGo = false;
     private transient int task = -1;
-    private transient int limit;
+    private final transient int limit;
 
     // values for the spiral pattern routine
     private transient int x = 0;

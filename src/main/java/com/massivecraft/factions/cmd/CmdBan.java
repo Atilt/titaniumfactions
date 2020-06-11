@@ -1,15 +1,12 @@
 package com.massivecraft.factions.cmd;
 
 import com.massivecraft.factions.FPlayer;
-import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.event.FPlayerLeaveEvent;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.struct.BanInfo;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
 import org.bukkit.Bukkit;
-
-import java.util.logging.Level;
 
 public class CmdBan extends FCommand {
 

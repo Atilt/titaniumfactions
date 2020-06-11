@@ -1,6 +1,8 @@
-package com.massivecraft.factions.util;
+package com.massivecraft.factions.util.formatting;
 
 import com.google.common.base.Charsets;
+import com.massivecraft.factions.util.TextUtil;
+import com.massivecraft.factions.util.formatting.loose.StringFormat;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -89,7 +91,7 @@ public final class FormatTransitioner {
                         current = TextUtil.replace(current, oldFormat, StringFormat.DELIMITER);
                     }
                 }
-                StringBuilder rebuilt = new StringBuilder();
+                StringBuilder rebuilt = new StringBuilder(current.length() + 20);
 
                 char[] chars = current.toCharArray();
 

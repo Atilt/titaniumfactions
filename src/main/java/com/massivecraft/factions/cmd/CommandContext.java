@@ -26,16 +26,16 @@ import java.util.List;
  */
 public class CommandContext {
 
-    public CommandSender sender;
+    public final CommandSender sender;
 
     public Player player;
     public FPlayer fPlayer;
     public Faction faction;
 
-    public List<String> args;
-    public String alias;
+    public final List<String> args;
+    public final String alias;
 
-    public List<FCommand> commandChain = new ArrayList<>(); // The command chain used to execute this command
+    public final List<FCommand> commandChain = new ArrayList<>(); // The command chain used to execute this command
 
     public CommandContext(CommandSender sender, List<String> args, String alias) {
         this.sender = sender;

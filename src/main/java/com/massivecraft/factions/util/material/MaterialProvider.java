@@ -25,7 +25,7 @@ public class MaterialProvider {
     private static final Set<Material> FENCES = EnumSet.noneOf(Material.class);
     private static final Set<Material> UNSAFE = EnumSet.noneOf(Material.class);
 
-    protected Map<String, MaterialData> materialData;
+    protected final Map<String, MaterialData> materialData;
 
     MaterialProvider(Map<String, MaterialData> materialData) {
         this.materialData = materialData;
@@ -254,7 +254,7 @@ public class MaterialProvider {
         return UNSAFE.contains(material);
     }
 
-    public class MaterialData {
+    public static class MaterialData {
 
         @SerializedName("material")
         private final String name;

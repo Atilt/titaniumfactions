@@ -13,7 +13,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import java.util.List;
-import java.util.logging.Level;
 
 public class EssentialsListener implements Listener {
 
@@ -23,7 +22,7 @@ public class EssentialsListener implements Listener {
         this.ess = essentials;
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onLeave(FPlayerLeaveEvent event) throws Exception {
         // Get the USER from their UUID.
         User user = ess.getUser(event.getfPlayer().getId());

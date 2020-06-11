@@ -16,7 +16,7 @@ public class DefaultOfflinePermissionsConfig {
             "Inside is each relation.\n" +
             "Each relation has a default value (true=allowed, false=disallowed)\n" +
             "  and true/false for if it's locked to editing by factions admins.")
-    private DefaultPermissionsConfig.Permissions offlinePermissions = new DefaultPermissionsConfig.Permissions();
+    private final DefaultPermissionsConfig.Permissions offlinePermissions = new DefaultPermissionsConfig.Permissions();
 
     public DefaultOfflinePermissionsConfig() {
         try {

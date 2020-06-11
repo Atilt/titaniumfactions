@@ -8,8 +8,6 @@ import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.util.TL;
 import com.massivecraft.factions.util.TextUtil;
 
-import java.util.regex.Pattern;
-
 public class CmdDescription extends FCommand {
 
     public CmdDescription() {

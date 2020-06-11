@@ -12,158 +12,158 @@ import java.util.List;
 import java.util.Set;
 
 public class OldConfV0 {
-    public List<String> baseCommandAliases = new ArrayList<>();
+    public final List<String> baseCommandAliases = new ArrayList<>();
 
     // Colors
-    public ChatColor colorMember = ChatColor.GREEN;
-    public ChatColor colorAlly = ChatColor.LIGHT_PURPLE;
-    public ChatColor colorTruce = ChatColor.DARK_PURPLE;
-    public ChatColor colorNeutral = ChatColor.WHITE;
-    public ChatColor colorEnemy = ChatColor.RED;
+    public final ChatColor colorMember = ChatColor.GREEN;
+    public final ChatColor colorAlly = ChatColor.LIGHT_PURPLE;
+    public final ChatColor colorTruce = ChatColor.DARK_PURPLE;
+    public final ChatColor colorNeutral = ChatColor.WHITE;
+    public final ChatColor colorEnemy = ChatColor.RED;
 
-    public ChatColor colorPeaceful = ChatColor.GOLD;
-    public ChatColor colorWilderness = ChatColor.GRAY;
-    public ChatColor colorSafezone = ChatColor.GOLD;
-    public ChatColor colorWar = ChatColor.DARK_RED;
+    public final ChatColor colorPeaceful = ChatColor.GOLD;
+    public final ChatColor colorWilderness = ChatColor.GRAY;
+    public final ChatColor colorSafezone = ChatColor.GOLD;
+    public final ChatColor colorWar = ChatColor.DARK_RED;
 
     // Power
-    public double powerPlayerMax = 10.0;
-    public double powerPlayerMin = -10.0;
-    public double powerPlayerStarting = 0.0;
-    public double powerPerMinute = 0.2; // Default health rate... it takes 5 min to heal one power
-    public double powerPerDeath = 4.0; // A death makes you lose 4 power
-    public boolean powerRegenOffline = false;  // does player power regenerate even while they're offline?
-    public double powerOfflineLossPerDay = 0.0;  // players will lose this much power per day offline
-    public double powerOfflineLossLimit = 0.0;  // players will no longer lose power from being offline once their power drops to this amount or less
-    public double powerFactionMax = 0.0;  // if greater than 0, the cap on how much power a faction can have (additional power from players beyond that will act as a "buffer" of sorts)
+    public final double powerPlayerMax = 10.0;
+    public final double powerPlayerMin = -10.0;
+    public final double powerPlayerStarting = 0.0;
+    public final double powerPerMinute = 0.2; // Default health rate... it takes 5 min to heal one power
+    public final double powerPerDeath = 4.0; // A death makes you lose 4 power
+    public final boolean powerRegenOffline = false;  // does player power regenerate even while they're offline?
+    public final double powerOfflineLossPerDay = 0.0;  // players will lose this much power per day offline
+    public final double powerOfflineLossLimit = 0.0;  // players will no longer lose power from being offline once their power drops to this amount or less
+    public final double powerFactionMax = 0.0;  // if greater than 0, the cap on how much power a faction can have (additional power from players beyond that will act as a "buffer" of sorts)
 
-    public String prefixAdmin = "***";
-    public String prefixColeader = "**";
-    public String prefixMod = "*";
-    public String prefixNormal = "+";
-    public String prefixRecruit = "-";
+    public final String prefixAdmin = "***";
+    public final String prefixColeader = "**";
+    public final String prefixMod = "*";
+    public final String prefixNormal = "+";
+    public final String prefixRecruit = "-";
 
-    public boolean allowMultipleColeaders = false;
+    public final boolean allowMultipleColeaders = false;
 
-    public int factionTagLengthMin = 3;
-    public int factionTagLengthMax = 10;
-    public boolean factionTagForceUpperCase = false;
+    public final int factionTagLengthMin = 3;
+    public final int factionTagLengthMax = 10;
+    public final boolean factionTagForceUpperCase = false;
 
-    public boolean newFactionsDefaultOpen = false;
+    public final boolean newFactionsDefaultOpen = false;
 
     // when faction membership hits this limit, players will no longer be able to join using /f join; default is 0, no limit
-    public int factionMemberLimit = 0;
+    public final int factionMemberLimit = 0;
 
     // what faction ID to start new players in when they first join the server; default is 0, "no faction"
-    public String newPlayerStartingFactionID = "0";
+    public final String newPlayerStartingFactionID = "0";
 
-    public boolean showMapFactionKey = true;
-    public boolean showNeutralFactionsOnMap = true;
-    public boolean showEnemyFactionsOnMap = true;
-    public boolean showTruceFactionsOnMap = true;
+    public final boolean showMapFactionKey = true;
+    public final boolean showNeutralFactionsOnMap = true;
+    public final boolean showEnemyFactionsOnMap = true;
+    public final boolean showTruceFactionsOnMap = true;
 
     // Disallow joining/leaving/kicking while power is negative
-    public boolean canLeaveWithNegativePower = true;
+    public final boolean canLeaveWithNegativePower = true;
 
     // Configuration for faction-only chat
-    public boolean factionOnlyChat = true;
+    public final boolean factionOnlyChat = true;
     // Configuration on the Faction tag in chat messages.
-    public boolean chatTagEnabled = true;
-    public transient boolean chatTagHandledByAnotherPlugin = false;
-    public boolean chatTagRelationColored = true;
-    public String chatTagReplaceString = "[FACTION]";
-    public String chatTagInsertAfterString = "";
-    public String chatTagInsertBeforeString = "";
-    public int chatTagInsertIndex = 0;
-    public boolean chatTagPadBefore = false;
-    public boolean chatTagPadAfter = true;
-    public String chatTagFormat = "[]" + ChatColor.WHITE;
-    public boolean alwaysShowChatTag = true;
-    public String factionChatFormat = "[]:" + ChatColor.WHITE + " []";
-    public String allianceChatFormat = ChatColor.LIGHT_PURPLE + "[]:" + ChatColor.WHITE + " []";
-    public String truceChatFormat = ChatColor.DARK_PURPLE + "[]:" + ChatColor.WHITE + " []";
-    public String modChatFormat = ChatColor.RED + "[]:" + ChatColor.WHITE + " []";
+    public final boolean chatTagEnabled = true;
+    public final transient boolean chatTagHandledByAnotherPlugin = false;
+    public final boolean chatTagRelationColored = true;
+    public final String chatTagReplaceString = "[FACTION]";
+    public final String chatTagInsertAfterString = "";
+    public final String chatTagInsertBeforeString = "";
+    public final int chatTagInsertIndex = 0;
+    public final boolean chatTagPadBefore = false;
+    public final boolean chatTagPadAfter = true;
+    public final String chatTagFormat = "[]" + ChatColor.WHITE;
+    public final boolean alwaysShowChatTag = true;
+    public final String factionChatFormat = "[]:" + ChatColor.WHITE + " []";
+    public final String allianceChatFormat = ChatColor.LIGHT_PURPLE + "[]:" + ChatColor.WHITE + " []";
+    public final String truceChatFormat = ChatColor.DARK_PURPLE + "[]:" + ChatColor.WHITE + " []";
+    public final String modChatFormat = ChatColor.RED + "[]:" + ChatColor.WHITE + " []";
 
-    public boolean broadcastDescriptionChanges = false;
-    public boolean broadcastTagChanges = false;
+    public final boolean broadcastDescriptionChanges = false;
+    public final boolean broadcastTagChanges = false;
 
-    public double saveToFileEveryXMinutes = 30.0;
+    public final double saveToFileEveryXMinutes = 30.0;
 
-    public double autoLeaveAfterDaysOfInactivity = 10.0;
-    public double autoLeaveRoutineRunsEveryXMinutes = 5.0;
-    public int autoLeaveRoutineMaxMillisecondsPerTick = 5;  // 1 server tick is roughly 50ms, so default max 10% of a tick
-    public boolean removePlayerDataWhenBanned = true;
-    public boolean autoLeaveDeleteFPlayerData = true; // Let them just remove player from Faction.
+    public final double autoLeaveAfterDaysOfInactivity = 10.0;
+    public final double autoLeaveRoutineRunsEveryXMinutes = 5.0;
+    public final int autoLeaveRoutineMaxMillisecondsPerTick = 5;  // 1 server tick is roughly 50ms, so default max 10% of a tick
+    public final boolean removePlayerDataWhenBanned = true;
+    public final boolean autoLeaveDeleteFPlayerData = true; // Let them just remove player from Faction.
 
-    public boolean worldGuardChecking = false;
-    public boolean worldGuardBuildPriority = false;
+    public final boolean worldGuardChecking = false;
+    public final boolean worldGuardBuildPriority = false;
 
     // server logging options
-    public boolean logFactionCreate = true;
-    public boolean logFactionDisband = true;
-    public boolean logFactionJoin = true;
-    public boolean logFactionKick = true;
-    public boolean logFactionLeave = true;
-    public boolean logLandClaims = true;
-    public boolean logLandUnclaims = true;
-    public boolean logMoneyTransactions = true;
-    public boolean logPlayerCommands = true;
+    public final boolean logFactionCreate = true;
+    public final boolean logFactionDisband = true;
+    public final boolean logFactionJoin = true;
+    public final boolean logFactionKick = true;
+    public final boolean logFactionLeave = true;
+    public final boolean logLandClaims = true;
+    public final boolean logLandUnclaims = true;
+    public final boolean logMoneyTransactions = true;
+    public final boolean logPlayerCommands = true;
 
     // prevent some potential exploits
-    public boolean handleExploitObsidianGenerators = true;
-    public boolean handleExploitEnderPearlClipping = true;
-    public boolean handleExploitInteractionSpam = true;
-    public boolean handleExploitTNTWaterlog = false;
-    public boolean handleExploitLiquidFlow = false;
+    public final boolean handleExploitObsidianGenerators = true;
+    public final boolean handleExploitEnderPearlClipping = true;
+    public final boolean handleExploitInteractionSpam = true;
+    public final boolean handleExploitTNTWaterlog = false;
+    public final boolean handleExploitLiquidFlow = false;
 
-    public boolean homesEnabled = true;
-    public boolean homesMustBeInClaimedTerritory = true;
-    public boolean homesTeleportToOnDeath = true;
-    public boolean homesRespawnFromNoPowerLossWorlds = true;
-    public boolean homesTeleportCommandEnabled = true;
-    public boolean homesTeleportCommandEssentialsIntegration = true;
-    public boolean homesTeleportCommandSmokeEffectEnabled = true;
-    public float homesTeleportCommandSmokeEffectThickness = 3f;
-    public boolean homesTeleportAllowedFromEnemyTerritory = true;
-    public boolean homesTeleportAllowedFromDifferentWorld = true;
-    public double homesTeleportAllowedEnemyDistance = 32.0;
-    public boolean homesTeleportIgnoreEnemiesIfInOwnTerritory = true;
+    public final boolean homesEnabled = true;
+    public final boolean homesMustBeInClaimedTerritory = true;
+    public final boolean homesTeleportToOnDeath = true;
+    public final boolean homesRespawnFromNoPowerLossWorlds = true;
+    public final boolean homesTeleportCommandEnabled = true;
+    public final boolean homesTeleportCommandEssentialsIntegration = true;
+    public final boolean homesTeleportCommandSmokeEffectEnabled = true;
+    public final float homesTeleportCommandSmokeEffectThickness = 3f;
+    public final boolean homesTeleportAllowedFromEnemyTerritory = true;
+    public final boolean homesTeleportAllowedFromDifferentWorld = true;
+    public final double homesTeleportAllowedEnemyDistance = 32.0;
+    public final boolean homesTeleportIgnoreEnemiesIfInOwnTerritory = true;
 
-    public boolean disablePVPBetweenNeutralFactions = false;
-    public boolean disablePVPForFactionlessPlayers = false;
-    public boolean enablePVPAgainstFactionlessInAttackersLand = false;
+    public final boolean disablePVPBetweenNeutralFactions = false;
+    public final boolean disablePVPForFactionlessPlayers = false;
+    public final boolean enablePVPAgainstFactionlessInAttackersLand = false;
 
-    public int noPVPDamageToOthersForXSecondsAfterLogin = 3;
+    public final int noPVPDamageToOthersForXSecondsAfterLogin = 3;
 
-    public boolean peacefulTerritoryDisablePVP = true;
-    public boolean peacefulTerritoryDisableMonsters = false;
-    public boolean peacefulTerritoryDisableBoom = false;
-    public boolean peacefulMembersDisablePowerLoss = true;
+    public final boolean peacefulTerritoryDisablePVP = true;
+    public final boolean peacefulTerritoryDisableMonsters = false;
+    public final boolean peacefulTerritoryDisableBoom = false;
+    public final boolean peacefulMembersDisablePowerLoss = true;
 
-    public boolean permanentFactionsDisableLeaderPromotion = false;
+    public final boolean permanentFactionsDisableLeaderPromotion = false;
 
-    public boolean claimsMustBeConnected = false;
-    public boolean claimsCanBeUnconnectedIfOwnedByOtherFaction = true;
-    public int claimsRequireMinFactionMembers = 1;
-    public int claimedLandsMax = 0;
-    public int lineClaimLimit = 5;
+    public final boolean claimsMustBeConnected = false;
+    public final boolean claimsCanBeUnconnectedIfOwnedByOtherFaction = true;
+    public final int claimsRequireMinFactionMembers = 1;
+    public final int claimedLandsMax = 0;
+    public final int lineClaimLimit = 5;
 
     // if someone is doing a radius claim and the process fails to claim land this many times in a row, it will exit
-    public int radiusClaimFailureLimit = 9;
+    public final int radiusClaimFailureLimit = 9;
 
-    public double considerFactionsReallyOfflineAfterXMinutes = 0.0;
+    public final double considerFactionsReallyOfflineAfterXMinutes = 0.0;
 
-    public int actionDeniedPainAmount = 1;
+    public final int actionDeniedPainAmount = 1;
 
     // commands which will be prevented if the player is a member of a permanent faction
-    public Set<String> permanentFactionMemberDenyCommands = new LinkedHashSet<>();
+    public final Set<String> permanentFactionMemberDenyCommands = new LinkedHashSet<>();
 
     // commands which will be prevented when in claimed territory of another faction
-    public Set<String> territoryNeutralDenyCommands = new LinkedHashSet<>();
-    public Set<String> territoryEnemyDenyCommands = new LinkedHashSet<>();
-    public Set<String> territoryAllyDenyCommands = new LinkedHashSet<>();
-    public Set<String> warzoneDenyCommands = new LinkedHashSet<>();
-    public Set<String> wildernessDenyCommands = new LinkedHashSet<>();
+    public final Set<String> territoryNeutralDenyCommands = new LinkedHashSet<>();
+    public final Set<String> territoryEnemyDenyCommands = new LinkedHashSet<>();
+    public final Set<String> territoryAllyDenyCommands = new LinkedHashSet<>();
+    public final Set<String> warzoneDenyCommands = new LinkedHashSet<>();
+    public final Set<String> wildernessDenyCommands = new LinkedHashSet<>();
 
     // IGNORED STARTS HERE LOL
     public boolean defaultFlyPermEnemy = false;
@@ -196,90 +196,90 @@ public class OldConfV0 {
     public boolean territoryTruceDenyUseage = true;
     public boolean territoryTruceProtectMaterials = true;
     // IGNORED ENDS HERE LOL
-    public boolean territoryBlockCreepers = false;
-    public boolean territoryBlockCreepersWhenOffline = false;
-    public boolean territoryBlockFireballs = false;
-    public boolean territoryBlockFireballsWhenOffline = false;
-    public boolean territoryBlockTNT = false;
-    public boolean territoryBlockTNTWhenOffline = false;
-    public boolean territoryDenyEndermanBlocks = true;
-    public boolean territoryDenyEndermanBlocksWhenOffline = true;
+    public final boolean territoryBlockCreepers = false;
+    public final boolean territoryBlockCreepersWhenOffline = false;
+    public final boolean territoryBlockFireballs = false;
+    public final boolean territoryBlockFireballsWhenOffline = false;
+    public final boolean territoryBlockTNT = false;
+    public final boolean territoryBlockTNTWhenOffline = false;
+    public final boolean territoryDenyEndermanBlocks = true;
+    public final boolean territoryDenyEndermanBlocksWhenOffline = true;
 
-    public boolean safeZoneDenyBuild = true;
-    public boolean safeZoneDenyUseage = true;
-    public boolean safeZoneBlockTNT = true;
-    public boolean safeZonePreventAllDamageToPlayers = false;
-    public boolean safeZoneDenyEndermanBlocks = true;
+    public final boolean safeZoneDenyBuild = true;
+    public final boolean safeZoneDenyUseage = true;
+    public final boolean safeZoneBlockTNT = true;
+    public final boolean safeZonePreventAllDamageToPlayers = false;
+    public final boolean safeZoneDenyEndermanBlocks = true;
 
-    public boolean warZoneDenyBuild = true;
-    public boolean warZoneDenyUseage = true;
-    public boolean warZoneBlockCreepers = false;
-    public boolean warZoneBlockFireballs = false;
-    public boolean warZoneBlockTNT = true;
-    public boolean warZonePowerLoss = true;
-    public boolean warZoneFriendlyFire = false;
-    public boolean warZoneDenyEndermanBlocks = true;
+    public final boolean warZoneDenyBuild = true;
+    public final boolean warZoneDenyUseage = true;
+    public final boolean warZoneBlockCreepers = false;
+    public final boolean warZoneBlockFireballs = false;
+    public final boolean warZoneBlockTNT = true;
+    public final boolean warZonePowerLoss = true;
+    public final boolean warZoneFriendlyFire = false;
+    public final boolean warZoneDenyEndermanBlocks = true;
 
-    public boolean wildernessDenyBuild = false;
-    public boolean wildernessDenyUseage = false;
-    public boolean wildernessBlockCreepers = false;
-    public boolean wildernessBlockFireballs = false;
-    public boolean wildernessBlockTNT = false;
-    public boolean wildernessPowerLoss = true;
-    public boolean wildernessDenyEndermanBlocks = false;
+    public final boolean wildernessDenyBuild = false;
+    public final boolean wildernessDenyUseage = false;
+    public final boolean wildernessBlockCreepers = false;
+    public final boolean wildernessBlockFireballs = false;
+    public final boolean wildernessBlockTNT = false;
+    public final boolean wildernessPowerLoss = true;
+    public final boolean wildernessDenyEndermanBlocks = false;
 
     // for claimed areas where further faction-member ownership can be defined
-    public boolean ownedAreasEnabled = true;
-    public int ownedAreasLimitPerFaction = 0;
-    public boolean ownedAreasModeratorsCanSet = false;
-    public boolean ownedAreaModeratorsBypass = true;
-    public boolean ownedAreaDenyBuild = true;
-    public boolean ownedAreaPainBuild = false;
-    public boolean ownedAreaProtectMaterials = true;
-    public boolean ownedAreaDenyUseage = true;
+    public final boolean ownedAreasEnabled = true;
+    public final int ownedAreasLimitPerFaction = 0;
+    public final boolean ownedAreasModeratorsCanSet = false;
+    public final boolean ownedAreaModeratorsBypass = true;
+    public final boolean ownedAreaDenyBuild = true;
+    public final boolean ownedAreaPainBuild = false;
+    public final boolean ownedAreaProtectMaterials = true;
+    public final boolean ownedAreaDenyUseage = true;
 
-    public boolean ownedMessageOnBorder = true;
-    public boolean ownedMessageInsideTerritory = true;
-    public boolean ownedMessageByChunk = false;
+    public final boolean ownedMessageOnBorder = true;
+    public final boolean ownedMessageInsideTerritory = true;
+    public final boolean ownedMessageByChunk = false;
 
-    public boolean pistonProtectionThroughDenyBuild = true;
+    public final boolean pistonProtectionThroughDenyBuild = true;
 
-    public Set<Material> territoryProtectedMaterials = Sets.newHashSet();
-    public Set<Material> territoryDenyUseageMaterials = EnumSet.noneOf(Material.class);
-    public Set<Material> territoryProtectedMaterialsWhenOffline = EnumSet.noneOf(Material.class);
-    public Set<Material> territoryDenyUseageMaterialsWhenOffline = EnumSet.noneOf(Material.class);
+    public final Set<Material> territoryProtectedMaterials = Sets.newHashSet();
+    public final Set<Material> territoryDenyUseageMaterials = EnumSet.noneOf(Material.class);
+    public final Set<Material> territoryProtectedMaterialsWhenOffline = EnumSet.noneOf(Material.class);
+    public final Set<Material> territoryDenyUseageMaterialsWhenOffline = EnumSet.noneOf(Material.class);
 
     // Economy settings
-    public boolean econEnabled = false;
-    public String econUniverseAccount = "";
-    public double econCostClaimWilderness = 30.0;
-    public double econCostClaimFromFactionBonus = 30.0;
-    public double econOverclaimRewardMultiplier = 0.0;
-    public double econClaimAdditionalMultiplier = 0.5;
-    public double econClaimRefundMultiplier = 0.7;
-    public double econClaimUnconnectedFee = 0.0;
-    public double econCostCreate = 100.0;
-    public double econCostOwner = 15.0;
-    public double econCostSethome = 30.0;
-    public double econCostJoin = 0.0;
-    public double econCostLeave = 0.0;
-    public double econCostKick = 0.0;
-    public double econCostInvite = 0.0;
-    public double econCostHome = 0.0;
-    public double econCostTag = 0.0;
-    public double econCostDesc = 0.0;
-    public double econCostTitle = 0.0;
-    public double econCostList = 0.0;
-    public double econCostMap = 0.0;
-    public double econCostPower = 0.0;
-    public double econCostShow = 0.0;
-    public double econCostStuck = 0.0;
-    public double econCostOpen = 0.0;
-    public double econCostAlly = 0.0;
-    public double econCostTruce = 0.0;
-    public double econCostEnemy = 0.0;
-    public double econCostNeutral = 0.0;
-    public double econCostNoBoom = 0.0;
+    public final boolean econEnabled = false;
+    public final String econUniverseAccount = "";
+    public final double econCostClaimWilderness = 30.0;
+    public final double econCostClaimFromFactionBonus = 30.0;
+    public final double econOverclaimRewardMultiplier = 0.0;
+    public final double econClaimAdditionalMultiplier = 0.5;
+    public final double econClaimRefundMultiplier = 0.7;
+    public final double econClaimUnconnectedFee = 0.0;
+    public final double econCostCreate = 100.0;
+    public final double econCostOwner = 15.0;
+    public final double econCostSethome = 30.0;
+    public final double econCostJoin = 0.0;
+    public final double econCostLeave = 0.0;
+    public final double econCostKick = 0.0;
+    public final double econCostInvite = 0.0;
+    public final double econCostHome = 0.0;
+    public final double econCostTag = 0.0;
+    public final double econCostDesc = 0.0;
+    public final double econCostTitle = 0.0;
+    public final double econCostList = 0.0;
+    public final double econCostMap = 0.0;
+    public final double econCostPower = 0.0;
+    public final double econCostShow = 0.0;
+    public final double econCostStuck = 0.0;
+    public final double econCostOpen = 0.0;
+    public final double econCostAlly = 0.0;
+    public final double econCostTruce = 0.0;
+    public final double econCostEnemy = 0.0;
+    public final double econCostNeutral = 0.0;
+    public final double econCostNoBoom = 0.0;
 
 
     // -------------------------------------------- //
@@ -361,24 +361,24 @@ public class OldConfV0 {
 */
 
     //Faction banks, to pay for land claiming and other costs instead of individuals paying for them
-    public boolean bankEnabled = true;
-    public boolean bankMembersCanWithdraw = false; //Have to be at least moderator to withdraw or pay money to another faction
-    public boolean bankFactionPaysCosts = true; //The faction pays for faction command costs, such as sethome
-    public boolean bankFactionPaysLandCosts = true; //The faction pays for land claiming costs.
+    public final boolean bankEnabled = true;
+    public final boolean bankMembersCanWithdraw = false; //Have to be at least moderator to withdraw or pay money to another faction
+    public final boolean bankFactionPaysCosts = true; //The faction pays for faction command costs, such as sethome
+    public final boolean bankFactionPaysLandCosts = true; //The faction pays for land claiming costs.
 
     // mainly for other plugins/mods that use a fake player to take actions, which shouldn't be subject to our protections
-    public Set<String> playersWhoBypassAllProtection = new LinkedHashSet<>();
+    public final Set<String> playersWhoBypassAllProtection = new LinkedHashSet<>();
 
-    public Set<String> worldsNoClaiming = new LinkedHashSet<>();
-    public Set<String> worldsNoPowerLoss = new LinkedHashSet<>();
-    public Set<String> worldsIgnorePvP = new LinkedHashSet<>();
-    public Set<String> worldsNoWildernessProtection = new LinkedHashSet<>();
+    public final Set<String> worldsNoClaiming = new LinkedHashSet<>();
+    public final Set<String> worldsNoPowerLoss = new LinkedHashSet<>();
+    public final Set<String> worldsIgnorePvP = new LinkedHashSet<>();
+    public final Set<String> worldsNoWildernessProtection = new LinkedHashSet<>();
 
     // faction-<factionId>
-    public String vaultPrefix = "faction-[]";
-    public int defaultMaxVaults = 0;
+    public final String vaultPrefix = "faction-[]";
+    public final int defaultMaxVaults = 0;
 
     // Taller and wider for "bigger f map"
-    public int mapHeight = 17;
-    public int mapWidth = 49;
+    public final int mapHeight = 17;
+    public final int mapWidth = 49;
 }

@@ -26,9 +26,9 @@ public enum OldPermissableActionV0 {
     FLY("fly", PermissibleAction.FLY),
     ;
 
-    private String name;
+    private final String name;
 
-    private PermissibleAction action;
+    private final PermissibleAction action;
 
     OldPermissableActionV0(String name, PermissibleAction newPermissibleAction) {
         this.name = name;

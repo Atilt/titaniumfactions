@@ -18,22 +18,22 @@ import java.util.Set;
 public class DynmapConfig {
     public class Dynmap {
         // Should the dynmap integration be used?
-        private boolean enabled = true;
+        private final boolean enabled = true;
 
         // Name of the Factions layer
-        private String layerName = "Factions";
+        private final String layerName = "Factions";
 
         // Should the layer be visible per default
-        private boolean layerVisible = true;
+        private final boolean layerVisible = true;
 
         // Ordering priority in layer menu (low goes before high - default is 0)
-        private int layerPriority = 2;
+        private final int layerPriority = 2;
 
         // (optional) set minimum zoom level before layer is visible (0 = default, always visible)
-        private int layerMinimumZoom = 0;
+        private final int layerMinimumZoom = 0;
 
         // Format for popup - substitute values for macros
-        private String description =
+        private final String description =
                 "<div class=\"infowindow\">\n"
                         + "<span style=\"font-weight: bold; font-size: 150%;\">%name%</span><br>\n"
                         + "<span style=\"font-style: italic; font-size: 110%;\">%description%</span><br>"
@@ -49,17 +49,17 @@ public class DynmapConfig {
                         + "</div>";
 
         @Comment("Enable the %money% macro. Only do this if you know your economy manager is thread-safe.")
-        private boolean descriptionMoney = false;
+        private final boolean descriptionMoney = false;
 
         @Comment("Allow players in faction to see one another on Dynmap (only relevant if Dynmap has 'player-info-protected' enabled)")
-        private boolean visibilityByFaction = true;
+        private final boolean visibilityByFaction = true;
 
         @Comment("If not empty, *only* listed factions (by name or ID) will be shown.\n" +
                 "To show all factions in a world, use 'world:worldnamehere'")
-        private Set<String> visibleFactions = new HashSet<>();
+        private final Set<String> visibleFactions = new HashSet<>();
 
         @Comment("To hide all factions in a world, use 'world:worldnamehere'")
-        private Set<String> hiddenFactions = new HashSet<String>();
+        private final Set<String> hiddenFactions = new HashSet<>();
 
         public boolean isEnabled() {
             return enabled;
@@ -103,12 +103,12 @@ public class DynmapConfig {
 
         @Comment("Per-faction overrides")
         @DefinedType
-        private Map<String, Style> factionStyles = ImmutableMap.of(
+        private final Map<String, Style> factionStyles = ImmutableMap.of(
                 "-1", new DynmapConfig.Style("#FF00FF", "#FF00FF"),
                 "-2", new DynmapConfig.Style("#FF0000", "#FF0000")
         );
 
-        private transient TypeToken<Map<String, Style>> factionStylesToken = new TypeToken<Map<String, Style>>() {
+        private final transient TypeToken<Map<String, Style>> factionStylesToken = new TypeToken<Map<String, Style>>() {
         };
 
         @WipeOnReload
@@ -117,8 +117,8 @@ public class DynmapConfig {
         public Map<String, DynmapStyle> getFactionStyles() {
             if (styles == null) {
                 styles = new HashMap<>();
-                Map<String, ? extends Object> mappy = factionStyles;
-                for (Map.Entry<String, ? extends Object> e : mappy.entrySet()) {
+                Map<String, ?> mappy = factionStyles;
+                for (Map.Entry<String, ?> e : mappy.entrySet()) {
                     String faction = e.getKey();
                     Object s = e.getValue();
                     if (s instanceof Style) {
@@ -156,9 +156,8 @@ public class DynmapConfig {
                             style.setLineOpacity(getDouble(map.get("lineOpacity").toString()));
                         }
                         styles.put(faction, style);
-                    } else {
-                        // Panic!
-                    }
+                    }  // Panic!
+
                 }
             }
             return styles;
@@ -187,17 +186,17 @@ public class DynmapConfig {
         @Setting
         private String lineColor = DynmapStyle.DEFAULT_LINE_COLOR;
         @Setting
-        private double lineOpacity = DynmapStyle.DEFAULT_LINE_OPACITY;
+        private final double lineOpacity = DynmapStyle.DEFAULT_LINE_OPACITY;
         @Setting
-        private int lineWeight = DynmapStyle.DEFAULT_LINE_WEIGHT;
+        private final int lineWeight = DynmapStyle.DEFAULT_LINE_WEIGHT;
         @Setting
         private String fillColor = DynmapStyle.DEFAULT_FILL_COLOR;
         @Setting
-        private double fillOpacity = DynmapStyle.DEFAULT_FILL_OPACITY;
+        private final double fillOpacity = DynmapStyle.DEFAULT_FILL_OPACITY;
         @Setting
-        private String homeMarker = DynmapStyle.DEFAULT_HOME_MARKER;
+        private final String homeMarker = DynmapStyle.DEFAULT_HOME_MARKER;
         @Setting
-        private boolean styleBoost = DynmapStyle.DEFAULT_BOOST;
+        private final boolean styleBoost = DynmapStyle.DEFAULT_BOOST;
 
         private Style() {
             // Yay
@@ -237,8 +236,8 @@ public class DynmapConfig {
         }
     }
 
-    private Dynmap dynmap = new Dynmap();
-    private Style style = new Style();
+    private final Dynmap dynmap = new Dynmap();
+    private final Style style = new Style();
 
     public Dynmap dynmap() {
         return dynmap;

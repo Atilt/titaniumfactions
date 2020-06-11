@@ -1,4 +1,4 @@
-package com.massivecraft.factions.util;
+package com.massivecraft.factions.util.formatting;
 
 import net.kyori.text.Component;
 import net.kyori.text.TextComponent;

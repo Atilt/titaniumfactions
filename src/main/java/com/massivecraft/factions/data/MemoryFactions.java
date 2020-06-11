@@ -4,6 +4,7 @@ import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.Factions;
 import com.massivecraft.factions.util.MiscUtil;
 import com.massivecraft.factions.util.TL;
+import com.massivecraft.factions.util.TextUtil;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.bukkit.ChatColor;
@@ -21,16 +22,16 @@ public abstract class MemoryFactions extends Factions {
     public int load() {
         // Make sure the default neutral factions exists
 
-        Faction wilderness = factions.computeIfAbsent(0, id -> generateFactionObject("0"));
+        Faction wilderness = factions.computeIfAbsent(0, id -> generateFactionObject(0));
         wilderness.setTag(TL.WILDERNESS.toString());
         wilderness.setDescription(TL.WILDERNESS_DESCRIPTION.toString());
 
-        Faction safezone = factions.computeIfAbsent(-1, s -> generateFactionObject("-1"));
-        safezone.setTag(TL.SAFEZONE.toString().replace(" ", ""));
+        Faction safezone = factions.computeIfAbsent(-1, s -> generateFactionObject(-1));
+        safezone.setTag(TextUtil.replace(TL.SAFEZONE.toString(), " ", ""));
         safezone.setDescription(TL.SAFEZONE_DESCRIPTION.toString());
 
-        Faction warzone = factions.computeIfAbsent(-2, s -> generateFactionObject("-2"));
-        warzone.setTag(TL.WARZONE.toString().replace(" ", ""));
+        Faction warzone = factions.computeIfAbsent(-2, s -> generateFactionObject(-2));
+        warzone.setTag(TextUtil.replace(TL.WARZONE.toString(), " ", ""));
         warzone.setDescription(TL.WARZONE_DESCRIPTION.toString());
 
         return 0;

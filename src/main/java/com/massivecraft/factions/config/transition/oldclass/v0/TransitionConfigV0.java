@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class TransitionConfigV0 {
-    public class Colors {
+    public static class Colors {
         public class Relations {
             private String member = "GREEN";
             private String ally = "LIGHT_PURPLE";
@@ -27,11 +27,11 @@ public class TransitionConfigV0 {
             private String warzone = "DARK_RED";
         }
 
-        private Factions factions = new Factions();
-        private Relations relations = new Relations();
+        private final Factions factions = new Factions();
+        private final Relations relations = new Relations();
     }
 
-    public class Factions {
+    public static class Factions {
         public class LandRaidControl {
             public class Power {
                 private double playerMin = -10.0D;
@@ -59,9 +59,9 @@ public class TransitionConfigV0 {
             }
 
             @Comment("Sets the mode of land/raid control")
-            private String system = "power";
+            private final String system = "power";
             @Comment("Controls the power system of land/raid control\nSet the 'system' value to 'power' to use this system")
-            private Power power = new Power();
+            private final Power power = new Power();
         }
 
         public class Prefix {
@@ -280,17 +280,17 @@ public class TransitionConfigV0 {
             private boolean messageByChunk = false;
         }
 
-        private Chat chat = new Chat();
-        private Homes homes = new Homes();
-        private PVP pvp = new PVP();
-        private SpecialCase specialCase = new SpecialCase();
-        private Claims claims = new Claims();
-        private Protection protection = new Protection();
+        private final Chat chat = new Chat();
+        private final Homes homes = new Homes();
+        private final PVP pvp = new PVP();
+        private final SpecialCase specialCase = new SpecialCase();
+        private final Claims claims = new Claims();
+        private final Protection protection = new Protection();
         @Comment("For claimed areas where further faction-member ownership can be defined")
-        private OwnedArea ownedArea = new OwnedArea();
+        private final OwnedArea ownedArea = new OwnedArea();
         @Comment("Displayed prefixes for different roles within a faction")
-        private Prefix prefixes = new Prefix();
-        private LandRaidControl landRaidControl = new LandRaidControl();
+        private final Prefix prefixes = new Prefix();
+        private final LandRaidControl landRaidControl = new LandRaidControl();
 
         private boolean allowMultipleColeaders = false;
 
@@ -319,10 +319,10 @@ public class TransitionConfigV0 {
         private int actionDeniedPainAmount = 1;
 
         @Comment("If enabled, perms can be managed separately for when the faction is offline")
-        private boolean separateOfflinePerms = false;
+        private final boolean separateOfflinePerms = false;
     }
 
-    public class Logging {
+    public static class Logging {
         private boolean factionCreate = true;
         private boolean factionDisband = true;
         private boolean factionJoin = true;
@@ -334,7 +334,7 @@ public class TransitionConfigV0 {
         private boolean playerCommands = true;
     }
 
-    public class Exploits {
+    public static class Exploits {
         private boolean obsidianGenerators = true;
         private boolean enderPearlClipping = true;
         private boolean interactionSpam = true;
@@ -342,7 +342,7 @@ public class TransitionConfigV0 {
         private boolean liquidFlow = false;
     }
 
-    public class Economy {
+    public static class Economy {
         private boolean enabled = false;
         private String universeAccount = "";
         private double costClaimWilderness = 30.0;
@@ -384,7 +384,7 @@ public class TransitionConfigV0 {
         private boolean bankFactionPaysLandCosts = true;
     }
 
-    public class Map {
+    public static class Map {
         private int height = 17;
         private int width = 49;
         private boolean showFactionKey = true;
@@ -393,36 +393,36 @@ public class TransitionConfigV0 {
         private boolean showTruceFactions = true;
     }
 
-    public class PlayerVaults {
+    public static class PlayerVaults {
         @Comment("The [] is for the faction id")
         private String vaultPrefix = "faction-[]";
         private int defaultMaxVaults = 0;
     }
 
-    public class WorldGuard {
+    public static class WorldGuard {
         private boolean checking;
         private boolean buildPriority;
     }
 
     @Comment("The command base (by default f, making the command /f)")
-    private List<String> commandBase;
+    private final List<String> commandBase;
 
     @Comment("Colors for relationships and default factions")
-    private Colors colors = new Colors();
+    private final Colors colors = new Colors();
 
-    private Factions factions = new Factions();
+    private final Factions factions = new Factions();
     @Comment("What should be logged?")
-    private Logging logging = new Logging();
+    private final Logging logging = new Logging();
     @Comment("Controls certain exploit preventions")
-    private Exploits exploits = new Exploits();
+    private final Exploits exploits = new Exploits();
     @Comment("Economy support requires Vault and a compatible economy plugin")
-    private Economy economy = new Economy();
+    private final Economy economy = new Economy();
     @Comment("Control for the default settings of /f map")
-    private Map map = new Map();
+    private final Map map = new Map();
     @Comment("PlayerVaults faction vault settings")
-    private PlayerVaults playerVaults = new PlayerVaults();
+    private final PlayerVaults playerVaults = new PlayerVaults();
     @Comment("WorldGuard settings")
-    private WorldGuard worldGuard = new WorldGuard();
+    private final WorldGuard worldGuard = new WorldGuard();
 
     public TransitionConfigV0(OldConfV0 c) {
         this.commandBase = new ArrayList<>(c.baseCommandAliases);

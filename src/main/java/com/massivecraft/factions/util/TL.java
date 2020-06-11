@@ -18,6 +18,9 @@ package com.massivecraft.factions.util;
 
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.config.Loader;
+import com.massivecraft.factions.util.formatting.Formattable;
+import com.massivecraft.factions.util.formatting.indexed.IndexedFormatter;
+import com.massivecraft.factions.util.formatting.loose.LooseFormatter;
 import net.kyori.text.Component;
 import net.kyori.text.TextComponent;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -1015,7 +1018,7 @@ public enum TL implements Formattable<TL> {
     ;
 
     private String path;
-    private String def;
+    private final String def;
 
     private static Path PATH;
     private static FileConfiguration CONFIG;

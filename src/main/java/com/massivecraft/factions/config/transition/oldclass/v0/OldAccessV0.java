@@ -7,8 +7,8 @@ public enum OldAccessV0 {
     DENY("Deny", ChatColor.DARK_RED),
     UNDEFINED("Undefined", ChatColor.GRAY);
 
-    private String name;
-    private ChatColor color;
+    private final String name;
+    private final ChatColor color;
 
     OldAccessV0(String name, ChatColor color) {
         this.name = name;
