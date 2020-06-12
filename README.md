@@ -27,4 +27,4 @@ High performance Factions fork that prioritizes efficiency, speed, and low memor
 - Better world border mechanics (liquid flow, block gravity, etc.)
 - Redstone liquid protection
 - Reserve faction names
-- Factions shields to prevent explosions in claimed territory for X duration
+- Factions shields to prevent explosions in claimed territory for X duration `[30% Completion]`
